@@ -91,9 +91,20 @@
             <i class="mobile-nav-toggle d-xl-none bi bi-list text-white fs-3"></i>
         </nav>
 
-        <!-- Bouton principal -->
-        <a class="btn-getstarted btn btn-warning fw-semibold text-dark px-4 py-2 rounded-pill"
-            href="{{ route('login') }}">Se connecter</a>
+        @auth
+            <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-danger fw-semibold px-4 py-2 rounded-pill">
+                    <i class="bi bi-box-arrow-right me-2"></i>Se déconnecter
+                </button>
+            </form>
+        @else
+            <a class="btn-getstarted btn btn-warning fw-semibold text-dark px-4 py-2 rounded-pill"
+               href="{{ route('login') }}">
+                Se connecter
+            </a>
+        @endauth
+
 
     </div>
     <br> <br><br> <br><br>
