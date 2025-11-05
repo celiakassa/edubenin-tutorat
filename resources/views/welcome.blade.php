@@ -12,7 +12,6 @@
                     <h1 class="hero-title">EduBenin Tutorat</h1>
 
 
-
                     <p class="hero-subtitle">Apprendre. Enseigner. Réussir au Bénin.</p>
                     <p class="hero-description">
                         EduBenin Tutorat est une plateforme béninoise qui connecte les apprenants et les tuteurs qualifiés
@@ -104,7 +103,7 @@
                         <div class="row g-4">
                             <!-- Carte 1 : Inscription -->
                             <div class="col-lg-6 col-md-7" data-aos="fade-up" data-aos-delay="200">
-                                <a href="#" class="text-decoration-none text-dark">
+                                <a href="{{ route('register') }}" class="text-decoration-none text-dark">
                                     <div class="feature-card h-100">
                                         <div class="feature-icon">
                                             <i class="bi bi-person-plus"></i>

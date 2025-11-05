@@ -539,18 +539,18 @@
                     <span class="menu-text">Paiements</span>
                 </div>
 
-               <div class="menu-item logout-item" style="width: 100%;">
-    <form method="POST" action="{{ route('logout') }}" style="width: 100%;">
-        @csrf
-        <button type="submit"
-            style="display: flex; align-items: center; gap: 10px; color: #fff; background: #e02c18;
+                <div class="menu-item logout-item" style="width: 100%;">
+                    <form method="POST" action="{{ route('logout') }}" style="width: 100%;">
+                        @csrf
+                        <button type="submit"
+                            style="display: flex; align-items: center; gap: 10px; color: #fff; background: #e02c18;
                    padding: 13px 10px; border: none; border-radius: 6px; text-decoration: none;
                    font-weight: 500; margin-top: 5px; transition: background 0.3s; width: 100%; cursor: pointer;">
-            <i class="fas fa-sign-out-alt"></i>
-            <span style="font-size: 16px;" >Déconnexion</span>
-        </button>
-    </form>
-</div>
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span style="font-size: 16px;">Déconnexion</span>
+                        </button>
+                    </form>
+                </div>
 
 
 
