@@ -69,53 +69,60 @@ public function update(Request $request)
 {
     $user = Auth::user();
 
-    //  Règles générales
+    // --- Règles générales de validation ---
     $rules = [
         'firstname' => 'required|string|max:255',
-        'lastname' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email,' . $user->id,
+        'lastname'  => 'required|string|max:255',
+        'email'     => 'required|email|unique:users,email,' . $user->id,
         'telephone' => 'required|string|max:20',
         'birthdate' => 'required|date',
-        'city' => 'required|string|max:255',
-        'bio' => 'nullable|string|max:1000',
-        'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'city'      => 'required|string|max:255',
+        'custom_city' => 'nullable|string|max:255', 
+        'bio'       => 'nullable|string|max:1000',
+        'photo'     => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ];
 
-    //  Règles spécifiques selon le rôle
+    // --- Règles spécifiques selon le rôle ---
     if ($user->role_id == 3) { // Tuteur
         $rules['qualifications'] = 'required|string|max:500';
-        $rules['subjects'] = 'required|string|max:500';
-        $rules['rate_per_hour'] = 'required|numeric|min:0';
-        $rules['availability'] = 'nullable|array';
+        $rules['subjects']       = 'required|string|max:500';
+        $rules['rate_per_hour']  = 'required|numeric|min:0';
+        $rules['availability']   = 'nullable|array';
     } elseif ($user->role_id == 2) { // Étudiant
         $rules['learning_preference'] = 'required|string|in:En_ligne,présentiel,hybrid';
-        $rules['learning_history'] = 'nullable|string|max:1000';
+        $rules['learning_history']    = 'nullable|string|max:1000';
     }
 
-    // Validation
+    // --- Validation ---
     $validated = $request->validate($rules);
 
-    //  Mise à jour des champs de base
+    // --- Gestion de la ville ---
+    $city = $validated['city'];
+    if ($city === 'autre' && !empty($request->custom_city)) {
+        $city = $request->custom_city;
+    }
+
+    // --- Mise à jour des champs de base ---
     $user->update([
         'firstname' => $validated['firstname'],
-        'lastname' => $validated['lastname'],
-        'email' => $validated['email'],
+        'lastname'  => $validated['lastname'],
+        'email'     => $validated['email'],
         'telephone' => $validated['telephone'],
         'birthdate' => $validated['birthdate'],
-        'city' => $validated['city'],
-        'bio' => $validated['bio'] ?? null,
+        'city'      => $city,
+        'bio'       => $validated['bio'] ?? null,
     ]);
 
-    //  Gestion de la photo de profil
+    // --- Gestion de la photo de profil ---
     if ($request->hasFile('photo')) {
-        if ($user->photo_path) {
-            Storage::delete($user->photo_path);
+        if ($user->photo_path && Storage::disk('public')->exists($user->photo_path)) {
+            Storage::disk('public')->delete($user->photo_path);
         }
         $path = $request->file('photo')->store('profile-photos', 'public');
         $user->update(['photo_path' => $path]);
     }
 
-    //  Mise à jour spécifique selon le rôle
+    // --- Mise à jour spécifique selon le rôle ---
     if ($user->role_id == 3) {
         // --- Formatage des disponibilités ---
         $availabilityData = [];
@@ -125,7 +132,7 @@ public function update(Request $request)
                 if (isset($info['enabled'])) {
                     $availabilityData[$day] = [
                         'start' => $info['start'] ?? null,
-                        'end' => $info['end'] ?? null,
+                        'end'   => $info['end'] ?? null,
                     ];
                 }
             }
@@ -134,18 +141,19 @@ public function update(Request $request)
         // --- Mise à jour des champs du tuteur ---
         $user->update([
             'qualifications' => $validated['qualifications'],
-            'subjects' => $validated['subjects'],
-            'rate_per_hour' => $validated['rate_per_hour'],
-            'availability' => json_encode($availabilityData),
+            'subjects'       => $validated['subjects'],
+            'rate_per_hour'  => $validated['rate_per_hour'],
+            'availability'   => json_encode($availabilityData),
         ]);
     } elseif ($user->role_id == 2) {
         // --- Mise à jour des champs de l'étudiant ---
         $user->update([
             'learning_preference' => $validated['learning_preference'],
-            'learning_history' => $validated['learning_history'] ?? null,
+            'learning_history'    => $validated['learning_history'] ?? null,
         ]);
     }
 
+    // --- Redirection ---
     return redirect()
         ->route('CompleterProfilUser.edit')
         ->with('success', 'Profil mis à jour avec succès!');

@@ -35,8 +35,8 @@
                     </div>
 
                     <div class="hero-actions" data-aos="fade-up" data-aos-delay="450">
-                        <a href="#" class="btn btn-primary btn-lg me-3">Trouver un Tuteur</a>
-                        <a href="#" class="btn btn-outline-primary btn-lg">Devenir Tuteur</a>
+                        <a href="{{ route('register') }}" class="btn btn-primary btn-lg me-3">Trouver un Tuteur</a>
+                        <a href="{{ route('register') }}" class="btn btn-outline-primary btn-lg">Devenir Tuteur</a>
                     </div>
 
                     <div class="countdown-wrapper mt-4" data-aos="fade-up" data-aos-delay="500">
@@ -183,96 +183,46 @@
 
         <!-- Section Title -->
         <div class="container section-title" data-aos="fade-up">
-            <h2>Tuteurs Mieux Notés</h2>
-            <p>Découvrez les professeurs les plus recommandés sur EduBenin Tutorat</p>
+            <h2>Tuteurs récemment inscrits</h2>
+            <p>Découvrez les derniers professeurs à avoir rejoint EduBenin Tutorat</p>
         </div><!-- End Section Title -->
 
         <div class="container" data-aos="fade-up" data-aos-delay="100">
             <div class="row g-4">
 
-                <!-- Tuteur 1 -->
-                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                    <div class="speaker-card">
-                        <div class="speaker-image">
-                            <img src="{{ asset('images/prof_1.webp ') }}" alt="Tuteur" class="img-fluid">
-                            <div class="speaker-overlay">
-                                <div class="social-links">
-                                    <a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
-                                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="speaker-content">
-                            <div class="speaker-badge">★★★★★ 4.9</div>
-                            <h4>Jean Agossa</h4>
-                            <p class="speaker-title">Professeur de Mathématiques</p>
-                            <p class="speaker-company">Cotonou</p>
-                            <p class="speaker-bio">
-                                Enseignant passionné avec plus de 8 ans d’expérience dans le soutien scolaire
-                                et la préparation aux examens BEPC et BAC. Méthode claire et résultats garantis.
-                            </p>
-                            <div class="speaker-session">
-                                <span class="session-topic">10 000 FCFA / heure</span>
-                            </div>
-                        </div>
-                    </div>
-                </div><!-- End Tutor Card -->
+                @foreach ($recentTutors as $tutor)
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                        <div class="speaker-card">
+                            <div class="speaker-image">
+                                <img src="{{ $tutor->photo_path ? asset('storage/' . $tutor->photo_path) : asset('images/profill_default.webp') }}"
+                                    alt="{{ $tutor->firstname }}" class="img-fluid">
 
-                <!-- Tuteur 2 -->
-                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="250">
-                    <div class="speaker-card">
-                        <div class="speaker-image">
-                            <img src="{{ asset('images/prof_3.webp ') }}" alt="Tuteur" class="img-fluid">
-                            <div class="speaker-overlay">
-                                <div class="social-links">
-                                    <a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
-                                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                                <div class="speaker-overlay">
+                                    <div class="social-links">
+                                        <a href="https://wa.me/{{ preg_replace('/\D/', '', $tutor->telephone) }}"
+                                            aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="speaker-content">
+                                <div class="speaker-badge">
+                                    ★★★★★ {{ number_format($tutor->satisfaction_score ?? 0, 1) }}
+                                </div>
+                                <h4>{{ $tutor->firstname }} {{ $tutor->lastname }}</h4>
+                                <p class="speaker-title">{{ $tutor->subjects ?? 'Spécialité non précisée' }}</p>
+                                <p class="speaker-company">{{ $tutor->city ?? 'Ville non précisée' }}</p>
+                                <p class="speaker-bio">
+                                    {{ Str::limit($tutor->bio ?? 'Pas encore de biographie.', 120) }}
+                                </p>
+                                <div class="speaker-session">
+                                    <span class="session-topic">
+                                        {{ $tutor->rate_per_hour ? number_format($tutor->rate_per_hour, 0, ',', ' ') . ' FCFA / heure' : 'Tarif non défini' }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
-                        <div class="speaker-content">
-                            <div class="speaker-badge">★★★★★ 4.8</div>
-                            <h4>Marie Dossou</h4>
-                            <p class="speaker-title">Tutrices d’Anglais</p>
-                            <p class="speaker-company">Porto-Novo</p>
-                            <p class="speaker-bio">
-                                Spécialiste en expression orale et compréhension, Marie aide ses élèves à
-                                gagner en confiance et fluidité grâce à une approche interactive et ludique.
-                            </p>
-                            <div class="speaker-session">
-                                <span class="session-topic">8 000 FCFA / heure</span>
-                            </div>
-                        </div>
                     </div>
-                </div><!-- End Tutor Card -->
-
-                <!-- Tuteur 3 -->
-                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="450">
-                    <div class="speaker-card">
-                        <div class="speaker-image">
-                            <img src="{{ asset('images/prof_2.webp ') }}" alt="Tuteur" class="img-fluid">
-                            <div class="speaker-overlay">
-                                <div class="social-links">
-                                    <a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
-                                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="speaker-content">
-                            <div class="speaker-badge">★★★★★ 4.7</div>
-                            <h4>Rachid Olo</h4>
-                            <p class="speaker-title">Formateur en Informatique</p>
-                            <p class="speaker-company">Parakou</p>
-                            <p class="speaker-bio">
-                                Développeur et formateur certifié, Rachid accompagne les étudiants et
-                                professionnels dans la maîtrise de la bureautique, du code et des outils numériques.
-                            </p>
-                            <div class="speaker-session">
-                                <span class="session-topic">12 000 FCFA / heure</span>
-                            </div>
-                        </div>
-                    </div>
-                </div><!-- End Tutor Card -->
+                @endforeach
 
             </div>
         </div>

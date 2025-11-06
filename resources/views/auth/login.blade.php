@@ -60,19 +60,42 @@
             </div>
 
             <!-- Password -->
-            <div style="margin-bottom:18px;">
+            <div style="margin-bottom:18px; position:relative;">
                 <label for="password" style="display:block; margin-bottom:6px; font-weight:bold; color:#000000;">
                     Mot de passe
                 </label>
+
                 <input id="password" type="password" name="password" required
                     style="width:100%; padding:12px; border:1px solid #a5b4fc;
-                          border-radius:8px; transition: all 0.3s ease; outline:none;"
+               border-radius:8px; transition: all 0.3s ease; outline:none; padding-right:45px;"
                     onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 8px rgba(99,102,241,0.3)';"
                     onblur="this.style.borderColor='#a5b4fc'; this.style.boxShadow='none';">
+
+                <!-- Bouton afficher/masquer -->
+                <button type="button" onclick="togglePassword()"
+                    style="position:absolute; right:10px; top:36px; background:none; border:none; cursor:pointer; color:#6366f1; font-weight:bold;">
+                    👁️
+                </button>
+
                 @error('password')
                     <span style="color:red; font-size:0.875rem;">{{ $message }}</span>
                 @enderror
             </div>
+
+            <script>
+                function togglePassword() {
+                    const passwordInput = document.getElementById('password');
+                    const button = event.currentTarget;
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        button.textContent = '🚫';
+                    } else {
+                        passwordInput.type = 'password';
+                        button.textContent = '👁️';
+                    }
+                }
+            </script>
+
 
             <!-- Remember Me -->
             <div style="margin-bottom:20px;">

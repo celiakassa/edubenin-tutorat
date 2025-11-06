@@ -4,10 +4,18 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserDashboard;
 use App\Http\Controllers\CompleterProfilUser;
+use App\Models\User;
 
 Route::get('/', function () {
-    return view('welcome');
+    // Récupérer les 6 derniers tuteurs inscrits (role_id = 3 et actifs)
+    $recentTutors = User::where('role_id', 3)
+        ->orderBy('created_at', 'desc')
+        ->take(6)
+        ->get();
+
+    return view('welcome', compact('recentTutors'));
 });
+
 
 
 

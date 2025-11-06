@@ -857,7 +857,7 @@
 
                         <div class="form-group">
                             <label for="city">Ville *</label>
-                            <select id="city" name="city" required>
+                            <select id="city" name="city" required onchange="toggleCustomCity()">
                                 <option value="">Sélectionnez votre ville</option>
                                 <option value="Cotonou" {{ old('city', $user->city) == 'Cotonou' ? 'selected' : '' }}>
                                     Cotonou</option>
@@ -869,11 +869,39 @@
                                 <option value="Abomey-Calavi"
                                     {{ old('city', $user->city) == 'Abomey-Calavi' ? 'selected' : '' }}>Abomey-Calavi
                                 </option>
+                                <option value="autre"
+                                    {{ !in_array($user->city, ['Cotonou', 'Porto-Novo', 'Parakou', 'Abomey-Calavi']) ? 'selected' : '' }}>
+                                    Autre</option>
                             </select>
                             @error('city')
                                 <span class="error">{{ $message }}</span>
                             @enderror
                         </div>
+
+                        <!-- Champ texte caché par défaut -->
+                        <div class="form-group" id="customCityGroup" style="display: none;">
+                            <label for="custom_city">Autre ville *</label>
+                            <input type="text" id="custom_city" name="custom_city"
+                                value="{{ old('custom_city', !in_array($user->city, ['Cotonou', 'Porto-Novo', 'Parakou', 'Abomey-Calavi']) ? $user->city : '') }}"
+                                placeholder="Entrez votre ville">
+                        </div>
+
+                        <script>
+                            function toggleCustomCity() {
+                                const citySelect = document.getElementById('city');
+                                const customCityGroup = document.getElementById('customCityGroup');
+                                if (citySelect.value === 'autre') {
+                                    customCityGroup.style.display = 'block';
+                                } else {
+                                    customCityGroup.style.display = 'none';
+                                    document.getElementById('custom_city').value = '';
+                                }
+                            }
+
+                            // Exécute au chargement si "autre" est déjà sélectionné
+                            document.addEventListener('DOMContentLoaded', toggleCustomCity);
+                        </script>
+
                     </div>
 
                     <div class="form-group">
@@ -1054,7 +1082,8 @@
                                             if (!startInput.value || !endInput.value) {
                                                 e.preventDefault();
                                                 alert(
-                                                    `Veuillez remplir les heures de début et de fin pour ${checkbox.parentElement.textContent.trim()}.`);
+                                                    `Veuillez remplir les heures de début et de fin pour ${checkbox.parentElement.textContent.trim()}.`
+                                                    );
                                                 startInput.focus();
                                             }
                                         }

@@ -92,7 +92,7 @@
         </nav>
 
         <!-- Bouton principal -->
-        <a class="btn-getstarted btn btn-warning fw-semibold text-dark px-4 py-2 rounded-pill"
+        <a class="btn-getstarted btn btn-warning fw-semibold text-light px-4 py-2 rounded-pill"
             href="{{ route('login') }}">Se connecter</a>
 
     </div>
