@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TeacherController;
+use App\Livewire\TuteursList;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserDashboard;
 use App\Http\Controllers\CompleterProfilUser;
@@ -15,7 +17,10 @@ Route::get('/', function () {
 
     return view('welcome', compact('recentTutors'));
 });
+Route::get('/test', function () {
 
+    return view('auth.verify-email');
+});
 
 
 
@@ -28,7 +33,11 @@ Route::middleware('auth')->group(function () {
     //Les routes pour completer les profils
      Route::get('/profile/edit', [CompleterProfilUser::class, 'edit'])->name('CompleterProfilUser.edit');
     Route::post('/profile/update', [CompleterProfilUser::class, 'update'])->name('CompleterProfilUser.update');
+    Route::get('/profil/show', [CompleterProfilUser::class, 'show'])->name('CompleterProfilUser.show');
 
+    //Route pour afficher la liste des professeurs
+     //Route::get('/list_professeur',[TeacherController::class, 'listProfesseur'])->name('listProfesseur');
+    Route::view('/tuteurs','teachers.tuteurs-list')->name('listProfesseur');
 });
 
 Route::middleware('auth')->group(function () {

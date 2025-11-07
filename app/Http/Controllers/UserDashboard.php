@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserDashboard extends Controller
@@ -17,7 +16,7 @@ class UserDashboard extends Controller
 
     private function calculateProfileCompletion($user)
     {
-        // Définir les champs à vérifier selon le rôle
+        // --- Définir les champs à vérifier selon le rôle ---
         if ($user->role_id == 3) { // Tuteur
             $fields = [
                 'firstname',
@@ -31,6 +30,7 @@ class UserDashboard extends Controller
                 'rate_per_hour',
                 'availability',
                 'city',
+                'learning_preference',
             ];
         } elseif ($user->role_id == 2) { // Étudiant
             $fields = [
@@ -56,17 +56,16 @@ class UserDashboard extends Controller
             ];
         }
 
+        // --- Calcul du pourcentage complété ---
         $filled = 0;
         foreach ($fields as $field) {
-            if (!empty($user->$field)) {
+            if (! empty($user->$field)) {
                 $filled++;
             }
         }
 
         $total = count($fields);
 
-        return round(($filled / $total) * 100);
+        return $total > 0 ? round(($filled / $total) * 100) : 0;
     }
 }
-
-

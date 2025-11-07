@@ -697,7 +697,7 @@
                 <i class="fas fa-home"></i>
                 <span class="menu-text">Tableau de bord</span>
             </a>
-            <a href="#" class="menu-item active">
+            <a href="{{ route('CompleterProfilUser.show') }}" class="menu-item active">
                 <i class="fas fa-user-edit"></i>
                 <span class="menu-text">Mon profil</span>
             </a>
@@ -1083,7 +1083,7 @@
                                                 e.preventDefault();
                                                 alert(
                                                     `Veuillez remplir les heures de début et de fin pour ${checkbox.parentElement.textContent.trim()}.`
-                                                    );
+                                                );
                                                 startInput.focus();
                                             }
                                         }
@@ -1114,8 +1114,8 @@
                             <label>Type de cours préféré *</label>
                             <div class="radio-group">
                                 <div class="radio-option">
-                                    <input type="radio" id="online" name="learning_preference" value="En_ligne"
-                                        {{ old('learning_preference', $user->learning_preference) == 'En_ligne' ? 'checked' : '' }}
+                                    <input type="radio" id="online" name="learning_preference" value="online"
+                                        {{ old('learning_preference', $user->learning_preference) == 'online' ? 'checked' : '' }}
                                         required>
                                     <label for="online" class="radio-label">
                                         <i class="fas fa-laptop radio-icon"></i>
@@ -1124,8 +1124,8 @@
                                 </div>
                                 <div class="radio-option">
                                     <input type="radio" id="presential" name="learning_preference"
-                                        value="présentiel"
-                                        {{ old('learning_preference', $user->learning_preference) == 'présentiel' ? 'checked' : '' }}
+                                        value="in_person"
+                                        {{ old('learning_preference', $user->learning_preference) == 'in_person' ? 'checked' : '' }}
                                         required>
                                     <label for="presential" class="radio-label">
                                         <i class="fas fa-user-friends radio-icon"></i>
@@ -1157,6 +1157,55 @@
                         </div>
                     </div>
                 @endif
+
+
+                @if ($user->role_id == 3)
+                    <div class="form-section">
+                        <h2><i class="fas fa-book-open"></i> Préférences d'apprentissage</h2>
+
+                        <div class="form-group">
+                            <label>Préférez-vous suivre vos cours en : *</label>
+                            <div class="radio-group">
+                                @php
+                                    // Priorité à old() si validation échoue, sinon valeur en base
+                                    $preference = old('learning_preference', $user->learning_preference ?? '');
+                                @endphp
+
+                                <div class="radio-option">
+                                    <input type="radio" id="online" name="learning_preference" value="online"
+                                        {{ $preference === 'online' ? 'checked' : '' }} required>
+                                    <label for="online" class="radio-label">
+                                        <i class="fas fa-laptop radio-icon"></i>
+                                        <span class="radio-text">En ligne</span>
+                                    </label>
+                                </div>
+
+                                <div class="radio-option">
+                                    <input type="radio" id="presential" name="learning_preference"
+                                        value="in_person" {{ $preference === 'in_person' ? 'checked' : '' }} required>
+                                    <label for="presential" class="radio-label">
+                                        <i class="fas fa-user-friends radio-icon"></i>
+                                        <span class="radio-text">Présentiel</span>
+                                    </label>
+                                </div>
+
+                                <div class="radio-option">
+                                    <input type="radio" id="hybrid" name="learning_preference" value="hybrid"
+                                        {{ $preference === 'hybrid' ? 'checked' : '' }} required>
+                                    <label for="hybrid" class="radio-label">
+                                        <i class="fas fa-blender-phone radio-icon"></i>
+                                        <span class="radio-text">Hybride</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            @error('learning_preference')
+                                <span class="error">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                @endif
+
 
                 <div class="form-actions">
                     <button type="submit" class="btn-submit">

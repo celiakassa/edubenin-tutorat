@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('12345678'),
             'telephone' => '0000000000',
             'photo_path' => null,
-            'role_id' => 3,
+            'role_id' => 2,
             'is_active' => true,
             'birthdate' => '2000-01-01',
         ]);

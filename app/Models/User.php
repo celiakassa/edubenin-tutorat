@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\LearningPreference;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -9,21 +10,23 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
+    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
-     * Les champs assignables en masse
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
      */
     protected $fillable = [
         'firstname',
         'lastname',
         'email',
-        'email_verified_at',
         'password',
+        'firstname',
+        'lastname',
         'telephone',
         'photo_path',
-        'role_id',
-        'is_active',
         'birthdate',
         'remember_token',
         'bio',
@@ -40,7 +43,9 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * Champs cachés pour sérialisation
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
      */
     protected $hidden = [
         'password',
@@ -48,10 +53,16 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * Type des champs
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+    protected $casts = ['learning_preference'=>LearningPreference::class ];
 }

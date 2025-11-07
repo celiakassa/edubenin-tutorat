@@ -55,6 +55,12 @@ class RegisteredUserController extends Controller
         ]);
 
 
-        return redirect()->back()->with("success","Merci pour votre inscription un email vous été envoyé  pour confirmer votre compte");
+        event(new Registered($user));
+
+
+        // Ne pas connecter l'utilisateur immédiatement
+        Auth::login($user);
+
+        return redirect()->route('verification.notice')->with('message', 'Un email de confirmation a été envoyé. Veuillez vérifier votre boîte mail.');
     }
 }
