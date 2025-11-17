@@ -702,10 +702,7 @@
                 <span class="menu-text">Mon profil</span>
             </a>
 
-            <a href="#" class="menu-item">
-                <i class="fas fa-question-circle"></i>
-                <span class="menu-text">Aide & Support</span>
-            </a>
+          
         </div>
     </div>
 

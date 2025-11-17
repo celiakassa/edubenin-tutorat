@@ -35,31 +35,11 @@
                     </div>
 
                     <div class="hero-actions" data-aos="fade-up" data-aos-delay="450">
-                        <a href="{{route('listProfesseur')}}" class="btn btn-primary btn-lg me-3">Trouver un Tuteur</a>
+                        <a href="{{ route('listProfesseur') }}" class="btn btn-primary btn-lg me-3">Trouver un Tuteur</a>
                         <a href="{{ route('register') }}" class="btn btn-outline-primary btn-lg">Devenir Tuteur</a>
                     </div>
 
-                    <div class="countdown-wrapper mt-4" data-aos="fade-up" data-aos-delay="500">
-                        <h5 class="countdown-title">Lancement Officiel Dans :</h5>
-                        <div class="countdown d-flex justify-content-start" data-count="2025/12/15">
-                            <div>
-                                <h3 class="count-days"></h3>
-                                <h4>Jours</h4>
-                            </div>
-                            <div>
-                                <h3 class="count-hours"></h3>
-                                <h4>Heures</h4>
-                            </div>
-                            <div>
-                                <h3 class="count-minutes"></h3>
-                                <h4>Minutes</h4>
-                            </div>
-                            <div>
-                                <h3 class="count-seconds"></h3>
-                                <h4>Secondes</h4>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
                 <!-- Image principale -->
@@ -91,8 +71,9 @@
 
 
     <!-- About Section -->
-    <section id="about" class="about section">
+    <section id="about" class="about section" style="margin-top: 0px;">
 
+        {{--
         <div class="container" data-aos="fade-up" data-aos-delay="100">
 
             <div class="row align-items-center">
@@ -161,8 +142,10 @@
 
         </div>
 
+         --}}
+
         <!-- Appel à l’action -->
-        <div class="cta-section" data-aos="fade-up" data-aos-delay="100">
+        <div class="cta-section" data-aos="fade-up" data-aos-delay="100" style="margin-top: 0px;">
             <div class="text-center">
                 <h3>Rejoignez EduBenin Tutorat dès aujourd’hui</h3>
                 <p>Inscrivez-vous gratuitement et commencez à apprendre ou à enseigner selon vos disponibilités.</p>
@@ -179,55 +162,79 @@
 
 
     <!-- Top Tutors Section -->
-    <section id="tutors" class="speakers section">
+   <section id="tutors" class="speakers section">
+    <div class="container section-title" data-aos="fade-up">
+        <h2>Tuteurs récemment inscrits</h2>
+        <p>Découvrez les derniers professeurs à avoir rejoint EduBenin Tutorat</p>
+    </div>
 
-        <!-- Section Title -->
-        <div class="container section-title" data-aos="fade-up">
-            <h2>Tuteurs récemment inscrits</h2>
-            <p>Découvrez les derniers professeurs à avoir rejoint EduBenin Tutorat</p>
-        </div><!-- End Section Title -->
+    <div class="swiper mySwiper" data-aos="fade-up">
+        <div class="swiper-wrapper">
 
-        <div class="container" data-aos="fade-up" data-aos-delay="100">
-            <div class="row g-4">
-
-                @foreach ($recentTutors as $tutor)
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up">
-                        <div class="speaker-card">
-                            <div class="speaker-image">
-                                <img src="{{ $tutor->photo_path ? asset('storage/' . $tutor->photo_path) : asset('images/profill_default.webp') }}"
-                                    alt="{{ $tutor->firstname }}" class="img-fluid">
-
-                                <div class="speaker-overlay">
-                                    <div class="social-links">
-                                        <a href="https://wa.me/{{ preg_replace('/\D/', '', $tutor->telephone) }}"
-                                            aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="speaker-content">
-                                <div class="speaker-badge">
-                                    ★★★★★ {{ number_format($tutor->satisfaction_score ?? 0, 1) }}
-                                </div>
-                                <h4>{{ $tutor->firstname }} {{ $tutor->lastname }}</h4>
-                                <p class="speaker-title">{{ $tutor->subjects ?? 'Spécialité non précisée' }}</p>
-                                <p class="speaker-company">{{ $tutor->city ?? 'Ville non précisée' }}</p>
-                                <p class="speaker-bio">
-                                    {{ Str::limit($tutor->bio ?? 'Pas encore de biographie.', 120) }}
-                                </p>
-                                <div class="speaker-session">
-                                    <span class="session-topic">
-                                        {{ $tutor->rate_per_hour ? number_format($tutor->rate_per_hour, 0, ',', ' ') . ' FCFA / heure' : 'Tarif non défini' }}
-                                    </span>
+            @foreach ($recentTutors as $tutor)
+                <div class="swiper-slide">
+                    <div class="speaker-card text-center">
+                        <div class="speaker-image">
+                            <img src="{{ $tutor->photo_path ? asset('storage/' . $tutor->photo_path) : asset('images/profill_default.webp') }}"
+                                alt="{{ $tutor->firstname }}" class="img-fluid rounded">
+                            <div class="speaker-overlay">
+                                <div class="social-links">
+                                    <a href="https://wa.me/{{ preg_replace('/\D/', '', $tutor->telephone) }}"><i class="bi bi-whatsapp"></i></a>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                        <div class="speaker-content">
+                            <div class="speaker-badge">★★★★★ {{ number_format($tutor->satisfaction_score ?? 0, 1) }}</div>
+                            <h4>{{ $tutor->firstname }} {{ $tutor->lastname }}</h4>
 
-            </div>
+                            @php
+                                $subjects = is_string($tutor->subjects) ? json_decode($tutor->subjects, true) : $tutor->subjects;
+                            @endphp
+                            <p class="speaker-title">{{ !empty($subjects) ? implode(', ', $subjects) : 'Spécialité non précisée' }}</p>
+
+                            <p class="speaker-company">{{ $tutor->city ?? 'Ville non précisée' }}</p>
+                            <p class="speaker-bio">{{ Str::limit($tutor->bio ?? 'Pas encore de biographie.', 100) }}</p>
+                            <div class="speaker-session">
+                                <span class="session-topic">
+                                    {{ $tutor->rate_per_hour ? number_format($tutor->rate_per_hour, 0, ',', ' ') . ' FCFA / h' : 'Tarif non défini' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
         </div>
 
-    </section><!-- /Top Tutors Section -->
+        <!-- Pagination & navigation -->
+        <div class="swiper-pagination"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+    </div>
+</section>
+
+<script>
+  new Swiper(".mySwiper", {
+    slidesPerView: 3,
+    spaceBetween: 65,
+    loop: true,
+    autoplay: {
+      delay: 2500,
+      disableOnInteraction: false,
+    },
+    pagination: { el: ".swiper-pagination", clickable: true },
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
+    breakpoints: {
+      0: { slidesPerView: 1 },
+      768: { slidesPerView: 2 },
+      1024: { slidesPerView: 3 },
+    },
+  });
+</script>
+
 
 
     <!-- Paid Services Section -->
@@ -337,7 +344,7 @@
 
 
 
-    <!-- Témoignages Section -->
+    {{--    <!-- Témoignages Section -->
     <section id="testimonials" class="testimonials section light-background">
 
         <!-- Section Title -->
@@ -520,6 +527,8 @@
 
     </section><!-- /Témoignages Section -->
 
+     --}}
+
 
     <!-- Contact Section -->
     <section id="contact" class="contact section">
@@ -549,48 +558,67 @@
                                 L’équipe <strong>EduBenin Tutorat</strong> est à votre écoute.</p>
                         </div>
 
-                        <form action="#" method="post" class="php-email-form">
-                            <div class="row gy-3">
+                        <form id="contactForm" onsubmit="sendEmail(event)">
+  <div class="row gy-3">
 
-                                <div class="col-md-6">
-                                    <label for="name" class="form-label text-dark fw-semibold">Nom complet</label>
-                                    <input type="text" name="name" id="name"
-                                        class="form-control border-0 shadow-sm" style="background-color: #f8fbff;"
-                                        placeholder="Votre nom" required>
-                                </div>
+    <div class="col-md-6">
+      <label for="name" class="form-label text-dark fw-semibold">Nom complet</label>
+      <input type="text" name="name" id="name"
+        class="form-control border-0 shadow-sm" style="background-color: #f8fbff;"
+        placeholder="Votre nom" required>
+    </div>
 
-                                <div class="col-md-6">
-                                    <label for="email" class="form-label text-dark fw-semibold">Adresse e-mail</label>
-                                    <input type="email" name="email" id="email"
-                                        class="form-control border-0 shadow-sm" style="background-color: #f8fbff;"
-                                        placeholder="votremail@example.com" required>
-                                </div>
+    <div class="col-md-6">
+      <label for="email" class="form-label text-dark fw-semibold">Adresse e-mail</label>
+      <input type="email" name="email" id="email"
+        class="form-control border-0 shadow-sm" style="background-color: #f8fbff;"
+        placeholder="votremail@example.com" required>
+    </div>
 
-                                <div class="col-12">
-                                    <label for="subject" class="form-label text-dark fw-semibold">Sujet</label>
-                                    <input type="text" name="subject" id="subject"
-                                        class="form-control border-0 shadow-sm" style="background-color: #f8fbff;"
-                                        placeholder="Objet de votre message" required>
-                                </div>
+    <div class="col-12">
+      <label for="subject" class="form-label text-dark fw-semibold">Sujet</label>
+      <input type="text" name="subject" id="subject"
+        class="form-control border-0 shadow-sm" style="background-color: #f8fbff;"
+        placeholder="Objet de votre message" required>
+    </div>
 
-                                <div class="col-12">
-                                    <label for="message" class="form-label text-dark fw-semibold">Message</label>
-                                    <textarea name="message" id="message" rows="5" class="form-control border-0 shadow-sm"
-                                        style="background-color: #f8fbff;" placeholder="Écrivez votre message ici..." required></textarea>
-                                </div>
+    <div class="col-12">
+      <label for="message" class="form-label text-dark fw-semibold">Message</label>
+      <textarea name="message" id="message" rows="5" class="form-control border-0 shadow-sm"
+        style="background-color: #f8fbff;" placeholder="Écrivez votre message ici..." required></textarea>
+    </div>
 
-                                <div class="col-12 text-end">
-                                    <button type="submit" class="btn btn-primary mt-3 px-4 py-2"
-                                        style="background: linear-gradient(135deg, #2196f3, #0d6efd);
-                               border: none;
-                               box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
-                               transition: 0.3s;">
-                                        <i class="bi bi-send me-2"></i>Envoyer le message
-                                    </button>
-                                </div>
+    <div class="col-12 text-end">
+      <button type="submit" class="btn btn-primary mt-3 px-4 py-2"
+        style="background: linear-gradient(135deg, #2196f3, #0d6efd);
+               border: none;
+               box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+               transition: 0.3s;">
+        <i class="bi bi-send me-2"></i>Envoyer le message
+      </button>
+    </div>
 
-                            </div>
-                        </form>
+  </div>
+</form>
+
+<script>
+  function sendEmail(event) {
+    event.preventDefault(); // empêche le rechargement de la page
+
+    const name = encodeURIComponent(document.getElementById('name').value);
+    const email = encodeURIComponent(document.getElementById('email').value);
+    const subject = encodeURIComponent(document.getElementById('subject').value);
+    const message = encodeURIComponent(document.getElementById('message').value);
+
+    // Remplace l’adresse ci-dessous par ton adresse email de réception
+    const recipient = "tonemail@example.com";
+
+    const mailtoLink = `mailto:${recipient}?subject=${subject}&body=Nom: ${name}%0D%0AEmail: ${email}%0D%0A%0D%0AMessage:%0D%0A${message}`;
+
+    window.location.href = mailtoLink;
+  }
+</script>
+
 
                     </div>
                 </div>

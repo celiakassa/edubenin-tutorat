@@ -411,10 +411,7 @@
                     <i class="fas fa-user-edit"></i>
                     <span class="menu-text">Modifier mon profil</span>
                 </a>
-                <a href="#" class="menu-item">
-                    <i class="fas fa-question-circle"></i>
-                    <span class="menu-text">Aide & Support</span>
-                </a>
+               
             </div>
         </div>
 
@@ -506,7 +503,7 @@
                             <span class="info-label">Taux horaire</span>
                             <span class="info-value">
                                 @if ($user->rate_per_hour)
-                                    {{ $user->rate_per_hour }} €/heure
+                                    {{ $user->rate_per_hour }} FCFA/heure
                                 @else
                                     Non renseigné
                                 @endif

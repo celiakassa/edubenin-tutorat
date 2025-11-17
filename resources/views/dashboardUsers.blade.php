@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduBenin Tutorat - Dashboard</title>
+    <link href="{{ asset('images/image_1.webp') }}" rel="icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -526,10 +527,7 @@
                     <i class="fas fa-calendar-alt"></i>
                     <span class="menu-text">Mes cours</span>
                 </div>
-                <div class="menu-item">
-                    <i class="fas fa-users"></i>
-                    <span class="menu-text">Étudiants</span>
-                </div>
+
                 <div class="menu-item">
                     <i class="fas fa-chart-line"></i>
                     <span class="menu-text">Analytiques</span>
@@ -661,112 +659,288 @@
             <!-- Upcoming Sessions -->
             <div class="sessions-container">
                 <div class="section-header">
-                    <h2 class="section-title">Prochaines sessions</h2>
-                    <a href="#" class="view-all">Voir tout</a>
+                    <h2 class="section-title">Statistiques de la plateforme</h2>
                 </div>
-                <div class="session-list">
-                    <div class="session-item">
-                        <div class="session-avatar">MJ</div>
-                        <div class="session-info">
-                            <div class="session-name">Mathématiques - Niveau Terminale</div>
-                            <div class="session-details">
-                                <span>Marie Johnson</span>
-                                <span>En ligne</span>
+
+                <div class="stats-grid">
+                    <!-- Graphique 1: Répartition Tuteurs/Étudiants -->
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h3>Répartition des utilisateurs</h3>
+                            <span class="total-users">Total: {{ $stats['totalUsers'] }}</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="usersChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="stat-details">
+                            <div class="stat-item">
+                                <span class="stat-label">👨‍🏫 Tuteurs</span>
+                                <span class="stat-value">{{ $stats['tutorsPercentage'] }}%</span>
+                                <span class="stat-count">({{ $stats['tutorsCount'] }})</span>
                             </div>
-                        </div>
-                        <div class="session-time">
-                            <i class="far fa-clock"></i>
-                            Aujourd'hui, 15h00
-                        </div>
-                        <div class="session-actions">
-                            <button class="btn btn-primary">Rejoindre</button>
-                            <button class="btn btn-outline">Reporter</button>
+                            <div class="stat-item">
+                                <span class="stat-label">👨‍🎓 Étudiants</span>
+                                <span class="stat-value">{{ $stats['studentsPercentage'] }}%</span>
+                                <span class="stat-count">({{ $stats['studentsCount'] }})</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="session-item">
-                        <div class="session-avatar">KD</div>
-                        <div class="session-info">
-                            <div class="session-name">Physique - Niveau Première</div>
-                            <div class="session-details">
-                                <span>Koffi Dossou</span>
-                                <span>En présentiel</span>
+
+                    <!-- Graphique 2: Préférences d'apprentissage des tuteurs -->
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h3>Mode d'enseignement des tuteurs</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="tutorsPreferenceChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="stat-details">
+                            <div class="stat-item">
+                                <span class="stat-label">💻 En ligne</span>
+                                <span class="stat-value">{{ $stats['onlineTutors'] }}</span>
                             </div>
-                        </div>
-                        <div class="session-time">
-                            <i class="far fa-clock"></i>
-                            Demain, 10h00
-                        </div>
-                        <div class="session-actions">
-                            <button class="btn btn-primary">Détails</button>
-                            <button class="btn btn-outline">Message</button>
+                            <div class="stat-item">
+                                <span class="stat-label">🏫 Présentiel</span>
+                                <span class="stat-value">{{ $stats['inPersonTutors'] }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">🔀 Hybride</span>
+                                <span class="stat-value">{{ $stats['hybridTutors'] }}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="session-item">
-                        <div class="session-avatar">AS</div>
-                        <div class="session-info">
-                            <div class="session-name">Anglais - Conversation</div>
-                            <div class="session-details">
-                                <span>Aïcha Sarr</span>
-                                <span>En ligne</span>
+
+                    <!-- Graphique 3: Préférences d'apprentissage des étudiants -->
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h3>Préférences d'apprentissage des étudiants</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="studentsPreferenceChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="stat-details">
+                            <div class="stat-item">
+                                <span class="stat-label">💻 En ligne</span>
+                                <span class="stat-value">{{ $stats['onlineStudents'] }}</span>
                             </div>
-                        </div>
-                        <div class="session-time">
-                            <i class="far fa-clock"></i>
-                            Vendredi, 14h30
-                        </div>
-                        <div class="session-actions">
-                            <button class="btn btn-primary">Détails</button>
-                            <button class="btn btn-outline">Message</button>
+                            <div class="stat-item">
+                                <span class="stat-label">🏫 Présentiel</span>
+                                <span class="stat-value">{{ $stats['inPersonStudents'] }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">🔀 Hybride</span>
+                                <span class="stat-value">{{ $stats['hybridStudents'] }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Activity -->
-            <div class="activity-container">
-                <div class="section-header">
-                    <h2 class="section-title">Activité récente</h2>
-                    <a href="#" class="view-all">Voir tout</a>
-                </div>
-                <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-money-bill-wave"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">Paiement reçu de Jean A.</div>
-                            <div class="activity-time">Il y a 2 heures</div>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">Nouvelle évaluation 5 étoiles</div>
-                            <div class="activity-time">Il y a 5 heures</div>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-calendar-plus"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">Nouvelle réservation de cours</div>
-                            <div class="activity-time">Il y a 1 jour</div>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-comment"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">Nouveau message de Fatou D.</div>
-                            <div class="activity-time">Il y a 2 jours</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Scripts pour les graphiques -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Graphique 1: Répartition Tuteurs/Étudiants
+                    const usersCtx = document.getElementById('usersChart').getContext('2d');
+                    new Chart(usersCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Tuteurs', 'Étudiants'],
+                            datasets: [{
+                                data: [{{ $stats['tutorsCount'] }}, {{ $stats['studentsCount'] }}],
+                                backgroundColor: ['#4f46e5', '#10b981'],
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+
+                    // Graphique 2: Préférences des tuteurs
+                    const tutorsPreferenceCtx = document.getElementById('tutorsPreferenceChart').getContext('2d');
+                    new Chart(tutorsPreferenceCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['En ligne', 'Présentiel', 'Hybride'],
+                            datasets: [{
+                                label: 'Tuteurs',
+                                data: [{{ $stats['onlineTutors'] }}, {{ $stats['inPersonTutors'] }},
+                                    {{ $stats['hybridTutors'] }}
+                                ],
+                                backgroundColor: ['#3b82f6', '#ef4444', '#f59e0b'],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Graphique 3: Préférences des étudiants
+                    const studentsPreferenceCtx = document.getElementById('studentsPreferenceChart').getContext('2d');
+                    new Chart(studentsPreferenceCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['En ligne', 'Présentiel', 'Hybride'],
+                            datasets: [{
+                                label: 'Étudiants',
+                                data: [{{ $stats['onlineStudents'] }}, {{ $stats['inPersonStudents'] }},
+                                    {{ $stats['hybridStudents'] }}
+                                ],
+                                backgroundColor: ['#3b82f6', '#ef4444', '#f59e0b'],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+            </script>
+
+            <style>
+                .stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                    gap: 1.5rem;
+                    margin-top: 1rem;
+                }
+
+                .stat-card {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    border: 1px solid #e5e7eb;
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                }
+
+                .stat-card:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                }
+
+                .stat-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1rem;
+                }
+
+                .stat-header h3 {
+                    margin: 0;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    color: #374151;
+                }
+
+                .total-users {
+                    font-size: 0.8rem;
+                    color: #6b7280;
+                    background: #f3f4f6;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 6px;
+                }
+
+                .chart-container {
+                    height: 200px;
+                    margin-bottom: 1rem;
+                }
+
+                .stat-details {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+
+                .stat-item {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 0.5rem 0;
+                    border-bottom: 1px solid #f3f4f6;
+                }
+
+                .stat-item:last-child {
+                    border-bottom: none;
+                }
+
+                .stat-label {
+                    font-size: 0.9rem;
+                    color: #6b7280;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+
+                .stat-value {
+                    font-weight: 600;
+                    color: #374151;
+                }
+
+                .stat-count {
+                    font-size: 0.8rem;
+                    color: #9ca3af;
+                }
+
+                /* Responsive */
+                @media (max-width: 768px) {
+                    .stats-grid {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .stat-card {
+                        padding: 1rem;
+                    }
+
+                    .chart-container {
+                        height: 180px;
+                    }
+
+                    .stat-header {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 0.5rem;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .stats-grid {
+                        gap: 1rem;
+                    }
+
+                    .stat-card {
+                        padding: 0.75rem;
+                    }
+                }
+            </style>
+
         </div>
     </div>
 
