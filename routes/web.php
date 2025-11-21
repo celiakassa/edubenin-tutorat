@@ -17,12 +17,9 @@ Route::get('/', function () {
 
     return view('welcome', compact('recentTutors'));
 });
-Route::get('/test', function () {
-
-    return view('auth.verify-email');
-});
 
 
+Route::view('/tuteurs','teachers.tuteurs-list')->name('listProfesseur');
 
 Route::middleware('auth')->group(function () {
 
@@ -37,8 +34,9 @@ Route::middleware('auth')->group(function () {
 
     //Route pour afficher la liste des professeurs
      //Route::get('/list_professeur',[TeacherController::class, 'listProfesseur'])->name('listProfesseur');
-    Route::view('/tuteurs','teachers.tuteurs-list')->name('listProfesseur');
+
 });
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
