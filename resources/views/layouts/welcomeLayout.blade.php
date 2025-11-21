@@ -83,7 +83,7 @@
                 <li><a href="#contact">Contact</a></li>
 
 
-                <li><a href="contact.html">Contact</a></li>
+
             </ul>
             <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
@@ -182,13 +182,35 @@
                 <h4 class="text-warning fw-semibold mb-3">Restez informé</h4>
                 <p class="text-white-50">Abonnez-vous pour recevoir nos dernières actualités et offres spéciales.
                 </p>
-                <form action="#" method="post" class="d-flex mt-3">
-                    <input type="email" name="email" class="form-control me-2 border-0 rounded-start"
-                        placeholder="Votre e-mail" style="background-color: #f8fbff;">
-                    <button type="submit" class="btn btn-warning text-dark fw-semibold px-3 rounded-end">
-                        S’abonner
-                    </button>
-                </form>
+               <div class="d-flex mt-3">
+    <input type="email" id="emailInput"
+           class="form-control me-2 border-0 rounded-start"
+           placeholder="Votre e-mail"
+           style="background-color: #f8fbff;"
+           required>
+
+    <button onclick="sendMail()"
+            class="btn btn-warning text-dark fw-semibold px-3 rounded-end">
+        S’abonner
+    </button>
+</div>
+
+<script>
+    function sendMail() {
+        const emailField = document.getElementById("emailInput");
+        const email = emailField.value;
+
+        // Vérifie automatiquement au format email (HTML5)
+        if (!emailField.checkValidity()) {
+            alert("Veuillez entrer une adresse e-mail valide.");
+            return;
+        }
+
+        // Ouvre l'application email
+        window.location.href = `mailto:${email}?subject=Abonnement&body=Je souhaite m'abonner.`;
+    }
+</script>
+
             </div>
 
         </div>
