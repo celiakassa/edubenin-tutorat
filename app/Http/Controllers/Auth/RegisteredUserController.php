@@ -19,8 +19,8 @@ class RegisteredUserController extends Controller
      */
     public function create()
     {
-        $roles = Role::where('name','!=','admin')->get();
-        return view('auth.register',compact('roles'));
+        $roles = Role::where('name', '!=', 'admin')->get();
+        return view('auth.register', compact('roles'));
     }
 
     /**
@@ -28,39 +28,43 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+    /**
+     * Traiter l'inscription (tuteur ou étudiant)
+     */
     public function store(Request $request): RedirectResponse
     {
-
-
         $validated = $request->validate([
             'firstname' => ['required', 'string', 'max:255'],
-            'lastname'  => ['required', 'string', 'max:255'],
-            'email'     => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'lastname' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'telephone' => ['nullable', 'string', 'max:20'],
-            'birthdate' => ['required', 'date'],
-            'photo_path'=> ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
-            'password'  => ['required', 'confirmed', Rules\Password::defaults()],
-            'role_id'   => ['required'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role_id' => ['required', 'integer', 'in:2,3'], // 2 = étudiant, 3 = tuteur
         ]);
 
+        // Création de l'utilisateur
         $user = User::create([
             'firstname' => $validated['firstname'],
-            'lastname'  => $validated['lastname'],
-            'email'     => $validated['email'],
+            'lastname' => $validated['lastname'],
+            'email' => $validated['email'],
             'telephone' => $validated['telephone'] ?? null,
-            'birthdate' => $validated['birthdate'],
-            'role_id'   => $validated['role_id'],
-            'password'  => Hash::make($validated['password']),
-            'photo_path'=> $request->file('photo_path') ? $request->file('photo_path')->store('photos', 'public') : null,
+            'role_id' => $validated['role_id'],
+            'password' => Hash::make($validated['password']),
         ]);
 
-
+        // Déclencher l'événement d'inscription
         event(new Registered($user));
 
-
-        // Ne pas connecter l'utilisateur immédiatement
+        // Connecter l'utilisateur
         Auth::login($user);
 
-        return redirect()->route('verification.notice')->with('message', 'Un email de confirmation a été envoyé. Veuillez vérifier votre boîte mail.');
+        // Message personnalisé selon le rôle
+        $roleMessage = $validated['role_id'] == 3
+            ? 'Bienvenue parmi nos tuteurs !'
+            : 'Bienvenue sur EduConnect !';
+
+        return redirect()->route('verification.notice')
+            ->with('message', "Un email de confirmation a été envoyé à {$user->email}. Veuillez vérifier votre boîte mail.  {$roleMessage}");
     }
+
 }

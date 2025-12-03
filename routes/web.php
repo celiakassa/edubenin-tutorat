@@ -117,4 +117,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/register/tuteur',[TeacherController::class,'register'])->name('register.tuteur')->middleware('guest');
+
+
 require __DIR__.'/auth.php';

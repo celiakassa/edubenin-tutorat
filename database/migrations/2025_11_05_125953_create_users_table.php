@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string("photo_path")->nullable();
             $table->foreignId('role_id')->constrained();
             $table->boolean('is_active')->default(false);
-            $table->date("birthdate");
             $table->rememberToken();
             $table->timestamps();
         });

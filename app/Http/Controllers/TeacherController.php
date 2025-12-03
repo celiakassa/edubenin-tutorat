@@ -9,4 +9,8 @@ class TeacherController extends Controller
 
 
     }
+    public function register(){
+
+        return view('teachers.register');
+    }
 }

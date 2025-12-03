@@ -36,8 +36,8 @@
                     </div>
 
                     <div class="hero-actions" data-aos="fade-up" data-aos-delay="450">
-                        <a href="" class="btn btn-primary btn-lg me-3">Trouver un Tuteur</a>
-                        <a href="{{ route('register') }}" class="btn btn-outline-primary btn-lg">Devenir Tuteur</a>
+                        <a href="{{route('register')}}" class="btn btn-primary btn-lg me-3">Trouver un Tuteur</a>
+                        <a href="{{ route('register.tuteur') }}" class="btn btn-outline-primary btn-lg">Devenir Tuteur</a>
                     </div>
 
                 </div>

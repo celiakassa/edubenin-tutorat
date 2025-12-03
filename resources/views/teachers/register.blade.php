@@ -7,24 +7,24 @@
                 <div class="col-lg-6 col-md-8">
                     <div class="register-card shadow-lg rounded-4 overflow-hidden" data-aos="fade-up" data-aos-duration="800">
 
-                        <!-- Header avec icône étudiant -->
+                        <!-- Header avec icône -->
                         <div class="register-header text-center py-4 position-relative"
                              style="background: linear-gradient(135deg, #0d6efd, #004aad);">
                             <div class="icon-wrapper mx-auto mb-2"
                                  style="width: 70px; height: 70px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.2);">
-                                <i class="bi bi-mortarboard-fill" style="font-size: 2rem; color: #0d6efd;"></i>
+                                <i class="bi bi-person-check-fill" style="font-size: 2rem; color: #0d6efd;"></i>
                             </div>
-                            <h2 class="text-white fw-bold mb-1 fs-4">Devenir Étudiant</h2>
-                            <p class="text-white-50 mb-0 small">Trouvez le tuteur parfait pour vous</p>
+                            <h2 class="text-white fw-bold mb-1 fs-4">Devenir Tuteur</h2>
+                            <p class="text-white-50 mb-0 small">Rejoignez notre communauté d'enseignants</p>
                         </div>
 
                         <!-- Formulaire -->
                         <div class="register-body p-4" style="background: #f8fbff;">
                             <form method="POST" action="{{ route('register') }}" id="registerForm">
                                 @csrf
-
-                                <!-- Champ caché pour le rôle étudiant -->
-                                <input type="hidden" name="role_id" value="2">
+                                @method('POST')
+                                <!-- Champ caché pour le rôle tuteur -->
+                                <input type="hidden" name="role_id" value="3">
 
                                 <!-- Prénom et Nom -->
                                 <div class="row g-2 mb-3">
@@ -178,10 +178,10 @@
                 min-height: calc(100vh - 180px);
                 background: linear-gradient(135deg, #f8fbff 0%, #e6f2ff 100%);
                 padding-top: 2rem ! important;
-                padding-bottom: 2rem !important;
+                padding-bottom: 2rem ! important;
             }
 
-            .register-card {
+            . register-card {
                 background: white;
                 transition: transform 0.3s ease, box-shadow 0.3s ease;
                 max-width: 550px;
@@ -205,7 +205,7 @@
                 background: white;
             }
 
-            .form-control. is-invalid {
+            .form-control.is-invalid {
                 border-color: #dc3545;
             }
 
@@ -266,15 +266,15 @@
                 }
 
                 .icon-wrapper {
-                    width: 60px ! important;
-                    height: 60px !important;
+                    width: 60px !important;
+                    height: 60px ! important;
                 }
 
-                .icon-wrapper i {
-                    font-size: 1.8rem !important;
+                . icon-wrapper i {
+                    font-size: 1.8rem ! important;
                 }
 
-                .register-body {
+                . register-body {
                     padding: 1. 5rem ! important;
                 }
             }
@@ -286,8 +286,8 @@
             document.addEventListener('DOMContentLoaded', function() {
                 const password = document.getElementById('password');
                 const passwordConfirm = document.getElementById('password_confirmation');
-                const strengthBar = document.getElementById('passwordStrengthBar');
-                const strengthText = document.getElementById('passwordStrengthText');
+                const strengthBar = document. getElementById('passwordStrengthBar');
+                const strengthText = document. getElementById('passwordStrengthText');
                 const matchText = document.getElementById('passwordMatchText');
                 const togglePassword = document.getElementById('togglePassword');
                 const togglePasswordConfirm = document.getElementById('togglePasswordConfirm');
@@ -298,15 +298,15 @@
                 togglePassword.addEventListener('click', function() {
                     const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
                     password.setAttribute('type', type);
-                    eyeIcon.classList.toggle('bi-eye');
+                    eyeIcon.classList. toggle('bi-eye');
                     eyeIcon.classList.toggle('bi-eye-slash');
                 });
 
                 togglePasswordConfirm.addEventListener('click', function() {
-                    const type = passwordConfirm.getAttribute('type') === 'password' ?  'text' : 'password';
-                    passwordConfirm. setAttribute('type', type);
+                    const type = passwordConfirm.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordConfirm.setAttribute('type', type);
                     eyeIconConfirm.classList.toggle('bi-eye');
-                    eyeIconConfirm. classList.toggle('bi-eye-slash');
+                    eyeIconConfirm.classList.toggle('bi-eye-slash');
                 });
 
                 // Vérification de la force du mot de passe
@@ -318,7 +318,7 @@
                     if (val.match(/[a-z]+/)) strength++;
                     if (val.match(/[A-Z]+/)) strength++;
                     if (val.match(/[0-9]+/)) strength++;
-                    if (val.match(/[$@#&! ]+/)) strength++;
+                    if (val.match(/[$@#&!]+/)) strength++;
 
                     // Reset classes
                     strengthBar.classList.remove('password-weak', 'password-medium', 'password-strong');
@@ -335,7 +335,7 @@
                         case 3:
                         case 4:
                             strengthBar.style.width = '66%';
-                            strengthBar.classList. add('password-medium');
+                            strengthBar. classList.add('password-medium');
                             strengthText.textContent = '⚠️ Mot de passe moyen';
                             strengthText.style.color = '#ffc107';
                             break;
@@ -369,17 +369,17 @@
                         passwordConfirm.classList.remove('is-invalid');
                         passwordConfirm.classList.add('is-valid');
                     } else {
-                        matchText. textContent = '❌ Les mots de passe ne correspondent pas';
-                        matchText.style. color = '#dc3545';
-                        passwordConfirm.classList. remove('is-valid');
-                        passwordConfirm.classList.add('is-invalid');
+                        matchText.textContent = '❌ Les mots de passe ne correspondent pas';
+                        matchText.style.color = '#dc3545';
+                        passwordConfirm.classList.remove('is-valid');
+                        passwordConfirm.classList. add('is-invalid');
                     }
                 }
 
                 // Validation avant soumission
                 document.getElementById('registerForm').addEventListener('submit', function(e) {
                     if (password.value !== passwordConfirm.value) {
-                        e. preventDefault();
+                        e.preventDefault();
                         alert('Les mots de passe ne correspondent pas ! ');
                         passwordConfirm.focus();
                     }

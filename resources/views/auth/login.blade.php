@@ -1,5 +1,4 @@
 @extends('layouts.welcomeLayout')
-
 @section('content')
     <br><br>
 
