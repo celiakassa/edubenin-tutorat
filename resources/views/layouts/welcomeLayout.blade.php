@@ -112,7 +112,7 @@
         @else
         <div style="margin: 0px; padding: 0px;">
           <a class="btn-getstarted btn btn-warning bg-light fw-semibold text-dark px-4 py-2 rounded-pill" style="margin-right: 0px; padding-right:0px; border:solid 3px #0d6efd;"
-                href="{{ route('login') }}">
+                href="{{ route('register.tuteur') }}">
                 Devenir tuteur
             </a>
 
@@ -157,7 +157,7 @@
             <div class="col-lg-4 col-md-6 footer-about">
                 <a href="index.html" class="logo d-flex align-items-center mb-3 text-white text-decoration-none">
                     <i class="bi bi-mortarboard-fill fs-3 me-2 text-warning"></i>
-                    <span class="sitename fw-bold fs-4">EduConnect</span>
+                    <span class="sitename fw-bold fs-4 text-light">EduConnect</span>
                 </a>
                 <div class="footer-contact pt-2">
                     <p>Campus Universitaire d’Abomey-Calavi</p>
