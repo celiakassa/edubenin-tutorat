@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title> EduBenin</title>
+    <title> EduConnect</title>
     <meta name="description" content="">
     <meta name="keywords" content="">
 
@@ -45,6 +45,17 @@
     <link href="{{ asset('css/welcome.css') }}" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+
+    <!-- AOS Animation Library -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 
@@ -66,11 +77,11 @@
 
 <header id="header" class="header d-flex align-items-center fixed-top" style="background-color: blue;">
     <div class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between"
-         style=" margin-bottom: 35px;">
+        style=" margin-bottom: 35px;">
 
         <a href="{{ url('/') }}" class="logo d-flex align-items-center text-white text-decoration-none">
 
-            <h1 class="sitename fw-bold mb-0">EduBenin Tutorat</h1>
+            <h1 class="sitename fw-bold mb-0">EduConnect</h1>
         </a>
 
         <nav id="navmenu" class="navmenu">
@@ -78,7 +89,7 @@
                 <li><a href="{{ url('/') }}" class="active">Accueil</a></li>
                 <li><a href="#about">À propos</a></li>
                 <li><a href="#services">Nos Services</a></li>
-                <li><a href="{{ route('listProfesseur') }}">Professeurs</a></li>
+                <li><a href="{{ route('professeurs.index') }}">Professeurs</a></li>
 
                 <li><a href="#contact">Contact</a></li>
 
@@ -99,10 +110,18 @@
                 </button>
             </form>
         @else
+        <div style="margin: 0px; padding: 0px;">
+          <a class="btn-getstarted btn btn-warning bg-light fw-semibold text-dark px-4 py-2 rounded-pill" style="margin-right: 0px; padding-right:0px; border:solid 3px #0d6efd;"
+                href="{{ route('login') }}">
+                Devenir tuteur
+            </a>
+
             <a class="btn-getstarted btn btn-warning fw-semibold text-light px-4 py-2 rounded-pill"
-               href="{{ route('login') }}">
+                href="{{ route('login') }}">
                 Se connecter
             </a>
+
+            </div>
         @endauth
 
         <style>
@@ -129,7 +148,7 @@
 
 
 <footer id="footer" class="footer position-relative text-white"
-        style="background: linear-gradient(135deg, #0d6efd, #004aad); padding-top: 60px;">
+    style="background: linear-gradient(135deg, #0d6efd, #004aad); padding-top: 60px;">
 
     <div class="container footer-top pb-5 border-bottom border-light">
         <div class="row gy-4">
@@ -138,7 +157,7 @@
             <div class="col-lg-4 col-md-6 footer-about">
                 <a href="index.html" class="logo d-flex align-items-center mb-3 text-white text-decoration-none">
                     <i class="bi bi-mortarboard-fill fs-3 me-2 text-warning"></i>
-                    <span class="sitename fw-bold fs-4">EduBenin Tutorat</span>
+                    <span class="sitename fw-bold fs-4">EduConnect</span>
                 </a>
                 <div class="footer-contact pt-2">
                     <p>Campus Universitaire d’Abomey-Calavi</p>
@@ -183,14 +202,10 @@
                 <p class="text-white-50">Abonnez-vous pour recevoir nos dernières actualités et offres spéciales.
                 </p>
                 <div class="d-flex mt-3">
-                    <input type="email" id="emailInput"
-                           class="form-control me-2 border-0 rounded-start"
-                           placeholder="Votre e-mail"
-                           style="background-color: #f8fbff;"
-                           required>
+                    <input type="email" id="emailInput" class="form-control me-2 border-0 rounded-start"
+                        placeholder="Votre e-mail" style="background-color: #f8fbff;" required>
 
-                    <button onclick="sendMail()"
-                            class="btn btn-warning text-dark fw-semibold px-3 rounded-end">
+                    <button onclick="sendMail()" class="btn btn-warning text-dark fw-semibold px-3 rounded-end">
                         S’abonner
                     </button>
                 </div>
@@ -223,6 +238,13 @@
     </div>
 
 </footer>
+
+<script>
+    AOS.init({
+        duration: 800,
+        once: false
+    });
+</script>
 
 
 <!-- Scroll Top -->
