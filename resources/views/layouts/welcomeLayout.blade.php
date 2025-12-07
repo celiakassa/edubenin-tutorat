@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title> EduConnect</title>
+    <title> Kopiao</title>
     <meta name="description" content="">
     <meta name="keywords" content="">
 
@@ -48,14 +48,14 @@
 
 
     <!-- AOS Animation Library -->
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-<!-- Animate.css -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
-<!-- Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 
@@ -81,45 +81,41 @@
 
         <a href="{{ url('/') }}" class="logo d-flex align-items-center text-white text-decoration-none">
 
-            <h1 class="sitename fw-bold mb-0">EduConnect</h1>
+            <h1 class="sitename fw-bold mb-0">Kopiao</h1>
         </a>
-
-        <nav id="navmenu" class="navmenu">
-            <ul>
-                <li><a href="{{ url('/') }}" class="active">Accueil</a></li>
-                <li><a href="#about">À propos</a></li>
-                <li><a href="#services">Nos Services</a></li>
-                <li><a href="{{ route('professeurs.index') }}">Professeurs</a></li>
-
-                <li><a href="#contact">Contact</a></li>
-
-
-
-            </ul>
-            <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-        </nav>
 
 
 
 
         @auth
-            <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                @csrf
-                <button type="submit" class="btn btn-danger fw-semibold px-4 py-2 rounded-pill">
-                    <i class="bi bi-box-arrow-right me-2"></i>Se déconnecter
-                </button>
-            </form>
-        @else
-        <div style="margin: 0px; padding: 0px;">
-          <a class="btn-getstarted btn btn-warning bg-light fw-semibold text-dark px-4 py-2 rounded-pill" style="margin-right: 0px; padding-right:0px; border:solid 3px #0d6efd;"
-                href="{{ route('register.tuteur') }}">
-                Devenir tuteur
-            </a>
 
-            <a class="btn-getstarted btn btn-warning fw-semibold text-light px-4 py-2 rounded-pill"
-                href="{{ route('login') }}">
-                Se connecter
-            </a>
+            <div class="d-flex align-items-center gap-2">
+
+
+                <!-- Bouton Déconnexion -->
+                <form method="POST" action="{{ route('logout') }}" class="m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-danger fw-semibold px-4 py-2 rounded-pill">
+                        <i class="bi bi-box-arrow-right me-2"></i>Se déconnecter
+                    </button>
+                </form>
+            </div>
+        @else
+            <div style="margin: 0px; padding: 0px;">
+
+
+
+
+                <a class="btn-getstarted btn btn-warning bg-light fw-semibold text-dark px-4 py-2 rounded-pill"
+                    style="margin-right: 0px; padding-right:0px; border:solid 3px #0d6efd;"
+                    href="{{ route('register.tuteur') }}">
+                    Devenir tuteur
+                </a>
+
+                <a class="btn-getstarted btn btn-warning fw-semibold text-light px-4 py-2 rounded-pill"
+                    href="{{ route('login') }}">
+                    Se connecter
+                </a>
 
             </div>
         @endauth
@@ -156,15 +152,10 @@
             <!-- Bloc logo et contact -->
             <div class="col-lg-4 col-md-6 footer-about">
                 <a href="index.html" class="logo d-flex align-items-center mb-3 text-white text-decoration-none">
-                    <i class="bi bi-mortarboard-fill fs-3 me-2 text-warning"></i>
-                    <span class="sitename fw-bold fs-4 text-light">EduConnect</span>
+
+                    <span class="sitename fw-bold fs-4 text-light">Kopiao</span>
                 </a>
-                <div class="footer-contact pt-2">
-                    <p>Campus Universitaire d’Abomey-Calavi</p>
-                    <p>Cotonou, Bénin</p>
-                    <p class="mt-3"><strong>Téléphone :</strong> <span>+229 91 45 67 89</span></p>
-                    <p><strong>Email :</strong> <span>contact@edubenin.bj</span></p>
-                </div>
+
                 <div class="social-links d-flex mt-4">
                     <a href="#" class="me-3 text-white fs-5"><i class="bi bi-facebook"></i></a>
                     <a href="#" class="me-3 text-white fs-5"><i class="bi bi-instagram"></i></a>
@@ -178,9 +169,8 @@
                 <h4 class="text-warning fw-semibold mb-3">Liens utiles</h4>
                 <ul class="list-unstyled">
                     <li><a href="#" class="text-white-50 text-decoration-none">Accueil</a></li>
-                    <li><a href="#about" class="text-white-50 text-decoration-none">À propos</a></li>
+                      <li><a href="{{ route('professeurs.index') }}" class="text-white-50 text-decoration-none">Tuteurs</a></li>
 
-                    <li><a href="#contact" class="text-white-50 text-decoration-none">Contact</a></li>
                 </ul>
             </div>
 
@@ -188,10 +178,10 @@
             <div class="col-lg-3 col-md-3 footer-links">
                 <h4 class="text-warning fw-semibold mb-3">Nos Offres</h4>
                 <ul class="list-unstyled">
-                    <li><a href="#" class="text-white-50 text-decoration-none">Tutorat académique</a></li>
 
 
-                    <li><a href="#" class="text-white-50 text-decoration-none">Accompagnement étudiant</a>
+
+                    <li><a href="#" class="text-white-50 text-decoration-none">Accompagnement</a>
                     </li>
                 </ul>
             </div>
@@ -233,7 +223,7 @@
 
     <!-- Bas du footer -->
     <div class="container text-center py-3">
-        <p class="mb-1 text-white-50">© <strong>EduBenin Tutorat</strong> — Tous droits réservés.</p>
+        <p class="mb-1 text-white-50">© <strong>Kopiao</strong> — Tous droits réservés.</p>
 
     </div>
 

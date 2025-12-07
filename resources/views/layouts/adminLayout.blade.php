@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduConnect - Dashboard Admin</title>
+    <title>Kopiao - Dashboard Admin</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ asset('images/image_1.webp') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -34,7 +35,7 @@
             background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
             color: var(--text);
             min-height: 100vh;
-            display: flex;
+
             padding: 20px;
         }
 

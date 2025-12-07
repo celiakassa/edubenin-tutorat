@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduBenin Tutorat - Dashboard</title>
+    <title>Kopiao - Dashboard</title>
     <link href="{{ asset('images/image_1.webp') }}" rel="icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -515,27 +515,34 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <div class="logo">EB</div>
-                <div class="logo-text">EduBenin</div>
+                <div class="logo" onclick="window.location.href='{{ url('/') }}'" style="cursor:pointer;">KP
+                </div>
+                <div class="logo-text" onclick="window.location.href='{{ url('/') }}'" style="cursor:pointer;">
+                    Kopiao</div>
             </div>
+
             <div class="sidebar-menu">
                 <div class="menu-item active">
-                    <i class="fas fa-home"></i>
+                    <i class="fas fa-tachometer-alt"></i> <!-- Tableau de bord -->
                     <span class="menu-text">Tableau de bord</span>
                 </div>
-                <div class="menu-item">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span class="menu-text">Mes cours</span>
+
+                <div class="menu-item" onclick="window.location.href='{{ route('listProfesseur') }}'">
+                    <i class="fas fa-search"></i> <!-- Recherche d’un tuteur -->
+                    <span class="menu-text">Rechercher un tuteur</span>
                 </div>
 
-                <div class="menu-item">
-                    <i class="fas fa-chart-line"></i>
-                    <span class="menu-text">Analytiques</span>
+                <div class="menu-item" onclick="window.location.href='{{ route('CompleterProfilUser.show') }}'">
+                    <i class="fas fa-user"></i> <!-- Mon profil -->
+                    <span class="menu-text">Mon profil</span>
                 </div>
-                <div class="menu-item">
-                    <i class="fas fa-wallet"></i>
-                    <span class="menu-text">Paiements</span>
+
+                <div class="menu-item" onclick="window.location.href='{{ route('CompleterProfilUser.edit') }}'">
+                    <i class="fas fa-user-edit"></i> <!-- Compléter mon profil -->
+                    <span class="menu-text">Compléter mon profil</span>
                 </div>
+
+
 
                 <div class="menu-item logout-item" style="width: 100%;">
                     <form method="POST" action="{{ route('logout') }}" style="width: 100%;">
@@ -559,15 +566,114 @@
         <div class="main-content">
             <!-- Header -->
             <div class="header">
+
+                <style>
+                    .user-info {
+                        position: relative;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    }
+
+                    .user-avatar {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        background: #444;
+                        color: #fff;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        font-weight: bold;
+                        cursor: pointer;
+                        overflow: hidden;
+                    }
+
+                    .user-avatar img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
+
+                    .user-dropdown {
+                        list-style: none;
+                        background: white;
+                        position: absolute;
+                        top: 55px;
+                        right: 0;
+                        width: 160px;
+                        border-radius: 6px;
+                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+                        padding: 8px 0;
+                        display: none;
+                        z-index: 999;
+                    }
+
+                    .user-dropdown li {
+                        padding: 8px 15px;
+                    }
+
+                    .user-dropdown li a {
+                        text-decoration: none;
+                        color: #333;
+                    }
+
+                    .user-dropdown li:hover {
+                        background: #f0f0f0;
+                    }
+                </style>
+
+
                 <h1 class="page-title">Tableau de bord</h1>
+
                 <div class="user-info">
-                    <div class="user-avatar">
-                        {{ strtoupper(substr($user->firstname, 0, 1) . substr($user->lastname, 0, 1)) }}
+                    <div class="user-avatar" id="avatar-dropdown-btn">
+                        @if ($user->photo_path && Storage::disk('public')->exists($user->photo_path))
+                            <img src="{{ asset('storage/' . $user->photo_path) }}" alt="Photo de profil">
+                        @else
+                            {{ strtoupper(substr($user->firstname, 0, 1) . substr($user->lastname, 0, 1)) }}
+                        @endif
                     </div>
+
                     <span>{{ $user->firstname }} {{ $user->lastname }}</span>
 
+                    <!-- MENU DÉROULANT -->
+                    <ul class="user-dropdown" id="avatar-dropdown">
+                        <li>
+                            <a href="{{ route('CompleterProfilUser.show') }}">Mon profil</a>
+                        </li>
+                        <li>
+                            <a href="#"
+                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                Déconnexion
+                            </a>
+                        </li>
+
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
+                            @csrf
+                        </form>
+
+                    </ul>
                 </div>
+
+                <script>
+                    const btn = document.getElementById("avatar-dropdown-btn");
+                    const menu = document.getElementById("avatar-dropdown");
+
+                    btn.addEventListener("click", () => {
+                        menu.style.display = menu.style.display === "block" ? "none" : "block";
+                    });
+
+                    // Fermer si on clique ailleurs
+                    document.addEventListener("click", (e) => {
+                        if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                            menu.style.display = "none";
+                        }
+                    });
+                </script>
+
             </div>
+
 
             <!-- Profile Completion Banner -->
             <div class="profile-banner">
@@ -602,58 +708,44 @@
 
             <!-- Dashboard Stats -->
             <div class="stats-container">
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <div class="stat-card-title">Heures enseignées</div>
-                        <div class="stat-card-icon blue">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card-value">42h</div>
-                    <div class="stat-card-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        12% ce mois
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <div class="stat-card-title">Étudiants actifs</div>
-                        <div class="stat-card-icon green">
-                            <i class="fas fa-user-graduate"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card-value">18</div>
-                    <div class="stat-card-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        5% ce mois
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <div class="stat-card-title">Revenus ce mois</div>
-                        <div class="stat-card-icon orange">
-                            <i class="fas fa-money-bill-wave"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card-value">125,000 FCFA</div>
-                    <div class="stat-card-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        8% ce mois
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <div class="stat-card-title">Note moyenne</div>
-                        <div class="stat-card-icon red">
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card-value">4.7/5</div>
-                    <div class="stat-card-change negative">
-                        <i class="fas fa-arrow-down"></i>
-                        0.2 ce mois
-                    </div>
-                </div>
+
+
+        <div class="stat-card enhanced-card p-4 rounded-4 shadow-lg bg-white hover:shadow-xl transition-all duration-300">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <i class="fas fa-clock text-purple-600"></i>
+            Dernière connexion
+        </h3>
+
+        <div class="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-full">
+            <i class="fas fa-history text-purple-700 text-xl"></i>
+        </div>
+    </div>
+
+    <!-- Value -->
+    <div class="text-3xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+        @php $user = Auth::user(); @endphp
+
+        @if ($user && $user->last_login)
+            <i class="fas fa-check-circle text-green-500"></i>
+            {{ $user->last_login->diffForHumans() }}
+        @else
+            <i class="fas fa-times-circle text-red-500"></i>
+            Jamais connecté
+        @endif
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-3 flex items-center text-sm text-gray-600 gap-2">
+        <i class="fas fa-info-circle text-blue-500"></i>
+        Informations récentes
+    </div>
+
+</div>
+
+
             </div>
 
             <!-- Upcoming Sessions -->

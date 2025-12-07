@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string("telephone")->nullable();
             $table->string("photo_path")->nullable();
             $table->foreignId('role_id')->constrained();
-            $table->boolean('is_active')->default(false);
+            $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();
         });

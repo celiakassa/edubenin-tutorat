@@ -24,7 +24,7 @@ class CompleterProfilUser extends Controller
                 'qualifications',
                 'subjects',
                 'rate_per_hour',
-                'availability',
+                'identity_document_path', // Nouveau champ pour tuteur
                 'city',
                 'learning_preference',
             ];
@@ -55,8 +55,7 @@ class CompleterProfilUser extends Controller
         // --- Calcul du pourcentage complété ---
         $filled = 0;
         foreach ($fields as $field) {
-
-            if (! empty($user->$field)) {
+            if (!empty($user->$field)) {
                 $filled++;
             }
         }
@@ -77,7 +76,6 @@ class CompleterProfilUser extends Controller
             'lastname' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$user->id,
             'telephone' => 'required|string|max:20',
-            'birthdate' => 'required|date',
             'city' => 'required|string|max:255',
             'custom_city' => 'nullable|string|max:255',
             'bio' => 'nullable|string|max:1000',
@@ -89,8 +87,8 @@ class CompleterProfilUser extends Controller
             $rules['qualifications'] = 'required|string|max:500';
             $rules['subjects'] = 'required|string|max:500';
             $rules['rate_per_hour'] = 'required|numeric|min:0';
-            $rules['availability'] = 'nullable|array';
             $rules['learning_preference'] = 'required|string|in:online,in_person,hybrid';
+            $rules['identity_document'] = 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'; // 10MB max
         } elseif ($user->role_id == 2) { // Étudiant
             $rules['learning_preference'] = 'required|string|in:online,in_person,hybrid';
             $rules['learning_history'] = 'nullable|string|max:1000';
@@ -101,7 +99,7 @@ class CompleterProfilUser extends Controller
 
         // --- Gestion de la ville ---
         $city = $validated['city'];
-        if ($city === 'autre' && ! empty($request->custom_city)) {
+        if ($city === 'autre' && !empty($request->custom_city)) {
             $city = $request->custom_city;
         }
 
@@ -111,7 +109,6 @@ class CompleterProfilUser extends Controller
             'lastname' => $validated['lastname'],
             'email' => $validated['email'],
             'telephone' => $validated['telephone'],
-            'birthdate' => $validated['birthdate'],
             'city' => $city,
             'bio' => $validated['bio'] ?? null,
         ]);
@@ -126,33 +123,31 @@ class CompleterProfilUser extends Controller
             $user->update(['photo_path' => $path]);
         }
 
-        // --- Mise à jour spécifique selon le rôle ---
-        if ($user->role_id == 3) { // Tuteur
-            // --- Formatage des disponibilités ---
-            $availabilityData = [];
-
-            if ($request->has('availability')) {
-                foreach ($request->availability as $day => $info) {
-                    if (isset($info['enabled'])) {
-                        $availabilityData[$day] = [
-                            'start' => $info['start'] ?? null,
-                            'end' => $info['end'] ?? null,
-                        ];
-                    }
-                }
+        // --- Gestion de la pièce d'identité pour les tuteurs ---
+        if ($user->role_id == 3 && $request->hasFile('identity_document')) {
+            // Supprimer l'ancienne pièce si elle existe
+            if ($user->identity_document_path && Storage::disk('public')->exists($user->identity_document_path)) {
+                Storage::disk('public')->delete($user->identity_document_path);
             }
 
-            // --- Mise à jour des champs du tuteur ---
+            // Stocker la nouvelle pièce dans le dossier 'pieceidentite'
+            $path = $request->file('identity_document')->store('pieceidentite', 'public');
+            $user->update([
+                'identity_document_path' => $path,
+                'identity_verified' => false, // Réinitialiser le statut de vérification
+            ]);
+        }
+
+        // --- Mise à jour spécifique selon le rôle ---
+        if ($user->role_id == 3) { // Tuteur
             $user->update([
                 'qualifications' => $validated['qualifications'],
                 'subjects' => $validated['subjects'],
                 'rate_per_hour' => $validated['rate_per_hour'],
-                'availability' => json_encode($availabilityData),
                 'learning_preference' => $validated['learning_preference'],
             ]);
 
         } elseif ($user->role_id == 2) { // Étudiant
-            // --- Mise à jour des champs de l'étudiant ---
             $user->update([
                 'learning_preference' => $validated['learning_preference'],
                 'learning_history' => $validated['learning_history'] ?? null,
@@ -165,10 +160,60 @@ class CompleterProfilUser extends Controller
             ->with('success', 'Profil mis à jour avec succès!');
     }
 
-    public function show()
+ public function show()
     {
         $user = Auth::user();
 
+        // Charger les relations si nécessaire
+        $user->load([]);
+
         return view('CompleterProfilUserShow', compact('user'));
     }
+
+    // Méthode pour afficher la pièce d'identité
+    public function showIdentityDocument()
+    {
+        $user = Auth::user();
+
+        if (!$user->identity_document_path || !Storage::disk('public')->exists($user->identity_document_path)) {
+            abort(404, 'Pièce d\'identité non trouvée');
+        }
+
+        return response()->file(storage_path('app/public/' . $user->identity_document_path));
+    }
+
+    // Méthode pour télécharger/voir la pièce d'identité
+public function downloadIdentityDocument($userId)
+{
+    $user = User::findOrFail($userId);
+
+    // Vérifier les permissions (admin seulement)
+    if (Auth::user()->role_id != 1) {
+        abort(403, 'Accès non autorisé');
+    }
+
+    if (!$user->identity_document_path) {
+        abort(404, 'Pièce d\'identité non trouvée');
+    }
+
+    return Storage::disk('public')->download($user->identity_document_path);
+}
+
+// Méthode pour marquer comme vérifié
+public function verifyIdentity(Request $request, $userId)
+{
+    $user = User::findOrFail($userId);
+
+    // Vérifier les permissions (admin seulement)
+    if (Auth::user()->role_id != 1) {
+        abort(403, 'Accès non autorisé');
+    }
+
+    $user->update([
+        'identity_verified' => true,
+        'is_valid' => true, // Optionnel : marquer le tuteur comme valide
+    ]);
+
+    return redirect()->back()->with('success', 'Pièce d\'identité vérifiée avec succès');
+}
 }

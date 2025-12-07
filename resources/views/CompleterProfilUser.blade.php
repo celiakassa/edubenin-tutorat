@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compléter mon profil - EduBenin</title>
+    <title>Compléter mon profil - Kopiao</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -637,15 +637,15 @@
                 <div class="platform-logo" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <div class="logo-icon"
                         style="background-color: #3948c9; color: white; padding: 10px; border-radius: 6px; font-weight: bold;">
-                        EB
+                        KP
                     </div>
                     <div class="platform-name" style="font-size: 1.2em; font-weight: bold; color: #333;">
-                        EduBenin
+                        Kopiao
                     </div>
                 </div>
             </a>
 
-            <div class="platform-tagline">Votre plateforme éducative au Bénin</div>
+            <div class="platform-tagline">Votre plateforme éducative</div>
 
             <div class="user-info">
                 <div class="user-avatar">
@@ -702,7 +702,7 @@
                 <span class="menu-text">Mon profil</span>
             </a>
 
-          
+
         </div>
     </div>
 
@@ -843,14 +843,7 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
-                            <label for="birthdate">Date de naissance *</label>
-                            <input type="date" id="birthdate" name="birthdate"
-                                value="{{ old('birthdate', $user->birthdate) }}" required>
-                            @error('birthdate')
-                                <span class="error">{{ $message }}</span>
-                            @enderror
-                        </div>
+
 
                         <div class="form-group">
                             <label for="city">Ville *</label>
@@ -1029,40 +1022,7 @@
                             }
                         </style>
 
-                        <div class="form-group">
-                            <label for="availability">Disponibilités *</label>
-                            <p class="text-muted">Cochez les jours et indiquez vos heures disponibles.</p>
 
-                            <div class="availability-grid">
-                                @php
-                                    $days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-                                    $availability = json_decode($user->availability, true) ?? [];
-                                @endphp
-
-                                @foreach ($days as $index => $day)
-                                    <div class="availability-day" style="animation-delay: {{ $index * 0.1 }}s;">
-                                        <label>
-                                            <input type="checkbox" name="availability[{{ $day }}][enabled]"
-                                                {{ isset($availability[$day]) ? 'checked' : '' }}>
-                                            {{ $day }}
-                                        </label>
-
-                                        <div style="margin-top: 8px;">
-                                            <label>De :</label>
-                                            <input type="time" name="availability[{{ $day }}][start]"
-                                                value="{{ $availability[$day]['start'] ?? '' }}">
-                                            <label>à :</label>
-                                            <input type="time" name="availability[{{ $day }}][end]"
-                                                value="{{ $availability[$day]['end'] ?? '' }}">
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-
-                            @error('availability')
-                                <span class="error">{{ $message }}</span>
-                            @enderror
-                        </div>
 
                         <script>
                             document.addEventListener('DOMContentLoaded', function() {
@@ -1102,6 +1062,76 @@
 
                     </div>
                 @endif
+
+                @if ($user->role_id == 3)
+    <div class="form-group">
+        <label for="identity_document">Pièce d'identité *</label>
+        <p style="font-size: 12px; color: var(--dark-gray); margin-bottom: 8px;">
+            <i class="fas fa-info-circle"></i> Format acceptés : PDF, JPG, PNG (max 10MB). La pièce doit être claire et lisible.
+        </p>
+
+        <div class="file-upload">
+            <label for="identity_document" class="file-upload-label">
+                <i class="fas fa-file-upload"></i>
+                <span>Télécharger la pièce d'identité...</span>
+            </label>
+            <input type="file" id="identity_document" name="identity_document"
+                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+        </div>
+
+        @if ($user->identity_document_path)
+            <div class="current-photo" style="margin-top: 15px;">
+                <p style="font-size: 13px; color: var(--success); margin-bottom: 5px;">
+                    <i class="fas fa-check-circle"></i> Pièce d'identité téléchargée
+                </p>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    @if (Str::endsWith($user->identity_document_path, ['.jpg', '.jpeg', '.png']))
+                        <img src="{{ Storage::url($user->identity_document_path) }}"
+                             alt="Pièce d'identité" style="width: 80px; height: 60px; object-fit: cover; border-radius: 5px;">
+                    @else
+                        <div style="width: 80px; height: 60px; background: var(--primary-light);
+                                    border-radius: 5px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-file-pdf" style="color: white; font-size: 24px;"></i>
+                        </div>
+                    @endif
+                    <div>
+                        <a href="{{ Storage::url($user->identity_document_path) }}"
+                           target="_blank" style="color: var(--primary-color); text-decoration: none; font-size: 13px;">
+                            <i class="fas fa-eye"></i> Voir la pièce
+                        </a>
+                        <p style="font-size: 11px; color: var(--dark-gray); margin-top: 3px;">
+                            @if ($user->identity_verified)
+                                <span style="color: var(--success);">
+                                    <i class="fas fa-check"></i> Vérifiée
+                                </span>
+                            @else
+                                <span style="color: var(--warning);">
+                                    <i class="fas fa-clock"></i> En attente de vérification
+                                </span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @error('identity_document')
+            <span class="error">{{ $message }}</span>
+        @enderror
+    </div>
+@endif
+
+<script>
+    // Gestion de l'affichage du nom du fichier pour la pièce d'identité
+    document.getElementById('identity_document').addEventListener('change', function(e) {
+        const label = this.previousElementSibling;
+        if (this.files.length > 0) {
+            label.querySelector('span').textContent = this.files[0].name;
+        } else {
+            label.querySelector('span').textContent = 'Télécharger la pièce d\'identité...';
+        }
+    });
+</script>
 
                 @if ($user->role_id == 2)
                     <div class="form-section">

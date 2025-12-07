@@ -43,7 +43,6 @@ return new class extends Migration
                 'qualifications',
                 'subjects',
                 'rate_per_hour',
-                'availability',
                 'city',
                 'learning_history',
                 'learning_preference',

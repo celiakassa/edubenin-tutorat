@@ -18,60 +18,77 @@ class UserDashboard extends Controller
         return view('dashboardUsers', compact('user', 'profileCompletion', 'stats'));
     }
 
-    private function calculateProfileCompletion($user)
-    {
-        // --- Définir les champs à vérifier selon le rôle ---
-        if ($user->role_id == 3) { // Tuteur
-            $fields = [
-                'firstname',
-                'lastname',
-                'email',
-                'telephone',
-                'photo_path',
-                'bio',
-                'qualifications',
-                'subjects',
-                'rate_per_hour',
-                'availability',
-                'city',
-                'learning_preference',
-            ];
-        } elseif ($user->role_id == 2) { // Étudiant
-            $fields = [
-                'firstname',
-                'lastname',
-                'email',
-                'telephone',
-                'photo_path',
-                'bio',
-                'learning_history',
-                'learning_preference',
-                'city',
-            ];
-        } else { // Autres rôles
-            $fields = [
-                'firstname',
-                'lastname',
-                'email',
-                'telephone',
-                'photo_path',
-                'bio',
-                'city',
-            ];
-        }
+private function calculateProfileCompletion($user)
+{
+    // --- Définir les champs à vérifier selon le rôle ---
+    if ($user->role_id == 3) { // Tuteur
+        $fields = [
+            'firstname',
+            'lastname',
+            'email',
+            'telephone',
+            'photo_path',
+            'bio',
+            'qualifications',
+            'subjects',
+            'rate_per_hour',
+            'identity_document_path', // Nouveau champ pour tuteur
+            'city',
+            'learning_preference',
+        ];
+        
+        // Note: 'availability' a été retiré selon vos instructions
+    } elseif ($user->role_id == 2) { // Étudiant
+        $fields = [
+            'firstname',
+            'lastname',
+            'email',
+            'telephone',
+            'photo_path',
+            'bio',
+            'learning_history',
+            'learning_preference',
+            'city',
+        ];
+    } else { // Autres rôles
+        $fields = [
+            'firstname',
+            'lastname',
+            'email',
+            'telephone',
+            'photo_path',
+            'bio',
+            'city',
+        ];
+    }
 
-        // --- Calcul du pourcentage complété ---
-        $filled = 0;
-        foreach ($fields as $field) {
-            if (! empty($user->$field)) {
+    // --- Calcul du pourcentage complété ---
+    $filled = 0;
+    foreach ($fields as $field) {
+        // Vérification spéciale pour certains champs
+        if ($field === 'subjects' && $user->role_id == 3) {
+            // Pour les sujets, vérifier que ce n'est pas un tableau vide
+            $subjects = $user->subjects;
+            if (!empty($subjects)) {
+                $decoded = json_decode($subjects, true);
+                if (is_array($decoded) && !empty($decoded)) {
+                    $filled++;
+                } elseif (is_string($subjects) && trim($subjects) !== '') {
+                    $filled++;
+                }
+            }
+        } else {
+            // Vérification standard pour les autres champs
+            if (!empty($user->$field)) {
                 $filled++;
             }
         }
-
-        $total = count($fields);
-
-        return $total > 0 ? round(($filled / $total) * 100) : 0;
     }
+
+    $total = count($fields);
+
+    return $total > 0 ? round(($filled / $total) * 100) : 0;
+}
 
     private function getPlatformStatistics()
     {

@@ -157,6 +157,7 @@
             text-align: center;
             margin-bottom: 40px;
             animation: fadeIn 1s ease-out;
+            position: relative;
         }
 
         @keyframes fadeIn {
@@ -180,6 +181,7 @@
             box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
             margin-bottom: 20px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
         }
 
         .profile-avatar:hover {
@@ -189,7 +191,7 @@
 
         .profile-name {
             font-size: 2.2rem;
-            color: #ffffff;
+            color: #2c3e50;
             margin-bottom: 10px;
             font-weight: 700;
         }
@@ -203,6 +205,40 @@
             font-size: 1rem;
             font-weight: 600;
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Badge Tuteur Vérifié */
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #8B6914;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 10px;
+            box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 3px 15px rgba(255, 215, 0, 0.5);
+            }
+
+            100% {
+                box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+            }
+        }
+
+        .verified-badge i {
+            margin-right: 5px;
+            font-size: 0.9rem;
         }
 
         /* Profile Cards */
@@ -287,47 +323,116 @@
             flex: 1;
         }
 
-        .availability-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
+        /* Pièce d'identité */
+        .identity-document-container {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
             margin-top: 15px;
+            border: 2px dashed #dee2e6;
         }
 
-        .availability-item {
+        .document-icon {
+            font-size: 2.5rem;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .document-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .document-status.verified {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .document-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .document-status.missing {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .document-view-btn {
+            display: inline-flex;
+            align-items: center;
             background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
-            padding: 12px;
+            padding: 8px 16px;
             border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 10px;
             transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
 
-        .availability-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 18px rgba(52, 152, 219, 0.4);
+        .document-view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
         }
 
-        .availability-day {
-            font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 5px;
+        .document-view-btn i {
+            margin-right: 5px;
         }
 
-        .availability-time {
-            font-size: 0.85rem;
-            opacity: 0.9;
+        /* Modal pour afficher la pièce d'identité */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeInModal 0.3s ease-out;
         }
 
-        .empty-state {
-            text-align: center;
-            color: #95a5a6;
-            font-style: italic;
-            padding: 20px;
-            background: #f8f9fa;
+        @keyframes fadeInModal {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 80%;
+            max-height: 80%;
             border-radius: 10px;
-            border: 2px dashed #bdc3c7;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .modal-header:hover {
+            color: #bbb;
         }
 
         /* Responsive */
@@ -388,8 +493,15 @@
             <div class="sidebar-header">
                 <div class="profile-header">
                     <img src="{{ $user->photo_path ? asset('storage/' . $user->photo_path) : asset('images/profill_default.webp') }}"
-                        alt="Photo de profil" class="profile-avatar">
-                    <h1 class="profile-name ">{{ $user->firstname }} {{ $user->lastname }}</h1>
+                        alt="Photo de profil" class="profile-avatar" onclick="viewPhoto('{{ $user->photo_path ? asset('storage/' . $user->photo_path) : asset('images/profill_default.webp') }}')">
+                    <h1 class="profile-name">
+                        {{ $user->firstname }} {{ $user->lastname }}
+                        @if ($user->role_id == 3 && $user->is_valid == 1)
+                            <span class="verified-badge">
+                                <i class="fas fa-check-circle"></i> Tuteur vérifié
+                            </span>
+                        @endif
+                    </h1>
                     <div class="profile-role">
                         @if ($user->role_id == 3)
                             <i class="fas fa-chalkboard-teacher"></i> Tuteur
@@ -399,7 +511,6 @@
                             <i class="fas fa-user"></i> Utilisateur
                         @endif
                     </div>
-
                 </div>
             </div>
             <div class="sidebar-menu">
@@ -411,13 +522,11 @@
                     <i class="fas fa-user-edit"></i>
                     <span class="menu-text">Modifier mon profil</span>
                 </a>
-               
             </div>
         </div>
 
         <!-- Main Content -->
         <div class="main-content">
-
             <div class="profile-grid">
                 <!-- Carte Informations Personnelles -->
                 <div class="info-card" style="animation-delay: 0.1s">
@@ -503,7 +612,7 @@
                             <span class="info-label">Taux horaire</span>
                             <span class="info-value">
                                 @if ($user->rate_per_hour)
-                                    {{ $user->rate_per_hour }} FCFA/heure
+                                    {{ number_format($user->rate_per_hour, 0, ',', ' ') }} FCFA/heure
                                 @else
                                     Non renseigné
                                 @endif
@@ -511,39 +620,75 @@
                         </div>
                     </div>
 
-                    <!-- Carte Disponibilités -->
+                    <!-- Carte Pièce d'identité -->
                     <div class="info-card" style="animation-delay: 0.4s">
-                        <h3><i class="fas fa-calendar-alt"></i> Disponibilités</h3>
-                        @php
-                            $availability = [];
-                            if ($user->availability) {
-                                $availability = json_decode($user->availability, true);
-                            }
-                        @endphp
+                        <h3><i class="fas fa-id-card"></i> Pièce d'identité</h3>
 
-                        @if (!empty($availability))
-                            <div class="availability-grid">
-                                @foreach ($availability as $day => $schedule)
-                                    <div class="availability-item">
-                                        <div class="availability-day">
-                                            {{ ucfirst($day) }}
-                                        </div>
-                                        <div class="availability-time">
-                                            {{ $schedule['start'] ?? '--:--' }} - {{ $schedule['end'] ?? '--:--' }}
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="empty-state">
-                                <i class="fas fa-calendar-times fa-2x"></i>
-                                <p>Aucune disponibilité renseignée</p>
-                            </div>
-                        @endif
+                        <div class="identity-document-container">
+                            @if ($user->identity_document_path)
+                                @php
+                                    $extension = pathinfo($user->identity_document_path, PATHINFO_EXTENSION);
+                                @endphp
+
+                                <div class="document-icon">
+                                    @if (in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
+                                        <i class="fas fa-file-image"></i>
+                                    @elseif (strtolower($extension) == 'pdf')
+                                        <i class="fas fa-file-pdf"></i>
+                                    @else
+                                        <i class="fas fa-file"></i>
+                                    @endif
+                                </div>
+
+                                <p style="margin-bottom: 10px; font-weight: 500;">
+                                    Pièce d'identité téléchargée
+                                </p>
+
+                                <span class="document-status {{ $user->identity_verified ? 'verified' : 'pending' }}">
+                                    @if ($user->identity_verified)
+                                        <i class="fas fa-check-circle"></i> Vérifiée par l'administrateur
+                                    @else
+                                        <i class="fas fa-clock"></i> En attente de vérification
+                                    @endif
+                                </span>
+
+                                <br>
+                                <button class="document-view-btn" onclick="viewIdentityDocument('{{ asset('storage/' . $user->identity_document_path) }}', '{{ $extension }}')">
+                                    <i class="fas fa-eye"></i> Voir la pièce
+                                </button>
+
+                                <p style="margin-top: 15px; font-size: 0.8rem; color: #6c757d;">
+                                    Format: .{{ strtoupper($extension) }}
+                                </p>
+                            @else
+                                <div class="document-icon">
+                                    <i class="fas fa-file-upload"></i>
+                                </div>
+
+                                <p style="margin-bottom: 10px; font-weight: 500;">
+                                    Aucune pièce d'identité téléchargée
+                                </p>
+
+                                <span class="document-status missing">
+                                    <i class="fas fa-exclamation-circle"></i> Manquante
+                                </span>
+
+                                <br>
+                                <a href="{{ route('CompleterProfilUser.edit') }}" class="document-view-btn">
+                                    <i class="fas fa-upload"></i> Télécharger une pièce
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 @endif
             </div>
         </div>
+    </div>
+
+    <!-- Modal pour afficher la photo -->
+    <div id="photoModal" class="modal">
+        <span class="modal-header" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
     </div>
 
     <script>
@@ -569,6 +714,39 @@
                 observer.observe(card);
             });
         });
+
+        // Fonctions pour le modal
+        function viewPhoto(imageSrc) {
+            const modal = document.getElementById('photoModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = "block";
+            modalImg.src = imageSrc;
+        }
+
+        function viewIdentityDocument(docSrc, extension) {
+            if (extension.toLowerCase() === 'pdf') {
+                // Pour les PDF, ouvrir dans un nouvel onglet
+                window.open(docSrc, '_blank');
+            } else {
+                // Pour les images, utiliser le modal
+                const modal = document.getElementById('photoModal');
+                const modalImg = document.getElementById('modalImage');
+                modal.style.display = "block";
+                modalImg.src = docSrc;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('photoModal').style.display = "none";
+        }
+
+        // Fermer le modal en cliquant en dehors de l'image
+        window.onclick = function(event) {
+            const modal = document.getElementById('photoModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
     </script>
 </body>
 

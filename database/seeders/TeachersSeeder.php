@@ -9,15 +9,25 @@ use Illuminate\Support\Facades\Storage;
 
 class TeachersSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Récupère toutes les photos dans storage/app/public/profile-photos
+        // 🔹 Ajouter l'admin par défaut
+        User::create([
+            'firstname'           => 'Admin',
+            'lastname'            => 'System',
+            'email'               => 'admin@gmail.com',
+            'password'            => Hash::make('12345678'),
+            'role_id'             => 1,     // rôle admin
+            'is_active'           => 1,
+            'city'                => 'Cotonou',
+            'subjects'            => json_encode([]),
+            'learning_preference' => 'online',
+            'photo_path'          => null,
+        ]);
+
+        // 🔹 Charger les photos
         $photos = Storage::disk('public')->allFiles('profile-photos');
 
-        // Vérification de sécurité
         if (empty($photos)) {
             dd("Aucune photo trouvée dans : " . storage_path('app/public/profile-photos'));
         }
@@ -38,23 +48,23 @@ class TeachersSeeder extends Seeder
 
         $learning_pref = ['online', 'in_person', 'hybrid'];
 
+        // 🔹 Génération des 15 profs
         for ($i = 0; $i < 15; $i++) {
 
             $firstname = $firstnames[array_rand($firstnames)];
             $lastname = $lastnames[array_rand($lastnames)];
 
             User::create([
-                'firstname'          => $firstname,
-                'lastname'           => $lastname,
-                'email'              => strtolower($firstname) . "." . strtolower($lastname) . $i . '@example.com',
-                'password'           => Hash::make('password123'),
-                'role_id'            => 3,
-                'is_active'          => true,
-                'subjects'           => json_encode($subjects_list[array_rand($subjects_list)]),
-                'city'               => $cities[array_rand($cities)],
-                'learning_preference'=> $learning_pref[array_rand($learning_pref)],
-                'birthdate'          => fake()->dateTimeBetween('-45 years', '-25 years')->format('Y-m-d'),
-                'photo_path'         => 'profile-photos/' . basename($photos[array_rand($photos)]),
+                'firstname'           => $firstname,
+                'lastname'            => $lastname,
+                'email'               => strtolower($firstname) . "." . strtolower($lastname) . $i . '@example.com',
+                'password'            => Hash::make('password123'),
+                'role_id'             => 3, // tuteur
+                'is_active'           => true,
+                'subjects'            => json_encode($subjects_list[array_rand($subjects_list)]),
+                'city'                => $cities[array_rand($cities)],
+                'learning_preference' => $learning_pref[array_rand($learning_pref)],
+                'photo_path'          => 'profile-photos/' . basename($photos[array_rand($photos)]),
             ]);
         }
     }

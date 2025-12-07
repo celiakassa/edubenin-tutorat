@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vérification d'adresse e-mail - EduTutorat</title>
+    <title>Vérification d'adresse e-mail - Kopiao</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -111,14 +111,14 @@
 <div class="container">
     <div class="header">
         <!-- 🎓 Icône étudiant (dans le header) -->
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" alt="Icône étudiant EduTutorat" class="logo">
-        <h1>EduTutorat</h1>
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" alt="Icône étudiant Kopiao" class="logo">
+        <h1>Kopiao</h1>
         <p>Ensemble pour la réussite 🎓</p>
     </div>
 
     <div class="body">
         <h2>Bienvenue, {{ $user->firstname ?? 'Cher utilisateur' }} 👋</h2>
-        <p>Merci de t’être inscrit sur <strong>EduTutorat</strong>.<br>
+        <p>Merci de t’être inscrit sur <strong>Kopiao</strong>.<br>
             Pour activer ton compte et accéder à toutes les fonctionnalités, clique sur le bouton ci-dessous :</p>
 
         <a href="{{ $url }}" class="verify-btn">Vérifier mon adresse e-mail</a>
@@ -129,12 +129,12 @@
         </p>
 
         <div class="signature">
-            — L’équipe EduTutorat 💙
+            — L’équipe Kopiao
         </div>
     </div>
 
     <div class="footer">
-        &copy; {{ date('Y') }} <strong>EduTutorat</strong>. Tous droits réservés.<br>
+        &copy; {{ date('Y') }} <strong>Kopiao</strong>. Tous droits réservés.<br>
         <a href="{{ config('app.url') }}">Visiter le site</a>
     </div>
 </div>

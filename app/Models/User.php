@@ -3,126 +3,57 @@
 namespace App\Models;
 
 use App\LearningPreference;
-
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements MustVerifyEmail
-
 {
-
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-
     use HasFactory, Notifiable;
 
-    /**
-
-     * The attributes that are mass assignable.
-
-     *
-
-     * @var list<string>
-
-     */
-
     protected $fillable = [
-
         'firstname',
-
         'lastname',
-
         'email',
-
         'password',
-
-        'firstname',
-
-        'lastname',
-
         'telephone',
-
         'photo_path',
-
         'birthdate',
-
         'remember_token',
-
         'bio',
-
         'qualifications',
-
         'subjects',
-
         'rate_per_hour',
-
         'availability',
-
         'city',
-
+        'is_active',
         'learning_history',
-
         'learning_preference',
-
         'satisfaction_score',
-
         'notify_email',
-
         'notify_push',
-        'role_id'
-
+        'role_id',
+        'last_login',
+        'is_valid',
+        'identity_verified',
+        'identity_document_path',
     ];
-
-    /**
-
-     * The attributes that should be hidden for serialization.
-
-     *
-
-     * @var list<string>
-
-     */
 
     protected $hidden = [
-
         'password',
-
         'remember_token',
-
     ];
 
-    /**
+    // Corrige le casts
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'last_login' => 'datetime', // <-- ajoute cette ligne
+        'learning_preference' => LearningPreference::class,
+    ];
 
-     * Get the attributes that should be cast.
-
-     *
-
-     * @return array<string, string>
-
-     */
-
-    protected function casts(): array
-
-    {
-
-        return [
-
-            'email_verified_at' => 'datetime',
-
-            'password' => 'hashed',
-
-        ];
-
-    }
-
-    protected $casts = ['learning_preference'=>LearningPreference::class ];
     public function role()
     {
         return $this->belongsTo(Role::class);
     }
-
 }
