@@ -494,7 +494,7 @@
                 <div class="profile-header">
                     <img src="{{ $user->photo_path ? asset('storage/' . $user->photo_path) : asset('images/profill_default.webp') }}"
                         alt="Photo de profil" class="profile-avatar" onclick="viewPhoto('{{ $user->photo_path ? asset('storage/' . $user->photo_path) : asset('images/profill_default.webp') }}')">
-                    <h1 class="profile-name">
+                    <h1 class="profile-name" style="color: white;">
                         {{ $user->firstname }} {{ $user->lastname }}
                         @if ($user->role_id == 3 && $user->is_valid == 1)
                             <span class="verified-badge">

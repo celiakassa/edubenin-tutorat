@@ -11,15 +11,21 @@ use App\Http\Controllers\UserDashboard;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
+
 Route::get('/', function () {
-    // Récupérer les 6 derniers tuteurs inscrits (role_id = 3)
+    // Récupérer les 6 derniers tuteurs inscrits (role_id = 3) et validés
     $recentTutors = User::where('role_id', 3)
+        ->where('is_valid', 1)  // Uniquement les tuteurs validés
+        ->where('is_active', 1) // Uniquement les comptes actifs
         ->orderBy('created_at', 'desc')
         ->take(6)
         ->get();
 
-    // Nombre total de tuteurs
-    $totalTutors = User::where('role_id', 3)->count();
+    // Nombre total de tuteurs validés
+    $totalTutors = User::where('role_id', 3)
+        ->where('is_valid', 1)
+        ->where('is_active', 1)
+        ->count();
 
     return view('welcome', compact('recentTutors', 'totalTutors'));
 });

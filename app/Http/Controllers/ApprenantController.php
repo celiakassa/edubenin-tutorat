@@ -7,6 +7,10 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\StudentDeactivatedMail;
+use App\Mail\StudentReactivatedMail;
+use App\Mail\StudentValidatedMail;
 
 class ApprenantController extends Controller
 {
@@ -126,64 +130,6 @@ class ApprenantController extends Controller
     }
 
     /**
-     * Afficher le formulaire de création
-     */
-    // public function create()
-    // {
-    //   return view('apprenants.create');
-    // }
-
-    /**
-     * Enregistrer un nouvel apprenant
-     */
-   // public function store(Request $request)
-   // {
-        // $validated = $request->validate([
-        //   'firstname' => 'required|string|max:255',
-        // 'lastname' => 'required|string|max:255',
-        // 'email' => 'required|email|unique:users,email',
-        // 'telephone' => 'nullable|string|max:20',
-        // 'password' => 'required|string|min:8|confirmed',
-        // 'city' => 'required|string|max:255',
-        // 'bio' => 'nullable|string',
-        // 'learning_preference' => 'nullable|in:online,in_person,hybrid',
-        // 'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        // 'is_active' => 'boolean',
-        // 'notify_email' => 'boolean', // Ajouter cette ligne
-        // ]);
-
-        // Gestion de la photo de profil
-       // $photoPath = null;
-      //  if ($request->hasFile('photo')) {
-      //      $photoPath = $request->file('photo')->store('profile-photos', 'public');
-      //  }
-
-        // Défaut pour notify_push
-     //   $notifyPush = $request->has('notify_push') ? (bool) $request->input('notify_push') : true;
-
-        // Création de l'apprenant
-        //   $apprenant = User::create([
-        //      'firstname' => $validated['firstname'],
-        //    'lastname' => $validated['lastname'],
-        //    'email' => $validated['email'],
-        //    'telephone' => $validated['telephone'] ?? null,
-        //    'password' => Hash::make($validated['password']),
-        //     'city' => $validated['city'],
-        //     'bio' => $validated['bio'] ?? null,
-        //     'learning_preference' => $validated['learning_preference'] ?? 'online',
-        //     'photo_path' => $photoPath,
-        //     'role_id' => 2, // Apprenant
-        //     'is_active' => $validated['is_active'] ?? true,
-        //      'is_valid' => false, // Par défaut non validé
-        //       'notify_email' => $validated['notify_email'] ?? true,
-        //      'notify_push' => $notifyPush,
-        // ]);
-
-        // return redirect()->route('apprenants.index')
-        //    ->with('success', 'Apprenant créé avec succès!');
-   // }
-
-    /**
      * Afficher les détails d'un apprenant
      */
     public function show($id)
@@ -289,10 +235,14 @@ class ApprenantController extends Controller
     }
 
     /**
-     * Valider un apprenant (action supplémentaire)
+     * Valider un apprenant (avec email)
      */
-    public function validateApprenant($id)
+    public function validateApprenant(Request $request, $id)
     {
+        $request->validate([
+            'validation_reason' => 'nullable|string|max:500',
+        ]);
+
         $apprenant = User::where('id', $id)
             ->where('role_id', 2)
             ->firstOrFail();
@@ -300,12 +250,92 @@ class ApprenantController extends Controller
         $apprenant->is_valid = true;
         $apprenant->save();
 
+        // Envoyer un email de validation
+        if ($apprenant->email) {
+            try {
+                Mail::to($apprenant->email)->send(new StudentValidatedMail(
+                    $apprenant,
+                    $request->validation_reason ?? 'Votre compte a été validé avec succès.'
+                ));
+            } catch (\Exception $e) {
+                \Log::error('Erreur envoi email validation étudiant: ' . $e->getMessage());
+            }
+        }
+
         return redirect()->back()
             ->with('success', 'Apprenant validé avec succès!');
     }
 
     /**
-     * Activer/désactiver un apprenant
+     * Désactiver un compte étudiant (avec email)
+     */
+    public function deactivateAccount(Request $request, $id)
+    {
+        $request->validate([
+            'deactivation_reason' => 'required|string|max:500',
+        ]);
+
+        $apprenant = User::where('id', $id)
+            ->where('role_id', 2)
+            ->firstOrFail();
+
+        $apprenant->is_active = false;
+        $apprenant->save();
+
+        // Envoyer un email de désactivation
+        if ($apprenant->email) {
+            try {
+                Mail::to($apprenant->email)->send(new StudentDeactivatedMail(
+                    $apprenant,
+                    $request->deactivation_reason
+                ));
+            } catch (\Exception $e) {
+                \Log::error('Erreur envoi email désactivation étudiant: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Compte étudiant désactivé avec succès.'
+        ]);
+    }
+
+    /**
+     * Réactiver un compte étudiant (avec email)
+     */
+    public function reactivateAccount(Request $request, $id)
+    {
+        $request->validate([
+            'reactivation_reason' => 'nullable|string|max:500',
+        ]);
+
+        $apprenant = User::where('id', $id)
+            ->where('role_id', 2)
+            ->firstOrFail();
+
+        $apprenant->is_active = true;
+        $apprenant->save();
+
+        // Envoyer un email de réactivation
+        if ($apprenant->email) {
+            try {
+                Mail::to($apprenant->email)->send(new StudentReactivatedMail(
+                    $apprenant,
+                    $request->reactivation_reason ?? 'Votre compte a été réactivé.'
+                ));
+            } catch (\Exception $e) {
+                \Log::error('Erreur envoi email réactivation étudiant: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Compte étudiant réactivé avec succès.'
+        ]);
+    }
+
+    /**
+     * Activer/désactiver un apprenant (version simple sans email)
      */
     public function toggleStatus($id)
     {

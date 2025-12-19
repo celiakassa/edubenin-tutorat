@@ -22,7 +22,7 @@ class AccountReactivatedMail extends Mailable
     public function build()
     {
         return $this->subject('Votre compte a été réactivé')
-                    ->markdown('emails.account-reactivated')
+                    ->view('emails.account-reactivated')
                     ->with([
                         'user' => $this->user,
                         'reason' => $this->reason
