@@ -522,6 +522,57 @@
             </div>
 
             <div class="sidebar-menu">
+
+                <style>
+                    /* Badge Tuteur Vérifié */
+                    .verified-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        background: linear-gradient(135deg, #FFD700, #FFA500);
+                        color: #8B6914;
+                        padding: 5px 15px;
+                        border-radius: 20px;
+                        font-size: 0.9rem;
+                        font-weight: 600;
+                        margin-left: 10px;
+                        box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+                        animation: pulse 2s infinite;
+                    }
+
+                    @keyframes pulse {
+                        0% {
+                            box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+                        }
+
+                        50% {
+                            box-shadow: 0 3px 15px rgba(255, 215, 0, 0.5);
+                        }
+
+                        100% {
+                            box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+                        }
+                    }
+
+                    .verified-badge i {
+                        margin-right: 5px;
+                        font-size: 0.9rem;
+                    }
+                </style>
+
+                <!-- Badge tuteur vérifié -->
+                @if ($user->role_id == 3 && $user->is_valid == 1)
+                    <center>
+                        <div class="tutor-verified mb-2">
+                            <span class="verified-badge">
+                                <i class="fas fa-check-circle"></i> Tuteur vérifié
+                            </span>
+                        </div>
+                    </center>
+                @endif
+
+                <br>
+
+
                 <div class="menu-item active">
                     <i class="fas fa-tachometer-alt"></i> <!-- Tableau de bord -->
                     <span class="menu-text">Tableau de bord</span>
@@ -710,40 +761,41 @@
             <div class="stats-container">
 
 
-        <div class="stat-card enhanced-card p-4 rounded-4 shadow-lg bg-white hover:shadow-xl transition-all duration-300">
+                <div
+                    class="stat-card enhanced-card p-4 rounded-4 shadow-lg bg-white hover:shadow-xl transition-all duration-300">
 
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <i class="fas fa-clock text-purple-600"></i>
-            Dernière connexion
-        </h3>
+                    <!-- Header -->
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-clock text-purple-600"></i>
+                            Dernière connexion
+                        </h3>
 
-        <div class="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-full">
-            <i class="fas fa-history text-purple-700 text-xl"></i>
-        </div>
-    </div>
+                        <div class="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-full">
+                            <i class="fas fa-history text-purple-700 text-xl"></i>
+                        </div>
+                    </div>
 
-    <!-- Value -->
-    <div class="text-3xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-        @php $user = Auth::user(); @endphp
+                    <!-- Value -->
+                    <div class="text-3xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                        @php $user = Auth::user(); @endphp
 
-        @if ($user && $user->last_login)
-            <i class="fas fa-check-circle text-green-500"></i>
-            {{ $user->last_login->diffForHumans() }}
-        @else
-            <i class="fas fa-times-circle text-red-500"></i>
-            Jamais connecté
-        @endif
-    </div>
+                        @if ($user && $user->last_login)
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            {{ $user->last_login->diffForHumans() }}
+                        @else
+                            <i class="fas fa-times-circle text-red-500"></i>
+                            Jamais connecté
+                        @endif
+                    </div>
 
-    <!-- Footer -->
-    <div class="mt-3 flex items-center text-sm text-gray-600 gap-2">
-        <i class="fas fa-info-circle text-blue-500"></i>
-        Informations récentes
-    </div>
+                    <!-- Footer -->
+                    <div class="mt-3 flex items-center text-sm text-gray-600 gap-2">
+                        <i class="fas fa-info-circle text-blue-500"></i>
+                        Informations récentes
+                    </div>
 
-</div>
+                </div>
 
 
             </div>

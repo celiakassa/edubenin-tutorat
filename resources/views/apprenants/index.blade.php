@@ -1,7 +1,5 @@
 @extends('layouts.adminLayout')
 
-
-
 <style>
     /* Styles améliorés avec plus de couleurs */
     html,
@@ -663,6 +661,7 @@
 
     .action-btn.view:hover {
         transform: translateY(-3px) rotate(5deg);
+        background: linear-gradient(135deg, #3a86ff, #4895ef);
         box-shadow: 0 8px 20px rgba(58, 134, 255, 0.4);
     }
 
@@ -688,16 +687,7 @@
         box-shadow: 0 8px 20px rgba(6, 214, 160, 0.4);
     }
 
-    .action-btn.toggle {
-        background: linear-gradient(135deg, #7209b7, #b5179e);
-        color: white;
-        box-shadow: 0 4px 15px rgba(114, 9, 183, 0.3);
-    }
 
-    .action-btn.toggle:hover {
-        transform: translateY(-3px) rotate(5deg);
-        box-shadow: 0 8line 20px rgba(114, 9, 183, 0.4);
-    }
 
     .action-btn.delete {
         background: linear-gradient(135deg, #ef476f, #ff6b6b);
@@ -1371,13 +1361,26 @@
                         LISTE DES APPRENANTS
                     </h3>
                     <div class="section-actions">
-
                         <div class="search-box">
-                            <i class="fas fa-search"></i>
                             <input type="text" id="searchInput" placeholder="Rechercher un apprenant..."
                                 autocomplete="off">
+                            <i class="fas fa-search"></i>
                         </div>
                     </div>
+
+                    <script>
+                        document.getElementById('searchInput').addEventListener('keyup', function() {
+                            const value = this.value.toLowerCase();
+                            const rows = document.querySelectorAll('#apprenantsTable tbody tr');
+
+                            rows.forEach(row => {
+                                const text = row.textContent.toLowerCase();
+                                row.style.display = text.includes(value) ? '' : 'none';
+                            });
+                        });
+                    </script>
+
+
                 </div>
 
                 <div class="table-container">
@@ -1482,15 +1485,6 @@
                                                     <i class="fas fa-power-off"></i> Inactif
                                                 </span>
                                             @endif
-                                            @if ($apprenant->is_valid)
-                                                <span class="badge validated">
-                                                    <i class="fas fa-check-circle"></i> Validé
-                                                </span>
-                                            @else
-                                                <span class="badge pending">
-                                                    <i class="fas fa-clock"></i> En attente
-                                                </span>
-                                            @endif
                                         </div>
                                     </td>
                                     <td>
@@ -1515,29 +1509,32 @@
                                                 class="action-btn view" title="Voir détails">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="{{ route('apprenants.edit', $apprenant->id) }}"
+                                            {{-- Lien de mise a jour du compte --}}
+                                            {{--  <a href="{{ route('apprenants.edit', $apprenant->id) }}"
                                                 class="action-btn edit" title="Modifier">
                                                 <i class="fas fa-edit"></i>
-                                            </a>
-
+                                            </a>  --}}
                                             <form action="{{ route('apprenants.toggle-status', $apprenant->id) }}"
-                                                method="POST" style="display: inline;">
+                                                method="POST" style="display:inline;">
                                                 @csrf
                                                 @method('PUT')
-                                                <button type="submit" class="action-btn toggle"
-                                                    title="{{ $apprenant->is_active ? 'Désactiver' : 'Activer' }}">
+
+                                                <button type="submit" id="toggle-btn-{{ $apprenant->id }}"
+                                                    class="action-btn toggle"
+                                                    title="{{ $apprenant->is_active ? 'Désactiver' : 'Activer' }}"
+                                                    style="
+            background-color: {{ $apprenant->is_active ? '#28a745' : '#dc3545' }} !important;
+            color: #ffffff !important;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+        ">
                                                     <i class="fas fa-power-off"></i>
                                                 </button>
                                             </form>
-                                            <form action="{{ route('apprenants.destroy', $apprenant->id) }}"
-                                                method="POST" style="display: inline;"
-                                                onsubmit="return confirmDelete()">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="action-btn delete" title="Supprimer">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+
+
                                         </div>
                                     </td>
                                 </tr>
@@ -1843,24 +1840,22 @@
                 });
 
                 // Graphique 3 : Statut des apprenants
+                // Graphique : Statut des apprenants (Actifs / Inactifs)
                 const ctx3 = document.getElementById('statusChart').getContext('2d');
+
                 new Chart(ctx3, {
                     type: 'bar',
                     data: {
-                        labels: ['Actifs', 'Inactifs', 'Validés', 'Non validés'],
+                        labels: ['Actifs', 'Inactifs'],
                         datasets: [{
                             label: 'Apprenants',
                             data: [
                                 {{ $stats['actifs'] }},
-                                {{ $stats['inactifs'] }},
-                                {{ $stats['valides'] }},
-                                {{ $stats['nonValides'] }}
+                                {{ $stats['inactifs'] }}
                             ],
                             backgroundColor: [
                                 colors.success,
-                                colors.danger,
-                                colors.secondary,
-                                colors.warning
+                                colors.danger
                             ],
                             borderColor: '#ffffff',
                             borderWidth: 2,
@@ -1933,6 +1928,7 @@
                         }
                     }
                 });
+
 
                 // Graphique 4 : Évolution des validations
                 const ctx4 = document.getElementById('validationChart').getContext('2d');

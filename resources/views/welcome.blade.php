@@ -648,6 +648,41 @@
                     font-size: 0.85rem;
                 }
             }
+
+
+            /* Badge Tuteur Vérifié */
+            .verified-badge {
+                display: inline-flex;
+                align-items: center;
+                background: linear-gradient(135deg, #FFD700, #FFA500);
+                color: #8B6914;
+                padding: 5px 15px;
+                border-radius: 20px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                margin-left: 10px;
+                box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+                }
+
+                50% {
+                    box-shadow: 0 3px 15px rgba(255, 215, 0, 0.5);
+                }
+
+                100% {
+                    box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+                }
+            }
+
+            .verified-badge i {
+                margin-right: 5px;
+                font-size: 0.9rem;
+            }
         </style>
 
     </section><!-- /About Section -->
@@ -668,6 +703,16 @@
                 @foreach ($recentTutors->take(3) as $index => $tutor)
                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="tutor-card" data-tutor-id="{{ $tutor->id }}">
+
+                            <!-- Badge tuteur vérifié -->
+                            @if ($tutor->role_id == 3 && $tutor->is_valid == 1)
+                                <div class="tutor-verified mb-2">
+                                    <span class="verified-badge">
+                                        <i class="fas fa-check-circle"></i> Tuteur vérifié
+                                    </span>
+                                </div>
+                            @endif
+
                             <div class="tutor-image-wrapper">
                                 <img src="{{ $tutor->photo_path ? asset('storage/' . $tutor->photo_path) : asset('images/profill_default.webp') }}"
                                     alt="{{ $tutor->firstname }}" class="tutor-img">
@@ -717,10 +762,22 @@
 
             <!-- Deuxième rangée (3 tuteurs) avec effet de superposition -->
             @if ($recentTutors->count() > 3)
-                <div class="row justify-content-center mt-5 g-4"> <!-- g-4 ajoute l'espacement entre colonnes -->
+                <div class="row justify-content-center mt-5 g-4"> 
                     @foreach ($recentTutors->slice(3, 3) as $tutor)
                         <div class="col-lg-4 col-md-6">
                             <div class="tutor-card" data-tutor-id="{{ $tutor->id }}">
+
+
+                            <!-- Badge tuteur vérifié -->
+                            @if ($tutor->role_id == 3 && $tutor->is_valid == 1)
+                                <div class="tutor-verified mb-2">
+                                    <span class="verified-badge">
+                                        <i class="fas fa-check-circle"></i> Tuteur vérifié
+                                    </span>
+                                </div>
+                            @endif
+
+
                                 <div class="tutor-image-wrapper">
                                     <img src="{{ $tutor->photo_path ? asset('storage/' . $tutor->photo_path) : asset('images/profill_default.webp') }}"
                                         alt="{{ $tutor->firstname }}" class="tutor-img">

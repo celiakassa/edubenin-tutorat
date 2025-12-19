@@ -6,7 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class AccountDeactivatedMail extends Mailable
+class StudentDeactivatedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -22,7 +22,7 @@ class AccountDeactivatedMail extends Mailable
     public function build()
     {
         return $this->subject('Votre compte a été désactivé')
-                    ->view('emails.account-deactivated')
+                    ->view('emails.student-deactivated')
                     ->with([
                         'user' => $this->user,
                         'reason' => $this->reason

@@ -584,6 +584,40 @@
             font-size: 14px;
         }
 
+        /* Badge Tuteur Vérifié */
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #8B6914;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 10px;
+            box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 3px 15px rgba(255, 215, 0, 0.5);
+            }
+
+            100% {
+                box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+            }
+        }
+
+        .verified-badge i {
+            margin-right: 5px;
+            font-size: 0.9rem;
+        }
+
         @media (max-width: 1024px) {
             .sidebar {
                 width: 250px;
@@ -667,6 +701,20 @@
         </div>
 
         <div class="sidebar-stats">
+
+            <!-- Badge tuteur vérifié -->
+            @if ($user->role_id == 3 && $user->is_valid == 1)
+                <center>
+                    <div class="tutor-verified mb-2">
+                        <span class="verified-badge">
+                            <i class="fas fa-check-circle"></i> Tuteur vérifié
+                        </span>
+                    </div>
+                </center>
+            @endif
+
+            <br>
+
             <div class="stat-item">
                 <span class="stat-label">Profil complété</span>
                 <span class="stat-value">{{ $profileCompletion }}%</span>
@@ -938,13 +986,22 @@
 
                         <div class="form-group">
                             <label for="subjects">Matières enseignées *</label>
+
+                            @php
+                                $subjectsText = is_array($user->subjects)
+                                    ? implode(', ', $user->subjects)
+                                    : implode(', ', json_decode($user->subjects, true) ?? []);
+                            @endphp
+
                             <input type="text" id="subjects" name="subjects"
-                                value="{{ old('subjects', $user->subjects) }}"
+                                value="{{ old('subjects', $subjectsText) }}"
                                 placeholder="Ex: Maths, Physique, Anglais..." required>
+
                             @error('subjects')
                                 <span class="error">{{ $message }}</span>
                             @enderror
                         </div>
+
 
                         <div class="form-group">
                             <label for="rate_per_hour">Tarif horaire (FCFA) *</label>
@@ -1064,74 +1121,77 @@
                 @endif
 
                 @if ($user->role_id == 3)
-    <div class="form-group">
-        <label for="identity_document">Pièce d'identité *</label>
-        <p style="font-size: 12px; color: var(--dark-gray); margin-bottom: 8px;">
-            <i class="fas fa-info-circle"></i> Format acceptés : PDF, JPG, PNG (max 10MB). La pièce doit être claire et lisible.
-        </p>
-
-        <div class="file-upload">
-            <label for="identity_document" class="file-upload-label">
-                <i class="fas fa-file-upload"></i>
-                <span>Télécharger la pièce d'identité...</span>
-            </label>
-            <input type="file" id="identity_document" name="identity_document"
-                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
-        </div>
-
-        @if ($user->identity_document_path)
-            <div class="current-photo" style="margin-top: 15px;">
-                <p style="font-size: 13px; color: var(--success); margin-bottom: 5px;">
-                    <i class="fas fa-check-circle"></i> Pièce d'identité téléchargée
-                </p>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    @if (Str::endsWith($user->identity_document_path, ['.jpg', '.jpeg', '.png']))
-                        <img src="{{ Storage::url($user->identity_document_path) }}"
-                             alt="Pièce d'identité" style="width: 80px; height: 60px; object-fit: cover; border-radius: 5px;">
-                    @else
-                        <div style="width: 80px; height: 60px; background: var(--primary-light);
-                                    border-radius: 5px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-file-pdf" style="color: white; font-size: 24px;"></i>
-                        </div>
-                    @endif
-                    <div>
-                        <a href="{{ Storage::url($user->identity_document_path) }}"
-                           target="_blank" style="color: var(--primary-color); text-decoration: none; font-size: 13px;">
-                            <i class="fas fa-eye"></i> Voir la pièce
-                        </a>
-                        <p style="font-size: 11px; color: var(--dark-gray); margin-top: 3px;">
-                            @if ($user->identity_verified)
-                                <span style="color: var(--success);">
-                                    <i class="fas fa-check"></i> Vérifiée
-                                </span>
-                            @else
-                                <span style="color: var(--warning);">
-                                    <i class="fas fa-clock"></i> En attente de vérification
-                                </span>
-                            @endif
+                    <div class="form-group">
+                        <label for="identity_document">Pièce d'identité *</label>
+                        <p style="font-size: 12px; color: var(--dark-gray); margin-bottom: 8px;">
+                            <i class="fas fa-info-circle"></i> Format acceptés : PDF, JPG, PNG (max 10MB). La pièce
+                            doit être claire et lisible.
                         </p>
+
+                        <div class="file-upload">
+                            <label for="identity_document" class="file-upload-label">
+                                <i class="fas fa-file-upload"></i>
+                                <span>Télécharger la pièce d'identité...</span>
+                            </label>
+                            <input type="file" id="identity_document" name="identity_document"
+                                accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                        </div>
+
+                        @if ($user->identity_document_path)
+                            <div class="current-photo" style="margin-top: 15px;">
+                                <p style="font-size: 13px; color: var(--success); margin-bottom: 5px;">
+                                    <i class="fas fa-check-circle"></i> Pièce d'identité téléchargée
+                                </p>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    @if (Str::endsWith($user->identity_document_path, ['.jpg', '.jpeg', '.png']))
+                                        <img src="{{ Storage::url($user->identity_document_path) }}"
+                                            alt="Pièce d'identité"
+                                            style="width: 80px; height: 60px; object-fit: cover; border-radius: 5px;">
+                                    @else
+                                        <div
+                                            style="width: 80px; height: 60px; background: var(--primary-light);
+                                    border-radius: 5px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-file-pdf" style="color: white; font-size: 24px;"></i>
+                                        </div>
+                                    @endif
+                                    <div>
+                                        <a href="{{ Storage::url($user->identity_document_path) }}" target="_blank"
+                                            style="color: var(--primary-color); text-decoration: none; font-size: 13px;">
+                                            <i class="fas fa-eye"></i> Voir la pièce
+                                        </a>
+                                        <p style="font-size: 11px; color: var(--dark-gray); margin-top: 3px;">
+                                            @if ($user->identity_verified)
+                                                <span style="color: var(--success);">
+                                                    <i class="fas fa-check"></i> Vérifiée
+                                                </span>
+                                            @else
+                                                <span style="color: var(--warning);">
+                                                    <i class="fas fa-clock"></i> En attente de vérification
+                                                </span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        @error('identity_document')
+                            <span class="error">{{ $message }}</span>
+                        @enderror
                     </div>
-                </div>
-            </div>
-        @endif
+                @endif
 
-        @error('identity_document')
-            <span class="error">{{ $message }}</span>
-        @enderror
-    </div>
-@endif
-
-<script>
-    // Gestion de l'affichage du nom du fichier pour la pièce d'identité
-    document.getElementById('identity_document').addEventListener('change', function(e) {
-        const label = this.previousElementSibling;
-        if (this.files.length > 0) {
-            label.querySelector('span').textContent = this.files[0].name;
-        } else {
-            label.querySelector('span').textContent = 'Télécharger la pièce d\'identité...';
-        }
-    });
-</script>
+                <script>
+                    // Gestion de l'affichage du nom du fichier pour la pièce d'identité
+                    document.getElementById('identity_document').addEventListener('change', function(e) {
+                        const label = this.previousElementSibling;
+                        if (this.files.length > 0) {
+                            label.querySelector('span').textContent = this.files[0].name;
+                        } else {
+                            label.querySelector('span').textContent = 'Télécharger la pièce d\'identité...';
+                        }
+                    });
+                </script>
 
                 @if ($user->role_id == 2)
                     <div class="form-section">

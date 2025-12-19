@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class ProfesseurController extends Controller
 {
@@ -12,12 +11,16 @@ class ProfesseurController extends Controller
      */
     public function index()
     {
-        // Récupérer les utilisateurs avec role_id = 3 (professeurs) et is_active = 1
+        // Récupérer les professeurs actifs et validés
         $professeurs = User::where('role_id', 3)
-                          ->where('is_active', 1)
-                          ->orderBy('created_at', 'desc')
-                          ->paginate(20);
+            ->where('is_active', 1)
+            ->where('is_valid', 1)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
 
-        return view('recherche.index', compact('professeurs'));
+        // Total des tuteurs experts
+        $totalExperts = $professeurs->total();
+
+        return view('recherche.index', compact('professeurs', 'totalExperts'));
     }
 }

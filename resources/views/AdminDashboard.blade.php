@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -774,8 +775,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Notification */
@@ -807,6 +813,7 @@
                 transform: translateX(100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -818,10 +825,12 @@
             .sidebar {
                 width: 200px;
             }
+
             .main-content {
                 margin-left: 200px;
                 padding: 20px;
             }
+
             .charts-grid {
                 grid-template-columns: 1fr;
             }
@@ -831,14 +840,17 @@
             .admin-container {
                 flex-direction: column;
             }
+
             .sidebar {
                 width: 100%;
                 position: static;
                 height: auto;
             }
+
             .main-content {
                 margin-left: 0;
             }
+
             .stats-cards {
                 grid-template-columns: 1fr;
             }
@@ -994,8 +1006,18 @@
                     </h3>
                 </div>
 
+                <!-- Barre de recherche -->
+                <div class="section-actions">
+                    <div class="search-box">
+                        <input type="text" id="searchPendingInput" placeholder="Rechercher un professeur..."
+                            autocomplete="off">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+
+                <!-- Tableau -->
                 <div class="table-container">
-                    <table>
+                    <table id="profsTable">
                         <thead>
                             <tr>
                                 <th>Professeur</th>
@@ -1011,7 +1033,8 @@
                             @foreach ($pendingTeachers as $teacher)
                                 @php
                                     $completion = $teacher->profile_completion ?? 0;
-                                    $completionClass = $completion >= 80 ? 'high' : ($completion >= 50 ? 'medium' : 'low');
+                                    $completionClass =
+                                        $completion >= 80 ? 'high' : ($completion >= 50 ? 'medium' : 'low');
                                 @endphp
                                 <tr>
                                     <td>
@@ -1043,7 +1066,7 @@
                                     <td>
                                         <div class="progress-bar">
                                             <div class="progress-fill {{ $completionClass }}"
-                                                 style="width: {{ $completion }}%"></div>
+                                                style="width: {{ $completion }}%"></div>
                                         </div>
                                         <small style="display: block; margin-top: 5px; color: #7f8c8d;">
                                             {{ $completion }}%
@@ -1052,8 +1075,8 @@
                                     <td>
                                         @if ($teacher->identity_document_path)
                                             <button class="btn btn-outline btn-sm view-document"
-                                                    data-teacher-id="{{ $teacher->id }}"
-                                                    style="padding: 5px 10px; font-size: 12px;">
+                                                data-teacher-id="{{ $teacher->id }}"
+                                                style="padding: 5px 10px; font-size: 12px;">
                                                 <i class="fas fa-file-pdf"></i> Voir la pièce
                                             </button>
                                         @else
@@ -1070,30 +1093,26 @@
                                     <td>
                                         <div class="action-buttons">
                                             <button class="action-btn view"
-                                                    onclick="window.location.href='{{ route('admin.teacher.details', $teacher->id) }}'"
-                                                    title="Voir détails">
+                                                onclick="window.location.href='{{ route('admin.teacher.details', $teacher->id) }}'"
+                                                title="Voir détails">
                                                 <i class="fas fa-eye"></i>
                                             </button>
-                                            <button class="action-btn approve"
-                                                    data-teacher-id="{{ $teacher->id }}"
-                                                    title="Approuver">
+                                            <button class="action-btn approve" data-teacher-id="{{ $teacher->id }}"
+                                                title="Approuver">
                                                 <i class="fas fa-check"></i>
                                             </button>
-                                            <button class="action-btn reject"
-                                                    data-teacher-id="{{ $teacher->id }}"
-                                                    title="Rejeter">
+                                            <button class="action-btn reject" data-teacher-id="{{ $teacher->id }}"
+                                                title="Rejeter">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                             @if ($teacher->is_active)
                                                 <button class="action-btn deactivate"
-                                                        data-teacher-id="{{ $teacher->id }}"
-                                                        title="Désactiver">
+                                                    data-teacher-id="{{ $teacher->id }}" title="Désactiver">
                                                     <i class="fas fa-ban"></i>
                                                 </button>
                                             @else
                                                 <button class="action-btn reactivate"
-                                                        data-teacher-id="{{ $teacher->id }}"
-                                                        title="Réactiver">
+                                                    data-teacher-id="{{ $teacher->id }}" title="Réactiver">
                                                     <i class="fas fa-power-off"></i>
                                                 </button>
                                             @endif
@@ -1109,6 +1128,60 @@
                 </div>
             </div>
 
+            <!-- CSS barre de recherche -->
+            <style>
+                .search-box {
+                    position: relative;
+                    width: 100%;
+                    max-width: 300px;
+                    margin-bottom: 20px;
+                }
+
+                .search-box input {
+                    width: 100%;
+                    padding: 10px 35px 10px 15px;
+                    border-radius: 25px;
+                    border: 1px solid #ccc;
+                    font-size: 14px;
+                    transition: all 0.3s ease;
+                }
+
+                .search-box input:focus {
+                    outline: none;
+                    border-color: #e74c3c;
+                    /* rouge lumineux */
+                    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+                }
+
+                .search-box i {
+                    position: absolute;
+                    right: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #888;
+                    font-size: 16px;
+                    pointer-events: none;
+                }
+            </style>
+
+            <!-- JS recherche fonctionnelle -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const searchPendingInput = document.getElementById('searchPendingInput');
+
+                    searchPendingInput.addEventListener('keyup', function() {
+                        const value = this.value.toLowerCase();
+                        const rows = document.querySelectorAll('#profsTable tbody tr');
+
+                        rows.forEach(row => {
+                            const text = row.textContent.toLowerCase();
+                            row.style.display = text.includes(value) ? '' : 'none';
+                        });
+                    });
+                });
+            </script>
+
+
             <!-- Professeurs Vérifiés -->
             <div class="content-section">
                 <div class="section-header">
@@ -1119,8 +1192,55 @@
                     </h3>
                 </div>
 
+                <!-- CSS barre de recherche -->
+                <style>
+                    .search-box {
+                        position: relative;
+                        width: 100%;
+                        max-width: 300px;
+                        margin-bottom: 20px;
+                    }
+
+                    .search-box input {
+                        width: 100%;
+                        padding: 10px 35px 10px 15px;
+                        border-radius: 25px;
+                        border: 1px solid #ccc;
+                        font-size: 14px;
+                        transition: all 0.3s ease;
+                    }
+
+                    .search-box input:focus {
+                        outline: none;
+                        border-color: #e74c3c;
+                        /* rouge lumineux */
+                        box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+                    }
+
+                    .search-box i {
+                        position: absolute;
+                        right: 12px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        color: #888;
+                        font-size: 16px;
+                        pointer-events: none;
+                        /* icône non cliquable */
+                    }
+                </style>
+
+                <!-- Barre de recherche -->
+                <div class="section-actions">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Rechercher un professeur..."
+                            autocomplete="off">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+
+                <!-- Tableau -->
                 <div class="table-container">
-                    <table>
+                    <table id="profs2Table">
                         <thead>
                             <tr>
                                 <th>Professeur</th>
@@ -1172,8 +1292,11 @@
                                     <td>
                                         @if ($teacher->learning_preference)
                                             <span class="badge {{ $teacher->learning_preference }}">
-                                                {{ $teacher->learning_preference == 'in_person' ? 'Présentiel' :
-                                                   ($teacher->learning_preference == 'online' ? 'En ligne' : 'Hybride') }}
+                                                {{ $teacher->learning_preference == 'in_person'
+                                                    ? 'Présentiel'
+                                                    : ($teacher->learning_preference == 'online'
+                                                        ? 'En ligne'
+                                                        : 'Hybride') }}
                                             </span>
                                         @else
                                             Non renseigné
@@ -1190,27 +1313,25 @@
                                     <td>
                                         <div class="action-buttons">
                                             <button class="action-btn view"
-                                                    onclick="window.location.href='{{ route('admin.teacher.details', $teacher->id) }}'"
-                                                    title="Voir détails">
+                                                onclick="window.location.href='{{ route('admin.teacher.details', $teacher->id) }}'"
+                                                title="Voir détails">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             @if ($teacher->identity_document_path)
                                                 <button class="action-btn download"
-                                                        onclick="window.open('{{ route('admin.viewIdentityDocument', $teacher->id) }}', '_blank')"
-                                                        title="Voir pièce d'identité">
+                                                    onclick="window.open('{{ route('admin.viewIdentityDocument', $teacher->id) }}', '_blank')"
+                                                    title="Voir pièce d'identité">
                                                     <i class="fas fa-file-pdf"></i>
                                                 </button>
                                             @endif
                                             @if ($teacher->is_active)
                                                 <button class="action-btn deactivate"
-                                                        data-teacher-id="{{ $teacher->id }}"
-                                                        title="Désactiver">
+                                                    data-teacher-id="{{ $teacher->id }}" title="Désactiver">
                                                     <i class="fas fa-ban"></i>
                                                 </button>
                                             @else
                                                 <button class="action-btn reactivate"
-                                                        data-teacher-id="{{ $teacher->id }}"
-                                                        title="Réactiver">
+                                                    data-teacher-id="{{ $teacher->id }}" title="Réactiver">
                                                     <i class="fas fa-power-off"></i>
                                                 </button>
                                             @endif
@@ -1226,6 +1347,23 @@
                 </div>
             </div>
 
+            <!-- JS recherche corrigée -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const searchInput = document.getElementById('searchInput');
+
+                    searchInput.addEventListener('keyup', function() {
+                        const value = this.value.toLowerCase();
+                        const rows = document.querySelectorAll('#profs2Table tbody tr');
+
+                        rows.forEach(row => {
+                            const text = row.textContent.toLowerCase();
+                            row.style.display = text.includes(value) ? '' : 'none';
+                        });
+                    });
+                });
+            </script>
+
             <!-- Professeurs sans pièce d'identité -->
             @if ($teachersWithoutDoc->count() > 0)
                 <div class="content-section">
@@ -1237,8 +1375,18 @@
                         </h3>
                     </div>
 
+                    <!-- Barre de recherche -->
+                    <div class="section-actions">
+                        <div class="search-box">
+                            <input type="text" id="searchNoDocInput" placeholder="Rechercher un professeur..."
+                                autocomplete="off">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+
+                    <!-- Tableau -->
                     <div class="table-container">
-                        <table>
+                        <table id="noDocTable">
                             <thead>
                                 <tr>
                                     <th>Professeur</th>
@@ -1275,20 +1423,18 @@
                                         <td>
                                             <div class="action-buttons">
                                                 <button class="action-btn view"
-                                                        onclick="window.location.href='{{ route('admin.teacher.details', $teacher->id) }}'"
-                                                        title="Voir détails">
+                                                    onclick="window.location.href='{{ route('admin.teacher.details', $teacher->id) }}'"
+                                                    title="Voir détails">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                                 @if ($teacher->is_active)
                                                     <button class="action-btn deactivate"
-                                                            data-teacher-id="{{ $teacher->id }}"
-                                                            title="Désactiver">
+                                                        data-teacher-id="{{ $teacher->id }}" title="Désactiver">
                                                         <i class="fas fa-ban"></i>
                                                     </button>
                                                 @else
                                                     <button class="action-btn reactivate"
-                                                            data-teacher-id="{{ $teacher->id }}"
-                                                            title="Réactiver">
+                                                        data-teacher-id="{{ $teacher->id }}" title="Réactiver">
                                                         <i class="fas fa-power-off"></i>
                                                     </button>
                                                 @endif
@@ -1305,6 +1451,60 @@
                 </div>
             @endif
 
+            <!-- CSS barre de recherche -->
+            <style>
+                .search-box {
+                    position: relative;
+                    width: 100%;
+                    max-width: 300px;
+                    margin-bottom: 20px;
+                }
+
+                .search-box input {
+                    width: 100%;
+                    padding: 10px 35px 10px 15px;
+                    border-radius: 25px;
+                    border: 1px solid #2d3688;
+                    font-size: 14px;
+                    transition: all 0.3s ease;
+                }
+
+                .search-box input:focus {
+                    outline: none;
+                    border-color: #3c47e7;
+                    box-shadow: 0 0 8px rgba(63, 60, 231, 0.5);
+                }
+
+                .search-box i {
+                    position: absolute;
+                    right: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #888;
+                    font-size: 16px;
+                    pointer-events: none;
+                }
+            </style>
+
+            <!-- JS recherche fonctionnelle -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const searchNoDocInput = document.getElementById('searchNoDocInput');
+
+                    searchNoDocInput.addEventListener('keyup', function() {
+                        const value = this.value.toLowerCase();
+                        const rows = document.querySelectorAll('#noDocTable tbody tr');
+
+                        rows.forEach(row => {
+                            const text = row.textContent.toLowerCase();
+                            row.style.display = text.includes(value) ? '' : 'none';
+                        });
+                    });
+                });
+            </script>
+
+
+
             <!-- Professeurs Désactivés -->
             @if ($inactiveTeachers->count() > 0)
                 <div class="content-section">
@@ -1316,8 +1516,18 @@
                         </h3>
                     </div>
 
+                    <!-- Barre de recherche -->
+                    <div class="section-actions">
+                        <div class="search-box">
+                            <input type="text" id="searchInactiveInput" placeholder="Rechercher un professeur..."
+                                autocomplete="off">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+
+                    <!-- Tableau -->
                     <div class="table-container">
-                        <table>
+                        <table id="inactiveTable">
                             <thead>
                                 <tr>
                                     <th>Professeur</th>
@@ -1350,13 +1560,12 @@
                                         <td>
                                             <div class="action-buttons">
                                                 <button class="action-btn view"
-                                                        onclick="window.location.href='{{ route('admin.teacher.details', $teacher->id) }}'"
-                                                        title="Voir détails">
+                                                    onclick="window.location.href='{{ route('admin.teacher.details', $teacher->id) }}'"
+                                                    title="Voir détails">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                                 <button class="action-btn reactivate"
-                                                        data-teacher-id="{{ $teacher->id }}"
-                                                        title="Réactiver">
+                                                    data-teacher-id="{{ $teacher->id }}" title="Réactiver">
                                                     <i class="fas fa-power-off"></i>
                                                 </button>
                                             </div>
@@ -1371,271 +1580,330 @@
                     </div>
                 </div>
             @endif
-        </div>
-    </div>
 
-    <!-- Modals -->
-    <!-- Modal d'approbation -->
-    <div id="approvalModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-check-circle"></i> Approuver le professeur</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="approvalForm" method="POST">
-                    @csrf
-                    <input type="hidden" name="teacher_id" id="approvalTeacherId">
-                    <div class="form-group">
-                        <label for="approvalReason">Message d'approbation (optionnel)</label>
-                        <textarea id="approvalReason" name="approval_reason" class="form-control"
-                                  rows="4" placeholder="Message à envoyer au professeur..."></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-outline close-modal">Annuler</button>
-                        <button type="submit" class="btn btn-success" id="approveSubmitBtn">
-                            <i class="fas fa-check"></i> Confirmer l'approbation
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+            <!-- CSS barre de recherche  -->
+            <style>
+                .search-box {
+                    position: relative;
+                    width: 100%;
+                    max-width: 300px;
+                    margin-bottom: 20px;
+                }
 
-    <!-- Modal de rejet -->
-    <div id="rejectionModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-times-circle"></i> Rejeter le professeur</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="rejectionForm" method="POST">
-                    @csrf
-                    <input type="hidden" name="teacher_id" id="rejectionTeacherId">
-                    <div class="form-group">
-                        <label for="rejectionReason">Raison du rejet <span style="color: #e74c3c">*</span></label>
-                        <textarea id="rejectionReason" name="rejection_reason" class="form-control"
-                                  rows="4" placeholder="Veuillez expliquer la raison du rejet..." required></textarea>
-                        <small style="color: #7f8c8d; display: block; margin-top: 5px;">
-                            Cette raison sera envoyée par email au professeur.
-                        </small>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-outline close-modal">Annuler</button>
-                        <button type="submit" class="btn btn-danger" id="rejectSubmitBtn">
-                            <i class="fas fa-times"></i> Confirmer le rejet
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+                .search-box input {
+                    width: 100%;
+                    padding: 10px 35px 10px 15px;
+                    border-radius: 25px;
+                    border: 1px solid #ccc;
+                    font-size: 14px;
+                    transition: all 0.3s ease;
+                }
 
-    <!-- Modal de désactivation -->
-    <div id="deactivationModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-ban"></i> Désactiver le compte</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="deactivationForm" method="POST">
-                    @csrf
-                    <input type="hidden" name="teacher_id" id="deactivationTeacherId">
-                    <div class="form-group">
-                        <label for="deactivationReason">Raison de la désactivation <span style="color: #e74c3c">*</span></label>
-                        <textarea id="deactivationReason" name="deactivation_reason" class="form-control"
-                                  rows="4" placeholder="Veuillez expliquer la raison de la désactivation..." required></textarea>
-                        <small style="color: #7f8c8d; display: block; margin-top: 5px;">
-                            Cette raison sera envoyée par email au professeur. L'utilisateur sera déconnecté immédiatement.
-                        </small>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-outline close-modal">Annuler</button>
-                        <button type="submit" class="btn btn-danger" id="deactivateSubmitBtn">
-                            <i class="fas fa-ban"></i> Confirmer la désactivation
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+                .search-box input:focus {
+                    outline: none;
+                    border-color: #e74c3c;
+                    /* rouge lumineux */
+                    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+                }
 
-    <!-- Modal de réactivation -->
-    <div id="reactivationModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-power-off"></i> Réactiver le compte</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="reactivationForm" method="POST">
-                    @csrf
-                    <input type="hidden" name="teacher_id" id="reactivationTeacherId">
-                    <div class="form-group">
-                        <label for="reactivationReason">Message de réactivation (optionnel)</label>
-                        <textarea id="reactivationReason" name="reactivation_reason" class="form-control"
-                                  rows="4" placeholder="Message à envoyer au professeur..."></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-outline close-modal">Annuler</button>
-                        <button type="submit" class="btn btn-success" id="reactivateSubmitBtn">
-                            <i class="fas fa-power-off"></i> Confirmer la réactivation
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+                .search-box i {
+                    position: absolute;
+                    right: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #888;
+                    font-size: 16px;
+                    pointer-events: none;
+                }
+            </style>
 
-    <!-- Modal de visualisation de pièce d'identité -->
-    <div id="documentModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
-            <div class="modal-header">
-                <h3><i class="fas fa-file-pdf"></i> Pièce d'identité</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="documentViewer">
-                    <div style="text-align: center; padding: 20px;">
-                        <i class="fas fa-spinner fa-spin fa-2x" style="color: #1E63C4;"></i>
-                        <p style="margin-top: 10px;">Chargement de la pièce d'identité...</p>
+            <!-- JS recherche -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const searchInactiveInput = document.getElementById('searchInactiveInput');
+
+                    searchInactiveInput.addEventListener('keyup', function() {
+                        const value = this.value.toLowerCase();
+                        const rows = document.querySelectorAll('#inactiveTable tbody tr');
+
+                        rows.forEach(row => {
+                            const text = row.textContent.toLowerCase();
+                            row.style.display = text.includes(value) ? '' : 'none';
+                        });
+                    });
+                });
+            </script>
+
+
+            <!-- Modals -->
+            <!-- Modal d'approbation -->
+            <div id="approvalModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-check-circle"></i> Approuver le professeur</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="approvalForm" method="POST">
+                            @csrf
+                            <input type="hidden" name="teacher_id" id="approvalTeacherId">
+                            <div class="form-group">
+                                <label for="approvalReason">Message d'approbation (optionnel)</label>
+                                <textarea id="approvalReason" name="approval_reason" class="form-control" rows="4"
+                                    placeholder="Message à envoyer au professeur..."></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-outline close-modal">Annuler</button>
+                                <button type="submit" class="btn btn-success" id="approveSubmitBtn">
+                                    <i class="fas fa-check"></i> Confirmer l'approbation
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Notification -->
-    <div id="notification" class="notification"></div>
+            <!-- Modal de rejet -->
+            <div id="rejectionModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-times-circle"></i> Rejeter le professeur</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="rejectionForm" method="POST">
+                            @csrf
+                            <input type="hidden" name="teacher_id" id="rejectionTeacherId">
+                            <div class="form-group">
+                                <label for="rejectionReason">Raison du rejet <span
+                                        style="color: #e74c3c">*</span></label>
+                                <textarea id="rejectionReason" name="rejection_reason" class="form-control" rows="4"
+                                    placeholder="Veuillez expliquer la raison du rejet..." required></textarea>
+                                <small style="color: #7f8c8d; display: block; margin-top: 5px;">
+                                    Cette raison sera envoyée par email au professeur.
+                                </small>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-outline close-modal">Annuler</button>
+                                <button type="submit" class="btn btn-danger" id="rejectSubmitBtn">
+                                    <i class="fas fa-times"></i> Confirmer le rejet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialisation des graphiques
-            initializeCharts();
+            <!-- Modal de désactivation -->
+            <div id="deactivationModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-ban"></i> Désactiver le compte</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="deactivationForm" method="POST">
+                            @csrf
+                            <input type="hidden" name="teacher_id" id="deactivationTeacherId">
+                            <div class="form-group">
+                                <label for="deactivationReason">Raison de la désactivation <span
+                                        style="color: #e74c3c">*</span></label>
+                                <textarea id="deactivationReason" name="deactivation_reason" class="form-control" rows="4"
+                                    placeholder="Veuillez expliquer la raison de la désactivation..." required></textarea>
+                                <small style="color: #7f8c8d; display: block; margin-top: 5px;">
+                                    Cette raison sera envoyée par email au professeur. L'utilisateur sera déconnecté
+                                    immédiatement.
+                                </small>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-outline close-modal">Annuler</button>
+                                <button type="submit" class="btn btn-danger" id="deactivateSubmitBtn">
+                                    <i class="fas fa-ban"></i> Confirmer la désactivation
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-            // Modals
-            const approvalModal = document.getElementById('approvalModal');
-            const rejectionModal = document.getElementById('rejectionModal');
-            const deactivationModal = document.getElementById('deactivationModal');
-            const reactivationModal = document.getElementById('reactivationModal');
-            const documentModal = document.getElementById('documentModal');
-            const closeButtons = document.querySelectorAll('.close-modal');
-            const notification = document.getElementById('notification');
+            <!-- Modal de réactivation -->
+            <div id="reactivationModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-power-off"></i> Réactiver le compte</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="reactivationForm" method="POST">
+                            @csrf
+                            <input type="hidden" name="teacher_id" id="reactivationTeacherId">
+                            <div class="form-group">
+                                <label for="reactivationReason">Message de réactivation (optionnel)</label>
+                                <textarea id="reactivationReason" name="reactivation_reason" class="form-control" rows="4"
+                                    placeholder="Message à envoyer au professeur..."></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-outline close-modal">Annuler</button>
+                                <button type="submit" class="btn btn-success" id="reactivateSubmitBtn">
+                                    <i class="fas fa-power-off"></i> Confirmer la réactivation
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-            // Variables pour suivre les actions en cours
-            const pendingActions = new Set();
+            <!-- Modal de visualisation de pièce d'identité -->
+            <div id="documentModal" class="modal">
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-file-pdf"></i> Pièce d'identité</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="documentViewer">
+                            <div style="text-align: center; padding: 20px;">
+                                <i class="fas fa-spinner fa-spin fa-2x" style="color: #1E63C4;"></i>
+                                <p style="margin-top: 10px;">Chargement de la pièce d'identité...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            // Fonction pour désactiver les boutons
-            function disableActionButtons(teacherId, disable = true) {
-                const row = document.querySelector(`[data-teacher-id="${teacherId}"]`)?.closest('tr');
-                if (!row) return;
+            <!-- Notification -->
+            <div id="notification" class="notification"></div>
 
-                const buttons = row.querySelectorAll('.action-btn');
-                const loadingSpinner = row.querySelector('.loading-spinner');
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Initialisation des graphiques
+                    initializeCharts();
 
-                if (disable) {
-                    buttons.forEach(btn => btn.disabled = true);
-                    if (loadingSpinner) loadingSpinner.style.display = 'block';
-                    pendingActions.add(teacherId);
-                } else {
-                    buttons.forEach(btn => btn.disabled = false);
-                    if (loadingSpinner) loadingSpinner.style.display = 'none';
-                    pendingActions.delete(teacherId);
-                }
-            }
+                    // Modals
+                    const approvalModal = document.getElementById('approvalModal');
+                    const rejectionModal = document.getElementById('rejectionModal');
+                    const deactivationModal = document.getElementById('deactivationModal');
+                    const reactivationModal = document.getElementById('reactivationModal');
+                    const documentModal = document.getElementById('documentModal');
+                    const closeButtons = document.querySelectorAll('.close-modal');
+                    const notification = document.getElementById('notification');
 
-            // Fonction pour désactiver le bouton de soumission modal
-            function disableModalButton(buttonId, disable = true) {
-                const button = document.getElementById(buttonId);
-                if (button) {
-                    button.disabled = disable;
-                    if (disable) {
-                        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Veuillez patienter...';
+                    // Variables pour suivre les actions en cours
+                    const pendingActions = new Set();
+
+                    // Fonction pour désactiver les boutons
+                    function disableActionButtons(teacherId, disable = true) {
+                        const row = document.querySelector(`[data-teacher-id="${teacherId}"]`)?.closest('tr');
+                        if (!row) return;
+
+                        const buttons = row.querySelectorAll('.action-btn');
+                        const loadingSpinner = row.querySelector('.loading-spinner');
+
+                        if (disable) {
+                            buttons.forEach(btn => btn.disabled = true);
+                            if (loadingSpinner) loadingSpinner.style.display = 'block';
+                            pendingActions.add(teacherId);
+                        } else {
+                            buttons.forEach(btn => btn.disabled = false);
+                            if (loadingSpinner) loadingSpinner.style.display = 'none';
+                            pendingActions.delete(teacherId);
+                        }
                     }
-                }
-            }
 
-            // Fonction pour réinitialiser le bouton modal
-            function resetModalButton(buttonId, originalText) {
-                const button = document.getElementById(buttonId);
-                if (button) {
-                    button.disabled = false;
-                    button.innerHTML = originalText;
-                }
-            }
-
-            // Ouvrir modal d'approbation
-            document.querySelectorAll('.action-btn.approve').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const teacherId = this.getAttribute('data-teacher-id');
-                    if (pendingActions.has(teacherId)) {
-                        showNotification('Une action est déjà en cours pour ce professeur', 'warning');
-                        return;
+                    // Fonction pour désactiver le bouton de soumission modal
+                    function disableModalButton(buttonId, disable = true) {
+                        const button = document.getElementById(buttonId);
+                        if (button) {
+                            button.disabled = disable;
+                            if (disable) {
+                                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Veuillez patienter...';
+                            }
+                        }
                     }
-                    document.getElementById('approvalTeacherId').value = teacherId;
-                    approvalModal.style.display = 'flex';
-                });
-            });
 
-            // Ouvrir modal de rejet
-            document.querySelectorAll('.action-btn.reject').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const teacherId = this.getAttribute('data-teacher-id');
-                    if (pendingActions.has(teacherId)) {
-                        showNotification('Une action est déjà en cours pour ce professeur', 'warning');
-                        return;
+                    // Fonction pour réinitialiser le bouton modal
+                    function resetModalButton(buttonId, originalText) {
+                        const button = document.getElementById(buttonId);
+                        if (button) {
+                            button.disabled = false;
+                            button.innerHTML = originalText;
+                        }
                     }
-                    document.getElementById('rejectionTeacherId').value = teacherId;
-                    rejectionModal.style.display = 'flex';
-                });
-            });
 
-            // Ouvrir modal de désactivation
-            document.querySelectorAll('.action-btn.deactivate').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const teacherId = this.getAttribute('data-teacher-id');
-                    if (pendingActions.has(teacherId)) {
-                        showNotification('Une action est déjà en cours pour ce professeur', 'warning');
-                        return;
-                    }
-                    document.getElementById('deactivationTeacherId').value = teacherId;
-                    deactivationModal.style.display = 'flex';
-                });
-            });
+                    // Ouvrir modal d'approbation
+                    document.querySelectorAll('.action-btn.approve').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const teacherId = this.getAttribute('data-teacher-id');
+                            if (pendingActions.has(teacherId)) {
+                                showNotification('Une action est déjà en cours pour ce professeur',
+                                    'warning');
+                                return;
+                            }
+                            document.getElementById('approvalTeacherId').value = teacherId;
+                            approvalModal.style.display = 'flex';
+                        });
+                    });
 
-            // Ouvrir modal de réactivation
-            document.querySelectorAll('.action-btn.reactivate').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const teacherId = this.getAttribute('data-teacher-id');
-                    if (pendingActions.has(teacherId)) {
-                        showNotification('Une action est déjà en cours pour ce professeur', 'warning');
-                        return;
-                    }
-                    document.getElementById('reactivationTeacherId').value = teacherId;
-                    reactivationModal.style.display = 'flex';
-                });
-            });
+                    // Ouvrir modal de rejet
+                    document.querySelectorAll('.action-btn.reject').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const teacherId = this.getAttribute('data-teacher-id');
+                            if (pendingActions.has(teacherId)) {
+                                showNotification('Une action est déjà en cours pour ce professeur',
+                                    'warning');
+                                return;
+                            }
+                            document.getElementById('rejectionTeacherId').value = teacherId;
+                            rejectionModal.style.display = 'flex';
+                        });
+                    });
 
-            // Voir pièce d'identité
-            document.querySelectorAll('.view-document').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const teacherId = this.getAttribute('data-teacher-id');
-                    const documentViewer = document.getElementById('documentViewer');
+                    // Ouvrir modal de désactivation
+                    document.querySelectorAll('.action-btn.deactivate').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const teacherId = this.getAttribute('data-teacher-id');
+                            if (pendingActions.has(teacherId)) {
+                                showNotification('Une action est déjà en cours pour ce professeur',
+                                    'warning');
+                                return;
+                            }
+                            document.getElementById('deactivationTeacherId').value = teacherId;
+                            deactivationModal.style.display = 'flex';
+                        });
+                    });
 
-                    documentViewer.innerHTML = `
+                    // Ouvrir modal de réactivation
+                    document.querySelectorAll('.action-btn.reactivate').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const teacherId = this.getAttribute('data-teacher-id');
+                            if (pendingActions.has(teacherId)) {
+                                showNotification('Une action est déjà en cours pour ce professeur',
+                                    'warning');
+                                return;
+                            }
+                            document.getElementById('reactivationTeacherId').value = teacherId;
+                            reactivationModal.style.display = 'flex';
+                        });
+                    });
+
+                    // Voir pièce d'identité
+                    document.querySelectorAll('.view-document').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const teacherId = this.getAttribute('data-teacher-id');
+                            const documentViewer = document.getElementById('documentViewer');
+
+                            documentViewer.innerHTML = `
                         <div style="text-align: center; padding: 20px;">
                             <i class="fas fa-spinner fa-spin fa-2x" style="color: #1E63C4;"></i>
                             <p style="margin-top: 10px;">Chargement de la pièce d'identité...</p>
                         </div>
                     `;
 
-                    documentModal.style.display = 'flex';
+                            documentModal.style.display = 'flex';
 
-                    // Charger le document
-                    const url = `/admin/teachers/${teacherId}/identity-document`;
-                    documentViewer.innerHTML = `
+                            // Charger le document
+                            const url = `/admin/teachers/${teacherId}/identity-document`;
+                            documentViewer.innerHTML = `
                         <iframe src="${url}"
                                 style="width: 100%; height: 500px; border: none; border-radius: 8px;"></iframe>
                         <div style="text-align: center; margin-top: 15px;">
@@ -1645,344 +1913,363 @@
                             </a>
                         </div>
                     `;
-                });
-            });
+                        });
+                    });
 
-            // Fermer modals
-            closeButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    approvalModal.style.display = 'none';
-                    rejectionModal.style.display = 'none';
-                    deactivationModal.style.display = 'none';
-                    reactivationModal.style.display = 'none';
-                    documentModal.style.display = 'none';
+                    // Fermer modals
+                    closeButtons.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            approvalModal.style.display = 'none';
+                            rejectionModal.style.display = 'none';
+                            deactivationModal.style.display = 'none';
+                            reactivationModal.style.display = 'none';
+                            documentModal.style.display = 'none';
 
-                    // Réinitialiser les formulaires
-                    document.getElementById('approvalForm').reset();
-                    document.getElementById('rejectionForm').reset();
-                    document.getElementById('deactivationForm').reset();
-                    document.getElementById('reactivationForm').reset();
+                            // Réinitialiser les formulaires
+                            document.getElementById('approvalForm').reset();
+                            document.getElementById('rejectionForm').reset();
+                            document.getElementById('deactivationForm').reset();
+                            document.getElementById('reactivationForm').reset();
 
-                    // Réinitialiser les boutons modaux
-                    resetModalButton('approveSubmitBtn', '<i class="fas fa-check"></i> Confirmer l\'approbation');
-                    resetModalButton('rejectSubmitBtn', '<i class="fas fa-times"></i> Confirmer le rejet');
-                    resetModalButton('deactivateSubmitBtn', '<i class="fas fa-ban"></i> Confirmer la désactivation');
-                    resetModalButton('reactivateSubmitBtn', '<i class="fas fa-power-off"></i> Confirmer la réactivation');
-                });
-            });
+                            // Réinitialiser les boutons modaux
+                            resetModalButton('approveSubmitBtn',
+                                '<i class="fas fa-check"></i> Confirmer l\'approbation');
+                            resetModalButton('rejectSubmitBtn',
+                                '<i class="fas fa-times"></i> Confirmer le rejet');
+                            resetModalButton('deactivateSubmitBtn',
+                                '<i class="fas fa-ban"></i> Confirmer la désactivation');
+                            resetModalButton('reactivateSubmitBtn',
+                                '<i class="fas fa-power-off"></i> Confirmer la réactivation');
+                        });
+                    });
 
-            // Fermer modals en cliquant en dehors
-            window.addEventListener('click', function(event) {
-                if (event.target === approvalModal) {
-                    approvalModal.style.display = 'none';
-                    document.getElementById('approvalForm').reset();
-                }
-                if (event.target === rejectionModal) {
-                    rejectionModal.style.display = 'none';
-                    document.getElementById('rejectionForm').reset();
-                }
-                if (event.target === deactivationModal) {
-                    deactivationModal.style.display = 'none';
-                    document.getElementById('deactivationForm').reset();
-                }
-                if (event.target === reactivationModal) {
-                    reactivationModal.style.display = 'none';
-                    document.getElementById('reactivationForm').reset();
-                }
-                if (event.target === documentModal) {
-                    documentModal.style.display = 'none';
-                }
-            });
+                    // Fermer modals en cliquant en dehors
+                    window.addEventListener('click', function(event) {
+                        if (event.target === approvalModal) {
+                            approvalModal.style.display = 'none';
+                            document.getElementById('approvalForm').reset();
+                        }
+                        if (event.target === rejectionModal) {
+                            rejectionModal.style.display = 'none';
+                            document.getElementById('rejectionForm').reset();
+                        }
+                        if (event.target === deactivationModal) {
+                            deactivationModal.style.display = 'none';
+                            document.getElementById('deactivationForm').reset();
+                        }
+                        if (event.target === reactivationModal) {
+                            reactivationModal.style.display = 'none';
+                            document.getElementById('reactivationForm').reset();
+                        }
+                        if (event.target === documentModal) {
+                            documentModal.style.display = 'none';
+                        }
+                    });
 
-            // Soumission du formulaire d'approbation
-            document.getElementById('approvalForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const teacherId = document.getElementById('approvalTeacherId').value;
-                const formData = new FormData(this);
+                    // Soumission du formulaire d'approbation
+                    document.getElementById('approvalForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const teacherId = document.getElementById('approvalTeacherId').value;
+                        const formData = new FormData(this);
 
-                // Désactiver les boutons
-                disableActionButtons(teacherId, true);
-                disableModalButton('approveSubmitBtn', true);
+                        // Désactiver les boutons
+                        disableActionButtons(teacherId, true);
+                        disableModalButton('approveSubmitBtn', true);
 
-                fetch(`/admin/teachers/${teacherId}/approve`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
+                        fetch(`/admin/teachers/${teacherId}/approve`, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                        .getAttribute('content'),
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    showNotification('Professeur approuvé avec succès !', 'success');
+                                    approvalModal.style.display = 'none';
+                                    document.getElementById('approvalForm').reset();
+                                    // Recharger la page après 2 secondes
+                                    setTimeout(() => location.reload(), 2000);
+                                } else {
+                                    showNotification('Erreur lors de l\'approbation: ' + data.message, 'error');
+                                    disableActionButtons(teacherId, false);
+                                    resetModalButton('approveSubmitBtn',
+                                        '<i class="fas fa-check"></i> Confirmer l\'approbation');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showNotification('Erreur lors de l\'approbation', 'error');
+                                disableActionButtons(teacherId, false);
+                                resetModalButton('approveSubmitBtn',
+                                    '<i class="fas fa-check"></i> Confirmer l\'approbation');
+                            });
+                    });
+
+                    // Soumission du formulaire de rejet
+                    document.getElementById('rejectionForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const teacherId = document.getElementById('rejectionTeacherId').value;
+                        const formData = new FormData(this);
+
+                        // Désactiver les boutons
+                        disableActionButtons(teacherId, true);
+                        disableModalButton('rejectSubmitBtn', true);
+
+                        fetch(`/admin/teachers/${teacherId}/reject`, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                        .getAttribute('content'),
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    showNotification('Professeur rejeté avec succès !', 'success');
+                                    rejectionModal.style.display = 'none';
+                                    document.getElementById('rejectionForm').reset();
+                                    // Recharger la page après 2 secondes
+                                    setTimeout(() => location.reload(), 2000);
+                                } else {
+                                    showNotification('Erreur lors du rejet: ' + data.message, 'error');
+                                    disableActionButtons(teacherId, false);
+                                    resetModalButton('rejectSubmitBtn',
+                                        '<i class="fas fa-times"></i> Confirmer le rejet');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showNotification('Erreur lors du rejet', 'error');
+                                disableActionButtons(teacherId, false);
+                                resetModalButton('rejectSubmitBtn',
+                                    '<i class="fas fa-times"></i> Confirmer le rejet');
+                            });
+                    });
+
+                    // Soumission du formulaire de désactivation
+                    document.getElementById('deactivationForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const teacherId = document.getElementById('deactivationTeacherId').value;
+                        const formData = new FormData(this);
+
+                        // Désactiver les boutons
+                        disableActionButtons(teacherId, true);
+                        disableModalButton('deactivateSubmitBtn', true);
+
+                        fetch(`/admin/teachers/${teacherId}/deactivate`, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                        .getAttribute('content'),
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    showNotification('Compte désactivé avec succès !', 'success');
+                                    deactivationModal.style.display = 'none';
+                                    document.getElementById('deactivationForm').reset();
+                                    // Recharger la page après 2 secondes
+                                    setTimeout(() => location.reload(), 2000);
+                                } else {
+                                    showNotification('Erreur lors de la désactivation: ' + data.message,
+                                        'error');
+                                    disableActionButtons(teacherId, false);
+                                    resetModalButton('deactivateSubmitBtn',
+                                        '<i class="fas fa-ban"></i> Confirmer la désactivation');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showNotification('Erreur lors de la désactivation', 'error');
+                                disableActionButtons(teacherId, false);
+                                resetModalButton('deactivateSubmitBtn',
+                                    '<i class="fas fa-ban"></i> Confirmer la désactivation');
+                            });
+                    });
+
+                    // Soumission du formulaire de réactivation
+                    document.getElementById('reactivationForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const teacherId = document.getElementById('reactivationTeacherId').value;
+                        const formData = new FormData(this);
+
+                        // Désactiver les boutons
+                        disableActionButtons(teacherId, true);
+                        disableModalButton('reactivateSubmitBtn', true);
+
+                        fetch(`/admin/teachers/${teacherId}/reactivate`, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                        .getAttribute('content'),
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    showNotification('Compte réactivé avec succès !', 'success');
+                                    reactivationModal.style.display = 'none';
+                                    document.getElementById('reactivationForm').reset();
+                                    // Recharger la page après 2 secondes
+                                    setTimeout(() => location.reload(), 2000);
+                                } else {
+                                    showNotification('Erreur lors de la réactivation: ' + data.message,
+                                        'error');
+                                    disableActionButtons(teacherId, false);
+                                    resetModalButton('reactivateSubmitBtn',
+                                        '<i class="fas fa-power-off"></i> Confirmer la réactivation');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showNotification('Erreur lors de la réactivation', 'error');
+                                disableActionButtons(teacherId, false);
+                                resetModalButton('reactivateSubmitBtn',
+                                    '<i class="fas fa-power-off"></i> Confirmer la réactivation');
+                            });
+                    });
+
+                    // Fonction pour afficher les notifications
+                    function showNotification(message, type) {
+                        notification.textContent = message;
+                        notification.className = 'notification';
+
+                        switch (type) {
+                            case 'success':
+                                notification.style.background = '#2ecc71';
+                                break;
+                            case 'error':
+                                notification.style.background = '#e74c3c';
+                                notification.classList.add('error');
+                                break;
+                            case 'warning':
+                                notification.style.background = '#f39c12';
+                                notification.classList.add('warning');
+                                break;
+                            default:
+                                notification.style.background = '#3498db';
+                        }
+
+                        notification.style.display = 'block';
+
+                        setTimeout(() => {
+                            notification.style.display = 'none';
+                        }, 5000);
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Professeur approuvé avec succès !', 'success');
-                        approvalModal.style.display = 'none';
-                        document.getElementById('approvalForm').reset();
-                        // Recharger la page après 2 secondes
-                        setTimeout(() => location.reload(), 2000);
-                    } else {
-                        showNotification('Erreur lors de l\'approbation: ' + data.message, 'error');
-                        disableActionButtons(teacherId, false);
-                        resetModalButton('approveSubmitBtn', '<i class="fas fa-check"></i> Confirmer l\'approbation');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Erreur lors de l\'approbation', 'error');
-                    disableActionButtons(teacherId, false);
-                    resetModalButton('approveSubmitBtn', '<i class="fas fa-check"></i> Confirmer l\'approbation');
-                });
-            });
 
-            // Soumission du formulaire de rejet
-            document.getElementById('rejectionForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const teacherId = document.getElementById('rejectionTeacherId').value;
-                const formData = new FormData(this);
-
-                // Désactiver les boutons
-                disableActionButtons(teacherId, true);
-                disableModalButton('rejectSubmitBtn', true);
-
-                fetch(`/admin/teachers/${teacherId}/reject`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Professeur rejeté avec succès !', 'success');
-                        rejectionModal.style.display = 'none';
-                        document.getElementById('rejectionForm').reset();
-                        // Recharger la page après 2 secondes
-                        setTimeout(() => location.reload(), 2000);
-                    } else {
-                        showNotification('Erreur lors du rejet: ' + data.message, 'error');
-                        disableActionButtons(teacherId, false);
-                        resetModalButton('rejectSubmitBtn', '<i class="fas fa-times"></i> Confirmer le rejet');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Erreur lors du rejet', 'error');
-                    disableActionButtons(teacherId, false);
-                    resetModalButton('rejectSubmitBtn', '<i class="fas fa-times"></i> Confirmer le rejet');
-                });
-            });
-
-            // Soumission du formulaire de désactivation
-            document.getElementById('deactivationForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const teacherId = document.getElementById('deactivationTeacherId').value;
-                const formData = new FormData(this);
-
-                // Désactiver les boutons
-                disableActionButtons(teacherId, true);
-                disableModalButton('deactivateSubmitBtn', true);
-
-                fetch(`/admin/teachers/${teacherId}/deactivate`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Compte désactivé avec succès !', 'success');
-                        deactivationModal.style.display = 'none';
-                        document.getElementById('deactivationForm').reset();
-                        // Recharger la page après 2 secondes
-                        setTimeout(() => location.reload(), 2000);
-                    } else {
-                        showNotification('Erreur lors de la désactivation: ' + data.message, 'error');
-                        disableActionButtons(teacherId, false);
-                        resetModalButton('deactivateSubmitBtn', '<i class="fas fa-ban"></i> Confirmer la désactivation');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Erreur lors de la désactivation', 'error');
-                    disableActionButtons(teacherId, false);
-                    resetModalButton('deactivateSubmitBtn', '<i class="fas fa-ban"></i> Confirmer la désactivation');
-                });
-            });
-
-            // Soumission du formulaire de réactivation
-            document.getElementById('reactivationForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const teacherId = document.getElementById('reactivationTeacherId').value;
-                const formData = new FormData(this);
-
-                // Désactiver les boutons
-                disableActionButtons(teacherId, true);
-                disableModalButton('reactivateSubmitBtn', true);
-
-                fetch(`/admin/teachers/${teacherId}/reactivate`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Compte réactivé avec succès !', 'success');
-                        reactivationModal.style.display = 'none';
-                        document.getElementById('reactivationForm').reset();
-                        // Recharger la page après 2 secondes
-                        setTimeout(() => location.reload(), 2000);
-                    } else {
-                        showNotification('Erreur lors de la réactivation: ' + data.message, 'error');
-                        disableActionButtons(teacherId, false);
-                        resetModalButton('reactivateSubmitBtn', '<i class="fas fa-power-off"></i> Confirmer la réactivation');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Erreur lors de la réactivation', 'error');
-                    disableActionButtons(teacherId, false);
-                    resetModalButton('reactivateSubmitBtn', '<i class="fas fa-power-off"></i> Confirmer la réactivation');
-                });
-            });
-
-            // Fonction pour afficher les notifications
-            function showNotification(message, type) {
-                notification.textContent = message;
-                notification.className = 'notification';
-
-                switch(type) {
-                    case 'success':
-                        notification.style.background = '#2ecc71';
-                        break;
-                    case 'error':
-                        notification.style.background = '#e74c3c';
-                        notification.classList.add('error');
-                        break;
-                    case 'warning':
-                        notification.style.background = '#f39c12';
-                        notification.classList.add('warning');
-                        break;
-                    default:
-                        notification.style.background = '#3498db';
-                }
-
-                notification.style.display = 'block';
-
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 5000);
-            }
-
-            // Fonction pour initialiser les graphiques
-            function initializeCharts() {
-                // Graphique de vérification
-                const verificationCtx = document.getElementById('verificationChart').getContext('2d');
-                new Chart(verificationCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Vérifiés', 'En attente', 'Rejetés', 'Sans document'],
-                        datasets: [{
-                            label: 'Nombre de professeurs',
-                            data: [
-                                {{ $verifiedTeachersCount }},
-                                {{ $pendingTeachersCount }},
-                                {{ $rejectedTeachersCount }},
-                                {{ $teachersWithoutDoc->count() }}
-                            ],
-                            backgroundColor: [
-                                'rgba(46, 204, 113, 0.7)',
-                                'rgba(243, 156, 18, 0.7)',
-                                'rgba(231, 76, 60, 0.7)',
-                                'rgba(149, 165, 166, 0.7)'
-                            ],
-                            borderColor: [
-                                '#2ecc71',
-                                '#f39c12',
-                                '#e74c3c',
-                                '#95a5a6'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
+                    // Fonction pour initialiser les graphiques
+                    function initializeCharts() {
+                        // Graphique de vérification
+                        const verificationCtx = document.getElementById('verificationChart').getContext('2d');
+                        new Chart(verificationCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['Vérifiés', 'En attente', 'Rejetés', 'Sans document'],
+                                datasets: [{
+                                    label: 'Nombre de professeurs',
+                                    data: [
+                                        {{ $verifiedTeachersCount }},
+                                        {{ $pendingTeachersCount }},
+                                        {{ $rejectedTeachersCount }},
+                                        {{ $teachersWithoutDoc->count() }}
+                                    ],
+                                    backgroundColor: [
+                                        'rgba(46, 204, 113, 0.7)',
+                                        'rgba(243, 156, 18, 0.7)',
+                                        'rgba(231, 76, 60, 0.7)',
+                                        'rgba(149, 165, 166, 0.7)'
+                                    ],
+                                    borderColor: [
+                                        '#2ecc71',
+                                        '#f39c12',
+                                        '#e74c3c',
+                                        '#95a5a6'
+                                    ],
+                                    borderWidth: 1
+                                }]
                             },
-                            title: {
-                                display: true,
-                                text: 'Statut de vérification des professeurs'
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Statut de vérification des professeurs'
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            stepSize: 1
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    }
-                });
+                        });
 
-                // Graphique circulaire des comptes
-                const statusCtx = document.getElementById('statusChart').getContext('2d');
-                new Chart(statusCtx, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Actifs', 'Désactivés'],
-                        datasets: [{
-                            data: [
-                                {{ $totalTeachers - $inactiveTeachersCount }},
-                                {{ $inactiveTeachersCount }}
-                            ],
-                            backgroundColor: [
-                                'rgba(46, 204, 113, 0.7)',
-                                'rgba(231, 76, 60, 0.7)'
-                            ],
-                            borderColor: [
-                                '#2ecc71',
-                                '#e74c3c'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
+                        // Graphique circulaire des comptes
+                        const statusCtx = document.getElementById('statusChart').getContext('2d');
+                        new Chart(statusCtx, {
+                            type: 'pie',
+                            data: {
+                                labels: ['Actifs', 'Désactivés'],
+                                datasets: [{
+                                    data: [
+                                        {{ $totalTeachers - $inactiveTeachersCount }},
+                                        {{ $inactiveTeachersCount }}
+                                    ],
+                                    backgroundColor: [
+                                        'rgba(46, 204, 113, 0.7)',
+                                        'rgba(231, 76, 60, 0.7)'
+                                    ],
+                                    borderColor: [
+                                        '#2ecc71',
+                                        '#e74c3c'
+                                    ],
+                                    borderWidth: 1
+                                }]
                             },
-                            title: {
-                                display: true,
-                                text: 'Statut des comptes professeurs'
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom'
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Statut des comptes professeurs'
+                                    }
+                                }
                             }
-                        }
+                        });
                     }
+
+                    // Afficher les messages de session
+                    @if (session('success'))
+                        showNotification('{{ session('success') }}', 'success');
+                    @endif
+
+                    @if (session('error'))
+                        showNotification('{{ session('error') }}', 'error');
+                    @endif
                 });
-            }
-
-            // Afficher les messages de session
-            @if(session('success'))
-                showNotification('{{ session('success') }}', 'success');
-            @endif
-
-            @if(session('error'))
-                showNotification('{{ session('error') }}', 'error');
-            @endif
-        });
-    </script>
+            </script>
 </body>
+
 </html>
