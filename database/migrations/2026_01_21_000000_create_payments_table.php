@@ -6,12 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('annonce_id')->constrained()->onDelete('cascade');
+            $table->foreignId('annonce_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('subscription_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('fedapay_transaction_id')->nullable();
             $table->decimal('amount', 10, 2);
             $table->string('currency')->default('XOF');
@@ -20,13 +24,16 @@ return new class extends Migration
             $table->json('payment_details')->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
-            
+
             $table->index('fedapay_transaction_id');
             $table->index('status');
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::dropIfExists('payments');
     }

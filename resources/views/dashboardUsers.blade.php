@@ -14,7 +14,7 @@
             --primary-light: #4a7fd4;
             --primary-dark: #023a8a;
             --white: #ffffff;
-            --light-gray: #f5f7fa;
+            --light-gray: #010204;
             --medium-gray: #e4e7ec;
             --dark-gray: #64748b;
             --text-dark: #1e293b;
