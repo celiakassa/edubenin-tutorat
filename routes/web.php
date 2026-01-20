@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RechercheController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserDashboard;
+use App\Http\Controllers\AnnonceController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -155,6 +156,21 @@ Route::middleware('auth')->group(function () {
 
     Route::put('/apprenants/{id}/toggle-status', [ApprenantController::class, 'toggleStatus'])
         ->name('apprenants.toggle-status');
+
+
+    
+    // Route pour cree les annonces
+
+     Route::prefix('annonces')->group(function () {
+        Route::get('/', [AnnonceController::class, 'index'])->name('annonces.index');
+        Route::get('/create', [AnnonceController::class, 'create'])->name('annonces.create');
+        Route::post('/', [AnnonceController::class, 'store'])->name('annonces.store');
+        Route::get('/{id}', [AnnonceController::class, 'show'])->name('annonces.show');
+        Route::delete('/{id}', [AnnonceController::class, 'destroy'])->name('annonces.destroy');
+        Route::get('/{id}/payment', [AnnonceController::class, 'payment'])->name('annonces.payment');
+        Route::post('/{id}/process-payment', [AnnonceController::class, 'processPayment'])->name('annonces.process-payment');
+    });
+    
 
     // Route pour afficher la liste des professeurs
     // Route::get('/list_professeur',[TeacherController::class, 'listProfesseur'])->name('listProfesseur');

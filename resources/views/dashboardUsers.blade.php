@@ -593,6 +593,20 @@
                     <span class="menu-text">Compléter mon profil</span>
                 </div>
 
+               @auth
+    @if(Auth::user()->role_id == 2)
+        <div class="menu-item" onclick="window.location.href='{{ route('annonces.create') }}'">
+            <i class="fas fa-bullhorn"></i> <!-- Icône d'annonce -->
+            <span class="menu-text">Faire une demande</span>
+        </div>
+        
+        <div class="menu-item" onclick="window.location.href='{{ route('annonces.index') }}'">
+            <i class="fas fa-list"></i> <!-- Icône de liste -->
+            <span class="menu-text">Mes annonces</span>
+        </div>
+    @endif
+@endauth
+
 
 
                 <div class="menu-item logout-item" style="width: 100%;">

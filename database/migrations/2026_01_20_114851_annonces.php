@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up()
+    {
+        Schema::create('annonces', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('student_id')->constrained('users')->onDelete('cascade');
+            $table->string('domaine');
+            $table->text('description');
+            $table->decimal('budget', 10, 2);
+            $table->decimal('acompte', 10, 2);
+            $table->string('status')->default('en_attente'); // en_attente, publiée, attribuée, terminée
+            $table->dateTime('disponibilite');
+            $table->enum('format', ['presentiel', 'en_ligne', 'hybrid'])->default('presentiel');
+            $table->boolean('is_paid')->default(false);
+            $table->timestamp('published_at')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('annonces');
+    }
+};
