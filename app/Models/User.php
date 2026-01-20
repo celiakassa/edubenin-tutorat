@@ -48,7 +48,7 @@ class User extends Authenticatable implements MustVerifyEmail
     // Corrige le casts
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'last_login' => 'datetime', // <-- ajoute cette ligne
+        'last_login' => 'datetime', 
         'learning_preference' => LearningPreference::class,
     ];
 
@@ -56,4 +56,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(Role::class);
     }
+
+    public function annonces()
+{
+    return $this->hasMany(Annonce::class, 'student_id');
+}
 }

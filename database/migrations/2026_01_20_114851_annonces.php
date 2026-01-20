@@ -13,14 +13,20 @@ return new class extends Migration
             $table->foreignId('student_id')->constrained('users')->onDelete('cascade');
             $table->string('domaine');
             $table->text('description');
-            $table->decimal('budget', 10, 2);
-            $table->decimal('acompte', 10, 2);
-            $table->string('status')->default('en_attente'); // en_attente, publiée, attribuée, terminée
+
+            $table->decimal('budget', 15, 2);
+            $table->decimal('acompte', 15, 2);
+
+            $table->string('status')->default('en_attente');
             $table->dateTime('disponibilite');
             $table->enum('format', ['presentiel', 'en_ligne', 'hybrid'])->default('presentiel');
             $table->boolean('is_paid')->default(false);
             $table->timestamp('published_at')->nullable();
+            $table->string('payment_reference')->nullable();
             $table->timestamps();
+
+            $table->index('status');
+            $table->index('student_id');
         });
     }
 

@@ -161,16 +161,27 @@ Route::middleware('auth')->group(function () {
     
     // Route pour cree les annonces
 
-     Route::prefix('annonces')->group(function () {
-        Route::get('/', [AnnonceController::class, 'index'])->name('annonces.index');
+       Route::prefix('annonces')->group(function () {
+        // Routes principales
+     Route::get('/', [AnnonceController::class, 'index'])->name('annonces.index');
         Route::get('/create', [AnnonceController::class, 'create'])->name('annonces.create');
         Route::post('/', [AnnonceController::class, 'store'])->name('annonces.store');
         Route::get('/{id}', [AnnonceController::class, 'show'])->name('annonces.show');
+        Route::get('/{id}/edit', [AnnonceController::class, 'edit'])->name('annonces.edit');
+        Route::put('/{id}', [AnnonceController::class, 'update'])->name('annonces.update');
         Route::delete('/{id}', [AnnonceController::class, 'destroy'])->name('annonces.destroy');
+        
+        // Routes de paiement
         Route::get('/{id}/payment', [AnnonceController::class, 'payment'])->name('annonces.payment');
-        Route::post('/{id}/process-payment', [AnnonceController::class, 'processPayment'])->name('annonces.process-payment');
+        Route::post('/{id}/init-payment', [AnnonceController::class, 'initPayment'])->name('annonces.init-payment');
+        Route::get('/{id}/payment/callback', [AnnonceController::class, 'paymentCallback'])->name('annonces.payment.callback');
+        Route::get('/{id}/check-payment', [AnnonceController::class, 'checkPaymentStatus'])->name('annonces.check-payment');
+        
+        // Webhook (sans middleware CSRF)
+        Route::post('/webhook/fedapay', [AnnonceController::class, 'webhook'])->name('annonces.webhook.fedapay');
     });
-    
+
+   
 
     // Route pour afficher la liste des professeurs
     // Route::get('/list_professeur',[TeacherController::class, 'listProfesseur'])->name('listProfesseur');

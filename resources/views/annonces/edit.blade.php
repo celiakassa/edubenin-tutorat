@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créer une annonce - Kopiao</title>
+    <title>Modifier l'annonce - Kopiao</title>
         <link href="{{ asset('images/image_1.webp') }}" rel="icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -51,7 +50,7 @@
             opacity: 0.1;
         }
 
-        /* Navigation Styles */
+        /* Navigation Sidebar */
         .sidebar {
             width: 280px;
             background: rgba(255, 255, 255, 0.95);
@@ -150,21 +149,6 @@
             margin-bottom: 12px;
         }
 
-        .stat-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: var(--dark-gray);
-        }
-
-        .stat-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
         .sidebar-menu {
             padding: 20px 0;
         }
@@ -187,38 +171,30 @@
             border-right: 3px solid var(--primary-color);
         }
 
-        .menu-item i {
-            width: 20px;
-            text-align: center;
-            font-size: 16px;
-        }
-
-        .menu-text {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
         /* Main Content */
         .main-content {
             flex: 1;
             margin-left: 280px;
             padding: 30px;
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .create-annonce-container {
+        /* Edit Form Container */
+        .edit-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 800px;
-            margin: 0 auto;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .annonce-header {
+        .edit-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
             color: var(--white);
             padding: 30px 40px;
@@ -227,7 +203,7 @@
             overflow: hidden;
         }
 
-        .annonce-header::before {
+        .edit-header::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -237,9 +213,8 @@
             background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
         }
 
-        .annonce-header h1 {
+        .edit-header h1 {
             font-size: 28px;
-            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -248,39 +223,16 @@
             z-index: 1;
         }
 
-        .annonce-header p {
+        .edit-header p {
             font-size: 14px;
             opacity: 0.9;
             position: relative;
             z-index: 1;
         }
 
-        /* Info Banner */
-        .info-banner {
-            background: var(--light-gray);
-            border-left: 4px solid var(--primary-color);
-            padding: 20px;
-            margin: 25px 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .info-banner i {
-            color: var(--primary-color);
-            font-size: 24px;
-        }
-
-        .info-banner p {
-            color: var(--text-dark);
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
         /* Form Styles */
-        .annonce-form {
-            padding: 0 40px 40px;
+        .edit-form {
+            padding: 30px 40px;
         }
 
         .form-section {
@@ -401,51 +353,44 @@
             font-size: 13px;
         }
 
-        /* Budget Preview */
-        .budget-preview {
-            background: linear-gradient(135deg, var(--light-gray) 0%, #e6efff 100%);
+        /* Budget Info */
+        .budget-info {
+            background: var(--light-gray);
             border-radius: 12px;
             padding: 20px;
             margin: 20px 0;
             text-align: center;
         }
 
-        .budget-preview h3 {
+        .budget-info h3 {
             color: var(--primary-color);
             margin-bottom: 15px;
             font-size: 16px;
         }
 
-        .budget-amounts {
+        .budget-details {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
         }
 
-        .amount-item {
+        .budget-item {
             padding: 15px;
             background: var(--white);
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .amount-label {
+        .budget-label {
             font-size: 12px;
             color: var(--dark-gray);
             margin-bottom: 5px;
         }
 
-        .amount-value {
+        .budget-value {
             font-size: 18px;
             font-weight: 700;
             color: var(--primary-color);
-        }
-
-        .amount-note {
-            font-size: 11px;
-            color: var(--dark-gray);
-            font-style: italic;
-            margin-top: 3px;
         }
 
         /* Form Actions */
@@ -458,7 +403,7 @@
             border-top: 1px solid var(--medium-gray);
         }
 
-        .btn-submit {
+        .btn-save {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
             color: var(--white);
             padding: 14px 32px;
@@ -474,7 +419,7 @@
             box-shadow: 0 4px 15px rgba(3, 81, 188, 0.3);
         }
 
-        .btn-submit:hover {
+        .btn-save:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(3, 81, 188, 0.4);
         }
@@ -523,11 +468,6 @@
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
             }
 
             .main-content {
@@ -535,12 +475,12 @@
                 padding: 20px;
             }
 
-            .annonce-header,
-            .annonce-form {
+            .edit-header,
+            .edit-form {
                 padding: 20px;
             }
 
-            .budget-amounts {
+            .budget-details {
                 grid-template-columns: 1fr;
             }
 
@@ -554,20 +494,16 @@
         }
     </style>
 </head>
-
 <body>
     <!-- Navigation Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
             <a href="{{ route('dashboardUser') }}" style="text-decoration: none;">
-                <div class="platform-logo" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <div class="logo-icon"
-                        style="background-color: #3948c9; color: white; padding: 10px; border-radius: 6px; font-weight: bold;">
+                <div class="platform-logo">
+                    <div class="logo-icon">
                         KP
                     </div>
-                    <div class="platform-name" style="font-size: 1.2em; font-weight: bold; color: #333;">
-                        Kopiao
-                    </div>
+                    <div class="platform-name">Kopiao</div>
                 </div>
             </a>
 
@@ -594,46 +530,41 @@
 
         <div class="sidebar-stats">
             <div class="stat-item">
-                <span class="stat-label">Statut</span>
-                <span class="stat-value">Étudiant</span>
+                <span>Statut</span>
+                <span>Étudiant</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Crédit</span>
-                <span class="stat-value">-</span>
+                <span>Crédit</span>
+                <span>-</span>
             </div>
         </div>
 
         <div class="sidebar-menu">
             <a href="{{ route('dashboardUser') }}" class="menu-item">
                 <i class="fas fa-home"></i>
-                <span class="menu-text">Tableau de bord</span>
+                <span>Tableau de bord</span>
             </a>
             <a href="{{ route('CompleterProfilUser.show') }}" class="menu-item">
                 <i class="fas fa-user-edit"></i>
-                <span class="menu-text">Mon profil</span>
+                <span>Mon profil</span>
             </a>
             <a href="{{ route('annonces.index') }}" class="menu-item">
                 <i class="fas fa-bullhorn"></i>
-                <span class="menu-text">Mes annonces</span>
+                <span>Mes annonces</span>
             </a>
-            <a href="{{ route('annonces.create') }}" class="menu-item active">
+            <a href="{{ route('annonces.create') }}" class="menu-item">
                 <i class="fas fa-plus-circle"></i>
-                <span class="menu-text">Nouvelle annonce</span>
+                <span>Nouvelle annonce</span>
             </a>
         </div>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <div class="create-annonce-container">
-            <div class="annonce-header">
-                <h1><i class="fas fa-plus-circle"></i> Créer une nouvelle annonce</h1>
-                <p>Trouvez le tuteur parfait pour vos besoins d'apprentissage</p>
-            </div>
-
-            <div class="info-banner">
-                <i class="fas fa-info-circle"></i>
-                <p>Un acompte de 20-30% du budget sera automatiquement calculé et requis pour publier votre annonce.</p>
+        <div class="edit-container">
+            <div class="edit-header">
+                <h1><i class="fas fa-edit"></i> Modifier l'annonce</h1>
+                <p>Mettez à jour les informations de votre annonce</p>
             </div>
 
             @if(session('success'))
@@ -642,8 +573,9 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('annonces.store') }}" class="annonce-form">
+            <form method="POST" action="{{ route('annonces.update', $annonce->id) }}" class="edit-form">
                 @csrf
+                @method('PUT')
 
                 <div class="form-section">
                     <h2><i class="fas fa-book"></i> Informations sur la formation</h2>
@@ -651,7 +583,7 @@
                     <div class="form-group">
                         <label for="domaine">Domaine / Matière *</label>
                         <input type="text" id="domaine" name="domaine" 
-                               value="{{ old('domaine') }}" 
+                               value="{{ old('domaine', $annonce->domaine) }}" 
                                placeholder="Ex: Mathématiques, Anglais, Physique..." required>
                         @error('domaine')
                             <span class="error">{{ $message }}</span>
@@ -662,7 +594,7 @@
                         <label for="description">Description détaillée de votre besoin *</label>
                         <textarea id="description" name="description" 
                                   placeholder="Décrivez précisément ce que vous souhaitez apprendre, votre niveau actuel, vos objectifs..." 
-                                  required>{{ old('description') }}</textarea>
+                                  required>{{ old('description', $annonce->description) }}</textarea>
                         @error('description')
                             <span class="error">{{ $message }}</span>
                         @enderror
@@ -673,7 +605,7 @@
                         <div class="radio-group">
                             <div class="radio-option">
                                 <input type="radio" id="format_presentiel" name="format" value="presentiel" 
-                                       {{ old('format') == 'presentiel' ? 'checked' : 'checked' }} required>
+                                       {{ old('format', $annonce->format) == 'presentiel' ? 'checked' : '' }} required>
                                 <label for="format_presentiel" class="radio-label">
                                     <i class="fas fa-user-friends radio-icon"></i>
                                     <span class="radio-text">Présentiel</span>
@@ -681,7 +613,7 @@
                             </div>
                             <div class="radio-option">
                                 <input type="radio" id="format_en_ligne" name="format" value="en_ligne" 
-                                       {{ old('format') == 'en_ligne' ? 'checked' : '' }} required>
+                                       {{ old('format', $annonce->format) == 'en_ligne' ? 'checked' : '' }} required>
                                 <label for="format_en_ligne" class="radio-label">
                                     <i class="fas fa-laptop radio-icon"></i>
                                     <span class="radio-text">En ligne</span>
@@ -689,7 +621,7 @@
                             </div>
                             <div class="radio-option">
                                 <input type="radio" id="format_hybrid" name="format" value="hybrid" 
-                                       {{ old('format') == 'hybrid' ? 'checked' : '' }} required>
+                                       {{ old('format', $annonce->format) == 'hybrid' ? 'checked' : '' }} required>
                                 <label for="format_hybrid" class="radio-label">
                                     <i class="fas fa-blender-phone radio-icon"></i>
                                     <span class="radio-text">Hybride</span>
@@ -704,7 +636,7 @@
                     <div class="form-group">
                         <label for="disponibilite">Date et heure souhaitées *</label>
                         <input type="datetime-local" id="disponibilite" name="disponibilite" 
-                               value="{{ old('disponibilite') }}" 
+                               value="{{ old('disponibilite', $annonce->disponibilite->format('Y-m-d\TH:i')) }}" 
                                min="{{ date('Y-m-d\TH:i') }}" required>
                         @error('disponibilite')
                             <span class="error">{{ $message }}</span>
@@ -717,13 +649,10 @@
 
                     <div class="form-group">
                         <label for="budget">Budget total (en FCFA) *</label>
-                             <div class="form-group">
-                       
-                      <input type="number" id="budget" name="budget"
-       value="{{ old('budget') }}"
-       placeholder="Ex: 50000" required>
-
-                       
+                        <input type="number" id="budget" name="budget" 
+                               value="{{ old('budget', $annonce->budget) }}" 
+                             
+                               placeholder="Ex: 50000" required>
                         <small style="color: var(--dark-gray); font-size: 12px; display: block; margin-top: 5px;">
                             Ce budget couvrira l'ensemble de la formation.
                         </small>
@@ -732,34 +661,32 @@
                         @enderror
                     </div>
 
-                    <!-- Budget Preview -->
-                    <div class="budget-preview" id="budgetPreview">
-                        <h3><i class="fas fa-calculator"></i> Aperçu du coût</h3>
-                        <div class="budget-amounts">
-                            <div class="amount-item">
-                                <div class="amount-label">Budget total</div>
-                                <div class="amount-value" id="totalBudget">0 FCFA</div>
+                    <!-- Budget Information -->
+                    <div class="budget-info">
+                        <h3><i class="fas fa-info-circle"></i> Information sur l'acompte</h3>
+                        <div class="budget-details">
+                            <div class="budget-item">
+                                <div class="budget-label">Ancien acompte</div>
+                                <div class="budget-value">{{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA</div>
                             </div>
-                            <div class="amount-item">
-                                <div class="amount-label">Acompte (20-30%)</div>
-                                <div class="amount-value" id="depositAmount">0 FCFA</div>
-                                <div class="amount-note">À payer maintenant</div>
-                            </div>
-                            <div class="amount-item">
-                                <div class="amount-label">Solde restant</div>
-                                <div class="amount-value" id="remainingAmount">0 FCFA</div>
-                                <div class="amount-note">À payer plus tard</div>
+                            <div class="budget-item">
+                                <div class="budget-label">Nouvel acompte estimé</div>
+                                <div class="budget-value" id="newDeposit">0 FCFA</div>
                             </div>
                         </div>
+                        <p style="font-size: 12px; color: var(--dark-gray); margin-top: 10px;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            L'acompte sera recalculé (20-30% du nouveau budget) lors de la sauvegarde.
+                        </p>
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn-submit">
-                        <i class="fas fa-check-circle"></i>
-                        Créer l'annonce
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        Enregistrer les modifications
                     </button>
-                    <a href="{{ route('annonces.index') }}" class="btn-cancel">
+                    <a href="{{ route('annonces.show', $annonce->id) }}" class="btn-cancel">
                         <i class="fas fa-times"></i>
                         Annuler
                     </a>
@@ -769,41 +696,23 @@
     </div>
 
     <script>
-        // Calcul automatique de l'acompte et mise à jour du preview
+        // Calcul automatique du nouvel acompte estimé
         document.getElementById('budget').addEventListener('input', function() {
-            updateBudgetPreview(this.value);
+            const budget = parseFloat(this.value) || 0;
+            const depositPercentage = 20 + Math.floor(Math.random() * 11); // 20 à 30%
+            const depositAmount = (budget * depositPercentage) / 100;
+            
+            document.getElementById('newDeposit').textContent = 
+                formatCurrency(depositAmount) + ' FCFA';
         });
 
-        // Mettre à jour le preview au chargement si une valeur existe déjà
+        // Mettre à jour l'affichage au chargement
         document.addEventListener('DOMContentLoaded', function() {
             const budgetInput = document.getElementById('budget');
             if (budgetInput.value) {
-                updateBudgetPreview(budgetInput.value);
+                budgetInput.dispatchEvent(new Event('input'));
             }
         });
-
-        function updateBudgetPreview(budget) {
-            const totalBudget = parseFloat(budget) || 0;
-            
-            // Calculer l'acompte (20-30% aléatoire)
-            const depositPercentage = 20 + Math.floor(Math.random() * 11); // 20 à 30%
-            const depositAmount = (totalBudget * depositPercentage) / 100;
-            const remainingAmount = totalBudget - depositAmount;
-            
-            // Mettre à jour l'affichage
-            document.getElementById('totalBudget').textContent = 
-                formatCurrency(totalBudget) + ' FCFA';
-            document.getElementById('depositAmount').textContent = 
-                formatCurrency(depositAmount) + ' FCFA';
-            document.getElementById('remainingAmount').textContent = 
-                formatCurrency(remainingAmount) + ' FCFA';
-            
-            // Mettre à jour le pourcentage affiché
-            const depositElement = document.querySelector('.amount-note');
-            if (depositElement) {
-                depositElement.textContent = `À payer maintenant (${depositPercentage}%)`;
-            }
-        }
 
         function formatCurrency(amount) {
             return amount.toLocaleString('fr-FR', {
@@ -812,7 +721,7 @@
             });
         }
 
-        // Validation de la date (doit être dans le futur)
+        // Validation de la date
         document.querySelector('form').addEventListener('submit', function(e) {
             const dateInput = document.getElementById('disponibilite');
             const selectedDate = new Date(dateInput.value);
@@ -833,5 +742,4 @@
         });
     </script>
 </body>
-
 </html>

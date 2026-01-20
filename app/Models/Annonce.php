@@ -19,14 +19,16 @@ class Annonce extends Model
         'disponibilite',
         'format',
         'is_paid',
-        'published_at'
+        'published_at',
+        'payment_reference'
     ];
 
     protected $casts = [
         'disponibilite' => 'datetime',
         'budget' => 'decimal:2',
         'acompte' => 'decimal:2',
-        'published_at' => 'datetime'
+        'published_at' => 'datetime',
+        'is_paid' => 'boolean'
     ];
 
     public function student()
@@ -34,9 +36,14 @@ class Annonce extends Model
         return $this->belongsTo(User::class, 'student_id');
     }
 
-    public function applications()
+    public function payments()
     {
-        return $this->hasMany(Application::class);
+        return $this->hasMany(Payment::class);
+    }
+
+    public function latestPayment()
+    {
+        return $this->hasOne(Payment::class)->latest();
     }
 
     // Calcul automatique de l'acompte (20-30%)
@@ -45,5 +52,20 @@ class Annonce extends Model
         $percentage = rand(20, 30) / 100;
         $this->acompte = $this->budget * $percentage;
         return $this->acompte;
+    }
+
+    // Méthode pour vérifier si le paiement est en cours
+    public function isPaymentPending()
+    {
+        return $this->status === 'en_paiement';
+    }
+
+    // Méthode pour marquer comme publiée
+    public function markAsPublished()
+    {
+        $this->status = 'publiee';
+        $this->is_paid = true;
+        $this->published_at = now();
+        $this->save();
     }
 }
