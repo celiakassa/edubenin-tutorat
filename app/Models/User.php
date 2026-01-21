@@ -45,10 +45,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
-    // Corrige le casts
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'last_login' => 'datetime', 
+        'last_login' => 'datetime',
         'learning_preference' => LearningPreference::class,
     ];
 
@@ -58,7 +57,42 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public function annonces()
-{
-    return $this->hasMany(Annonce::class, 'student_id');
-}
+    {
+        return $this->hasMany(Annonce::class, 'student_id');
+    }
+
+    // 🔐 Méthodes de rôle
+    public function isAdmin()
+    {
+        return $this->role_id === 1;
+    }
+
+    public function isEtudiant()
+    {
+        return $this->role_id === 2;
+    }
+
+    public function isTuteur()
+    {
+        return $this->role_id === 3;
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+
+    public function activeSubscription()
+    {
+        // On utilise 'statut' car c'est le nom dans ton modèle Subscription
+        return $this->hasOne(Subscription::class)->where('statut', 'active');
+    }
+
+    public function isSubscribed()
+    {
+        $sub = $this->activeSubscription;
+        // Vérifie si la sub existe ET si la date de fin est dans le futur
+        return $sub && $sub->date_fin && $sub->date_fin->isFuture();
+    }
 }

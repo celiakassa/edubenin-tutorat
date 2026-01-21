@@ -4,22 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Subscription extends Model
+class Candidature extends Model
 {
     protected $fillable = [
+        'annonce_id',
         'user_id',
-        'date_debut',
-        'date_fin',
         'statut',
-        'type_abonnement'
-    ];
-    protected $casts = [
-        'date_debut' => 'datetime',
-        'date_fin' => 'datetime',
     ];
 
     /**
-     * Relation avec l'utilisateur abonné
+     * Relation avec l'annonce
+     */
+    public function annonce()
+    {
+        return $this->belongsTo(Annonce::class);
+    }
+
+    /**
+     * Relation avec le professeur (user)
      */
     public function user()
     {

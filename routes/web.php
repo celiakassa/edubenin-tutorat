@@ -1,3 +1,4 @@
+
 <?php
 
 use App\Http\Controllers\AdminController;
@@ -32,6 +33,8 @@ Route::get('/', function () {
 });
 
 Route::view('/tuteurs', 'teachers.tuteurs-list')->name('listProfesseur');
+// Route pour le callback de paiement d'abonnement tuteur
+Route::post('/paiement/callback', [TeacherController::class,'HandleSubscription'])->name('paiement.callback');
 
 // Route de recherche
 Route::get('/recherche-tuteurs', [RechercheController::class, 'rechercher'])
@@ -56,8 +59,8 @@ Route::get('/matieres-populaires', function () {
 
             return [];
         })
-        ->map(fn ($subject) => trim($subject))
-        ->filter(fn ($subject) => ! empty($subject) && $subject !== '')
+        ->map(fn($subject) => trim($subject))
+        ->filter(fn($subject) => ! empty($subject) && $subject !== '')
         ->unique()
         ->take(40)
         ->values()
@@ -66,13 +69,40 @@ Route::get('/matieres-populaires', function () {
     // Si pas assez de matières, ajouter les valeurs par défaut
     if (count($matieres) < 20) {
         $matieresDefaut = [
-            'Mathématiques', 'Français', 'Anglais', 'Physique', 'Chimie',
-            'SVT', 'Histoire', 'Géographie', 'Philosophie', 'Espagnol',
-            'Allemand', 'Informatique', 'Économie', 'Droit', 'Marketing',
-            'Comptabilité', 'Musique', 'Arts', 'Sport', 'Médecine',
-            'Programmation', 'Web Design', 'Bureautique', 'Statistiques',
-            'Biologie', 'Électricité', 'Mécanique', 'Architecture', 'Psychologie',
-            'Sociologie', 'Communication', 'Gestion', 'Finance', 'Langues',
+            'Mathématiques',
+            'Français',
+            'Anglais',
+            'Physique',
+            'Chimie',
+            'SVT',
+            'Histoire',
+            'Géographie',
+            'Philosophie',
+            'Espagnol',
+            'Allemand',
+            'Informatique',
+            'Économie',
+            'Droit',
+            'Marketing',
+            'Comptabilité',
+            'Musique',
+            'Arts',
+            'Sport',
+            'Médecine',
+            'Programmation',
+            'Web Design',
+            'Bureautique',
+            'Statistiques',
+            'Biologie',
+            'Électricité',
+            'Mécanique',
+            'Architecture',
+            'Psychologie',
+            'Sociologie',
+            'Communication',
+            'Gestion',
+            'Finance',
+            'Langues',
         ];
 
         $matieres = array_unique(array_merge($matieres, $matieresDefaut));
@@ -99,7 +129,7 @@ Route::get('/villes-populaires', function () {
 
             return '';
         })
-        ->filter(fn ($city) => ! empty($city) && $city !== '')
+        ->filter(fn($city) => ! empty($city) && $city !== '')
         ->unique()
         ->take(30)
         ->values()
@@ -107,10 +137,26 @@ Route::get('/villes-populaires', function () {
 
     if (count($villes) < 15) {
         $villesDefaut = [
-            'Paris', 'Lyon', 'Marseille', 'Toulouse', 'Nice',
-            'Nantes', 'Strasbourg', 'Montpellier', 'Bordeaux', 'Lille',
-            'Rennes', 'Reims', 'Le Havre', 'Saint-Étienne', 'Toulon',
-            'Grenoble', 'Dijon', 'Angers', 'Nîmes', 'Villeurbanne',
+            'Paris',
+            'Lyon',
+            'Marseille',
+            'Toulouse',
+            'Nice',
+            'Nantes',
+            'Strasbourg',
+            'Montpellier',
+            'Bordeaux',
+            'Lille',
+            'Rennes',
+            'Reims',
+            'Le Havre',
+            'Saint-Étienne',
+            'Toulon',
+            'Grenoble',
+            'Dijon',
+            'Angers',
+            'Nîmes',
+            'Villeurbanne',
         ];
 
         $villes = array_unique(array_merge($villes, $villesDefaut));
@@ -139,9 +185,18 @@ Route::middleware('auth')->group(function () {
         Route::post('/teachers/{id}/reactivate', [AdminController::class, 'reactivateAccount'])->name('teachers.reactivate');
     });
 
-    // Le dashboard des utilisteurs
-    Route::get('/dashboardUsers', [UserDashboard::class, 'home'])->name('dashboardUser');
-
+    // Route d'abonnement tuteur hors dashboardUser
+    Route::get('/subscription-user', [TeacherController::class, 'showSubscription'])->name('subscription.user');
+});
+// Groupe pour le dashboard des utilisateurs
+Route::prefix('dashboardUsers')->group(function () {
+    Route::get('/', [UserDashboard::class, 'home'])->name('dashboardUser');
+    Route::get('/annonces', [TeacherController::class, 'ShowAnnonces'])->name('annonces');
+    Route::get('/annonces/{id}', [TeacherController::class, 'showAnnonceDetail'])->name('annonces.detail');
+    // Route d'abonnement tuteur hors dashboardUse
+    Route::post('/annonces/{id}/postuler', [TeacherController::class, 'postuler'])
+    ->name('annonce.postuler')
+    ->middleware(['auth','check.subscription']);
     // Les routes pour completer les profils
     Route::get('/profile/edit', [CompleterProfilUser::class, 'edit'])->name('CompleterProfilUser.edit');
     Route::post('/profile/update', [CompleterProfilUser::class, 'update'])->name('CompleterProfilUser.update');
@@ -158,35 +213,34 @@ Route::middleware('auth')->group(function () {
         ->name('apprenants.toggle-status');
 
 
-    
+});
     // Route pour cree les annonces
 
-       Route::prefix('annonces')->group(function () {
+    Route::prefix('annonces')->group(function () {
         // Routes principales
-     Route::get('/', [AnnonceController::class, 'index'])->name('annonces.index');
+        Route::get('/', [AnnonceController::class, 'index'])->name('annonces.index');
         Route::get('/create', [AnnonceController::class, 'create'])->name('annonces.create');
         Route::post('/', [AnnonceController::class, 'store'])->name('annonces.store');
         Route::get('/{id}', [AnnonceController::class, 'show'])->name('annonces.show');
         Route::get('/{id}/edit', [AnnonceController::class, 'edit'])->name('annonces.edit');
         Route::put('/{id}', [AnnonceController::class, 'update'])->name('annonces.update');
         Route::delete('/{id}', [AnnonceController::class, 'destroy'])->name('annonces.destroy');
-        
+
         // Routes de paiement
         Route::get('/{id}/payment', [AnnonceController::class, 'payment'])->name('annonces.payment');
         Route::post('/{id}/init-payment', [AnnonceController::class, 'initPayment'])->name('annonces.init-payment');
         Route::get('/{id}/payment/callback', [AnnonceController::class, 'paymentCallback'])->name('annonces.payment.callback');
         Route::get('/{id}/check-payment', [AnnonceController::class, 'checkPaymentStatus'])->name('annonces.check-payment');
-        
+
         // Webhook (sans middleware CSRF)
         Route::post('/webhook/fedapay', [AnnonceController::class, 'webhook'])->name('annonces.webhook.fedapay');
     });
 
-   
+
 
     // Route pour afficher la liste des professeurs
     // Route::get('/list_professeur',[TeacherController::class, 'listProfesseur'])->name('listProfesseur');
 
-});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -196,4 +250,4 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/register/tuteur', [TeacherController::class, 'register'])->name('register.tuteur')->middleware('guest');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
