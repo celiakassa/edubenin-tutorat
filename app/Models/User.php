@@ -95,4 +95,7 @@ class User extends Authenticatable implements MustVerifyEmail
         // Vérifie si la sub existe ET si la date de fin est dans le futur
         return $sub && $sub->date_fin && $sub->date_fin->isFuture();
     }
+
+
+
 }

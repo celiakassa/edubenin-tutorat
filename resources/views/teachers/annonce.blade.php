@@ -35,10 +35,7 @@
             <div class="annonce-card" data-domaine="{{ $annonce->domaine }}">
                 <!-- Badge de statut -->
                 <div class="annonce-badges">
-                    <span class="badge badge-{{ $annonce->status }}">
-                        <i class="fas fa-circle"></i>
-                        {{ ucfirst($annonce->status) }}
-                    </span>
+                   
                     <span class="badge badge-format">
                         <i
                             class="fas fa-{{ $annonce->format === 'en_ligne' ? 'laptop' : ($annonce->format === 'presentiel' ? 'user-friends' : 'globe') }}"></i>

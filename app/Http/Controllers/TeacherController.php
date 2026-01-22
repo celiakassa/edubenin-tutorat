@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StatutCandidat;
 use App\Models\Annonce;
 use App\Models\Candidature;
 use App\Models\Payment;
@@ -53,13 +54,27 @@ class TeacherController extends Controller
 
         $hasApplied = false;
 
+
         if (auth()->check() && auth()->user()->isTuteur()) {
             $hasApplied = Candidature::where('annonce_id', $annonce->id)
                 ->where('user_id', auth()->id())
                 ->exists();
         }
 
-        return view('teachers.annonce-detail', compact('annonce', 'hasApplied'));
+        // Récupérer la candidature du teacher (peu importe le statut)
+        $candidature = Candidature::where('annonce_id', $annonce->id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        $teacher_validate = Candidature::where([
+            ['annonce_id', '=', $annonce->id],
+            ['user_id', '=', auth()->id()],
+            ['statut', '=', StatutCandidat::VALIDE],
+        ])->first();
+
+        $student = $annonce->student ?? null;
+
+        return view('teachers.annonce-detail', compact('annonce', 'hasApplied', 'teacher_validate', 'student', 'candidature'));
     }
     public function showSubscription()
     {
