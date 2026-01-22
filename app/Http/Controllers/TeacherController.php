@@ -48,9 +48,9 @@ class TeacherController extends Controller
     /**
      * Affiche les détails d'une annonce spécifique
      */
-    public function showAnnonceDetail($id)
+    public function showAnnonceDetail($hash)
     {
-        $annonce = Annonce::findOrFail($id);
+        $annonce = Annonce::findByHashidOrFail($hash);
 
         $hasApplied = false;
 

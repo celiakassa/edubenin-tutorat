@@ -126,7 +126,7 @@
                         </form>
                     @endif
 
-                    <button class="btn-action btn-secondary" onclick="voirDetails({{ $annonce->id }})">
+                    <button class="btn-action btn-secondary" onclick="voirDetails('{{ $annonce->hashid }}')">
                         <i class="fas fa-eye"></i>
                         Voir les détails
                     </button>

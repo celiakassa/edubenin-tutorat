@@ -192,7 +192,8 @@ Route::middleware('auth')->group(function () {
 Route::prefix('dashboardUsers')->group(function () {
     Route::get('/', [UserDashboard::class, 'home'])->name('dashboardUser');
     Route::get('/annonces', [TeacherController::class, 'ShowAnnonces'])->name('annonces');
-    Route::get('/annonces/{id}', [TeacherController::class, 'showAnnonceDetail'])->name('annonces.detail');
+   Route::get('/annonces/{hash}', [TeacherController::class, 'showAnnonceDetail'])
+     ->name('annonces.detail');
     // Route d'abonnement tuteur hors dashboardUse
     Route::post('/annonces/{id}/postuler', [TeacherController::class, 'postuler'])
     ->name('annonce.postuler')

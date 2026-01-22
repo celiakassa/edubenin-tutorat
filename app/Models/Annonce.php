@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasHashid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Annonce extends Model
 {
-    use HasFactory;
+    use HasFactory , HasHashid;
 
     protected $fillable = [
         'student_id',

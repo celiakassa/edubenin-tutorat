@@ -12,7 +12,8 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.6",
-        "symfony/http-foundation": "7.3.7"
+        "symfony/http-foundation": "7.3.7",
+        "vinkla/hashids": "^13.0"
     },
     "require-dev": {
         "driftingly/rector-laravel": "^2.1",
