@@ -15,7 +15,7 @@ class Payment extends Model
         'fedapay_transaction_id',
         'amount',
         'currency',
-        'statut',
+        'status',
         'payment_method',
         'payment_details',
         'subscription_id',
