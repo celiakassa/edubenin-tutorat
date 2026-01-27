@@ -44,7 +44,7 @@ class TeachersSeeder extends Seeder
                 'email_verified_at'     => now(),
                 'password'              => Hash::make('password123'),
                 'telephone'             => '+229' . rand(90000000, 99999999),
-                'photo_path'            => null, // ou '' si tu préfères une chaîne vide
+                'photo_path'            => null, 
                 'role_id'               => 3,
                 'is_active'             => 1,
                 'remember_token'        => Str::random(10),

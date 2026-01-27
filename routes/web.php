@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RechercheController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserDashboard;
+use App\Http\Controllers\CandidatureController;
 use App\Http\Controllers\AnnonceController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -230,8 +231,42 @@ Route::prefix('dashboardUsers')->group(function () {
         // Routes de paiement
         Route::get('/{id}/payment', [AnnonceController::class, 'payment'])->name('annonces.payment');
         Route::post('/{id}/init-payment', [AnnonceController::class, 'initPayment'])->name('annonces.init-payment');
-        Route::get('/{id}/payment/callback', [AnnonceController::class, 'paymentCallback'])->name('annonces.payment.callback');
+        
         Route::get('/{id}/check-payment', [AnnonceController::class, 'checkPaymentStatus'])->name('annonces.check-payment');
+
+
+     
+// Route POST pour le callback de paiement (plus de paramètre {id})
+Route::post('/annonces/payment/callback', [AnnonceController::class, 'handlePayment'])
+    ->name('annonces.payment.callback');
+
+    
+
+     // Pour les étudiants (gérer les candidatures)
+    Route::get('/annonces/{annonce}/candidatures', [CandidatureController::class, 'index'])
+        ->name('candidatures.index');
+    
+    // Pour les tuteurs (postuler)
+    Route::post('/annonces/{annonce}/candidatures', [CandidatureController::class, 'store'])
+        ->name('candidatures.store');
+    
+    // Accepter une candidature
+    Route::post('/candidatures/{candidature}/accepter', [CandidatureController::class, 'accepter'])
+        ->name('candidatures.accepter');
+    
+    // Refuser une candidature
+    Route::post('/candidatures/{candidature}/refuser', [CandidatureController::class, 'refuser'])
+        ->name('candidatures.refuser');
+    
+    // Voir le profil d'un tuteur
+    Route::get('/candidatures/{candidature}/profil', [CandidatureController::class, 'voirProfilTuteur'])
+        ->name('candidatures.profil');
+    
+    // API pour les statistiques (graphiques)
+    Route::get('/annonces/{annonce}/candidatures/stats', [CandidatureController::class, 'stats'])
+        ->name('candidatures.stats');
+
+
 
         // Webhook (sans middleware CSRF)
         Route::post('/webhook/fedapay', [AnnonceController::class, 'webhook'])->name('annonces.webhook.fedapay');
