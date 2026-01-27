@@ -810,7 +810,7 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>{{ $annonces->where('status', 'publiee')->count() }}</h3>
+                        <h3>{{ $annonces->where('status', 'publiée')->count() }}</h3>
                         <p>Publiées</p>
                     </div>
                 </div>

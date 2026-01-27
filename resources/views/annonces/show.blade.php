@@ -496,6 +496,7 @@
             margin-top: 30px;
             padding-top: 25px;
             border-top: 1px solid var(--medium-gray);
+            flex-wrap: wrap;
         }
 
         .btn-action {
@@ -544,6 +545,27 @@
         .btn-danger:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-purple:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .badge {
+            background: var(--white);
+            color: #8b5cf6;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 5px;
         }
 
         /* Timeline */
@@ -696,7 +718,7 @@
             </div>
             <div class="stat-item">
                 <span class="stat-label">Annonces actives</span>
-                <span class="stat-value">{{ Auth::user()->annonces()->where('status', 'publiee')->count() }}</span>
+                <span class="stat-value">{{ Auth::user()->annonces()->where('status', 'publiée')->count() }}</span>
             </div>
         </div>
 
@@ -743,7 +765,7 @@
                             </div>
                             <div class="meta-item">
                                 <i class="fas fa-eye"></i>
-                                @if($annonce->status == 'publiee')
+                                @if($annonce->status == 'publiée')
                                     Publiée le {{ $annonce->published_at?->format('d/m/Y H:i') }}
                                 @endif
                             </div>
@@ -882,8 +904,9 @@
                     <div class="student-details">
                         <div class="student-detail">
                             <i class="fas fa-envelope"></i>
-                            {{ $annonce->student->email }}
+                            {{ $annonce->student->email }} 
                         </div>
+                        <br>
                         @if($annonce->student->telephone)
                             <div class="student-detail">
                                 <i class="fas fa-phone"></i>
@@ -966,6 +989,18 @@
                         <a href="{{ route('annonces.payment', $annonce->id) }}" class="btn-action btn-primary">
                             <i class="fas fa-credit-card"></i>
                             Payer l'acompte
+                        </a>
+                    @endif
+                    
+                    {{-- CORRECTION ICI : Comparer avec 'publiée' au lieu de 'publiee' --}}
+                    @if(($annonce->status == 'publiée' || $annonce->status == 'attribuee') && Auth::user()->id == $annonce->student_id)
+                        <a href="{{ route('candidatures.index', $annonce->id) }}" class="btn-action btn-purple">
+                            <i class="fas fa-users"></i> Voir les candidatures
+                            @if($annonce->candidatures()->count() > 0)
+                                <span class="badge">
+                                    {{ $annonce->candidatures()->count() }}
+                                </span>
+                            @endif
                         </a>
                     @endif
                     
