@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\StatutCandidat;
+use App\Jobs\HandleSubscriptionJob;
 use App\Models\Annonce;
 use App\Models\Candidature;
 use App\Models\Payment;
@@ -21,10 +22,10 @@ class TeacherController extends Controller
 
     public function __construct()
     {
-        // Configurer FedaPay
         FedaPay::setApiKey(config('services.fedapay.secret_key'));
-        FedaPay::setEnvironment(config('services.fedapay.environment', 'sandbox'));
+        FedaPay::setEnvironment(config('services.fedapay.mode'));
     }
+
 
 
     public function listProfesseur()
@@ -83,43 +84,48 @@ class TeacherController extends Controller
 
     public function handleSubscription(Request $request)
     {
-        $user = $request->user();
-        $transactionId = $request->input('id'); // ID FedaPay envoyé par callback
+        $transactionId = $request->input('id');
 
         if (!$transactionId) {
-            return redirect()->back()->with('error', 'Transaction invalide.');
+            return back()->with('error', 'Transaction invalide.');
         }
 
         try {
-            // 🔹 Récupérer la transaction via le SDK FedaPay
+            // ⚡ OPTIMISATION 1: Vérifier si le paiement existe déjà (éviter doublon)
+            $existingPayment = Payment::where('fedapay_transaction_id', $transactionId)->first();
+
+            if ($existingPayment) {
+                return redirect()->route('annonces')
+                    ->with('success', 'Abonnement déjà activé !');
+            }
+
+            // ⚡ OPTIMISATION 2: Vérifier le paiement FedaPay
             $transaction = Transaction::retrieve($transactionId);
 
-            // 🔹 Vérifier le statut
             if ($transaction->status !== 'approved') {
-                return redirect()->back()->with('error', 'Le paiement n\'est pas encore confirmé.');
+                return back()->with('error', 'Le paiement n\'a pas été validé.');
             }
 
-            // 🔹 Éviter les doublons
-            $existingPayment = Payment::where('fedapay_transaction_id', $transaction->id)->first();
-            if ($existingPayment) {
-                return redirect()->route('subscription-user')
-                    ->with('info', 'Ce paiement a déjà été traité.');
-            }
+            $user = $request->user();
 
-            DB::transaction(function () use ($transaction, $user) {
+            DB::beginTransaction();
 
-                // 🔹 1. Gérer l’abonnement
-                $existingSubscription = $user->subscription;
+            try {
+                // ⚡ OPTIMISATION 3: Charger l'abonnement existant en UNE seule requête
+                $existingSubscription = $user->subscription()->lockForUpdate()->first();
+
                 $startDate = Carbon::now();
+                $isExtending = false;
 
                 if ($existingSubscription && Carbon::parse($existingSubscription->date_fin)->isFuture()) {
-                    // Abonnement actif → prolonger
                     $startDate = Carbon::parse($existingSubscription->date_fin);
+                    $isExtending = true;
                 }
 
-                $endDate = $startDate->copy()->addMonth(); // 1 mois
+                $endDate = $startDate->copy()->addMonth();
 
-                if ($existingSubscription && Carbon::parse($existingSubscription->date_fin)->isFuture()) {
+                // ⚡ OPTIMISATION 4: Update OU Create en une seule opération
+                if ($isExtending) {
                     $existingSubscription->update([
                         'date_debut' => $startDate,
                         'date_fin' => $endDate,
@@ -137,29 +143,32 @@ class TeacherController extends Controller
                     ]);
                 }
 
-                // 🔹 2. Enregistrer le paiement avec subscription_id
+                // ⚡ OPTIMISATION 5: Create direct (pas de firstOrCreate car déjà vérifié)
                 Payment::create([
+                    'fedapay_transaction_id' => $transactionId,
                     'user_id' => $user->id,
-                    'subscription_id' => $subscription->id, // ✅ lien paiement → abonnement
-                    'fedapay_transaction_id' => $transaction->id,
+                    'subscription_id' => $subscription->id,
                     'amount' => $transaction->amount,
-                    'currency' => $transaction->currency ?? 'XOF', // valeur par défaut
+                    'currency' => $transaction->currency ?? 'XOF',
                     'status' => $transaction->status,
                     'payment_method' => $transaction->mode ?? 'mobile_money',
-                    'payment_details' => $transaction,
+                    'payment_details' => json_encode($transaction),
                 ]);
-            });
 
-            return redirect()->route('annonces')
-                ->with('success', 'Abonnement activé avec succès !');
-        } catch (\FedaPay\Error\ApiConnection $e) {
-            return redirect()->back()->with('error', 'Impossible de vérifier le paiement.');
-        } catch (\FedaPay\Error\InvalidRequest $e) {
-            return redirect()->back()->with('error', 'Erreur lors de la vérification du paiement.');
+                DB::commit();
+
+                return redirect()->route('annonces')
+                    ->with('success', 'Abonnement activé avec succès ! 🎉');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Une erreur est survenue lors du traitement du paiement.');
+            Log::error('Erreur activation abonnement: ' . $e->getMessage());
+            return back()->with('error', 'Une erreur est survenue.');
         }
     }
+
 
     public function postuler($id)
     {

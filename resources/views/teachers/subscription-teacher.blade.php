@@ -12,7 +12,7 @@
                         <i class="fas fa-user-check"></i>
                     </div>
 
-                    <h2 class="font-weight-bold text-navy mb-3">Tuteur Abonné</h2>
+                    <h2 class="font-weight-bold text-navy mb-3">Abonnez-vous en tant que tuteur</h2>
                     <p class="text-muted-dark mb-4">
                         Accédez à toutes les opportunités ! Consultez les annonces, postulez librement, recevez des notifications en temps réel, débloquez les contacts après sélection et laissez des avis pour développer votre réputation sur la plateforme.
                     </p>
@@ -47,11 +47,14 @@
                         <span class="text-muted font-weight-bold">FCFA / mois</span>
                     </div>
 
+                    {{-- Bouton mis à jour avec Spinner --}}
                     <button type="button" 
                             class="btn btn-primary-gradient btn-block py-3 font-weight-bold shadow btn-pay-subscription"
+                            id="pay-button"
                             data-amount="6500"
                             data-title="Abonnement Tuteur">
-                        S'abonner maintenant
+                        <span class="spinner-border spinner-border-sm d-none" id="pay-spinner" role="status" aria-hidden="true"></span>
+                        <span id="pay-text">S'abonner maintenant</span>
                     </button>
 
                     <p class="small text-muted mt-3 mb-0">
@@ -79,7 +82,7 @@
         border-radius: 25px; 
         border-top: 8px solid var(--primary-blue) !important;
         max-width: 760px;
-        min-height: 400px; /* ✅ Augmente la longueur (hauteur) */
+        min-height: 400px;
     }
 
     .text-navy { color: var(--navy); }
@@ -117,77 +120,106 @@
         border-radius: 15px; 
         transition: 0.3s; 
         letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .btn-primary-gradient:hover { 
+    .btn-primary-gradient:hover:not(:disabled) { 
         transform: translateY(-3px); 
         box-shadow: 0 10px 20px rgba(0, 97, 242, 0.25); 
         color: white; 
+    }
+
+    .btn-primary-gradient:disabled {
+        opacity: 0.8;
+        cursor: not-allowed;
+    }
+
+    #pay-spinner {
+        margin-right: 10px;
     }
 </style>
 @endpush
 
 @push('scripts')
-    {{-- Le script FedaPay reste le même --}}
     <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @auth
-            const payButton = document.querySelector('.btn-pay-subscription');
-            
+            const payButton = document.getElementById('pay-button');
+            const spinner = document.getElementById('pay-spinner');
+            const btnText = document.getElementById('pay-text');
+
             if (payButton) {
                 payButton.addEventListener('click', function () {
-                    const amount = this.dataset.amount;
-                    const title = this.dataset.title;
+                    @auth
+                        // 1. État de chargement
+                        payButton.disabled = true;
+                        spinner.classList.remove('d-none');
+                        btnText.innerText = 'Initialisation...';
 
-                    const widget = FedaPay.init({
-                        public_key: '{{ config("services.fedapay.public_key") }}',
-                        transaction: {
-                            amount: amount,
-                            description: title
-                        },
-                        customer: {
-                            email: '{{ auth()->user()->email }}',
-                            firstname: '{{ auth()->user()->firstname }}',
-                            lastname: '{{ auth()->user()->lastname }}'
-                        },
-                        onComplete(resp) {
-                            if (resp.reason === 'CHECKOUT COMPLETE') {
-                                const form = document.createElement('form');
-                                form.method = 'POST';
-                                form.action = '{{route("paiement.callback") }}';
+                        const amount = this.dataset.amount;
+                        const title = this.dataset.title;
 
-                                const csrf = document.createElement('input');
-                                csrf.type = 'hidden';
-                                csrf.name = '_token';
-                                csrf.value = '{{ csrf_token() }}';
-                                form.appendChild(csrf);
+                        const widget = FedaPay.init({
+                            public_key: '{{ config("services.fedapay.public_key") }}',
+                            transaction: {
+                                amount: amount,
+                                description: title
+                            },
+                            customer: {
+                                email: '{{ auth()->user()->email }}',
+                                firstname: '{{ auth()->user()->firstname }}',
+                                lastname: '{{ auth()->user()->lastname }}'
+                            },
+                            // Si l'utilisateur ferme la fenêtre sans payer
+                            onClose: function() {
+                                payButton.disabled = false;
+                                spinner.classList.add('d-none');
+                                btnText.innerText = "S'abonner maintenant";
+                            },
+                            onComplete(resp) {
+                                if (resp.reason === 'CHECKOUT COMPLETE') {
+                                    btnText.innerText = 'Validation du paiement...';
+                                    
+                                    const form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.action = '{{route("paiement.callback") }}';
 
-                                const transactionInput = document.createElement('input');
-                                transactionInput.type = 'hidden';
-                                transactionInput.name = 'id';
-                                transactionInput.value = resp.transaction.id;
-                                form.appendChild(transactionInput);
+                                    const csrf = document.createElement('input');
+                                    csrf.type = 'hidden';
+                                    csrf.name = '_token';
+                                    csrf.value = '{{ csrf_token() }}';
+                                    form.appendChild(csrf);
 
-                                const typeInput = document.createElement('input');
-                                typeInput.type = 'hidden';
-                                typeInput.name = 'payment_type';
-                                typeInput.value = 'subscription';
-                                form.appendChild(typeInput);
+                                    const transactionInput = document.createElement('input');
+                                    transactionInput.type = 'hidden';
+                                    transactionInput.name = 'id';
+                                    transactionInput.value = resp.transaction.id;
+                                    form.appendChild(transactionInput);
 
-                                document.body.appendChild(form);
-                                form.submit();
+                                    const typeInput = document.createElement('input');
+                                    typeInput.type = 'hidden';
+                                    typeInput.name = 'payment_type';
+                                    typeInput.value = 'subscription';
+                                    form.appendChild(typeInput);
+
+                                    document.body.appendChild(form);
+                                    form.submit();
+                                } else {
+                                    // En cas d'annulation ou autre raison
+                                    payButton.disabled = false;
+                                    spinner.classList.add('d-none');
+                                    btnText.innerText = "S'abonner maintenant";
+                                }
                             }
-                        }
-                    });
-                    widget.open();
+                        });
+                        widget.open();
+                    @else
+                        window.location.href = '{{ route("login") }}';
+                    @endauth
                 });
             }
-            @else
-            document.querySelector('.btn-pay-subscription').addEventListener('click', function() {
-                window.location.href = '{{ route("login") }}';
-            });
-            @endauth
         });
     </script>
 @endpush
