@@ -8,11 +8,6 @@
     <!-- Profile Completion Banner -->
     @include('dashboard.partials.profile-banner')
 
-    <!-- Dashboard Stats -->
-    @include('dashboard.partials.stats')
-
-    <!-- Platform Statistics -->
-    @include('dashboard.partials.platform-stats')
 @endsection
 
 @push('scripts')

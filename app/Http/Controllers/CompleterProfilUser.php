@@ -24,7 +24,7 @@ class CompleterProfilUser extends Controller
                 'qualifications',
                 'subjects',
                 'rate_per_hour',
-                'identity_document_path', // Nouveau champ pour tuteur
+                'identity_document_path', 
                 'city',
                 'learning_preference',
             ];

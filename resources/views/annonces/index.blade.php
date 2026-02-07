@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Annonces - Kopiao</title>
-        <link href="{{ asset('images/image_1.webp') }}" rel="icon">
+    <link href="{{ asset('images/image_1.webp') }}" rel="icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -350,9 +351,17 @@
             color: var(--white);
         }
 
-        .stat-icon.total { background: linear-gradient(135deg, #0351BC 0%, #4a7fd4 100%); }
-        .stat-icon.pending { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); }
-        .stat-icon.published { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
+        .stat-icon.total {
+            background: linear-gradient(135deg, #0351BC 0%, #4a7fd4 100%);
+        }
+
+        .stat-icon.pending {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        }
+
+        .stat-icon.published {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        }
 
         .stat-info h3 {
             font-size: 28px;
@@ -464,10 +473,25 @@
             display: inline-block;
         }
 
-        .status-en_attente { background: #fef3c7; color: #92400e; }
-        .status-en_paiement { background: #dbeafe; color: #1e40af; }
-        .status-publiee { background: #d1fae5; color: #065f46; }
-        .status-attribuee { background: #ede9fe; color: #5b21b6; }
+        .status-en_attente {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-en_paiement {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-publiee {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-attribuee {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
 
         .annonce-details {
             display: grid;
@@ -663,6 +687,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation Sidebar -->
     <div class="sidebar">
@@ -746,14 +771,14 @@
             </div>
 
             <!-- Messages -->
-            @if(session('success'))
+            @if (session('success'))
                 <div class="alert-message alert-success">
                     <i class="fas fa-check-circle"></i>
                     {{ session('success') }}
                 </div>
             @endif
 
-            @if(session('error'))
+            @if (session('error'))
                 <div class="alert-message alert-error">
                     <i class="fas fa-exclamation-circle"></i>
                     {{ session('error') }}
@@ -761,91 +786,96 @@
             @endif
 
             <!-- Charts Section -->
-            @if($annonces->count() > 0)
-            <div class="charts-section">
-                <div class="charts-grid">
-                    <!-- Chart 1: Répartition par statut -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3><i class="fas fa-chart-pie"></i> Répartition par statut</h3>
+            @if ($annonces->count() > 0)
+                <div class="charts-section">
+                    <div class="charts-grid">
+                        <!-- Chart 1: Répartition par statut -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3><i class="fas fa-chart-pie"></i> Répartition par statut</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="statusChart"></canvas>
+                            </div>
                         </div>
-                        <div class="chart-container">
-                            <canvas id="statusChart"></canvas>
+
+                        <!-- Chart 2: Évolution des montants -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3><i class="fas fa-chart-line"></i> Budget total par annonce</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="budgetChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 3: Répartition par domaine -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3><i class="fas fa-chart-bar"></i> Répartition par domaine</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="domainChart"></canvas>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon total">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ $annonces->count() }}</h3>
+                                <p>Total annonces</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon published">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ $annonces->where('status', 'publiée')->count() }}</h3>
+                                <p>Publiées</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ number_format($annonces->sum('budget'), 0, ',', ' ') }} F</h3>
+                                <p>Budget total</p>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Chart 2: Évolution des montants -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3><i class="fas fa-chart-line"></i> Budget total par annonce</h3>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="budgetChart"></canvas>
-                        </div>
-                    </div>
 
-                    <!-- Chart 3: Répartition par domaine -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3><i class="fas fa-chart-bar"></i> Répartition par domaine</h3>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="domainChart"></canvas>
-                        </div>
-                    </div>
 
-                               <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon total">
-                        <i class="fas fa-list"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ $annonces->count() }}</h3>
-                        <p>Total annonces</p>
-                    </div>
                 </div>
-            
-                <div class="stat-card">
-                    <div class="stat-icon published">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ $annonces->where('status', 'publiée')->count() }}</h3>
-                        <p>Publiées</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ number_format($annonces->sum('budget'), 0, ',', ' ') }} F</h3>
-                        <p>Budget total</p>
-                    </div>
-                </div>
-            </div>
-                </div>
-
-
-                
-            </div>
             @endif
 
-            
 
-            @if($annonces->count() > 0)
+
+            @if ($annonces->count() > 0)
                 <!-- Search -->
                 <div class="search-container">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput" placeholder="Rechercher une annonce par domaine, description...">
+                        <input type="text" id="searchInput"
+                            placeholder="Rechercher une annonce par domaine, description...">
                     </div>
                 </div>
 
                 <!-- Annonces List -->
                 <div class="annonces-list" id="annoncesList">
-                    @foreach($annonces as $annonce)
-                        <div class="annonce-card" data-search="{{ strtolower($annonce->domaine . ' ' . $annonce->description) }}">
+                    @foreach ($annonces as $annonce)
+                        <div class="annonce-card"
+                            data-search="{{ strtolower($annonce->domaine . ' ' . $annonce->description) }}">
                             <div class="annonce-header">
                                 <div>
                                     <h3 class="annonce-title">{{ $annonce->domaine }}</h3>
@@ -883,8 +913,9 @@
                                         <i class="far fa-clock"></i>
                                     </div>
                                     <div class="detail-content">
-                                        <h4>Date souhaitée</h4>
-                                        <p>{{ $annonce->disponibilite->format('d/m/Y H:i') }}</p>
+                                        <h4>Mes disponibilités</h4>
+                                        <p>{{ $annonce->disponibilite }}</p>
+
                                     </div>
                                 </div>
                                 <div class="detail-item">
@@ -894,7 +925,7 @@
                                     <div class="detail-content">
                                         <h4>Format</h4>
                                         <p>
-                                            @if($annonce->format == 'presentiel')
+                                            @if ($annonce->format == 'presentiel')
                                                 Présentiel
                                             @elseif($annonce->format == 'en_ligne')
                                                 En ligne
@@ -914,22 +945,23 @@
                                 <a href="{{ route('annonces.show', $annonce->id) }}" class="btn-action btn-view">
                                     <i class="fas fa-eye"></i> Voir
                                 </a>
-                                
-                                @if(!$annonce->is_paid && $annonce->status == 'en_attente')
-                                    <a href="{{ route('annonces.payment', $annonce->id) }}" class="btn-action btn-pay">
+
+                                @if (!$annonce->is_paid && $annonce->status == 'en_attente')
+                                    <a href="{{ route('annonces.payment', $annonce->id) }}"
+                                        class="btn-action btn-pay">
                                         <i class="fas fa-credit-card"></i> Payer
                                     </a>
                                 @endif
-                                
-                                @if($annonce->status == 'en_attente')
+
+                                @if ($annonce->status == 'en_attente')
                                     <a href="{{ route('annonces.edit', $annonce->id) }}" class="btn-action btn-edit">
                                         <i class="fas fa-edit"></i> Modifier
                                     </a>
                                 @endif
-                                
-                                @if($annonce->status != 'attribuee')
-                                    <form action="{{ route('annonces.destroy', $annonce->id) }}" method="POST" 
-                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?')">
+
+                                @if ($annonce->status != 'attribuee')
+                                    <form action="{{ route('annonces.destroy', $annonce->id) }}" method="POST"
+                                        onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn-action btn-delete">
@@ -948,7 +980,8 @@
                         <i class="fas fa-bullhorn"></i>
                     </div>
                     <h3>Aucune annonce créée</h3>
-                    <p>Commencez par créer votre première annonce pour trouver le tuteur idéal pour vos besoins d'apprentissage.</p>
+                    <p>Commencez par créer votre première annonce pour trouver le tuteur idéal pour vos besoins
+                        d'apprentissage.</p>
                     <a href="{{ route('annonces.create') }}" class="btn-create" style="margin-top: 10px;">
                         <i class="fas fa-plus"></i>
                         Créer ma première annonce
@@ -961,7 +994,7 @@
     <script>
         // Données pour les graphiques (utilisez les données PHP passées)
         const annoncesData = @json($annonces);
-        
+
         // Préparation des données pour les graphiques
         const statusData = {
             labels: ['En attente', 'En paiement', 'Publiée', 'Attribuée'],
@@ -1119,7 +1152,7 @@
                 searchInput.addEventListener('keyup', function() {
                     const searchValue = this.value.toLowerCase();
                     const annonceCards = document.querySelectorAll('.annonce-card');
-                    
+
                     annonceCards.forEach(card => {
                         const searchText = card.getAttribute('data-search');
                         if (searchText.includes(searchValue)) {
@@ -1147,4 +1180,5 @@
         });
     </script>
 </body>
+
 </html>

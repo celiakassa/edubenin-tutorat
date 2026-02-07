@@ -18,7 +18,8 @@ return new class extends Migration
             $table->decimal('acompte', 15, 2);
 
             $table->string('status')->default('en_attente');
-            $table->dateTime('disponibilite');
+         
+$table->text('disponibilite')->nullable();
             $table->enum('format', ['presentiel', 'en_ligne', 'hybrid'])->default('presentiel');
             $table->boolean('is_paid')->default(false);
             $table->timestamp('published_at')->nullable();

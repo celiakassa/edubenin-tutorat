@@ -25,7 +25,7 @@ class AnnonceController extends Controller
         if (Auth::user()->role_id != 2) {
             abort(403, 'Accès réservé aux étudiants');
         }
-        
+
         $user = Auth::user();
         return view('annonces.create', compact('user'));
     }
@@ -41,7 +41,69 @@ class AnnonceController extends Controller
             'domaine' => 'required|string|max:255',
             'description' => 'required|string|min:10',
             'budget' => 'required|numeric|min:1000|max:1000000000',
-            'disponibilite' => 'required|date|after:now',
+            'disponibilite' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (empty(trim($value))) {
+                        $fail('Veuillez ajouter au moins un créneau de disponibilité.');
+                        return;
+                    }
+
+                    $lines = explode("\n", trim($value));
+                    $validFormat = true;
+                    $errors = [];
+
+                    foreach ($lines as $index => $line) {
+                        $line = trim($line);
+                        if (!empty($line)) {
+                            // Vérifier le format: jour HH:MM - HH:MM
+                            if (!preg_match('/^([a-zA-Zéèêëàâäîïôöùûüç\s]+) (\d{2}:\d{2}) - (\d{2}:\d{2})$/', $line, $matches)) {
+                                $validFormat = false;
+                                $errors[] = "Ligne " . ($index + 1) . ": Format incorrect. Utilisez: 'jour HH:MM - HH:MM'";
+                                continue;
+                            }
+
+                            $jour = trim($matches[1]);
+                            $startTime = $matches[2];
+                            $endTime = $matches[3];
+
+                            // Vérifier les heures
+                            if (!preg_match('/^(\d{2}):(\d{2})$/', $startTime, $timeStart) ||
+                                !preg_match('/^(\d{2}):(\d{2})$/', $endTime, $timeEnd)) {
+                                $validFormat = false;
+                                $errors[] = "Ligne " . ($index + 1) . ": Format d'heure incorrect";
+                                continue;
+                            }
+
+                            $startHour = (int)$timeStart[1];
+                            $startMinute = (int)$timeStart[2];
+                            $endHour = (int)$timeEnd[1];
+                            $endMinute = (int)$timeEnd[2];
+
+                            if ($startHour < 0 || $startHour > 23 || $endHour < 0 || $endHour > 23 ||
+                                $startMinute < 0 || $startMinute > 59 || $endMinute < 0 || $endMinute > 59) {
+                                $validFormat = false;
+                                $errors[] = "Ligne " . ($index + 1) . ": Heures invalides";
+                                continue;
+                            }
+
+                            // Vérifier que l'heure de fin est après l'heure de début
+                            $startTotal = $startHour * 60 + $startMinute;
+                            $endTotal = $endHour * 60 + $endMinute;
+
+                            if ($endTotal <= $startTotal) {
+                                $validFormat = false;
+                                $errors[] = "Ligne " . ($index + 1) . ": L'heure de fin doit être après l'heure de début";
+                            }
+                        }
+                    }
+
+                    if (!$validFormat) {
+                        $fail('Erreurs dans les disponibilités: ' . implode(', ', $errors));
+                    }
+                }
+            ],
             'format' => 'required|in:presentiel,en_ligne,hybrid'
         ]);
 
@@ -50,7 +112,7 @@ class AnnonceController extends Controller
         $annonce->domaine = $request->domaine;
         $annonce->description = $request->description;
         $annonce->budget = (float) $request->budget;
-        $annonce->disponibilite = $request->disponibilite;
+        $annonce->disponibilite = trim($request->disponibilite);
         $annonce->format = $request->format;
 
         // Calcul acompte
@@ -72,7 +134,7 @@ class AnnonceController extends Controller
     {
         $annonce = Annonce::findOrFail($id);
         $user = Auth::user();
-        
+
         if ($annonce->student_id != Auth::id()) {
             abort(403, 'Accès non autorisé');
         }
@@ -115,7 +177,7 @@ class AnnonceController extends Controller
 
             // Récupérer l'annonce
             $annonce = Annonce::findOrFail($annonceId);
-            
+
             // Vérifier que l'utilisateur est propriétaire de l'annonce
             if ($annonce->student_id != $user->id) {
                 abort(403, 'Accès non autorisé');
@@ -182,7 +244,7 @@ class AnnonceController extends Controller
     {
         $annonce = Annonce::with(['student', 'payments'])->findOrFail($id);
         $user = Auth::user();
-        
+
         if ($annonce->student_id != Auth::id() && Auth::user()->role_id != 1) {
             abort(403, 'Accès non autorisé');
         }
@@ -195,7 +257,7 @@ class AnnonceController extends Controller
     {
         $annonce = Annonce::findOrFail($id);
         $user = Auth::user();
-        
+
         if ($annonce->student_id != Auth::id()) {
             abort(403, 'Accès non autorisé');
         }
@@ -212,7 +274,7 @@ class AnnonceController extends Controller
     public function update(Request $request, $id)
     {
         $annonce = Annonce::findOrFail($id);
-        
+
         if ($annonce->student_id != Auth::id()) {
             abort(403, 'Accès non autorisé');
         }
@@ -226,22 +288,76 @@ class AnnonceController extends Controller
             'domaine' => 'required|string|max:255',
             'description' => 'required|string|min:10',
             'budget' => 'required|numeric|min:1000',
-            'disponibilite' => 'required|date|after:now',
+            'disponibilite' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (empty(trim($value))) {
+                        $fail('Veuillez ajouter au moins un créneau de disponibilité.');
+                        return;
+                    }
+
+                    $lines = explode("\n", trim($value));
+                    $validFormat = true;
+                    $errors = [];
+
+                    foreach ($lines as $index => $line) {
+                        $line = trim($line);
+                        if (!empty($line)) {
+                            if (!preg_match('/^([a-zA-Zéèêëàâäîïôöùûüç\s]+) (\d{2}:\d{2}) - (\d{2}:\d{2})$/', $line, $matches)) {
+                                $validFormat = false;
+                                $errors[] = "Ligne " . ($index + 1) . ": Format incorrect";
+                                continue;
+                            }
+
+                            $startTime = $matches[2];
+                            $endTime = $matches[3];
+
+                            if (preg_match('/^(\d{2}):(\d{2})$/', $startTime, $timeStart) &&
+                                preg_match('/^(\d{2}):(\d{2})$/', $endTime, $timeEnd)) {
+                                $startHour = (int)$timeStart[1];
+                                $startMinute = (int)$timeStart[2];
+                                $endHour = (int)$timeEnd[1];
+                                $endMinute = (int)$timeEnd[2];
+
+                                if ($startHour < 0 || $startHour > 23 || $endHour < 0 || $endHour > 23 ||
+                                    $startMinute < 0 || $startMinute > 59 || $endMinute < 0 || $endMinute > 59) {
+                                    $validFormat = false;
+                                    $errors[] = "Ligne " . ($index + 1) . ": Heures invalides";
+                                    continue;
+                                }
+
+                                $startTotal = $startHour * 60 + $startMinute;
+                                $endTotal = $endHour * 60 + $endMinute;
+
+                                if ($endTotal <= $startTotal) {
+                                    $validFormat = false;
+                                    $errors[] = "Ligne " . ($index + 1) . ": L'heure de fin doit être après l'heure de début";
+                                }
+                            }
+                        }
+                    }
+
+                    if (!$validFormat) {
+                        $fail('Erreurs dans les disponibilités: ' . implode(', ', $errors));
+                    }
+                }
+            ],
             'format' => 'required|in:presentiel,en_ligne,hybrid'
         ]);
 
         $annonce->domaine = $request->domaine;
         $annonce->description = $request->description;
         $annonce->budget = $request->budget;
-        $annonce->disponibilite = $request->disponibilite;
+        $annonce->disponibilite = trim($request->disponibilite);
         $annonce->format = $request->format;
-        
+
         // Recalculer l'acompte si le budget a changé
         if ($annonce->isDirty('budget')) {
             $percentage = rand(20, 30) / 100;
             $annonce->acompte = $request->budget * $percentage;
         }
-        
+
         $annonce->save();
 
         return redirect()->route('annonces.show', $annonce->id)
@@ -252,7 +368,7 @@ class AnnonceController extends Controller
     public function destroy($id)
     {
         $annonce = Annonce::findOrFail($id);
-        
+
         if ($annonce->student_id != Auth::id()) {
             abort(403, 'Accès non autorisé');
         }

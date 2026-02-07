@@ -17,15 +17,12 @@ use FedaPay\Transaction;
 
 class TeacherController extends Controller
 {
-
-
     public function __construct()
     {
         // Configurer FedaPay
         FedaPay::setApiKey(config('services.fedapay.secret_key'));
         FedaPay::setEnvironment(config('services.fedapay.environment', 'sandbox'));
     }
-
 
     public function listProfesseur()
     {
@@ -38,8 +35,18 @@ class TeacherController extends Controller
     public function ShowAnnonces()
     {
         $annonces = \App\Models\Annonce::orderBy('created_at', 'desc')->paginate(10);
-        return view('teachers.annonce', compact('annonces'));
+
+        // Récupérer tous les domaines distincts depuis la base de données
+        $domaines = \App\Models\Annonce::select('domaine')
+            ->whereNotNull('domaine')
+            ->where('domaine', '!=', '')
+            ->distinct()
+            ->orderBy('domaine')
+            ->pluck('domaine');
+
+        return view('teachers.annonce', compact('annonces', 'domaines'));
     }
+
     public function register()
     {
         return view('teachers.register');
@@ -53,7 +60,6 @@ class TeacherController extends Controller
         $annonce = Annonce::findByHashidOrFail($hash);
 
         $hasApplied = false;
-
 
         if (auth()->check() && auth()->user()->isTuteur()) {
             $hasApplied = Candidature::where('annonce_id', $annonce->id)
@@ -76,6 +82,7 @@ class TeacherController extends Controller
 
         return view('teachers.annonce-detail', compact('annonce', 'hasApplied', 'teacher_validate', 'student', 'candidature'));
     }
+
     public function showSubscription()
     {
         return view('teachers.subscription-teacher');
@@ -107,8 +114,7 @@ class TeacherController extends Controller
             }
 
             DB::transaction(function () use ($transaction, $user) {
-
-                // 🔹 1. Gérer l’abonnement
+                // 🔹 1. Gérer l'abonnement
                 $existingSubscription = $user->subscription;
                 $startDate = Carbon::now();
 

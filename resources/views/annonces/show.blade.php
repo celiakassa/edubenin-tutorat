@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Détails de l'annonce - Kopiao</title>
-        <link href="{{ asset('images/image_1.webp') }}" rel="icon">
+    <link href="{{ asset('images/image_1.webp') }}" rel="icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -359,6 +359,39 @@
         .detail-list li i {
             color: var(--primary-color);
             width: 16px;
+        }
+
+        /* Disponibilités Styles */
+        .disponibilites-list {
+            margin-top: 10px;
+        }
+
+        .disponibilite-item {
+            background: var(--white);
+            border: 1px solid var(--medium-gray);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .disponibilite-item:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 2px 8px rgba(3, 81, 188, 0.1);
+        }
+
+        .disponibilite-day {
+            font-weight: 600;
+            color: var(--text-dark);
+            min-width: 100px;
+        }
+
+        .disponibilite-time {
+            color: var(--dark-gray);
+            font-weight: 500;
         }
 
         /* Payment Info */
@@ -808,28 +841,36 @@
                         <ul class="detail-list">
                             <li>
                                 <i class="fas fa-calendar-check"></i>
-                                <strong>Date souhaitée:</strong>
-                                {{ $annonce->disponibilite->format('d/m/Y H:i') }}
-                            </li>
-                            <li>
-                                <i class="fas fa-video"></i>
-                                <strong>Format:</strong>
-                                @if($annonce->format == 'presentiel')
-                                    Présentiel
-                                @elseif($annonce->format == 'en_ligne')
-                                    En ligne
-                                @else
-                                    Hybride
-                                @endif
-                            </li>
-                            <li>
-                                <i class="fas fa-clock"></i>
-                                <strong>Statut:</strong>
-                                <span class="annonce-status status-{{ str_replace('é', 'e', $annonce->status) }}" style="padding: 2px 8px; font-size: 12px;">
-                                    {{ $annonce->status }}
-                                </span>
+                                <strong>Disponibilités:</strong>
                             </li>
                         </ul>
+                        <!-- Section des disponibilités -->
+                        <div class="disponibilites-list">
+                            @if($annonce->disponibilite)
+                                @foreach(explode("\n", trim($annonce->disponibilite)) as $line)
+                                    @if(trim($line))
+                                        @php
+                                            $parts = explode(' ', trim($line));
+                                            if (count($parts) >= 3) {
+                                                $jour = ucfirst($parts[0]);
+                                                $heures = $parts[1] . ' ' . $parts[2] . ' ' . ($parts[3] ?? '');
+                                            } else {
+                                                $jour = '';
+                                                $heures = trim($line);
+                                            }
+                                        @endphp
+                                        <div class="disponibilite-item">
+                                            <span class="disponibilite-day">{{ $jour }}</span>
+                                            <span class="disponibilite-time">{{ $heures }}</span>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @else
+                                <p style="color: var(--dark-gray); font-style: italic; margin-top: 10px;">
+                                    Non spécifié
+                                </p>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="detail-card">
@@ -904,7 +945,7 @@
                     <div class="student-details">
                         <div class="student-detail">
                             <i class="fas fa-envelope"></i>
-                            {{ $annonce->student->email }} 
+                            {{ $annonce->student->email }}
                         </div>
                         <br>
                         @if($annonce->student->telephone)
@@ -922,7 +963,7 @@
                         @if($annonce->student->learning_preference)
                             <div class="student-detail">
                                 <i class="fas fa-graduation-cap"></i>
-                                Préfère: 
+                                Préfère:
                                 @if($annonce->student->learning_preference == 'online')
                                     Cours en ligne
                                 @elseif($annonce->student->learning_preference == 'in_person')
@@ -947,7 +988,7 @@
                             <div class="timeline-title">Annonce créée</div>
                             <div class="timeline-description">L'annonce a été créée par l'étudiant</div>
                         </div>
-                        
+
                         @if($annonce->status == 'en_paiement')
                             <div class="timeline-item">
                                 <div class="timeline-date">En attente</div>
@@ -955,7 +996,7 @@
                                 <div class="timeline-description">En attente de paiement de l'acompte</div>
                             </div>
                         @endif
-                        
+
                         @if($annonce->published_at)
                             <div class="timeline-item">
                                 <div class="timeline-date">{{ $annonce->published_at->format('d/m/Y H:i') }}</div>
@@ -963,7 +1004,7 @@
                                 <div class="timeline-description">L'annonce est maintenant visible par les tuteurs</div>
                             </div>
                         @endif
-                        
+
                         @if($annonce->payments()->where('status', 'completed')->exists())
                             @foreach($annonce->payments()->where('status', 'completed')->get() as $payment)
                                 <div class="timeline-item">
@@ -984,15 +1025,14 @@
                         <i class="fas fa-arrow-left"></i>
                         Retour aux annonces
                     </a>
-                    
+
                     @if(!$annonce->is_paid && $annonce->status == 'en_attente' && Auth::user()->id == $annonce->student_id)
                         <a href="{{ route('annonces.payment', $annonce->id) }}" class="btn-action btn-primary">
                             <i class="fas fa-credit-card"></i>
                             Payer l'acompte
                         </a>
                     @endif
-                    
-                    {{-- CORRECTION ICI : Comparer avec 'publiée' au lieu de 'publiee' --}}
+
                     @if(($annonce->status == 'publiée' || $annonce->status == 'attribuee') && Auth::user()->id == $annonce->student_id)
                         <a href="{{ route('candidatures.index', $annonce->id) }}" class="btn-action btn-purple">
                             <i class="fas fa-users"></i> Voir les candidatures
@@ -1003,7 +1043,14 @@
                             @endif
                         </a>
                     @endif
-                    
+
+                    @if(Auth::user()->id == $annonce->student_id && $annonce->status == 'en_attente')
+                        <a href="{{ route('annonces.edit', $annonce->id) }}" class="btn-action btn-primary">
+                            <i class="fas fa-edit"></i>
+                            Modifier
+                        </a>
+                    @endif
+
                     @if(Auth::user()->id == $annonce->student_id && $annonce->status != 'attribuee')
                         <form action="{{ route('annonces.destroy', $annonce->id) }}" method="POST" style="display: inline;">
                             @csrf
@@ -1014,7 +1061,7 @@
                             </button>
                         </form>
                     @endif
-                    
+
                     @if(Auth::user()->role_id == 1)
                         <a href="{{ route('admin.dashboard') }}" class="btn-action btn-secondary">
                             <i class="fas fa-cog"></i>

@@ -7,8 +7,8 @@
 @section('content')
 
     <!-- Section d'en-tête avec filtres -->
-    <div class="annonces-header">
-        <div class="header-content">
+    <div class="annonces-header" >
+        <div class="header-content" >
             <div class="header-text">
                 <h2 class="header-title">Trouvez votre prochaine mission</h2>
                 <p class="header-subtitle">{{ $annonces->total() }} annonce(s) disponible(s)</p>
@@ -20,10 +20,9 @@
                 </div>
                 <select class="filter-select" id="filterDomaine">
                     <option value="">Tous les domaines</option>
-                    <option value="maths">Mathématiques</option>
-                    <option value="physique">Physique</option>
-                    <option value="informatique">Informatique</option>
-                    <option value="langues">Langues</option>
+                    @foreach($domaines as $domaine)
+                        <option value="{{ strtolower($domaine) }}">{{ ucfirst($domaine) }}</option>
+                    @endforeach
                 </select>
             </div>
         </div>
@@ -32,10 +31,9 @@
     <!-- Liste des annonces -->
     <div class="annonces-container">
         @forelse($annonces as $annonce)
-            <div class="annonce-card" data-domaine="{{ $annonce->domaine }}">
+            <div class="annonce-card" data-domaine="{{ strtolower($annonce->domaine) }}">
                 <!-- Badge de statut -->
                 <div class="annonce-badges">
-                   
                     <span class="badge badge-format">
                         <i
                             class="fas fa-{{ $annonce->format === 'en_ligne' ? 'laptop' : ($annonce->format === 'presentiel' ? 'user-friends' : 'globe') }}"></i>
@@ -89,8 +87,9 @@
                             <i class="fas fa-calendar-alt"></i>
                             <div class="detail-content">
                                 <span class="detail-label">Disponibilité</span>
-                                <span
-                                    class="detail-value">{{ $annonce->disponibilite ? $annonce->disponibilite->format('d/m/Y') : 'Non spécifiée' }}</span>
+                                <span class="detail-value">
+                                    {{ $annonce->disponibilite ?? 'Non spécifiée' }}
+                                </span>
                             </div>
                         </div>
                         <div class="detail-item">
@@ -130,7 +129,6 @@
                         <i class="fas fa-eye"></i>
                         Voir les détails
                     </button>
-
                 </div>
             </div>
         @empty
@@ -163,7 +161,7 @@
     <style>
         /* En-tête des annonces */
         .annonces-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            background-color: #1D8F43;
             border-radius: 16px;
             padding: 32px;
             margin-bottom: 32px;
@@ -606,7 +604,6 @@
         .btn-action {
             padding: 10px 16px;
             min-width: 170px;
-            /* garantit même largeur */
             font-size: 14px;
             border-radius: 6px;
             display: inline-flex;
@@ -700,7 +697,6 @@
         });
     </script>
 
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // ========================================
@@ -721,7 +717,6 @@
                     iconColor: '#fff', // Icône blanche
                 });
             @endif
-
 
             @if (session('error'))
                 Swal.fire({

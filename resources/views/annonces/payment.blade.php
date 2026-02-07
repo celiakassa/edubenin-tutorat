@@ -575,7 +575,7 @@
                         <div class="result-icon success">
                             <i class="fas fa-check"></i>
                         </div>
-                        <h2 class="result-title">Paiement réussi !</h2>
+                      <h2 class="result-title">Annonce créée !</h2>
                         <p class="result-message">{{ session('success') }}</p>
                         <div class="payment-actions">
                             <a href="{{ route('annonces.show', $annonce->id) }}" class="btn-pay">
@@ -628,8 +628,11 @@
                                 </span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label">Date souhaitée</span>
-                                <span class="summary-value">{{ \Carbon\Carbon::parse($annonce->disponibilite)->format('d/m/Y H:i') }}</span>
+                                <span class="summary-label">Mes disponibilités</span>
+                                <span class="summary-value">
+    {{ $annonce->disponibilite }}
+</span>
+
                             </div>
                             <div class="summary-item">
                                 <span class="summary-label">Budget total</span>
@@ -664,7 +667,7 @@
                     <!-- Bouton de paiement - CORRIGÉ -->
                     <div class="payment-actions">
                        <!-- Ceci est dans votre fichier blade -->
-<button type="button" 
+<button type="button"
         class="btn btn-pay btn-pay-acompte"
         data-amount="{{ intval($annonce->acompte) }}"
         data-title="Acompte pour annonce: {{ $annonce->domaine }}"
@@ -676,7 +679,7 @@
                         <!-- Notice frais -->
                         <div class="fees-notice">
                             <i class="fas fa-exclamation-triangle mr-2"></i>
-                            <strong>Note :</strong> FedaPay ajoute des frais de transaction 
+                            <strong>Note :</strong> FedaPay ajoute des frais de transaction
                             (environ 2%). Le montant final sera légèrement supérieur.
                         </div>
 
@@ -701,7 +704,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             @auth
             const payButton = document.querySelector('.btn-pay-acompte');
-            
+
             if (payButton) {
                 payButton.addEventListener('click', function () {
                     const amount = this.dataset.amount;

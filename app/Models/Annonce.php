@@ -27,7 +27,7 @@ class Annonce extends Model
     ];
 
     protected $casts = [
-        'disponibilite' => 'datetime',
+       
         'budget' => 'decimal:2',
         'acompte' => 'decimal:2',
         'published_at' => 'datetime',
@@ -135,4 +135,24 @@ class Annonce extends Model
     {
         return $this->status === 'publiée'; // CORRECTION : 'publiée' avec accent
     }
+
+    // Formatage disponiblite
+public function getFormattedDisponibiliteAttribute()
+{
+    if (empty($this->disponibilite)) {
+        return 'Non spécifié';
+    }
+
+    $lines = explode("\n", trim($this->disponibilite));
+    $formatted = '';
+
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (!empty($line)) {
+            $formatted .= '<li>' . e($line) . '</li>';
+        }
+    }
+
+    return $formatted ? '<ul class="list-unstyled mb-0">' . $formatted . '</ul>' : 'Non spécifié';
+}
 }
