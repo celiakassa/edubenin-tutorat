@@ -38,9 +38,26 @@ class TeacherController extends Controller
      */
     public function ShowAnnonces()
     {
-        $annonces = \App\Models\Annonce::orderBy('created_at', 'desc')->paginate(10);
+        // Récupérer le tuteur connecté
+        $tuteur = auth()->user();
+
+        // S'assurer que c'est bien un tuteur
+        if (!$tuteur || !$tuteur->isTuteur()) {
+            abort(403, 'Accès interdit');
+        }
+
+        // Récupérer ses matières
+        // Si 'subjects' est stocké comme JSON : decode-le
+        $subjects = json_decode($tuteur->subjects, true) ?? [];
+
+        // Récupérer les annonces dont le domaine est dans ses matières
+        $annonces = \App\Models\Annonce::whereIn('domaine', $subjects)
+            ->orderBy('created_at', 'desc')
+            ->paginate(6);
+
         return view('teachers.annonce', compact('annonces'));
     }
+
     public function register()
     {
         return view('teachers.register');

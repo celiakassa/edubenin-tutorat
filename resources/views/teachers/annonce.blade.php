@@ -13,19 +13,7 @@
                 <h2 class="header-title">Trouvez votre prochaine mission</h2>
                 <p class="header-subtitle">{{ $annonces->total() }} annonce(s) disponible(s)</p>
             </div>
-            <div class="header-actions">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Rechercher une annonce..." id="searchAnnonce">
-                </div>
-                <select class="filter-select" id="filterDomaine">
-                    <option value="">Tous les domaines</option>
-                    <option value="maths">Mathématiques</option>
-                    <option value="physique">Physique</option>
-                    <option value="informatique">Informatique</option>
-                    <option value="langues">Langues</option>
-                </select>
-            </div>
+
         </div>
     </div>
 
@@ -35,7 +23,7 @@
             <div class="annonce-card" data-domaine="{{ $annonce->domaine }}">
                 <!-- Badge de statut -->
                 <div class="annonce-badges">
-                   
+
                     <span class="badge badge-format">
                         <i
                             class="fas fa-{{ $annonce->format === 'en_ligne' ? 'laptop' : ($annonce->format === 'presentiel' ? 'user-friends' : 'globe') }}"></i>
