@@ -47,7 +47,7 @@
                 <div class="menu-item {{ request()->routeIs('annonces.create') ? 'active' : '' }}" 
                      onclick="window.location.href='{{ route('annonces.create') }}'">
                     <i class="fas fa-bullhorn"></i>
-                    <span class="menu-text">Faire une demande</span>
+                    <span class="menu-text">Faire une annonces</span>
                 </div>
                 
                 <div class="menu-item {{ request()->routeIs('annonces.index') ? 'active' : '' }}" 
