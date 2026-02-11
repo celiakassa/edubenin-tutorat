@@ -27,7 +27,7 @@
                     <p class="text-muted mb-0 small">Dans votre domaine</p>
                 </div>
                 <div class="card-footer bg-primary bg-opacity-10 border-0">
-                    <a href="{{ route('annonces.index') }}" class="text-primary text-decoration-none small fw-semibold">
+                    <a href="{{ route('annonces') }}" class="text-primary text-decoration-none small fw-semibold">
                         Voir les annonces <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>

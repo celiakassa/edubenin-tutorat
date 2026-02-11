@@ -61,7 +61,34 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Annonce::class, 'student_id');
     }
 
-    // 🔐 Méthodes de rôle
+    // ← Relation corrigée
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    // ← Méthode corrigée
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class)
+            ->where('statut', 'active')
+            ->latest('date_fin');
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(Subscription::class)
+            ->where('statut', 'active')
+            ->where('date_fin', '>', now());
+    }
+
+    public function isSubscribed()
+    {
+        $sub = $this->activeSubscription;
+        return $sub && $sub->date_fin && $sub->date_fin->isFuture();
+    }
+
+    // Méthodes de rôle
     public function isAdmin()
     {
         return $this->role_id === 1;
@@ -76,26 +103,4 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->role_id === 3;
     }
-
-    public function subscriptions()
-    {
-        return $this->hasMany(Subscription::class);
-    }
-
-
-    public function activeSubscription()
-    {
-        // On utilise 'statut' car c'est le nom dans ton modèle Subscription
-        return $this->hasOne(Subscription::class)->where('statut', 'active');
-    }
-
-    public function isSubscribed()
-    {
-        $sub = $this->activeSubscription;
-        // Vérifie si la sub existe ET si la date de fin est dans le futur
-        return $sub && $sub->date_fin && $sub->date_fin->isFuture();
-    }
-
-
-
 }

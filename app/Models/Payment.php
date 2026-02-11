@@ -19,7 +19,8 @@ class Payment extends Model
         'payment_method',
         'payment_details',
         'subscription_id',
-        'paid_at'
+        'paid_at',
+        'moneroo_payment_id'
     ];
 
     protected $casts = [
@@ -36,6 +37,14 @@ class Payment extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relation avec l'abonnement
+     */
+    public function subscription()
+    {
+        return $this->belongsTo(Subscription::class);
     }
 
     // Scopes
