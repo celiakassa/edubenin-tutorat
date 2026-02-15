@@ -90,74 +90,82 @@
 
 <header id="header" class="header d-flex align-items-center fixed-top" style="background-color: blue;">
     <div class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between"
-        style=" margin-bottom: 35px;">
+        style="margin-bottom: 35px;">
 
+        <!-- Logo -->
         <a href="{{ url('/') }}" class="logo d-flex align-items-center text-white text-decoration-none">
-
             <h1 class="sitename fw-bold mb-0">Kopiao</h1>
         </a>
 
+        <!-- Menu principal -->
+        <nav class="d-flex align-items-center gap-2">
 
-        @auth
+            <!-- Liens dynamiques -->
+            <ul class="d-flex list-unstyled mb-0 align-items-center gap-2">
+                <li>
+                    <a class="btn btn-primary fw-semibold text-light px-4 py-2 rounded-pill text-decoration-none"
+                        href="{{ route('annoncesListe.liste') }}">
+                        Annonces
+                    </a>
+                </li>
 
-            <div class="d-flex align-items-center gap-2">
+                <li>
+                    <a class="btn btn-primary fw-semibold text-light px-4 py-2 rounded-pill text-decoration-none"
+                        href="{{ route('demandesliste.liste') }}">
+                        Demandes
+                    </a>
+                </li>
 
+                 <li>
+                    <a class="btn btn-primary fw-semibold text-light px-4 py-2 rounded-pill text-decoration-none"
+                        href="{{ route('faq') }}">
+                       faq
+                    </a>
+                </li>
+                <!-- Ajouter d'autres liens ici -->
+            </ul>
 
+            @auth
                 <!-- Bouton Déconnexion -->
                 <form method="POST" action="{{ route('logout') }}" class="m-0">
                     @csrf
                     <button type="submit" class="btn btn-danger fw-semibold px-4 py-2 rounded-pill">
-                        <i class="bi bi-box-arrow-right me-2"></i>Se déconnecter
+                        <i class="bi bi-box-arrow-right me-2"></i> Se déconnecter
                     </button>
                 </form>
-            </div>
-        @else
-            <div style="margin: 0px; padding: 0px;">
-
-
-                <a class="btn-getstarted btn btn-warning bg-light fw-semibold text-dark px-4 py-2 rounded-pill btn-tuteur"
-                    style="margin-right: 0px; padding-right:0px; border:solid 3px #0d6efd;"
-                    href="{{ route('register.tuteur') }}">
-                    Devenir tuteur
-                </a>
-
-
-                <a class="btn-getstarted btn btn-warning fw-semibold text-light px-4 py-2 rounded-pill"
-                    href="{{ route('login') }}">
+            @else
+                <!-- Bouton Devenir tuteur -->
+                <a class="btn btn-warning bg-light fw-semibold text-dark px-4 py-2 rounded-pill btn-tuteur"
+                    style="border:solid 3px #0d6efd;" href="{{ route('login') }}">
                     Se connecter
                 </a>
-
-            </div>
-        @endauth
-
-        <style>
-            /* ================================
-   MOBILE : afficher seulement
-   - Titre à gauche
-   - Se connecter à droite
-=================================== */
-            @media (max-width: 991px) {
-
-                /* Cacher "Devenir tuteur" */
-                .btn-tuteur {
-                    display: none !important;
-                }
-
-                /* Garder "Se connecter" visible */
-                .btn-getstarted {
-                    display: inline-flex;
-                }
-
-                /* Header bien aligné */
-                .header-container {
-                    justify-content: space-between;
-                }
-            }
-        </style>
-
+            @endauth
+        </nav>
 
     </div>
+
+    <!-- ===== Style responsive ===== -->
+    <style>
+        @media (max-width: 991px) {
+
+            /* Cacher "Devenir tuteur" */
+            .btn-tuteur {
+                display: none !important;
+            }
+
+            /* Garder les boutons visibles et alignés */
+            .header-container {
+                justify-content: space-between;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
 </header>
+
 
 
 
