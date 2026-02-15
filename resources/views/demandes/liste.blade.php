@@ -5,7 +5,7 @@
         <div class="container">
             <!-- En-tête -->
             <div class="text-center mb-5" data-aos="fade-up">
-                <h1 class="display-5 fw-bold" style="color: #0000FF;">Demandes des étudiants</h1>
+                <h1 class="display-5 fw-bold" style="color: #0000FF;">Demandes des apprenants</h1>
                 <p class="lead text-muted">Trouvez la mission qui correspond à vos compétences</p>
                 <div class="divider mx-auto" style="width: 80px; height: 4px; background: #0000FF; border-radius: 2px;"></div>
             </div>

@@ -19,7 +19,7 @@
                             <div class="category-icon mb-2">
                                 <i class="bi bi-mortarboard" style="font-size: 2rem; color: #0000FF;"></i>
                             </div>
-                            <span class="fw-semibold" style="color: #333;">Étudiants</span>
+                            <span class="fw-semibold" style="color: #333;">Apprenants</span>
                         </div>
                     </a>
                 </div>
@@ -39,7 +39,7 @@
         <!-- Section Étudiants -->
         <section id="etudiants" class="mb-5" data-aos="fade-up">
             <h2 class="fw-bold mb-4 pb-2" style="color: #0000FF; border-bottom: 3px solid #0000FF;">
-                <i class="bi bi-mortarboard me-2"></i>Questions des étudiants
+                <i class="bi bi-mortarboard me-2"></i>Questions des Apprenants
             </h2>
 
             <!-- A. Inscription et création de compte -->
@@ -51,12 +51,12 @@
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE1">
-                                Comment créer un compte étudiant ?
+                                Comment créer un compte Apprenants ?
                             </button>
                         </h2>
                         <div id="collapseE1" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantA">
                             <div class="accordion-body bg-light">
-                                <p>Pour créer un compte étudiant :</p>
+                                <p>Pour créer un compte Apprenants :</p>
                                 <ol>
                                     <li>Cliquez sur "S'inscrire" dans le menu supérieur</li>
                                     <li>Sélectionnez "Étudiant" comme type de compte</li>

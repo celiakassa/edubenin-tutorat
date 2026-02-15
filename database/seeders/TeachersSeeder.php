@@ -12,7 +12,7 @@ class TeachersSeeder extends Seeder
 {
     public function run(): void
     {
-       
+
         // 🔹 Listes de données
         $firstnames = ['Alex', 'Sarah', 'Marc', 'Isabelle', 'Kevin', 'Laura', 'David', 'Chantal', 'Eric', 'Mireille', 'Hugo', 'Fabienne', 'Louis', 'Arielle', 'Thomas'];
         $lastnames = ['Adjaho', 'Kpoton', 'Gandonou', 'Dossou', 'Mensah', 'Ketema', 'Houngbe', 'Assogba', 'Zinsou', 'Tokoudagba', 'Avlessi', 'Ayihoun', 'Dagba', 'Anato', 'Gbèdonou'];
@@ -44,7 +44,7 @@ class TeachersSeeder extends Seeder
                 'email_verified_at'     => now(),
                 'password'              => Hash::make('password123'),
                 'telephone'             => '+229' . rand(90000000, 99999999),
-                'photo_path'            => null, 
+                'photo_path'            => null, // ou '' si tu préfères une chaîne vide
                 'role_id'               => 3,
                 'is_active'             => 1,
                 'remember_token'        => Str::random(10),

@@ -25,4 +25,12 @@ class Subscription extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Relation avec les paiements
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

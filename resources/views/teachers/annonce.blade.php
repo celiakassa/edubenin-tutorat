@@ -13,18 +13,6 @@
                 <h2 class="header-title">Trouvez votre prochaine mission</h2>
                 <p class="header-subtitle">{{ $annonces->total() }} annonce(s) disponible(s)</p>
             </div>
-            <div class="header-actions">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Rechercher une annonce..." id="searchAnnonce">
-                </div>
-                <select class="filter-select" id="filterDomaine">
-                    <option value="">Tous les domaines</option>
-                    @foreach($domaines as $domaine)
-                        <option value="{{ strtolower($domaine) }}">{{ ucfirst($domaine) }}</option>
-                    @endforeach
-                </select>
-            </div>
         </div>
     </div>
 

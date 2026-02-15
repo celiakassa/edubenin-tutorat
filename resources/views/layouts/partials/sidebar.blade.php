@@ -1,4 +1,4 @@
-<div class="sidebar @if(auth()->user()->isEtudiant()) sidebar-etudiant @elseif(auth()->user()->isTuteur()) sidebar-tuteur @endif">
+<div class="sidebar">
     <div class="sidebar-header">
         <div class="logo" onclick="window.location.href='{{ url('/') }}'" style="cursor:pointer;">KP</div>
         <div class="logo-text" onclick="window.location.href='{{ url('/') }}'" style="cursor:pointer;">Kopiao</div>
@@ -22,7 +22,6 @@
             <i class="fas fa-tachometer-alt"></i>
             <span class="menu-text">Tableau de bord</span>
         </div>
-
 
 
         <div class="menu-item {{ request()->routeIs('CompleterProfilUser.show') ? 'active' : '' }}"
@@ -56,17 +55,23 @@
             {{-- Tuteur --}}
             @if(auth()->user()->isTuteur())
                 <div class="menu-item {{ request()->routeIs('annonces') ? 'active' : '' }}"
-                     onclick="window.location.href='{{ route('annonces') }} '">
+                     onclick="window.location.href='{{ route('annonces') }}'">
                     <i class="fas fa-eye"></i>
                     <span class="menu-text">Voir les annonces</span>
                 </div>
 
-                <div class="menu-item {{ request()->routeIs('candidatures.index') ? 'active' : '' }}"
-                    >
+                <div class="menu-item {{ request()->routeIs('candidatures.index') ? 'active' : '' }}">
                     <i class="fas fa-clipboard-list"></i>
                     <span class="menu-text">État de mes candidatures</span>
                 </div>
+
+                <div class="menu-item {{ request()->routeIs('abonnements.user') ? 'active' : '' }}"
+                     onclick="window.location.href='{{ route('abonnements.user') }}'">
+                    <i class="fas fa-credit-card"></i>
+                    <span class="menu-text">Voir mes abonnements</span>
+                </div>
             @endif
+
         @endauth
 
         <div class="menu-item logout-item" style="width: 100%;">

@@ -23,6 +23,10 @@ Route::view('/tuteurs', 'teachers.tuteurs-list')->name('listProfesseur');
 
 // Route pour le callback de paiement d'abonnement tuteur
 Route::post('/paiement/callback', [TeacherController::class, 'HandleSubscription'])->name('paiement.callback');
+Route::post('/paiement/init-subscription', [TeacherController::class, 'initSubscriptionPayment'])->name('paiement.init');
+Route::post('/paiement/callback', [TeacherController::class, 'handleSubscription'])->name('paiement.callback');
+Route::get('/paiement/success', [TeacherController::class,'paymentSuccess'])->name('paiement.success');
+
 
 // Route de recherche
 Route::get('/recherche-tuteurs', [RechercheController::class, 'rechercher'])->name('recherche.tuteur');
@@ -58,8 +62,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/teachers/{id}/reactivate', [AdminController::class, 'reactivateAccount'])->name('teachers.reactivate');
     });
 
-    // Route d'abonnement tuteur hors dashboardUser
+    // Route d'abonnement tuteur
     Route::get('/subscription-user', [TeacherController::class, 'showSubscription'])->name('subscription.user');
+    Route::get('/abonnements-historique', [TeacherController::class, 'showSubscriptionHistory'])->name('abonnements.user');
 });
 
 // Groupe pour le dashboard des utilisateurs
@@ -101,6 +106,11 @@ Route::prefix('annonces')->group(function () {
     Route::get('/{id}/payment', [AnnonceController::class, 'payment'])->name('annonces.payment');
     Route::post('/{id}/init-payment', [AnnonceController::class, 'initPayment'])->name('annonces.init-payment');
     Route::get('/{id}/check-payment', [AnnonceController::class, 'checkPaymentStatus'])->name('annonces.check-payment');
+        // Routes de paiement
+        Route::get('/{id}/payment', [AnnonceController::class, 'payment'])->name('annonces.payment');
+        Route::post('/{id}/init-payment', [AnnonceController::class, 'initPayment'])->name('annonces.init-payment');
+
+        Route::get('/{id}/check-payment', [AnnonceController::class, 'checkPaymentStatus'])->name('annonces.check-payment');
 
     // Route POST pour le callback de paiement (plus de paramètre {id})
     Route::post('/payment/callback', [AnnonceController::class, 'handlePayment'])->name('annonces.payment.callback');
@@ -119,6 +129,32 @@ Route::prefix('annonces')->group(function () {
 
     // Voir le profil d'un tuteur
     Route::get('/candidatures/{candidature}/profil', [CandidatureController::class, 'voirProfilTuteur'])->name('candidatures.profil');
+
+// Route POST pour le callback de paiement (plus de paramètre {id})
+Route::post('/annonces/payment/callback', [AnnonceController::class, 'handlePayment'])
+    ->name('annonces.payment.callback');
+
+
+
+     // Pour les étudiants (gérer les candidatures)
+    Route::get('/annonces/{annonce}/candidatures', [CandidatureController::class, 'index'])
+        ->name('candidatures.index');
+
+    // Pour les tuteurs (postuler)
+    Route::post('/annonces/{annonce}/candidatures', [CandidatureController::class, 'store'])
+        ->name('candidatures.store');
+
+    // Accepter une candidature
+    Route::post('/candidatures/{candidature}/accepter', [CandidatureController::class, 'accepter'])
+        ->name('candidatures.accepter');
+
+    // Refuser une candidature
+    Route::post('/candidatures/{candidature}/refuser', [CandidatureController::class, 'refuser'])
+        ->name('candidatures.refuser');
+
+    // Voir le profil d'un tuteur
+    Route::get('/candidatures/{candidature}/profil', [CandidatureController::class, 'voirProfilTuteur'])
+        ->name('candidatures.profil');
 
     // API pour les statistiques (graphiques)
     Route::get('/{annonce}/candidatures/stats', [CandidatureController::class, 'stats'])->name('candidatures.stats');

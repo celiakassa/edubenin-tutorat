@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('annonce_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('subscription_id')->nullable()->constrained()->onDelete('cascade');
-            $table->string('fedapay_transaction_id')->nullable();
+            $table->string('moneroo_payment_id')->nullable()->unique();
             $table->decimal('amount', 10, 2);
             $table->string('currency')->default('XOF');
             $table->string('status')->default('pending'); // pending, processing, completed, failed
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
 
-            $table->index('fedapay_transaction_id');
+            $table->index('moneroo_payment_id');
             $table->index('status');
         });
     }
