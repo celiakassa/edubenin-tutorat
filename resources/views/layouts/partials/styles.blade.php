@@ -26,6 +26,9 @@
         line-height: 1.6;
     }
 
+
+
+    
     .dashboard-container {
         display: flex;
         min-height: 100vh;
