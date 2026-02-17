@@ -18,6 +18,15 @@ class TeacherController extends Controller
     /**
      * Initialiser le paiement d'abonnement
      */
+
+
+
+    public function register(){
+
+        return view('teachers.register');
+    }
+
+
     public function initSubscriptionPayment(Request $request)
     {
         $user = auth()->user();

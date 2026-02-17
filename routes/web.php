@@ -71,7 +71,7 @@ Route::middleware('auth')->group(function () {
 Route::prefix('dashboardUsers')->group(function () {
     Route::get('/', [UserDashboard::class, 'home'])->name('dashboardUser');
     Route::get('/annonces', [TeacherController::class, 'ShowAnnonces'])->name('annonces');
-    Route::get('/annonces/{hash}', [TeacherController::class, 'showAnnonceDetail'])->name('annonces.dashboard.detail'); // RENOMMÉ
+    Route::get('/annonces/{hash}', [TeacherController::class, 'showAnnonceDetail'])->name('annonces.dashboard.detail'); 
 
     // Route d'abonnement tuteur hors dashboardUse
     Route::post('/annonces/{id}/postuler', [TeacherController::class, 'postuler'])
