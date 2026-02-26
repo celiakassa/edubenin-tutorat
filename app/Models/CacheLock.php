@@ -24,12 +24,14 @@ class CacheLock extends Model
 	public $incrementing = false;
 	public $timestamps = false;
 
-	protected $casts = [
-		'expiration' => 'int'
-	];
-
 	protected $fillable = [
 		'owner',
 		'expiration'
 	];
+    protected function casts(): array
+    {
+        return [
+    		'expiration' => 'int'
+    	];
+    }
 }

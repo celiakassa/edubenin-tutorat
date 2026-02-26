@@ -22,27 +22,23 @@ class AnnonceController extends Controller
     // Afficher le formulaire de création
     public function create()
     {
-        if (Auth::user()->role_id != 2) {
-            abort(403, 'Accès réservé aux étudiants');
-        }
+        abort_if(Auth::user()->role_id != 2, 403, 'Accès réservé aux étudiants');
         
         $user = Auth::user();
-        return view('annonces.create', compact('user'));
+        return view('annonces.create', ['user' => $user]);
     }
 
     // Enregistrer l'annonce
     public function store(Request $request)
     {
-        if (Auth::user()->role_id != 2) {
-            abort(403, 'Accès réservé aux étudiants');
-        }
+        abort_if(Auth::user()->role_id != 2, 403, 'Accès réservé aux étudiants');
 
         $request->validate([
-            'domaine' => 'required|string|max:255',
-            'description' => 'required|string|min:10',
-            'budget' => 'required|numeric|min:1000|max:1000000000',
-            'disponibilite' => 'required|date|after:now',
-            'format' => 'required|in:presentiel,en_ligne,hybrid'
+            'domaine' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'min:10'],
+            'budget' => ['required', 'numeric', 'min:1000', 'max:1000000000'],
+            'disponibilite' => ['required', 'date', 'after:now'],
+            'format' => ['required', 'in:presentiel,en_ligne,hybrid']
         ]);
 
         $annonce = new Annonce();
@@ -63,7 +59,7 @@ class AnnonceController extends Controller
 
         $annonce->save();
 
-        return redirect()->route('annonces.payment', $annonce->id)
+        return to_route('annonces.payment', $annonce->id)
             ->with('success', 'Annonce créée. Veuillez payer l\'acompte pour la publier.');
     }
 
@@ -73,16 +69,14 @@ class AnnonceController extends Controller
         $annonce = Annonce::findOrFail($id);
         $user = Auth::user();
         
-        if ($annonce->student_id != Auth::id()) {
-            abort(403, 'Accès non autorisé');
-        }
+        abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
 
         if ($annonce->is_paid) {
-            return redirect()->route('annonces.show', $annonce->id)
+            return to_route('annonces.show', $annonce->id)
                 ->with('info', 'Cette annonce est déjà payée.');
         }
 
-        return view('annonces.payment', compact('annonce', 'user'));
+        return view('annonces.payment', ['annonce' => $annonce, 'user' => $user]);
     }
 
     // Callback de paiement - CORRIGÉ
@@ -93,7 +87,7 @@ class AnnonceController extends Controller
         $annonceId = $request->input('annonce_id');
 
         if (!$transactionId || !$annonceId) {
-            return redirect()->back()->with('error', 'Transaction invalide.');
+            return back()->with('error', 'Transaction invalide.');
         }
 
         try {
@@ -102,14 +96,14 @@ class AnnonceController extends Controller
 
             // Vérifier le statut
             if ($transaction->status !== 'approved') {
-                return redirect()->route('annonces.payment', $annonceId)
+                return to_route('annonces.payment', $annonceId)
                     ->with('error', 'Le paiement n\'est pas encore confirmé.');
             }
 
             // Éviter les doublons
             $existingPayment = Payment::where('fedapay_transaction_id', $transaction->id)->first();
             if ($existingPayment) {
-                return redirect()->route('annonces.show', $annonceId)
+                return to_route('annonces.show', $annonceId)
                     ->with('info', 'Ce paiement a déjà été traité.');
             }
 
@@ -117,9 +111,7 @@ class AnnonceController extends Controller
             $annonce = Annonce::findOrFail($annonceId);
             
             // Vérifier que l'utilisateur est propriétaire de l'annonce
-            if ($annonce->student_id != $user->id) {
-                abort(403, 'Accès non autorisé');
-            }
+            abort_if($annonce->student_id != $user->id, 403, 'Accès non autorisé');
 
             // IMPORTANT: FedaPay retourne le montant en FCFA (entier)
             $amountPaid = (float) $transaction->amount; // Conversion en float pour notre DB
@@ -134,30 +126,30 @@ class AnnonceController extends Controller
                 'status' => $transaction->status,
                 'payment_method' => $transaction->mode ?? 'mobile_money',
                 'payment_details' => json_encode($transaction->toArray()),
-                'paid_at' => Carbon::now(),
+                'paid_at' => \Illuminate\Support\Facades\Date::now(),
             ]);
 
             // Mettre à jour l'annonce
             $annonce->update([
                 'status' => 'publiée',
                 'is_paid' => true,
-                'published_at' => Carbon::now()
+                'published_at' => \Illuminate\Support\Facades\Date::now()
             ]);
 
-            return redirect()->route('annonces.show', $annonce->id)
+            return to_route('annonces.show', $annonce->id)
                 ->with('success', 'Paiement effectué avec succès ! Votre annonce est maintenant publiée.');
 
         } catch (\FedaPay\Error\ApiConnection $e) {
             Log::error('Erreur connexion FedaPay: ' . $e->getMessage());
-            return redirect()->route('annonces.payment', $annonceId)
+            return to_route('annonces.payment', $annonceId)
                 ->with('error', 'Impossible de vérifier le paiement.');
         } catch (\FedaPay\Error\InvalidRequest $e) {
             Log::error('Erreur requête FedaPay: ' . $e->getMessage());
-            return redirect()->route('annonces.payment', $annonceId)
+            return to_route('annonces.payment', $annonceId)
                 ->with('error', 'Erreur lors de la vérification du paiement.');
         } catch (\Exception $e) {
             Log::error('Erreur paiement annonce: ' . $e->getMessage());
-            return redirect()->route('annonces.payment', $annonceId)
+            return to_route('annonces.payment', $annonceId)
                 ->with('error', 'Une erreur est survenue lors du traitement du paiement.');
         }
     }
@@ -165,16 +157,14 @@ class AnnonceController extends Controller
     // Afficher les annonces de l'étudiant
     public function index()
     {
-        if (Auth::user()->role_id != 2) {
-            abort(403, 'Accès réservé aux étudiants');
-        }
+        abort_if(Auth::user()->role_id != 2, 403, 'Accès réservé aux étudiants');
 
         $user = Auth::user();
         $annonces = Annonce::where('student_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('annonces.index', compact('annonces', 'user'));
+        return view('annonces.index', ['annonces' => $annonces, 'user' => $user]);
     }
 
     // Afficher une annonce spécifique
@@ -183,11 +173,9 @@ class AnnonceController extends Controller
         $annonce = Annonce::with(['student', 'payments'])->findOrFail($id);
         $user = Auth::user();
         
-        if ($annonce->student_id != Auth::id() && Auth::user()->role_id != 1) {
-            abort(403, 'Accès non autorisé');
-        }
+        abort_if($annonce->student_id != Auth::id() && Auth::user()->role_id != 1, 403, 'Accès non autorisé');
 
-        return view('annonces.show', compact('annonce', 'user'));
+        return view('annonces.show', ['annonce' => $annonce, 'user' => $user]);
     }
 
     // Afficher le formulaire d'édition
@@ -196,16 +184,14 @@ class AnnonceController extends Controller
         $annonce = Annonce::findOrFail($id);
         $user = Auth::user();
         
-        if ($annonce->student_id != Auth::id()) {
-            abort(403, 'Accès non autorisé');
-        }
+        abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
 
         if ($annonce->status != 'en_attente') {
-            return redirect()->route('annonces.show', $annonce->id)
+            return to_route('annonces.show', $annonce->id)
                 ->with('error', 'Cette annonce ne peut plus être modifiée.');
         }
 
-        return view('annonces.edit', compact('annonce', 'user'));
+        return view('annonces.edit', ['annonce' => $annonce, 'user' => $user]);
     }
 
     // Mettre à jour l'annonce
@@ -213,21 +199,19 @@ class AnnonceController extends Controller
     {
         $annonce = Annonce::findOrFail($id);
         
-        if ($annonce->student_id != Auth::id()) {
-            abort(403, 'Accès non autorisé');
-        }
+        abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
 
         if ($annonce->status != 'en_attente') {
-            return redirect()->route('annonces.show', $annonce->id)
+            return to_route('annonces.show', $annonce->id)
                 ->with('error', 'Cette annonce ne peut plus être modifiée.');
         }
 
         $request->validate([
-            'domaine' => 'required|string|max:255',
-            'description' => 'required|string|min:10',
-            'budget' => 'required|numeric|min:1000',
-            'disponibilite' => 'required|date|after:now',
-            'format' => 'required|in:presentiel,en_ligne,hybrid'
+            'domaine' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'min:10'],
+            'budget' => ['required', 'numeric', 'min:1000'],
+            'disponibilite' => ['required', 'date', 'after:now'],
+            'format' => ['required', 'in:presentiel,en_ligne,hybrid']
         ]);
 
         $annonce->domaine = $request->domaine;
@@ -244,7 +228,7 @@ class AnnonceController extends Controller
         
         $annonce->save();
 
-        return redirect()->route('annonces.show', $annonce->id)
+        return to_route('annonces.show', $annonce->id)
             ->with('success', 'Annonce mise à jour avec succès.');
     }
 
@@ -253,18 +237,16 @@ class AnnonceController extends Controller
     {
         $annonce = Annonce::findOrFail($id);
         
-        if ($annonce->student_id != Auth::id()) {
-            abort(403, 'Accès non autorisé');
-        }
+        abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
 
         if ($annonce->status === 'attribuee') {
-            return redirect()->back()
+            return back()
                 ->with('error', 'Impossible de supprimer une annonce déjà attribuée.');
         }
 
         $annonce->delete();
 
-        return redirect()->route('annonces.index')
+        return to_route('annonces.index')
             ->with('success', 'Annonce supprimée avec succès.');
     }
 }

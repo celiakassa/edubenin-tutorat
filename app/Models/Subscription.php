@@ -13,10 +13,6 @@ class Subscription extends Model
         'statut',
         'type_abonnement'
     ];
-    protected $casts = [
-        'date_debut' => 'datetime',
-        'date_fin' => 'datetime',
-    ];
 
     /**
      * Relation avec l'utilisateur abonné
@@ -32,5 +28,12 @@ class Subscription extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+    protected function casts(): array
+    {
+        return [
+            'date_debut' => 'datetime',
+            'date_fin' => 'datetime',
+        ];
     }
 }

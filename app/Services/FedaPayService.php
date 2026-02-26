@@ -95,11 +95,7 @@ class FedaPayService
         try {
             $transaction = Transaction::retrieve($transactionId);
             
-            if ($amount) {
-                $refund = $transaction->refund(['amount' => $amount]);
-            } else {
-                $refund = $transaction->refund();
-            }
+            $refund = $amount ? $transaction->refund(['amount' => $amount]) : $transaction->refund();
 
             return [
                 'success' => true,

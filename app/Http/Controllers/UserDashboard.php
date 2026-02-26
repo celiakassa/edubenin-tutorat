@@ -17,15 +17,15 @@ class UserDashboard extends Controller
         if ($user->isAdmin()) {
             // Statistiques pour admin
             $stats = $this->getPlatformStatistics();
-            return view('dashboardUsers', compact('user', 'profileCompletion', 'stats'));
+            return view('dashboardUsers', ['user' => $user, 'profileCompletion' => $profileCompletion, 'stats' => $stats]);
         } elseif ($user->isTuteur()) {
             // Statistiques pour tuteur
             $stats = $this->getTutorStatistics($user);
-            return view('DashboardTeacher', compact('user', 'profileCompletion', 'stats'));
+            return view('DashboardTeacher', ['user' => $user, 'profileCompletion' => $profileCompletion, 'stats' => $stats]);
         } else {
             // Statistiques pour étudiant
             $stats = $this->getStudentStatistics($user);
-            return view('dashboardUsers', compact('user', 'profileCompletion', 'stats'));
+            return view('dashboardUsers', ['user' => $user, 'profileCompletion' => $profileCompletion, 'stats' => $stats]);
         }
     }
 
@@ -80,17 +80,15 @@ class UserDashboard extends Controller
                 $subjects = $user->subjects;
                 if (!empty($subjects)) {
                     $decoded = json_decode($subjects, true);
-                    if (is_array($decoded) && !empty($decoded)) {
+                    if (is_array($decoded) && $decoded !== []) {
                         $filled++;
                     } elseif (is_string($subjects) && trim($subjects) !== '') {
                         $filled++;
                     }
                 }
-            } else {
+            } elseif (!empty($user->$field)) {
                 // Vérification standard pour les autres champs
-                if (!empty($user->$field)) {
-                    $filled++;
-                }
+                $filled++;
             }
         }
 
@@ -112,7 +110,7 @@ class UserDashboard extends Controller
 
         // Nombre d'annonces dans son domaine (subjects)
         $annoncesInDomain = 0;
-        if (!empty($tutorSubjects)) {
+        if ($tutorSubjects !== []) {
             $annoncesInDomain = Annonce::where('status', 'publiée')
                 ->where(function($query) use ($tutorSubjects) {
                     foreach ($tutorSubjects as $subject) {
@@ -136,7 +134,7 @@ class UserDashboard extends Controller
             ->count();
 
         // Acompte total (somme des acomptes des annonces avec candidature acceptée)
-        $acompteTotal = Annonce::whereHas('candidatures', function($query) use ($user) {
+        $acompteTotal = Annonce::whereHas('candidatures', function(\Illuminate\Contracts\Database\Query\Builder $query) use ($user) {
             $query->where('user_id', $user->id)
                 ->where('statut', 'acceptee');
         })->sum('acompte');
@@ -146,7 +144,7 @@ class UserDashboard extends Controller
 
         // Récentes annonces dans son domaine (5 dernières)
         $recentAnnonces = collect();
-        if (!empty($tutorSubjects)) {
+        if ($tutorSubjects !== []) {
             $recentAnnonces = Annonce::where('status', 'publiée')
                 ->where(function($query) use ($tutorSubjects) {
                     foreach ($tutorSubjects as $subject) {

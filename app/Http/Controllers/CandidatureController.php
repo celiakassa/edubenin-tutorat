@@ -19,11 +19,9 @@ class CandidatureController extends Controller
     public function index($annonceId)
     {
         $annonce = Annonce::with(['candidatures.tuteur'])->findOrFail($annonceId);
-        
+
         // Vérifier que l'utilisateur est l'étudiant propriétaire
-        if ($annonce->student_id !== Auth::id()) {
-            abort(403, 'Non autorisé. Vous n\'êtes pas le propriétaire de cette annonce.');
-        }
+        abort_if($annonce->student_id !== Auth::id(), 403, 'Non autorisé. Vous n\'êtes pas le propriétaire de cette annonce.');
 
         // Compter les candidatures par statut
         $candidatures = $annonce->candidatures;
@@ -44,12 +42,7 @@ class CandidatureController extends Controller
         // Vérifier si un tuteur a déjà été accepté
         $tuteurAccepte = $annonce->tuteurAccepte;
 
-        return view('candidatures.index', compact(
-            'annonce', 
-            'stats', 
-            'candidaturesParStatut',
-            'tuteurAccepte'
-        ));
+        return view('candidatures.index', ['annonce' => $annonce, 'stats' => $stats, 'candidaturesParStatut' => $candidaturesParStatut, 'tuteurAccepte' => $tuteurAccepte]);
     }
 
     /**
@@ -58,15 +51,15 @@ class CandidatureController extends Controller
     public function store(Request $request, $annonceId)
     {
         $annonce = Annonce::findOrFail($annonceId);
-        
+
         // Vérifier que l'utilisateur est un tuteur
         if (Auth::user()->role_id !== 3) {
-            return redirect()->back()->with('error', 'Seuls les tuteurs peuvent postuler.');
+            return back()->with('error', 'Seuls les tuteurs peuvent postuler.');
         }
 
         // Vérifier que l'annonce est publiée (avec accent)
         if ($annonce->status !== 'publiée') {
-            return redirect()->back()->with('error', 'Cette annonce n\'est pas disponible.');
+            return back()->with('error', 'Cette annonce n\'est pas disponible.');
         }
 
         // Vérifier si le tuteur a déjà postulé
@@ -75,7 +68,7 @@ class CandidatureController extends Controller
             ->exists();
 
         if ($existe) {
-            return redirect()->back()->with('error', 'Vous avez déjà postulé à cette annonce.');
+            return back()->with('error', 'Vous avez déjà postulé à cette annonce.');
         }
 
         // Créer la candidature
@@ -85,7 +78,7 @@ class CandidatureController extends Controller
             'statut' => 'en_attente',
         ]);
 
-        return redirect()->back()->with('success', 'Votre candidature a été envoyée avec succès !');
+        return back()->with('success', 'Votre candidature a été envoyée avec succès !');
     }
 
     /**
@@ -94,15 +87,13 @@ class CandidatureController extends Controller
     public function accepter($candidatureId)
     {
         $candidature = Candidature::with(['annonce.student', 'tuteur'])->findOrFail($candidatureId);
-        
+
         // Vérifier que l'utilisateur est l'étudiant propriétaire
-        if ($candidature->annonce->student_id !== Auth::id()) {
-            abort(403, 'Non autorisé. Vous n\'êtes pas le propriétaire de cette annonce.');
-        }
+        abort_if($candidature->annonce->student_id !== Auth::id(), 403, 'Non autorisé. Vous n\'êtes pas le propriétaire de cette annonce.');
 
         // Vérifier que l'annonce est encore disponible
         if ($candidature->annonce->estAttribuee()) {
-            return redirect()->back()->with('error', 'Cette annonce a déjà été attribuée à un tuteur.');
+            return back()->with('error', 'Cette annonce a déjà été attribuée à un tuteur.');
         }
 
         // Mettre à jour le statut de cette candidature
@@ -139,7 +130,7 @@ class CandidatureController extends Controller
             }
         }
 
-        return redirect()->route('candidatures.index', $candidature->annonce_id)
+        return to_route('candidatures.index', $candidature->annonce_id)
             ->with('success', 'Tuteur accepté ! Les emails ont été envoyés.');
     }
 
@@ -149,15 +140,13 @@ class CandidatureController extends Controller
     public function refuser($candidatureId)
     {
         $candidature = Candidature::with(['annonce.student', 'tuteur'])->findOrFail($candidatureId);
-        
+
         // Vérifier que l'utilisateur est l'étudiant propriétaire
-        if ($candidature->annonce->student_id !== Auth::id()) {
-            abort(403, 'Non autorisé. Vous n\'êtes pas le propriétaire de cette annonce.');
-        }
+        abort_if($candidature->annonce->student_id !== Auth::id(), 403, 'Non autorisé. Vous n\'êtes pas le propriétaire de cette annonce.');
 
         // Ne pas permettre de refuser si déjà accepté
         if ($candidature->statut === 'acceptee') {
-            return redirect()->back()->with('error', 'Cette candidature a déjà été acceptée.');
+            return back()->with('error', 'Cette candidature a déjà été acceptée.');
         }
 
         // Mettre à jour le statut
@@ -171,7 +160,7 @@ class CandidatureController extends Controller
             \Log::error('Erreur envoi email refus: ' . $e->getMessage());
         }
 
-        return redirect()->back()->with('success', 'Candidature refusée et notification envoyée.');
+        return back()->with('success', 'Candidature refusée et notification envoyée.');
     }
 
     // ... autres méthodes ...

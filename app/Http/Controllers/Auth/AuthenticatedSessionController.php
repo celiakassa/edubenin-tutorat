@@ -16,7 +16,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login');
+        return view(\Illuminate\Auth\Events\Login::class);
     }
 
     /**
@@ -39,11 +39,11 @@ class AuthenticatedSessionController extends Controller
 
     // Redirection selon rôle
     if ($user->role_id == 1) {
-        return redirect()->route('admin.dashboard'); // Dashboard Admin
+        return to_route('admin.dashboard'); // Dashboard Admin
     }
 
     // Tous les autres rôles → dashboard utilisateur
-    return redirect()->route('dashboardUser');
+    return to_route('dashboardUser');
 }
 
 

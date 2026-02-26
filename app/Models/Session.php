@@ -26,11 +26,6 @@ class Session extends Model
 	public $incrementing = false;
 	public $timestamps = false;
 
-	protected $casts = [
-		'user_id' => 'int',
-		'last_activity' => 'int'
-	];
-
 	protected $fillable = [
 		'user_id',
 		'ip_address',
@@ -38,4 +33,11 @@ class Session extends Model
 		'payload',
 		'last_activity'
 	];
+    protected function casts(): array
+    {
+        return [
+    		'user_id' => 'int',
+    		'last_activity' => 'int'
+    	];
+    }
 }

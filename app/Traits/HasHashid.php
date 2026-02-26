@@ -19,7 +19,7 @@ trait HasHashid
      *
      * @return string
      */
-    public function getHashidAttribute()
+    protected function getHashidAttribute()
     {
         // Encode l'id du modèle en hashid unique
         return Hashids::encode($this->id);
@@ -37,9 +37,7 @@ trait HasHashid
         $decoded = Hashids::decode($hash);
 
         // Si le hashid est invalide ou ne correspond à aucun id
-        if (count($decoded) === 0) {
-            abort(404);
-        }
+        abort_if(count($decoded) === 0, 404);
 
         // Recherche le modèle par l'id décodé
         return static::findOrFail($decoded[0]);

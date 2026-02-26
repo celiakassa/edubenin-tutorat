@@ -26,19 +26,17 @@ class Annonce extends Model
         'payment_reference'
     ];
 
-    protected $casts = [
-        'disponibilite' => 'datetime',
-        'budget' => 'decimal:2',
-        'acompte' => 'decimal:2',
-        'published_at' => 'datetime',
-        'is_paid' => 'boolean'
-    ];
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User, $this>
+     */
     public function student(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Payment, $this>
+     */
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
@@ -82,6 +80,7 @@ class Annonce extends Model
 
     /**
      * Relation avec les candidatures
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Candidature, $this>
      */
     public function candidatures(): HasMany
     {
@@ -106,7 +105,7 @@ class Annonce extends Model
     /**
      * Scope pour les annonces publiées
      */
-    public function scopePubliees($query)
+    protected function scopePubliees($query)
     {
         return $query->where('status', 'publiée'); // CORRECTION : 'publiée' avec accent
     }
@@ -122,7 +121,7 @@ class Annonce extends Model
     /**
      * Obtenir le tuteur accepté
      */
-    public function getTuteurAccepteAttribute()
+    protected function getTuteurAccepteAttribute()
     {
         $candidatureAcceptee = $this->candidatures()->where('statut', 'acceptee')->first();
         return $candidatureAcceptee ? $candidatureAcceptee->tuteur : null;
@@ -134,5 +133,15 @@ class Annonce extends Model
     public function estPubliee(): bool
     {
         return $this->status === 'publiée'; // CORRECTION : 'publiée' avec accent
+    }
+    protected function casts(): array
+    {
+        return [
+            'disponibilite' => 'datetime',
+            'budget' => 'decimal:2',
+            'acompte' => 'decimal:2',
+            'published_at' => 'datetime',
+            'is_paid' => 'boolean'
+        ];
     }
 }

@@ -26,12 +26,6 @@ class Job extends Model
 	protected $table = 'jobs';
 	public $timestamps = false;
 
-	protected $casts = [
-		'attempts' => 'int',
-		'reserved_at' => 'int',
-		'available_at' => 'int'
-	];
-
 	protected $fillable = [
 		'queue',
 		'payload',
@@ -39,4 +33,12 @@ class Job extends Model
 		'reserved_at',
 		'available_at'
 	];
+    protected function casts(): array
+    {
+        return [
+    		'attempts' => 'int',
+    		'reserved_at' => 'int',
+    		'available_at' => 'int'
+    	];
+    }
 }

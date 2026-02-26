@@ -30,7 +30,7 @@ Route::get('/', function () {
         ->where('is_active', 1)
         ->count();
 
-    return view('welcome', compact('recentTutors', 'totalTutors'));
+    return view('welcome', ['recentTutors' => $recentTutors, 'totalTutors' => $totalTutors]);
 });
 
 Route::view('/tuteurs', 'teachers.tuteurs-list')->name('listProfesseur');

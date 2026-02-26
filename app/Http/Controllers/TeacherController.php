@@ -81,7 +81,7 @@ class TeacherController extends Controller
         ]);
 
         if (!$transactionId) {
-            return redirect()->route('subscription.user')
+            return to_route('subscription.user')
                 ->with('error', 'Transaction invalide.');
         }
 
@@ -101,7 +101,7 @@ class TeacherController extends Controller
             if (isset($payment->is_processed) && $payment->is_processed === true) {
                 Log::info('Payment already processed by Moneroo');
 
-                return redirect()->route('annonces')
+                return to_route('annonces')
                     ->with('info', 'Ce paiement a déjà été traité.');
             }
 
@@ -121,12 +121,12 @@ class TeacherController extends Controller
                     Log::warning('Could not mark as processed: ' . $e->getMessage());
                 }
 
-                return redirect()->route('annonces')
+                return to_route('annonces')
                     ->with('success', 'Abonnement activé avec succès !');
             } else {
                 Log::warning('Payment not successful', ['status' => $status]);
 
-                return redirect()->route('subscription.user')
+                return to_route('subscription.user')
                     ->with('error', 'Le paiement n\'a pas été validé. Statut: ' . $status);
             }
 
@@ -137,7 +137,7 @@ class TeacherController extends Controller
                 'error_line' => $e->getLine(),
             ]);
 
-            return redirect()->route('subscription.user')
+            return to_route('subscription.user')
                 ->with('error', 'Erreur lors de la vérification du paiement.');
         }
     }
@@ -161,9 +161,7 @@ class TeacherController extends Controller
             // Convertir l'objet Moneroo en array PHP
             $paymentData = json_decode(json_encode($payment), true);
 
-            if (!is_array($paymentData)) {
-                throw new \Exception('Impossible de convertir les données de paiement');
-            }
+            throw_unless(is_array($paymentData), \Exception::class, 'Impossible de convertir les données de paiement');
 
             // Récupérer l'user_id depuis metadata
             $userId = null;
@@ -171,9 +169,7 @@ class TeacherController extends Controller
                 $userId = $paymentData['metadata']['user_id'] ?? null;
             }
 
-            if (!$userId) {
-                throw new \Exception('User ID manquant dans les metadata');
-            }
+            throw_unless($userId, \Exception::class, 'User ID manquant dans les metadata');
 
             DB::beginTransaction();
 
@@ -225,11 +221,9 @@ class TeacherController extends Controller
             $methodCode = 'moneroo';
             $methodName = 'Moneroo';
 
-            if (isset($paymentData['capture']) && is_array($paymentData['capture'])) {
-                if (isset($paymentData['capture']['method']) && is_array($paymentData['capture']['method'])) {
-                    $methodCode = $paymentData['capture']['method']['short_code'] ?? 'moneroo';
-                    $methodName = $paymentData['capture']['method']['name'] ?? 'Moneroo';
-                }
+            if (isset($paymentData['capture']) && is_array($paymentData['capture']) && (isset($paymentData['capture']['method']) && is_array($paymentData['capture']['method']))) {
+                $methodCode = $paymentData['capture']['method']['short_code'] ?? 'moneroo';
+                $methodName = $paymentData['capture']['method']['name'] ?? 'Moneroo';
             }
 
             Log::info('Payment details extracted', [
@@ -259,7 +253,7 @@ class TeacherController extends Controller
 
             // Date de paiement
             $paidAt = isset($paymentData['initiated_at'])
-                ? Carbon::parse($paymentData['initiated_at'])
+                ? \Illuminate\Support\Facades\Date::parse($paymentData['initiated_at'])
                 : now();
 
             // ✅ Créer l'enregistrement de paiement
@@ -302,9 +296,7 @@ class TeacherController extends Controller
     {
         $tuteur = auth()->user();
 
-        if (!$tuteur || !$tuteur->isTuteur()) {
-            abort(403, 'Accès interdit');
-        }
+        abort_if(!$tuteur || !$tuteur->isTuteur(), 403, 'Accès interdit');
 
         $subjects = json_decode($tuteur->subjects, true) ?? [];
 
@@ -313,7 +305,7 @@ class TeacherController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(6);
 
-        return view('teachers.annonce', compact('annonces'));
+        return view('teachers.annonce', ['annonces' => $annonces]);
     }
 
     public function showSubscription()
@@ -329,9 +321,7 @@ class TeacherController extends Controller
         $user = auth()->user();
 
         // Vérifier que l'utilisateur est un tuteur
-        if (!$user->isTuteur()) {
-            abort(403, 'Accès interdit. Cette page est réservée aux tuteurs.');
-        }
+        abort_unless($user->isTuteur(), 403, 'Accès interdit. Cette page est réservée aux tuteurs.');
 
         // Récupérer tous les abonnements avec pagination
         $subscriptions = Subscription::where('user_id', $user->id)
@@ -351,7 +341,7 @@ class TeacherController extends Controller
             ->where('date_fin', '>', now())
             ->first();
 
-        return view('teachers.subscription-history', compact('subscriptions', 'payments', 'activeSubscription'));
+        return view('teachers.subscription-history', ['subscriptions' => $subscriptions, 'payments' => $payments, 'activeSubscription' => $activeSubscription]);
     }
 
     public function showAnnonceDetail($hash)
@@ -377,7 +367,7 @@ class TeacherController extends Controller
 
         $student = $annonce->student ?? null;
 
-        return view('teachers.annonce-detail', compact('annonce', 'hasApplied', 'teacher_validate', 'student', 'candidature'));
+        return view('teachers.annonce-detail', ['annonce' => $annonce, 'hasApplied' => $hasApplied, 'teacher_validate' => $teacher_validate, 'student' => $student, 'candidature' => $candidature]);
     }
 
     public function postuler($id)
@@ -389,7 +379,7 @@ class TeacherController extends Controller
             ->first();
 
         if ($existing) {
-            return redirect()->back()->with('info', 'Vous avez déjà postulé à cette annonce.');
+            return back()->with('info', 'Vous avez déjà postulé à cette annonce.');
         }
 
         \App\Models\Candidature::create([
@@ -398,6 +388,6 @@ class TeacherController extends Controller
             'statut' => 'en_attente',
         ]);
 
-        return redirect()->back()->with('success', 'Votre candidature a été envoyée avec succès !');
+        return back()->with('success', 'Votre candidature a été envoyée avec succès !');
     }
 }

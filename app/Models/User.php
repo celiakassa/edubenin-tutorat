@@ -45,12 +45,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'last_login' => 'datetime',
-        'learning_preference' => LearningPreference::class,
-    ];
-
     public function role()
     {
         return $this->belongsTo(Role::class);
@@ -102,5 +96,13 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isTuteur()
     {
         return $this->role_id === 3;
+    }
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'last_login' => 'datetime',
+            'learning_preference' => LearningPreference::class,
+        ];
     }
 }

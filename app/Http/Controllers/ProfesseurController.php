@@ -21,6 +21,6 @@ class ProfesseurController extends Controller
         // Total des tuteurs experts
         $totalExperts = $professeurs->total();
 
-        return view('recherche.index', compact('professeurs', 'totalExperts'));
+        return view('recherche.index', ['professeurs' => $professeurs, 'totalExperts' => $totalExperts]);
     }
 }

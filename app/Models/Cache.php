@@ -24,12 +24,14 @@ class Cache extends Model
 	public $incrementing = false;
 	public $timestamps = false;
 
-	protected $casts = [
-		'expiration' => 'int'
-	];
-
 	protected $fillable = [
 		'value',
 		'expiration'
 	];
+    protected function casts(): array
+    {
+        return [
+    		'expiration' => 'int'
+    	];
+    }
 }

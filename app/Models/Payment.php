@@ -23,12 +23,6 @@ class Payment extends Model
         'moneroo_payment_id'
     ];
 
-    protected $casts = [
-        'payment_details' => 'array',
-        'amount' => 'decimal:2',
-        'paid_at' => 'datetime'
-    ];
-
     public function annonce()
     {
         return $this->belongsTo(Annonce::class);
@@ -48,13 +42,21 @@ class Payment extends Model
     }
 
     // Scopes
-    public function scopePending($query)
+    protected function scopePending($query)
     {
         return $query->where('status', 'pending');
     }
 
-    public function scopeCompleted($query)
+    protected function scopeCompleted($query)
     {
         return $query->where('status', 'completed');
+    }
+    protected function casts(): array
+    {
+        return [
+            'payment_details' => 'array',
+            'amount' => 'decimal:2',
+            'paid_at' => 'datetime'
+        ];
     }
 }

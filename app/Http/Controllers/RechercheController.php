@@ -98,13 +98,6 @@ class RechercheController extends Controller
             ->sort()
             ->all();
 
-        return view('recherche.resultats', compact(
-            'tuteurs',
-            'matieresPopulaires',
-            'villesPopulaires',
-            'subject',
-            'city',
-            'learning'
-        ));
+        return view('recherche.resultats', ['tuteurs' => $tuteurs, 'matieresPopulaires' => $matieresPopulaires, 'villesPopulaires' => $villesPopulaires, 'subject' => $subject, 'city' => $city, 'learning' => $learning]);
     }
 }

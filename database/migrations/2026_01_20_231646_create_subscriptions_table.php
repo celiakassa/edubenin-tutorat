@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('statut')->default('pending'); // pending, active, expired, cancelled
             $table->timestamp('renouvel_at')->nullable(); // Date du prochain renouvellement
             $table->timestamps();
-            
+
             // Index pour améliorer les performances
             $table->index('user_id');
             $table->index('statut');
