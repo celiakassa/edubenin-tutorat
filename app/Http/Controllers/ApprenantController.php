@@ -33,7 +33,7 @@ class ApprenantController extends Controller
             return $apprenant;
         });
 
-        return view('apprenants.index', compact('apprenants', 'stats'));
+        return view('apprenants.index', ['apprenants' => $apprenants, 'stats' => $stats]);
     }
 
     /**
@@ -70,7 +70,7 @@ class ApprenantController extends Controller
         // Inscriptions par mois (derniers 6 mois)
         $inscriptionsParMois = [];
         for ($i = 5; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
+            $date = \Illuminate\Support\Facades\Date::now()->subMonths($i);
             $monthYear = $date->format('M Y');
 
             $count = User::where('role_id', 2)
@@ -141,7 +141,7 @@ class ApprenantController extends Controller
         // Calcul du pourcentage de complétion du profil
         $profileCompletion = $this->calculateProfileCompletion($apprenant);
 
-        return view('apprenants.show', compact('apprenant', 'profileCompletion'));
+        return view('apprenants.show', ['apprenant' => $apprenant, 'profileCompletion' => $profileCompletion]);
     }
 
     /**
@@ -153,7 +153,7 @@ class ApprenantController extends Controller
             ->where('role_id', 2)
             ->firstOrFail();
 
-        return view('apprenants.edit', compact('apprenant'));
+        return view('apprenants.edit', ['apprenant' => $apprenant]);
     }
 
     /**
@@ -166,18 +166,18 @@ class ApprenantController extends Controller
             ->firstOrFail();
 
         $validated = $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
+            'firstname' => ['required', 'string', 'max:255'],
+            'lastname' => ['required', 'string', 'max:255'],
             'email' => 'required|email|unique:users,email,'.$id,
-            'telephone' => 'nullable|string|max:20',
-            'password' => 'nullable|string|min:8|confirmed',
-            'city' => 'required|string|max:255',
-            'bio' => 'nullable|string',
-            'learning_preference' => 'nullable|in:online,in_person,hybrid',
-            'learning_history' => 'nullable|string',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'is_active' => 'boolean',
-            'is_valid' => 'boolean',
+            'telephone' => ['nullable', 'string', 'max:20'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'city' => ['required', 'string', 'max:255'],
+            'bio' => ['nullable', 'string'],
+            'learning_preference' => ['nullable', 'in:online,in_person,hybrid'],
+            'learning_history' => ['nullable', 'string'],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+            'is_active' => ['boolean'],
+            'is_valid' => ['boolean'],
         ]);
 
         // Mise à jour des données
@@ -210,7 +210,7 @@ class ApprenantController extends Controller
 
         $apprenant->save();
 
-        return redirect()->route('apprenants.index')
+        return to_route('apprenants.index')
             ->with('success', 'Apprenant mis à jour avec succès!');
     }
 
@@ -230,7 +230,7 @@ class ApprenantController extends Controller
 
         $apprenant->delete();
 
-        return redirect()->route('apprenants.index')
+        return to_route('apprenants.index')
             ->with('success', 'Apprenant supprimé avec succès!');
     }
 
@@ -240,7 +240,7 @@ class ApprenantController extends Controller
     public function validateApprenant(Request $request, $id)
     {
         $request->validate([
-            'validation_reason' => 'nullable|string|max:500',
+            'validation_reason' => ['nullable', 'string', 'max:500'],
         ]);
 
         $apprenant = User::where('id', $id)
@@ -262,7 +262,7 @@ class ApprenantController extends Controller
             }
         }
 
-        return redirect()->back()
+        return back()
             ->with('success', 'Apprenant validé avec succès!');
     }
 
@@ -272,7 +272,7 @@ class ApprenantController extends Controller
     public function deactivateAccount(Request $request, $id)
     {
         $request->validate([
-            'deactivation_reason' => 'required|string|max:500',
+            'deactivation_reason' => ['required', 'string', 'max:500'],
         ]);
 
         $apprenant = User::where('id', $id)
@@ -306,7 +306,7 @@ class ApprenantController extends Controller
     public function reactivateAccount(Request $request, $id)
     {
         $request->validate([
-            'reactivation_reason' => 'nullable|string|max:500',
+            'reactivation_reason' => ['nullable', 'string', 'max:500'],
         ]);
 
         $apprenant = User::where('id', $id)
@@ -348,7 +348,7 @@ class ApprenantController extends Controller
 
         $status = $apprenant->is_active ? 'activé' : 'désactivé';
 
-        return redirect()->back()
+        return back()
             ->with('success', "Apprenant $status avec succès!");
     }
 }

@@ -30,14 +30,6 @@ class JobBatch extends Model
 	public $incrementing = false;
 	public $timestamps = false;
 
-	protected $casts = [
-		'total_jobs' => 'int',
-		'pending_jobs' => 'int',
-		'failed_jobs' => 'int',
-		'cancelled_at' => 'int',
-		'finished_at' => 'int'
-	];
-
 	protected $fillable = [
 		'name',
 		'total_jobs',
@@ -48,4 +40,14 @@ class JobBatch extends Model
 		'cancelled_at',
 		'finished_at'
 	];
+    protected function casts(): array
+    {
+        return [
+    		'total_jobs' => 'int',
+    		'pending_jobs' => 'int',
+    		'failed_jobs' => 'int',
+    		'cancelled_at' => 'int',
+    		'finished_at' => 'int'
+    	];
+    }
 }

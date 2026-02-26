@@ -7,21 +7,29 @@
 @section('content')
 
     <!-- Section d'en-tête avec filtres -->
-    <div class="annonces-header" >
-        <div class="header-content" >
+    <div class="annonces-header">
+        <div class="header-content">
             <div class="header-text">
                 <h2 class="header-title">Trouvez votre prochaine mission</h2>
                 <p class="header-subtitle">{{ $annonces->total() }} annonce(s) disponible(s)</p>
             </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/xandrothedev
         </div>
     </div>
 
     <!-- Liste des annonces -->
     <div class="annonces-container">
         @forelse($annonces as $annonce)
-            <div class="annonce-card" data-domaine="{{ strtolower($annonce->domaine) }}">
+            <div class="annonce-card" data-domaine="{{ $annonce->domaine }}">
                 <!-- Badge de statut -->
                 <div class="annonce-badges">
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/xandrothedev
                     <span class="badge badge-format">
                         <i
                             class="fas fa-{{ $annonce->format === 'en_ligne' ? 'laptop' : ($annonce->format === 'presentiel' ? 'user-friends' : 'globe') }}"></i>
@@ -35,7 +43,7 @@
                         <div class="student-avatar">
                             @if ($annonce->student->photo_path && Storage::disk('public')->exists($annonce->student->photo_path))
                                 <img src="{{ asset('storage/' . $annonce->student->photo_path) }}"
-                                    alt="Photo de {{ $annonce->student->firstname }}">
+                                     alt="Photo de {{ $annonce->student->firstname }}">
                             @else
                                 {{ strtoupper(substr($annonce->student->firstname, 0, 1) . substr($annonce->student->lastname, 0, 1)) }}
                             @endif
@@ -75,9 +83,8 @@
                             <i class="fas fa-calendar-alt"></i>
                             <div class="detail-content">
                                 <span class="detail-label">Disponibilité</span>
-                                <span class="detail-value">
-                                    {{ $annonce->disponibilite ?? 'Non spécifiée' }}
-                                </span>
+                                <span
+                                    class="detail-value">{{ $annonce->disponibilite ? $annonce->disponibilite->format('d/m/Y') : 'Non spécifiée' }}</span>
                             </div>
                         </div>
                         <div class="detail-item">
@@ -104,7 +111,7 @@
                         </button>
                     @else
                         <form action="{{ route('annonce.postuler', $annonce->id) }}" method="POST"
-                            style="display: inline;">
+                              style="display: inline;">
                             @csrf
                             <button type="submit" class="btn-action btn-primary">
                                 <i class="fas fa-paper-plane"></i>
@@ -117,6 +124,7 @@
                         <i class="fas fa-eye"></i>
                         Voir les détails
                     </button>
+
                 </div>
             </div>
         @empty
@@ -149,7 +157,7 @@
     <style>
         /* En-tête des annonces */
         .annonces-header {
-            background-color: #1D8F43;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
             border-radius: 16px;
             padding: 32px;
             margin-bottom: 32px;
@@ -592,6 +600,7 @@
         .btn-action {
             padding: 10px 16px;
             min-width: 170px;
+            /* garantit même largeur */
             font-size: 14px;
             border-radius: 6px;
             display: inline-flex;
@@ -627,12 +636,12 @@
         function postuler(annonceId) {
             if (confirm('Êtes-vous sûr de vouloir postuler à cette annonce ?')) {
                 fetch(`/candidatures/${annonceId}/postuler`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        }
-                    })
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
@@ -685,6 +694,7 @@
         });
     </script>
 
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // ========================================
@@ -692,42 +702,43 @@
             // ========================================
 
             @if (session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: '{{ session('success') }}',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 5000,
-                    timerProgressBar: true,
-                    background: '#008751', // Fond vert
-                    color: '#fff', // Texte blanc
-                    iconColor: '#fff', // Icône blanche
-                });
+            Swal.fire({
+                icon: 'success',
+                title: '{{ session('success') }}',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
+                background: '#008751', // Fond vert
+                color: '#fff', // Texte blanc
+                iconColor: '#fff', // Icône blanche
+            });
             @endif
 
+
             @if (session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur',
-                    text: '{{ session('error') }}',
-                    confirmButtonText: 'Compris',
-                    confirmButtonColor: '#e53e3e',
-                });
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                text: '{{ session('error') }}',
+                confirmButtonText: 'Compris',
+                confirmButtonColor: '#e53e3e',
+            });
             @endif
 
             @if ($errors->any())
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur',
-                    html: '<ul style="text-align:left; padding-left:20px;">' +
-                        @foreach ($errors->all() as $error)
-                            '<li>{{ $error }}</li>' +
-                        @endforeach
-                    '</ul>',
-                    confirmButtonText: 'Compris',
-                    confirmButtonColor: '#e53e3e',
-                });
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                html: '<ul style="text-align:left; padding-left:20px;">' +
+                    @foreach ($errors->all() as $error)
+                        '<li>{{ $error }}</li>' +
+                    @endforeach
+                        '</ul>',
+                confirmButtonText: 'Compris',
+                confirmButtonColor: '#e53e3e',
+            });
             @endif
         });
     </script>

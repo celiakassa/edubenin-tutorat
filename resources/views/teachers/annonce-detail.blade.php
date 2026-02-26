@@ -74,7 +74,7 @@
             <div class="sticky-top" style="top: 20px;">
 
                 <div class="card action-card-blue border-0 shadow-lg mb-4 overflow-hidden">
-                    <div class="card-body p-4 text-center text-white" style="background-color: #1D8F43; border-radius: 20px;">
+                    <div class="card-body p-4 text-center text-white" style="background-color:#0351BC; border-radius: 20px;">
                         <p class="text-white-50 mb-1">Rémunération Totale</p>
                         <h2 class="budget-display mb-4">
                             {{ number_format($annonce->budget, 0, ',', ' ') }} <small>FCFA</small>

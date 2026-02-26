@@ -42,6 +42,7 @@
     height: 100vh;
     overflow-y: auto;
     z-index: 1000;
+    background-color: var(--primary-color);
 }
 
 /* Sidebar pour les étudiants (bleu) */
@@ -52,7 +53,7 @@
 
 /* Sidebar pour les tuteurs (jaune) */
 .sidebar-tuteur {
-    background-color: #57e285; /* Jaune */
+    background-color: #5775e2; /* Jaune */
     color: #ffffff !important ; /* Texte noir pour contraste */
 }
 

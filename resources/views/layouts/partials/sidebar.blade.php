@@ -24,6 +24,7 @@
         </div>
 
 
+
         <div class="menu-item {{ request()->routeIs('CompleterProfilUser.show') ? 'active' : '' }}"
              onclick="window.location.href='{{ route('CompleterProfilUser.show') }}'">
             <i class="fas fa-user"></i>

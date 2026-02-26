@@ -65,7 +65,7 @@ class TuteursList extends Component
         ;
 
         if ($this->subject) {
-            $query->where(function($q) {
+            $query->where(function(\Illuminate\Contracts\Database\Query\Builder $q) {
                 $q->whereJsonContains('subjects', $this->subject)
                     ->orWhere('subjects', 'like', '%' . $this->subject . '%');
             });
@@ -87,6 +87,6 @@ class TuteursList extends Component
             return $tuteur;
         });
 
-        return view('livewire.tuteurs-list', compact('tuteurs'));
+        return view('livewire.tuteurs-list', ['tuteurs' => $tuteurs]);
     }
 }

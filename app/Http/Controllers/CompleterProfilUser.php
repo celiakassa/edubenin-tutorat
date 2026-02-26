@@ -63,7 +63,7 @@ class CompleterProfilUser extends Controller
         $total = count($fields);
         $profileCompletion = $total > 0 ? round(($filled / $total) * 100) : 0;
 
-        return view('CompleterProfilUser', compact('user', 'profileCompletion'));
+        return view('CompleterProfilUser', ['user' => $user, 'profileCompletion' => $profileCompletion]);
     }
 
     public function update(Request $request)
@@ -155,8 +155,7 @@ class CompleterProfilUser extends Controller
         }
 
         // --- Redirection ---
-        return redirect()
-            ->route('CompleterProfilUser.edit')
+        return to_route('CompleterProfilUser.edit')
             ->with('success', 'Profil mis à jour avec succès!');
     }
 
@@ -167,7 +166,7 @@ class CompleterProfilUser extends Controller
         // Charger les relations si nécessaire
         $user->load([]);
 
-        return view('CompleterProfilUserShow', compact('user'));
+        return view('CompleterProfilUserShow', ['user' => $user]);
     }
 
     // Méthode pour afficher la pièce d'identité
@@ -175,9 +174,7 @@ class CompleterProfilUser extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->identity_document_path || !Storage::disk('public')->exists($user->identity_document_path)) {
-            abort(404, 'Pièce d\'identité non trouvée');
-        }
+        abort_if(!$user->identity_document_path || !Storage::disk('public')->exists($user->identity_document_path), 404, 'Pièce d\'identité non trouvée');
 
         return response()->file(storage_path('app/public/' . $user->identity_document_path));
     }
@@ -188,13 +185,9 @@ public function downloadIdentityDocument($userId)
     $user = User::findOrFail($userId);
 
     // Vérifier les permissions (admin seulement)
-    if (Auth::user()->role_id != 1) {
-        abort(403, 'Accès non autorisé');
-    }
+    abort_if(Auth::user()->role_id != 1, 403, 'Accès non autorisé');
 
-    if (!$user->identity_document_path) {
-        abort(404, 'Pièce d\'identité non trouvée');
-    }
+    abort_unless($user->identity_document_path, 404, 'Pièce d\'identité non trouvée');
 
     return Storage::disk('public')->download($user->identity_document_path);
 }
@@ -205,15 +198,13 @@ public function verifyIdentity(Request $request, $userId)
     $user = User::findOrFail($userId);
 
     // Vérifier les permissions (admin seulement)
-    if (Auth::user()->role_id != 1) {
-        abort(403, 'Accès non autorisé');
-    }
+    abort_if(Auth::user()->role_id != 1, 403, 'Accès non autorisé');
 
     $user->update([
         'identity_verified' => true,
         'is_valid' => true, // Optionnel : marquer le tuteur comme valide
     ]);
 
-    return redirect()->back()->with('success', 'Pièce d\'identité vérifiée avec succès');
+    return back()->with('success', 'Pièce d\'identité vérifiée avec succès');
 }
 }

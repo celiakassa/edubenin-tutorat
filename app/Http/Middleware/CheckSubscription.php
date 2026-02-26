@@ -20,7 +20,7 @@ class CheckSubscription
         // 1. Vérifier si l'utilisateur est connecté
         // 2. Utiliser la méthode isSubscribed() qu'on a créée dans le User
         if (!$user || !$user->isSubscribed()) {
-            return redirect()->route('subscription.user')
+            return to_route('subscription.user')
                 ->with('warning', 'Votre abonnement est inexistant ou expiré. Veuillez souscrire pour continuer.');
         }
 

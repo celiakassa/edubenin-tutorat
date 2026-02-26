@@ -20,7 +20,7 @@ class RegisteredUserController extends Controller
     public function create()
     {
         $roles = Role::where('name', '!=', 'admin')->get();
-        return view('auth.register', compact('roles'));
+        return view('auth.register', ['roles' => $roles]);
     }
 
     /**
@@ -63,7 +63,7 @@ class RegisteredUserController extends Controller
             ? 'Bienvenue parmi nos tuteurs !'
             : 'Bienvenue sur EduConnect !';
 
-        return redirect()->route('verification.notice')
+        return to_route('verification.notice')
             ->with('message', "Un email de confirmation a été envoyé à {$user->email}. Veuillez vérifier votre boîte mail.  {$roleMessage}");
     }
 

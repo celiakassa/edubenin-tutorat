@@ -13,13 +13,9 @@ class Candidature extends Model
         'statut', // en_attente, acceptee, refusee
     ];
 
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
-
     /**
      * Relation avec l'annonce
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Annonce, $this>
      */
     public function annonce(): BelongsTo
     {
@@ -28,6 +24,7 @@ class Candidature extends Model
 
     /**
      * Relation avec le tuteur (user)
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User, $this>
      */
     public function tuteur(): BelongsTo
     {
@@ -52,7 +49,7 @@ class Candidature extends Model
     /**
      * Scope pour les candidatures en attente
      */
-    public function scopeEnAttente($query)
+    protected function scopeEnAttente($query)
     {
         return $query->where('statut', 'en_attente');
     }
@@ -60,7 +57,7 @@ class Candidature extends Model
     /**
      * Scope pour les candidatures acceptées
      */
-    public function scopeAcceptees($query)
+    protected function scopeAcceptees($query)
     {
         return $query->where('statut', 'acceptee');
     }
@@ -68,7 +65,7 @@ class Candidature extends Model
     /**
      * Scope pour les candidatures refusées
      */
-    public function scopeRefusees($query)
+    protected function scopeRefusees($query)
     {
         return $query->where('statut', 'refusee');
     }
@@ -95,5 +92,12 @@ class Candidature extends Model
     public function estRefusee(): bool
     {
         return $this->statut === 'refusee';
+    }
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
     }
 }

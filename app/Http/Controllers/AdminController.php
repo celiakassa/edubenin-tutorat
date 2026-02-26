@@ -77,21 +77,7 @@ class AdminController extends Controller
             ->orderBy('updated_at', 'desc')
             ->get();
 
-        return view('AdminDashboard', compact(
-            'totalUsers',
-            'totalStudents',
-            'totalTeachers',
-            'activeAccounts',
-            'inactiveAccounts',
-            'pendingTeachers',
-            'verifiedTeachers',
-            'teachersWithoutDoc',
-            'inactiveTeachers',
-            'verifiedTeachersCount',
-            'rejectedTeachersCount',
-            'pendingTeachersCount',
-            'inactiveTeachersCount'
-        ));
+        return view('AdminDashboard', ['totalUsers' => $totalUsers, 'totalStudents' => $totalStudents, 'totalTeachers' => $totalTeachers, 'activeAccounts' => $activeAccounts, 'inactiveAccounts' => $inactiveAccounts, 'pendingTeachers' => $pendingTeachers, 'verifiedTeachers' => $verifiedTeachers, 'teachersWithoutDoc' => $teachersWithoutDoc, 'inactiveTeachers' => $inactiveTeachers, 'verifiedTeachersCount' => $verifiedTeachersCount, 'rejectedTeachersCount' => $rejectedTeachersCount, 'pendingTeachersCount' => $pendingTeachersCount, 'inactiveTeachersCount' => $inactiveTeachersCount]);
     }
 
     // Voir les détails d'un professeur
@@ -102,14 +88,14 @@ class AdminController extends Controller
         // Calculer le pourcentage de complétion du profil
         $profileCompletion = $this->calculateProfileCompletion($teacher);
 
-        return view('admin.teacher-details', compact('teacher', 'profileCompletion'));
+        return view('admin.teacher-details', ['teacher' => $teacher, 'profileCompletion' => $profileCompletion]);
     }
 
     // Approuver un professeur
     public function approveTeacher(Request $request, $id)
     {
         $request->validate([
-            'approval_reason' => 'nullable|string|max:500',
+            'approval_reason' => ['nullable', 'string', 'max:500'],
         ]);
 
         try {
@@ -151,7 +137,7 @@ class AdminController extends Controller
     public function rejectTeacher(Request $request, $id)
     {
         $request->validate([
-            'rejection_reason' => 'required|string|max:500',
+            'rejection_reason' => ['required', 'string', 'max:500'],
         ]);
 
         try {
@@ -192,7 +178,7 @@ class AdminController extends Controller
     public function deactivateAccount(Request $request, $id)
     {
         $request->validate([
-            'deactivation_reason' => 'required|string|max:500',
+            'deactivation_reason' => ['required', 'string', 'max:500'],
         ]);
 
         try {
@@ -232,7 +218,7 @@ class AdminController extends Controller
     public function reactivateAccount(Request $request, $id)
     {
         $request->validate([
-            'reactivation_reason' => 'nullable|string|max:500',
+            'reactivation_reason' => ['nullable', 'string', 'max:500'],
         ]);
 
         try {
@@ -273,15 +259,11 @@ class AdminController extends Controller
     {
         $teacher = User::findOrFail($id);
 
-        if (!$teacher->identity_document_path) {
-            abort(404, 'Pièce d\'identité non trouvée');
-        }
+        abort_unless($teacher->identity_document_path, 404, 'Pièce d\'identité non trouvée');
 
         $filePath = storage_path('app/public/' . $teacher->identity_document_path);
 
-        if (!file_exists($filePath)) {
-            abort(404, 'Fichier non trouvé');
-        }
+        abort_unless(file_exists($filePath), 404, 'Fichier non trouvé');
 
         return response()->file($filePath);
     }
@@ -314,16 +296,14 @@ class AdminController extends Controller
                 $subjects = $user->subjects;
                 if (!empty($subjects)) {
                     $decoded = json_decode($subjects, true);
-                    if (is_array($decoded) && !empty($decoded)) {
+                    if (is_array($decoded) && $decoded !== []) {
                         $filled++;
                     } elseif (is_string($subjects) && trim($subjects) !== '') {
                         $filled++;
                     }
                 }
-            } else {
-                if (!empty($user->$field)) {
-                    $filled++;
-                }
+            } elseif (!empty($user->$field)) {
+                $filled++;
             }
         }
 
@@ -359,16 +339,14 @@ class AdminController extends Controller
                 $subjects = $user->subjects;
                 if (!empty($subjects)) {
                     $decoded = json_decode($subjects, true);
-                    if (is_array($decoded) && !empty($decoded)) {
+                    if (is_array($decoded) && $decoded !== []) {
                         $filled++;
                     } elseif (is_string($subjects) && trim($subjects) !== '') {
                         $filled++;
                     }
                 }
-            } else {
-                if (!empty($user->$field)) {
-                    $filled++;
-                }
+            } elseif (!empty($user->$field)) {
+                $filled++;
             }
         }
 

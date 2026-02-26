@@ -27,11 +27,12 @@ class Annonce extends Model
     ];
 
     protected $casts = [
-       
+
         'budget' => 'decimal:2',
         'acompte' => 'decimal:2',
         'published_at' => 'datetime',
-        'is_paid' => 'boolean'
+        'is_paid' => 'boolean',
+        'disponibilite' => 'date',
     ];
 
     public function student(): BelongsTo

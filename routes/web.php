@@ -19,6 +19,24 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/matieres-populaires', [HomeController::class, 'getPopularSubjects'])->name('matieres.populaires');
 Route::get('/villes-populaires', [HomeController::class, 'getPopularCities'])->name('villes.populaires');
 
+Route::get('/', function () {
+    // Récupérer les 6 derniers tuteurs inscrits (role_id = 3) et validés
+    $recentTutors = User::where('role_id', 3)
+        ->where('is_valid', 1)  // Uniquement les tuteurs validés
+        ->where('is_active', 1) // Uniquement les comptes actifs
+        ->orderBy('created_at', 'desc')
+        ->take(6)
+        ->get();
+
+    // Nombre total de tuteurs validés
+    $totalTutors = User::where('role_id', 3)
+        ->where('is_valid', 1)
+        ->where('is_active', 1)
+        ->count();
+
+    return view('welcome', ['recentTutors' => $recentTutors, 'totalTutors' => $totalTutors]);
+});
+
 Route::view('/tuteurs', 'teachers.tuteurs-list')->name('listProfesseur');
 
 // Route pour le callback de paiement d'abonnement tuteur
