@@ -37,7 +37,7 @@
                         <div class="student-avatar">
                             @if ($annonce->student->photo_path && Storage::disk('public')->exists($annonce->student->photo_path))
                                 <img src="{{ asset('storage/' . $annonce->student->photo_path) }}"
-                                    alt="Photo de {{ $annonce->student->firstname }}">
+                                     alt="Photo de {{ $annonce->student->firstname }}">
                             @else
                                 {{ strtoupper(substr($annonce->student->firstname, 0, 1) . substr($annonce->student->lastname, 0, 1)) }}
                             @endif
@@ -105,7 +105,7 @@
                         </button>
                     @else
                         <form action="{{ route('annonce.postuler', $annonce->id) }}" method="POST"
-                            style="display: inline;">
+                              style="display: inline;">
                             @csrf
                             <button type="submit" class="btn-action btn-primary">
                                 <i class="fas fa-paper-plane"></i>
@@ -630,12 +630,12 @@
         function postuler(annonceId) {
             if (confirm('Êtes-vous sûr de vouloir postuler à cette annonce ?')) {
                 fetch(`/candidatures/${annonceId}/postuler`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        }
-                    })
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
@@ -696,43 +696,43 @@
             // ========================================
 
             @if (session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: '{{ session('success') }}',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 5000,
-                    timerProgressBar: true,
-                    background: '#008751', // Fond vert
-                    color: '#fff', // Texte blanc
-                    iconColor: '#fff', // Icône blanche
-                });
+            Swal.fire({
+                icon: 'success',
+                title: '{{ session('success') }}',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
+                background: '#008751', // Fond vert
+                color: '#fff', // Texte blanc
+                iconColor: '#fff', // Icône blanche
+            });
             @endif
 
 
             @if (session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur',
-                    text: '{{ session('error') }}',
-                    confirmButtonText: 'Compris',
-                    confirmButtonColor: '#e53e3e',
-                });
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                text: '{{ session('error') }}',
+                confirmButtonText: 'Compris',
+                confirmButtonColor: '#e53e3e',
+            });
             @endif
 
             @if ($errors->any())
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur',
-                    html: '<ul style="text-align:left; padding-left:20px;">' +
-                        @foreach ($errors->all() as $error)
-                            '<li>{{ $error }}</li>' +
-                        @endforeach
-                    '</ul>',
-                    confirmButtonText: 'Compris',
-                    confirmButtonColor: '#e53e3e',
-                });
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                html: '<ul style="text-align:left; padding-left:20px;">' +
+                    @foreach ($errors->all() as $error)
+                        '<li>{{ $error }}</li>' +
+                    @endforeach
+                        '</ul>',
+                confirmButtonText: 'Compris',
+                confirmButtonColor: '#e53e3e',
+            });
             @endif
         });
     </script>

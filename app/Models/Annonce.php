@@ -26,17 +26,20 @@ class Annonce extends Model
         'payment_reference'
     ];
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User, $this>
-     */
+    protected $casts = [
+
+        'budget' => 'decimal:2',
+        'acompte' => 'decimal:2',
+        'published_at' => 'datetime',
+        'is_paid' => 'boolean',
+        'disponibilite' => 'date',
+    ];
+
     public function student(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_id');
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Payment, $this>
-     */
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
@@ -80,7 +83,6 @@ class Annonce extends Model
 
     /**
      * Relation avec les candidatures
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Candidature, $this>
      */
     public function candidatures(): HasMany
     {
@@ -105,7 +107,7 @@ class Annonce extends Model
     /**
      * Scope pour les annonces publiées
      */
-    protected function scopePubliees($query)
+    public function scopePubliees($query)
     {
         return $query->where('status', 'publiée'); // CORRECTION : 'publiée' avec accent
     }
@@ -121,7 +123,7 @@ class Annonce extends Model
     /**
      * Obtenir le tuteur accepté
      */
-    protected function getTuteurAccepteAttribute()
+    public function getTuteurAccepteAttribute()
     {
         $candidatureAcceptee = $this->candidatures()->where('statut', 'acceptee')->first();
         return $candidatureAcceptee ? $candidatureAcceptee->tuteur : null;
@@ -134,14 +136,24 @@ class Annonce extends Model
     {
         return $this->status === 'publiée'; // CORRECTION : 'publiée' avec accent
     }
-    protected function casts(): array
-    {
-        return [
-            'disponibilite' => 'datetime',
-            'budget' => 'decimal:2',
-            'acompte' => 'decimal:2',
-            'published_at' => 'datetime',
-            'is_paid' => 'boolean'
-        ];
+
+    // Formatage disponiblite
+public function getFormattedDisponibiliteAttribute()
+{
+    if (empty($this->disponibilite)) {
+        return 'Non spécifié';
     }
+
+    $lines = explode("\n", trim($this->disponibilite));
+    $formatted = '';
+
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (!empty($line)) {
+            $formatted .= '<li>' . e($line) . '</li>';
+        }
+    }
+
+    return $formatted ? '<ul class="list-unstyled mb-0">' . $formatted . '</ul>' : 'Non spécifié';
+}
 }

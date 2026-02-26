@@ -64,8 +64,8 @@
                                             </td>
                                             <td class="px-4 py-3">
                                                 @php
-                                                    $joursRestants = $subscription->date_fin->diffInDays(now(), false);
-                                                    $joursRestantsAbs = (int) abs($joursRestants);
+                                                    $joursRestants = now()->startOfDay()->diffInDays($subscription->date_fin->startOfDay(), false);
+                                                    $joursRestantsAbs = max(0, $joursRestants);
                                                 @endphp
 
                                                 @if($subscription->date_fin->isFuture())

@@ -32,16 +32,40 @@
     }
 
     /* Sidebar Styles */
-    .sidebar {
-        width: 260px;
-        background-color: var(--primary-color);
-        color: var(--white);
-        transition: all 0.3s ease;
-        position: fixed;
-        height: 100vh;
-        overflow-y: auto;
-        z-index: 1000;
-    }
+.sidebar {
+    width: 260px;
+    transition: all 0.3s ease;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1000;
+    background-color: var(--primary-color);
+}
+
+/* Sidebar pour les étudiants (bleu) */
+.sidebar-etudiant {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+/* Sidebar pour les tuteurs (jaune) */
+.sidebar-tuteur {
+    background-color: #5775e2; /* Jaune */
+    color: #ffffff !important ; /* Texte noir pour contraste */
+}
+
+/* Vous pouvez aussi utiliser des variables CSS si vous préférez */
+:root {
+    --primary-color: #0351BC; /* Bleu pour étudiants */
+    --tuteur-color: #1d8f43; /* Jaune pour tuteurs */
+    --text-light: #ffffff;
+    --text-dark: #000000;
+}
+
+.sidebar-tuteur {
+    background-color: var(--tuteur-color);
+    color: var(--text-dark);
+}
 
     .sidebar-header {
         padding: 24px 20px;

@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid py-5 px-md-5">
-    
+
     <div class="d-flex justify-content-start mb-4">
         <a href="{{ url()->previous() }}" class="btn-back">
             <i class="fas fa-arrow-left mr-2"></i>
@@ -16,17 +16,20 @@
         <div class="col-lg-8">
             <div class="card main-card border-0 shadow-sm mb-4">
                 <div class="card-body p-4 p-lg-5">
-                    
+
                     <div class="mb-4">
                         <span class="category-tag mb-3">{{ $annonce->domaine }}</span>
                         <h1 class="display-title text-navy mb-4">{{ $annonce->title ?? 'Mission en ' . $annonce->domaine }}</h1>
-                        
+
                         <div class="quick-info-grid">
                             <div class="info-item">
                                 <div class="icon-box"><i class="far fa-calendar-alt"></i></div>
                                 <div>
                                     <p class="label">Début de mission</p>
-                                    <p class="value text-navy">{{ $annonce->disponibilite ? $annonce->disponibilite->translatedFormat('d M Y') : 'Dès que possible' }}</p>
+                                   <p class="value text-navy">
+    {{ $annonce->disponibilite ?? 'Dès que possible' }}
+</p>
+
                                 </div>
                             </div>
                             <div class="info-item">
@@ -69,9 +72,9 @@
 
         <div class="col-lg-4">
             <div class="sticky-top" style="top: 20px;">
-                
+
                 <div class="card action-card-blue border-0 shadow-lg mb-4 overflow-hidden">
-                    <div class="card-body p-4 text-center text-white">
+                    <div class="card-body p-4 text-center text-white" style="background-color:#0351BC; border-radius: 20px;">
                         <p class="text-white-50 mb-1">Rémunération Totale</p>
                         <h2 class="budget-display mb-4">
                             {{ number_format($annonce->budget, 0, ',', ' ') }} <small>FCFA</small>
@@ -119,7 +122,7 @@
                 <div class="card border-0 shadow-sm profile-card">
                     <div class="card-body p-4">
                         <h6 class="sidebar-title mb-4">Profil de l'étudiant</h6>
-                        
+
                         @if(isset($student))
                             <div class="d-flex align-items-center mb-4">
                                 <div class="avatar-box mr-3">
@@ -169,8 +172,8 @@
         --text-muted: #64748b;
     }
 
-    body { 
-        background-color: var(--bg-soft); 
+    body {
+        background-color: var(--bg-soft);
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
@@ -179,7 +182,7 @@
     /* CARDS */
     .main-card { border-radius: 24px; }
     .display-title { font-weight: 800; font-size: 2.25rem; letter-spacing: -1px; line-height: 1.2; }
-    
+
     /* TAGS & INFO */
     .category-tag {
         display: inline-block;

@@ -23,7 +23,7 @@ class AnnonceController extends Controller
     public function create()
     {
         abort_if(Auth::user()->role_id != 2, 403, 'Accès réservé aux étudiants');
-        
+
         $user = Auth::user();
         return view('annonces.create', ['user' => $user]);
     }
@@ -68,7 +68,7 @@ class AnnonceController extends Controller
     {
         $annonce = Annonce::findOrFail($id);
         $user = Auth::user();
-        
+
         abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
 
         if ($annonce->is_paid) {
@@ -109,7 +109,7 @@ class AnnonceController extends Controller
 
             // Récupérer l'annonce
             $annonce = Annonce::findOrFail($annonceId);
-            
+
             // Vérifier que l'utilisateur est propriétaire de l'annonce
             abort_if($annonce->student_id != $user->id, 403, 'Accès non autorisé');
 
@@ -172,7 +172,7 @@ class AnnonceController extends Controller
     {
         $annonce = Annonce::with(['student', 'payments'])->findOrFail($id);
         $user = Auth::user();
-        
+
         abort_if($annonce->student_id != Auth::id() && Auth::user()->role_id != 1, 403, 'Accès non autorisé');
 
         return view('annonces.show', ['annonce' => $annonce, 'user' => $user]);
@@ -183,7 +183,7 @@ class AnnonceController extends Controller
     {
         $annonce = Annonce::findOrFail($id);
         $user = Auth::user();
-        
+
         abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
 
         if ($annonce->status != 'en_attente') {
@@ -198,7 +198,7 @@ class AnnonceController extends Controller
     public function update(Request $request, $id)
     {
         $annonce = Annonce::findOrFail($id);
-        
+
         abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
 
         if ($annonce->status != 'en_attente') {
@@ -219,13 +219,13 @@ class AnnonceController extends Controller
         $annonce->budget = $request->budget;
         $annonce->disponibilite = $request->disponibilite;
         $annonce->format = $request->format;
-        
+
         // Recalculer l'acompte si le budget a changé
         if ($annonce->isDirty('budget')) {
             $percentage = rand(20, 30) / 100;
             $annonce->acompte = $request->budget * $percentage;
         }
-        
+
         $annonce->save();
 
         return to_route('annonces.show', $annonce->id)
@@ -236,7 +236,7 @@ class AnnonceController extends Controller
     public function destroy($id)
     {
         $annonce = Annonce::findOrFail($id);
-        
+
         abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
 
         if ($annonce->status === 'attribuee') {
