@@ -32,7 +32,7 @@ class Annonce extends Model
         'acompte' => 'decimal:2',
         'published_at' => 'datetime',
         'is_paid' => 'boolean',
-        'disponibilite' => 'date',
+        
     ];
 
     public function student(): BelongsTo

@@ -342,7 +342,7 @@
                         <div class="p-2 text-center" style="background: #fef9c3; border-radius: 8px;">
                             <small style="color: #854d0e;">
                                 <i class="fas fa-thumbs-up"></i>
-                                Un profil complet 
+                                Un profil complet
                             </small>
                         </div>
                     </div>
