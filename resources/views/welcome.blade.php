@@ -57,7 +57,7 @@
                                     </select>
                                 </div>
 
-                                <!-- Filtre par mode d'enseignement -->
+                         {{--        <!-- Filtre par mode d'enseignement -->
                                 <div class="col-md-6">
                                     <select name="learning_preference" class="form-select filter-select">
                                         <option value="">Tous les modes</option>
@@ -106,7 +106,7 @@
                                         <option value="50000+" {{ $selectedPriceRange == '50000+' ? 'selected' : '' }}>Plus
                                             de 50 000 FCFA</option>
                                     </select>
-                                </div>
+                                </div> --}} 
                             </div>
                         </div>
 

@@ -38,7 +38,14 @@ return [
     'fedapay' => [
         'public_key' => env('FEDAPAY_PUBLIC_KEY'),
         'secret_key' => env('FEDAPAY_SECRET_KEY'),
+        'environment' => env('FEDAPAY_ENVIRONMENT', 'sandbox'),
         'mode' => env('FEDAPAY_MODE', 'sandbox'),
+    ],
+
+    'moneroo' => [
+        'public_key' => env('MONEROO_PUBLIC_KEY'),
+        'secret_key' => env('MONEROO_SECRET_KEY'),
+        'environment' => env('MONEROO_ENVIRONMENT', 'sandbox'),
     ],
 
 ];

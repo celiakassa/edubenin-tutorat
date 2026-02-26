@@ -151,6 +151,21 @@
             margin-bottom: 12px;
         }
 
+        .stat-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--dark-gray);
+        }
+
+        .stat-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
         .sidebar-menu {
             padding: 20px 0;
         }
@@ -171,6 +186,17 @@
             background: var(--primary-light);
             color: var(--white);
             border-right: 3px solid var(--primary-color);
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .menu-text {
+            font-size: 14px;
+            font-weight: 500;
         }
 
         /* Main Content */
@@ -478,10 +504,73 @@
             margin-top: 15px;
         }
 
+        /* Loading */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Payment Methods */
+        .payment-methods {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 30px;
+        }
+
+        .payment-method-btn {
+            background: var(--white);
+            border: 2px solid var(--medium-gray);
+            border-radius: 12px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 250px;
+            justify-content: center;
+        }
+
+        .payment-method-btn.active {
+            border-color: var(--primary-color);
+            background: var(--primary-light);
+            color: var(--white);
+        }
+
+        .payment-method-btn i {
+            font-size: 20px;
+        }
+
+        .payment-section {
+            display: none;
+        }
+
+        .payment-section.active {
+            display: block;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
             }
 
             .main-content {
@@ -492,6 +581,16 @@
             .summary-grid {
                 grid-template-columns: 1fr;
             }
+
+            .payment-methods {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .payment-method-btn {
+                width: 100%;
+                max-width: 100%;
+            }
         }
     </style>
 </head>
@@ -501,17 +600,11 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <a href="{{ route('dashboardUser') }}" style="text-decoration: none;">
-                <div class="platform-logo" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <div class="logo-icon"
-                        style="background-color: #3948c9; color: white; padding: 10px; border-radius: 6px; font-weight: bold;">
-                        KP
-                    </div>
-                    <div class="platform-name" style="font-size: 1.2em; font-weight: bold; color: #333;">
-                        Kopiao
-                    </div>
+                <div class="platform-logo">
+                    <div class="logo-icon">KP</div>
+                    <div class="platform-name">Kopiao</div>
                 </div>
             </a>
-
             <div class="platform-tagline">Votre plateforme éducative</div>
 
             <div class="user-info">
@@ -537,6 +630,10 @@
             <div class="stat-item">
                 <span class="stat-label">Statut</span>
                 <span class="stat-value">Étudiant</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Crédit</span>
+                <span class="stat-value">-</span>
             </div>
         </div>
 
@@ -575,7 +672,7 @@
                         <div class="result-icon success">
                             <i class="fas fa-check"></i>
                         </div>
-                      <h2 class="result-title">Annonce créée !</h2>
+                        <h2 class="result-title">Paiement réussi !</h2>
                         <p class="result-message">{{ session('success') }}</p>
                         <div class="payment-actions">
                             <a href="{{ route('annonces.show', $annonce->id) }}" class="btn-pay">
@@ -628,11 +725,8 @@
                                 </span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label">Mes disponibilités</span>
-                                <span class="summary-value">
-    {{ $annonce->disponibilite }}
-</span>
-
+                                <span class="summary-label">Disponibilités</span>
+                                <span class="summary-value" style="white-space: pre-line;">{{ $annonce->disponibilite }}</span>
                             </div>
                             <div class="summary-item">
                                 <span class="summary-label">Budget total</span>
@@ -659,37 +753,65 @@
                         <ul class="instructions-list">
                             <li><i class="fas fa-check"></i> L'acompte sera déduit du montant total à payer au tuteur</li>
                             <li><i class="fas fa-check"></i> Votre annonce sera visible par les tuteurs uniquement après paiement</li>
-                            <li><i class="fas fa-check"></i> Paiement 100% sécurisé via FedaPay</li>
+                            <li><i class="fas fa-check"></i> Paiement 100% sécurisé</li>
                             <li><i class="fas fa-check"></i> Remboursement possible sous 24h si annulation</li>
                         </ul>
                     </div>
 
-                    <!-- Bouton de paiement - CORRIGÉ -->
-                    <div class="payment-actions">
-                       <!-- Ceci est dans votre fichier blade -->
-<button type="button"
-        class="btn btn-pay btn-pay-acompte"
-        data-amount="{{ intval($annonce->acompte) }}"
-        data-title="Acompte pour annonce: {{ $annonce->domaine }}"
-        data-annonce-id="{{ $annonce->id }}">
-    <i class="fas fa-lock"></i>
-    Payer {{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA
-</button>
+                    <!-- Choix du mode de paiement -->
+                    <div class="payment-methods">
+                        <button type="button" class="payment-method-btn active" id="btn-fedapay">
+                            <i class="fas fa-credit-card"></i>
+                            FedaPay
+                        </button>
+                        <button type="button" class="payment-method-btn" id="btn-moneroo">
+                            <i class="fas fa-lock"></i>
+                            Moneroo
+                        </button>
+                    </div>
 
-                        <!-- Notice frais -->
-                        <div class="fees-notice">
-                            <i class="fas fa-exclamation-triangle mr-2"></i>
-                            <strong>Note :</strong> FedaPay ajoute des frais de transaction
-                            (environ 2%). Le montant final sera légèrement supérieur.
+                    <!-- Section FedaPay -->
+                    <div class="payment-section active" id="section-fedapay">
+                        <div class="payment-actions">
+                            <button type="button"
+                                    class="btn-pay"
+                                    id="pay-button-fedapay"
+                                    data-annonce-id="{{ $annonce->id }}">
+                                <i class="fas fa-lock"></i>
+                                <span>Payer avec FedaPay - {{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA</span>
+                            </button>
+                            <div class="fees-notice">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>Note :</strong> FedaPay ajoute des frais de transaction (environ 2%).
+                            </div>
                         </div>
+                    </div>
 
+                    <!-- Section Moneroo -->
+                    <div class="payment-section" id="section-moneroo">
+                        <div class="payment-actions">
+                            <button type="button"
+                                    class="btn-pay"
+                                    id="pay-button-moneroo"
+                                    data-annonce-id="{{ $annonce->id }}">
+                                <i class="fas fa-lock"></i>
+                                <span>Payer avec Moneroo - {{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA</span>
+                            </button>
+                            <div class="fees-notice">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>Note :</strong> Moneroo ajoute des frais de transaction (environ 2%).
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bouton Annuler -->
+                    <div class="payment-actions" style="padding-top: 0;">
                         <a href="{{ route('annonces.index') }}" class="btn-cancel">
                             <i class="fas fa-times"></i>
                             Annuler
                         </a>
-
                         <p class="small text-muted mt-3 mb-0">
-                            <i class="fas fa-shield-alt mr-1"></i> Paiement sécurisé par FedaPay
+                            <i class="fas fa-shield-alt"></i> Paiement 100% sécurisé
                         </p>
                     </div>
                 @endif
@@ -697,70 +819,162 @@
         </div>
     </div>
 
-    @if(!session('success') && !session('error'))
     <!-- Script FedaPay -->
     <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @auth
-            const payButton = document.querySelector('.btn-pay-acompte');
+            @if(!session('success') && !session('error'))
 
-            if (payButton) {
-                payButton.addEventListener('click', function () {
-                    const amount = this.dataset.amount;
-                    const title = this.dataset.title;
-                    const annonceId = this.dataset.annonceId;
+            // Switch entre les méthodes de paiement
+            const btnFedapay = document.getElementById('btn-fedapay');
+            const btnMoneroo = document.getElementById('btn-moneroo');
+            const sectionFedapay = document.getElementById('section-fedapay');
+            const sectionMoneroo = document.getElementById('section-moneroo');
 
-                    const widget = FedaPay.init({
-                        public_key: '{{ config("services.fedapay.public_key") }}',
-                        transaction: {
-                            amount: amount,
-                            description: title
-                        },
-                        customer: {
-                            email: '{{ auth()->user()->email }}',
-                            firstname: '{{ auth()->user()->firstname }}',
-                            lastname: '{{ auth()->user()->lastname }}'
-                        },
-                        onComplete(resp) {
-                            if (resp.reason === 'CHECKOUT COMPLETE') {
-                                const form = document.createElement('form');
-                                form.method = 'POST';
-                                form.action = '{{ route("annonces.payment.callback") }}';
+            if (btnFedapay && btnMoneroo) {
+                btnFedapay.addEventListener('click', function() {
+                    btnFedapay.classList.add('active');
+                    btnMoneroo.classList.remove('active');
+                    sectionFedapay.classList.add('active');
+                    sectionMoneroo.classList.remove('active');
+                });
 
-                                const csrf = document.createElement('input');
-                                csrf.type = 'hidden';
-                                csrf.name = '_token';
-                                csrf.value = '{{ csrf_token() }}';
-                                form.appendChild(csrf);
-
-                                const transactionInput = document.createElement('input');
-                                transactionInput.type = 'hidden';
-                                transactionInput.name = 'id';
-                                transactionInput.value = resp.transaction.id;
-                                form.appendChild(transactionInput);
-
-                                const annonceInput = document.createElement('input');
-                                annonceInput.type = 'hidden';
-                                annonceInput.name = 'annonce_id';
-                                annonceInput.value = annonceId;
-                                form.appendChild(annonceInput);
-
-                                document.body.appendChild(form);
-                                form.submit();
-                            }
-                        }
-                    });
-                    widget.open();
+                btnMoneroo.addEventListener('click', function() {
+                    btnMoneroo.classList.add('active');
+                    btnFedapay.classList.remove('active');
+                    sectionMoneroo.classList.add('active');
+                    sectionFedapay.classList.remove('active');
                 });
             }
-            @else
-            document.querySelector('.btn-pay-acompte').addEventListener('click', function() {
-                window.location.href = '{{ route("login") }}';
-            });
-            @endauth
+
+            // Paiement FedaPay
+        // Paiement FedaPay
+const payButtonFedapay = document.getElementById('pay-button-fedapay');
+if (payButtonFedapay) {
+    payButtonFedapay.addEventListener('click', function () {
+        @auth
+        const annonceId = this.dataset.annonceId;
+        const button = this;
+        const originalText = button.innerHTML;
+
+        // Afficher le chargement
+        button.disabled = true;
+        button.innerHTML = '<span class="loading-spinner"></span> Initialisation...';
+
+        // Initialiser la transaction via AJAX
+        fetch(`/annonces/${annonceId}/init-payment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.token) {
+                // Réinitialiser le bouton
+                button.disabled = false;
+                button.innerHTML = originalText;
+
+                // Ouvrir le widget FedaPay avec le token
+                const widget = FedaPay.init({
+                    public_key: '{{ config("services.fedapay.public_key") }}',
+                    transaction: {
+                        token: data.token
+                    },
+                    onComplete: function(response) {
+                        if (response.reason === 'CHECKOUT_COMPLETE' || response.reason === 'CHECKOUT COMPLETE') {
+                            // Créer un formulaire pour le callback
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = '{{ route("annonces.payment.callback") }}';
+
+                            const csrf = document.createElement('input');
+                            csrf.type = 'hidden';
+                            csrf.name = '_token';
+                            csrf.value = '{{ csrf_token() }}';
+                            form.appendChild(csrf);
+
+                            const transactionInput = document.createElement('input');
+                            transactionInput.type = 'hidden';
+                            transactionInput.name = 'id';
+                            transactionInput.value = response.transaction.id;
+                            form.appendChild(transactionInput);
+
+                            const annonceInput = document.createElement('input');
+                            annonceInput.type = 'hidden';
+                            annonceInput.name = 'annonce_id';
+                            annonceInput.value = annonceId;
+                            form.appendChild(annonceInput);
+
+                            document.body.appendChild(form);
+                            form.submit();
+                        }
+                    }
+                });
+
+                widget.open();
+            } else {
+                alert('Erreur: ' + (data.message || 'Impossible d\'initialiser le paiement'));
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue lors de l\'initialisation du paiement');
+            button.disabled = false;
+            button.innerHTML = originalText;
+        });
+        @else
+        window.location.href = '{{ route("login") }}';
+        @endauth
+    });
+}
+
+            // Paiement Moneroo
+            const payButtonMoneroo = document.getElementById('pay-button-moneroo');
+            if (payButtonMoneroo) {
+                payButtonMoneroo.addEventListener('click', async function () {
+                    const annonceId = this.dataset.annonceId;
+                    const originalText = this.innerHTML;
+
+                    // Afficher le chargement
+                    this.disabled = true;
+                    this.innerHTML = '<span class="loading-spinner"></span> Initialisation...';
+
+                    try {
+                        const response = await fetch(`/annonces/${annonceId}/init-payment-moneroo`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success && data.checkout_url) {
+                            // Rediriger vers la page de paiement Moneroo
+                            window.location.href = data.checkout_url;
+                        } else {
+                            alert('Erreur: ' + (data.message || 'Impossible d\'initialiser le paiement'));
+                            this.disabled = false;
+                            this.innerHTML = originalText;
+                        }
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        alert('Une erreur est survenue lors de l\'initialisation du paiement');
+                        this.disabled = false;
+                        this.innerHTML = originalText;
+                    }
+                });
+            }
+            @endif
         });
     </script>
-    @endif
 </body>
 </html>

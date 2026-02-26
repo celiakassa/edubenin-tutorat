@@ -7,14 +7,17 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use FedaPay\FedaPay;
 use FedaPay\Transaction;
-use Carbon\Carbon;
+use Moneroo\Laravel\Payment as MonerooPayment;
 
 class AnnonceController extends Controller
 {
     public function __construct()
     {
+        // FedaPay configuration
         FedaPay::setApiKey(config('services.fedapay.secret_key'));
         FedaPay::setEnvironment(config('services.fedapay.environment', 'sandbox'));
     }
@@ -57,7 +60,6 @@ class AnnonceController extends Controller
                     foreach ($lines as $index => $line) {
                         $line = trim($line);
                         if (!empty($line)) {
-                            // Vérifier le format: jour HH:MM - HH:MM
                             if (!preg_match('/^([a-zA-Zéèêëàâäîïôöùûüç\s]+) (\d{2}:\d{2}) - (\d{2}:\d{2})$/', $line, $matches)) {
                                 $validFormat = false;
                                 $errors[] = "Ligne " . ($index + 1) . ": Format incorrect. Utilisez: 'jour HH:MM - HH:MM'";
@@ -68,7 +70,6 @@ class AnnonceController extends Controller
                             $startTime = $matches[2];
                             $endTime = $matches[3];
 
-                            // Vérifier les heures
                             if (!preg_match('/^(\d{2}):(\d{2})$/', $startTime, $timeStart) ||
                                 !preg_match('/^(\d{2}):(\d{2})$/', $endTime, $timeEnd)) {
                                 $validFormat = false;
@@ -88,7 +89,6 @@ class AnnonceController extends Controller
                                 continue;
                             }
 
-                            // Vérifier que l'heure de fin est après l'heure de début
                             $startTotal = $startHour * 60 + $startMinute;
                             $endTotal = $endHour * 60 + $endMinute;
 
@@ -147,12 +147,82 @@ class AnnonceController extends Controller
         return view('annonces.payment', compact('annonce', 'user'));
     }
 
-    // Callback de paiement - CORRIGÉ
+    // ==================== MÉTHODES FEDAPAY ====================
+
+    // Initialiser le paiement FedaPay
+    public function initPayment(Request $request, $id)
+    {
+        $annonce = Annonce::findOrFail($id);
+        $user = Auth::user();
+
+        if ($annonce->student_id != Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Accès non autorisé'], 403);
+        }
+
+        if ($annonce->is_paid) {
+            return response()->json(['success' => false, 'message' => 'Cette annonce est déjà payée'], 400);
+        }
+
+        try {
+            // Créer la transaction FedaPay
+            $transaction = Transaction::create([
+                'description' => 'Acompte pour annonce: ' . $annonce->domaine,
+                'amount' => (int) $annonce->acompte,
+                'currency' => ['iso' => 'XOF'],
+                'callback_url' => route('annonces.payment.callback'),
+                'customer' => [
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
+                    'email' => $user->email,
+                    'phone_number' => [
+                        'number' => $user->telephone ?? '00000000',
+                        'country' => 'bj'
+                    ]
+                ]
+            ]);
+
+            // Générer le token de paiement
+            $token = $transaction->generateToken();
+
+            Log::info('Paiement FedaPay initialisé', [
+                'transaction_id' => $transaction->id,
+                'token' => $token->token,
+                'annonce_id' => $annonce->id,
+                'user_id' => $user->id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'token' => $token->token,
+                'transaction_id' => $transaction->id,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur init paiement FedaPay: ' . $e->getMessage(), [
+                'annonce_id' => $annonce->id,
+                'user_id' => $user->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // Callback de paiement FedaPay
     public function handlePayment(Request $request)
     {
         $user = Auth::user();
         $transactionId = $request->input('id');
         $annonceId = $request->input('annonce_id');
+
+        Log::info('Callback FedaPay reçu', [
+            'transaction_id' => $transactionId,
+            'annonce_id' => $annonceId,
+            'user_id' => $user->id ?? null
+        ]);
 
         if (!$transactionId || !$annonceId) {
             return redirect()->back()->with('error', 'Transaction invalide.');
@@ -183,15 +253,14 @@ class AnnonceController extends Controller
                 abort(403, 'Accès non autorisé');
             }
 
-            // IMPORTANT: FedaPay retourne le montant en FCFA (entier)
-            $amountPaid = (float) $transaction->amount; // Conversion en float pour notre DB
+            DB::beginTransaction();
 
             // Créer le paiement
             Payment::create([
                 'annonce_id' => $annonce->id,
                 'user_id' => $user->id,
                 'fedapay_transaction_id' => $transaction->id,
-                'amount' => $amountPaid,
+                'amount' => (float) $transaction->amount,
                 'currency' => 'XOF',
                 'status' => $transaction->status,
                 'payment_method' => $transaction->mode ?? 'mobile_money',
@@ -206,22 +275,389 @@ class AnnonceController extends Controller
                 'published_at' => Carbon::now()
             ]);
 
+            DB::commit();
+
             return redirect()->route('annonces.show', $annonce->id)
                 ->with('success', 'Paiement effectué avec succès ! Votre annonce est maintenant publiée.');
 
-        } catch (\FedaPay\Error\ApiConnection $e) {
-            Log::error('Erreur connexion FedaPay: ' . $e->getMessage());
-            return redirect()->route('annonces.payment', $annonceId)
-                ->with('error', 'Impossible de vérifier le paiement.');
-        } catch (\FedaPay\Error\InvalidRequest $e) {
-            Log::error('Erreur requête FedaPay: ' . $e->getMessage());
-            return redirect()->route('annonces.payment', $annonceId)
-                ->with('error', 'Erreur lors de la vérification du paiement.');
         } catch (\Exception $e) {
-            Log::error('Erreur paiement annonce: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Erreur paiement FedaPay: ' . $e->getMessage(), [
+                'transaction_id' => $transactionId,
+                'annonce_id' => $annonceId,
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return redirect()->route('annonces.payment', $annonceId)
                 ->with('error', 'Une erreur est survenue lors du traitement du paiement.');
         }
+    }
+
+    // Webhook FedaPay
+    public function webhook(Request $request)
+    {
+        Log::info('Webhook FedaPay reçu', $request->all());
+
+        try {
+            $payload = $request->all();
+            $transactionId = $payload['data']['id'] ?? null;
+            $status = $payload['data']['status'] ?? null;
+
+            if (!$transactionId || $status !== 'approved') {
+                return response()->json(['status' => 'ignored']);
+            }
+
+            // Traiter le webhook si nécessaire
+            // ...
+
+            return response()->json(['status' => 'success']);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur webhook FedaPay: ' . $e->getMessage());
+            return response()->json(['status' => 'error'], 500);
+        }
+    }
+
+    // ==================== MÉTHODES MONEROO ====================
+
+    // Initialiser le paiement Moneroo
+    public function initPaymentMoneroo(Request $request, $id)
+    {
+        $annonce = Annonce::findOrFail($id);
+        $user = Auth::user();
+
+        if ($annonce->student_id != Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Accès non autorisé'], 403);
+        }
+
+        if ($annonce->is_paid) {
+            return response()->json(['success' => false, 'message' => 'Cette annonce est déjà payée'], 400);
+        }
+
+        try {
+            // Vérifier que la clé Moneroo est configurée
+            if (!config('services.moneroo.secret_key')) {
+                throw new \Exception('La clé secrète Moneroo n\'est pas configurée');
+            }
+
+            $paymentData = [
+                'amount' => (int) $annonce->acompte,
+                'currency' => 'XOF',
+                'description' => 'Acompte pour annonce: ' . $annonce->domaine,
+                'return_url' => route('annonces.payment.callback.moneroo', ['annonce_id' => $annonce->id]),
+                'customer' => [
+                    'email' => $user->email,
+                    'first_name' => $user->firstname,
+                    'last_name' => $user->lastname,
+                    'phone' => $user->telephone ?? '',
+                ],
+                'metadata' => [
+                    'annonce_id' => (string) $annonce->id,
+                    'user_id' => (string) $user->id,
+                    'payment_type' => 'annonce_acompte',
+                ],
+            ];
+
+            $monerooPayment = new MonerooPayment();
+            $payment = $monerooPayment->init($paymentData);
+
+            Log::info('Paiement Moneroo initialisé', [
+                'transaction_id' => $payment->id,
+                'annonce_id' => $annonce->id,
+                'user_id' => $user->id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'checkout_url' => $payment->checkout_url,
+                'transaction_id' => $payment->id,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur init paiement Moneroo: ' . $e->getMessage(), [
+                'annonce_id' => $annonce->id,
+                'user_id' => $user->id ?? null,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // Callback de paiement Moneroo
+    public function handlePaymentMoneroo(Request $request)
+    {
+        $user = Auth::user();
+        $transactionId = $request->query('paymentId');
+        $annonceId = $request->query('annonce_id');
+
+        Log::info('Payment success callback Moneroo', [
+            'transaction_id' => $transactionId,
+            'annonce_id' => $annonceId,
+            'all_params' => $request->all()
+        ]);
+
+        if (!$transactionId) {
+            return redirect()->route('annonces.index')
+                ->with('error', 'Transaction invalide.');
+        }
+
+        try {
+            $monerooPayment = new MonerooPayment();
+
+            Log::info('Attempting to get payment details', ['transaction_id' => $transactionId]);
+
+            $payment = $monerooPayment->get($transactionId);
+
+            Log::info('Payment retrieved successfully', [
+                'transaction_id' => $transactionId,
+                'status' => $payment->status ?? 'N/A',
+            ]);
+
+            // Vérifier si déjà traité
+            if (isset($payment->is_processed) && $payment->is_processed === true) {
+                Log::info('Payment already processed by Moneroo');
+                return redirect()->route('annonces.show', $annonceId)
+                    ->with('info', 'Ce paiement a déjà été traité.');
+            }
+
+            // Vérifier le statut
+            $status = $payment->status ?? 'unknown';
+
+            if (strtolower($status) === 'success') {
+                Log::info('Starting annonce payment processing');
+
+                $this->processAnnoncePaymentMoneroo($payment, $transactionId, $annonceId);
+
+                // Marquer comme traité
+                try {
+                    $monerooPayment->markAsProcessed($transactionId);
+                    Log::info('Payment marked as processed');
+                } catch (\Exception $e) {
+                    Log::warning('Could not mark as processed: ' . $e->getMessage());
+                }
+
+                return redirect()->route('annonces.show', $annonceId)
+                    ->with('success', 'Paiement effectué avec succès ! Votre annonce est maintenant publiée.');
+            } else {
+                Log::warning('Payment not successful', ['status' => $status]);
+
+                return redirect()->route('annonces.payment', $annonceId)
+                    ->with('error', 'Le paiement n\'a pas été validé. Statut: ' . $status);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Erreur verification paiement', [
+                'transaction_id' => $transactionId,
+                'error_message' => $e->getMessage(),
+                'error_line' => $e->getLine(),
+            ]);
+
+            return redirect()->route('annonces.payment', $annonceId)
+                ->with('error', 'Erreur lors de la vérification du paiement.');
+        }
+    }
+
+    // Traiter le paiement Moneroo
+    private function processAnnoncePaymentMoneroo($payment, $transactionId, $annonceId)
+    {
+        try {
+            Log::info('Processing annonce payment started', [
+                'transaction_id' => $transactionId,
+                'annonce_id' => $annonceId
+            ]);
+
+            // Vérifier si le paiement n'a pas déjà été traité dans notre DB
+            $existingPayment = Payment::where('moneroo_payment_id', $transactionId)->first();
+
+            if ($existingPayment) {
+                Log::info('Payment already processed in database');
+                return;
+            }
+
+            // Convertir l'objet Moneroo en array PHP
+            $paymentData = json_decode(json_encode($payment), true);
+
+            if (!is_array($paymentData)) {
+                throw new \Exception('Impossible de convertir les données de paiement');
+            }
+
+            DB::beginTransaction();
+
+            // Récupérer l'annonce
+            $annonce = Annonce::findOrFail($annonceId);
+
+            // Récupérer l'user_id depuis metadata
+            $userId = null;
+            if (isset($paymentData['metadata']) && is_array($paymentData['metadata'])) {
+                $userId = $paymentData['metadata']['user_id'] ?? null;
+            }
+
+            if (!$userId) {
+                throw new \Exception('User ID manquant dans les metadata');
+            }
+
+            // Vérifier que l'utilisateur est propriétaire de l'annonce
+            if ($annonce->student_id != $userId) {
+                throw new \Exception('L\'utilisateur n\'est pas propriétaire de l\'annonce');
+            }
+
+            // Extraire amount
+            $amount = (float) ($paymentData['amount'] ?? $annonce->acompte);
+
+            // Extraire currency
+            $currency = 'XOF';
+            if (isset($paymentData['currency']) && is_array($paymentData['currency'])) {
+                $currency = $paymentData['currency']['code'] ?? 'XOF';
+            }
+
+            // Extraire la méthode de paiement
+            $methodCode = 'moneroo';
+            $methodName = 'Moneroo';
+
+            if (isset($paymentData['capture']) && is_array($paymentData['capture'])) {
+                if (isset($paymentData['capture']['method']) && is_array($paymentData['capture']['method'])) {
+                    $methodCode = $paymentData['capture']['method']['short_code'] ?? 'moneroo';
+                    $methodName = $paymentData['capture']['method']['name'] ?? 'Moneroo';
+                }
+            }
+
+            Log::info('Payment details extracted', [
+                'amount' => $amount,
+                'currency' => $currency,
+                'method_code' => $methodCode,
+            ]);
+
+            // Préparer payment_details
+            $paymentDetailsArray = [
+                'id' => $paymentData['id'] ?? $transactionId,
+                'status' => $paymentData['status'] ?? 'success',
+                'amount' => $amount,
+                'currency_code' => $currency,
+                'currency_full' => $paymentData['currency'] ?? null,
+                'amount_formatted' => $paymentData['amount_formatted'] ?? null,
+                'description' => $paymentData['description'] ?? null,
+                'method' => [
+                    'code' => $methodCode,
+                    'name' => $methodName,
+                ],
+                'customer' => $paymentData['customer'] ?? null,
+                'capture' => $paymentData['capture'] ?? null,
+                'metadata' => $paymentData['metadata'] ?? null,
+                'initiated_at' => $paymentData['initiated_at'] ?? null,
+            ];
+
+            // Date de paiement
+            $paidAt = isset($paymentData['initiated_at'])
+                ? Carbon::parse($paymentData['initiated_at'])
+                : now();
+
+            // Créer l'enregistrement de paiement
+            Log::info('Creating payment record for annonce');
+
+            $paymentRecord = Payment::create([
+                'moneroo_payment_id' => $transactionId,
+                'annonce_id' => $annonce->id,
+                'user_id' => $userId,
+                'amount' => $amount,
+                'currency' => $currency,
+                'status' => 'completed',
+                'payment_method' => $methodCode,
+                'payment_details' => json_encode($paymentDetailsArray),
+                'paid_at' => $paidAt,
+            ]);
+
+            // Mettre à jour l'annonce
+            $annonce->update([
+                'status' => 'publiée',
+                'is_paid' => true,
+                'published_at' => Carbon::now()
+            ]);
+
+            Log::info('Annonce payment record created successfully', [
+                'payment_id' => $paymentRecord->id,
+                'annonce_id' => $annonce->id,
+            ]);
+
+            DB::commit();
+
+            Log::info('Annonce payment processed successfully');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Error in processAnnoncePaymentMoneroo', [
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    // Webhook Moneroo
+    public function webhookMoneroo(Request $request)
+    {
+        Log::info('Webhook Moneroo reçu', $request->all());
+
+        try {
+            $payload = $request->all();
+
+            // Vérifier la signature (à implémenter selon doc Moneroo)
+
+            $transactionId = $payload['data']['id'] ?? null;
+            $status = $payload['data']['status'] ?? null;
+            $metadata = $payload['data']['metadata'] ?? [];
+
+            if (!$transactionId || $status !== 'success') {
+                return response()->json(['status' => 'ignored']);
+            }
+
+            $annonceId = $metadata['annonce_id'] ?? null;
+
+            if (!$annonceId) {
+                Log::warning('Annonce ID non trouvé dans metadata');
+                return response()->json(['status' => 'ignored']);
+            }
+
+            // Vérifier si déjà traité
+            $existingPayment = Payment::where('moneroo_payment_id', $transactionId)->first();
+
+            if ($existingPayment) {
+                return response()->json(['status' => 'already_processed']);
+            }
+
+            // Créer un objet payment simulé
+            $payment = (object) $payload['data'];
+
+            // Traiter le paiement
+            $this->processAnnoncePaymentMoneroo($payment, $transactionId, $annonceId);
+
+            return response()->json(['status' => 'success']);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur webhook Moneroo', [
+                'error' => $e->getMessage(),
+                'payload' => $request->all()
+            ]);
+
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    // Vérifier le statut du paiement
+    public function checkPaymentStatus(Request $request, $id)
+    {
+        $annonce = Annonce::findOrFail($id);
+
+        return response()->json([
+            'is_paid' => $annonce->is_paid,
+            'status' => $annonce->status,
+        ]);
     }
 
     // Afficher les annonces de l'étudiant

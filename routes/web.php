@@ -71,7 +71,7 @@ Route::middleware('auth')->group(function () {
 Route::prefix('dashboardUsers')->group(function () {
     Route::get('/', [UserDashboard::class, 'home'])->name('dashboardUser');
     Route::get('/annonces', [TeacherController::class, 'ShowAnnonces'])->name('annonces');
-    Route::get('/annonces/{hash}', [TeacherController::class, 'showAnnonceDetail'])->name('annonces.dashboard.detail'); 
+    Route::get('/annonces/{hash}', [TeacherController::class, 'showAnnonceDetail'])->name('annonces.dashboard.detail');
 
     // Route d'abonnement tuteur hors dashboardUse
     Route::post('/annonces/{id}/postuler', [TeacherController::class, 'postuler'])
@@ -102,18 +102,20 @@ Route::prefix('annonces')->group(function () {
     Route::put('/{id}', [AnnonceController::class, 'update'])->name('annonces.update');
     Route::delete('/{id}', [AnnonceController::class, 'destroy'])->name('annonces.destroy');
 
-    // Routes de paiement
+    // Routes de paiement (FedaPay - existantes)
     Route::get('/{id}/payment', [AnnonceController::class, 'payment'])->name('annonces.payment');
     Route::post('/{id}/init-payment', [AnnonceController::class, 'initPayment'])->name('annonces.init-payment');
     Route::get('/{id}/check-payment', [AnnonceController::class, 'checkPaymentStatus'])->name('annonces.check-payment');
-        // Routes de paiement
-        Route::get('/{id}/payment', [AnnonceController::class, 'payment'])->name('annonces.payment');
-        Route::post('/{id}/init-payment', [AnnonceController::class, 'initPayment'])->name('annonces.init-payment');
 
-        Route::get('/{id}/check-payment', [AnnonceController::class, 'checkPaymentStatus'])->name('annonces.check-payment');
-
-    // Route POST pour le callback de paiement (plus de paramètre {id})
+    // Route POST pour le callback de paiement FedaPay (existante)
     Route::post('/payment/callback', [AnnonceController::class, 'handlePayment'])->name('annonces.payment.callback');
+
+    // Routes de paiement (Moneroo - NOUVELLES)
+    Route::post('/{id}/init-payment-moneroo', [AnnonceController::class, 'initPaymentMoneroo'])->name('annonces.init-payment.moneroo');
+    Route::get('/payment/callback-moneroo', [AnnonceController::class, 'handlePaymentMoneroo'])->name('annonces.payment.callback.moneroo');
+    Route::post('/webhook/moneroo', [AnnonceController::class, 'webhookMoneroo'])
+        ->name('annonces.webhook.moneroo')
+        ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
     // Pour les étudiants (gérer les candidatures)
     Route::get('/{annonce}/candidatures', [CandidatureController::class, 'index'])->name('candidatures.index');
@@ -130,36 +132,10 @@ Route::prefix('annonces')->group(function () {
     // Voir le profil d'un tuteur
     Route::get('/candidatures/{candidature}/profil', [CandidatureController::class, 'voirProfilTuteur'])->name('candidatures.profil');
 
-// Route POST pour le callback de paiement (plus de paramètre {id})
-Route::post('/annonces/payment/callback', [AnnonceController::class, 'handlePayment'])
-    ->name('annonces.payment.callback');
-
-
-
-     // Pour les étudiants (gérer les candidatures)
-    Route::get('/annonces/{annonce}/candidatures', [CandidatureController::class, 'index'])
-        ->name('candidatures.index');
-
-    // Pour les tuteurs (postuler)
-    Route::post('/annonces/{annonce}/candidatures', [CandidatureController::class, 'store'])
-        ->name('candidatures.store');
-
-    // Accepter une candidature
-    Route::post('/candidatures/{candidature}/accepter', [CandidatureController::class, 'accepter'])
-        ->name('candidatures.accepter');
-
-    // Refuser une candidature
-    Route::post('/candidatures/{candidature}/refuser', [CandidatureController::class, 'refuser'])
-        ->name('candidatures.refuser');
-
-    // Voir le profil d'un tuteur
-    Route::get('/candidatures/{candidature}/profil', [CandidatureController::class, 'voirProfilTuteur'])
-        ->name('candidatures.profil');
-
     // API pour les statistiques (graphiques)
     Route::get('/{annonce}/candidatures/stats', [CandidatureController::class, 'stats'])->name('candidatures.stats');
 
-    // Webhook (sans middleware CSRF)
+    // Webhook FedaPay (existant)
     Route::post('/webhook/fedapay', [AnnonceController::class, 'webhook'])->name('annonces.webhook.fedapay');
 });
 
