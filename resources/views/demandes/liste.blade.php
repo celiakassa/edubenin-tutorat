@@ -5,9 +5,9 @@
         <div class="container">
             <!-- En-tête -->
             <div class="text-center mb-5" data-aos="fade-up">
-                <h1 class="display-5 fw-bold" style="color: #0000FF;">Demandes des apprenants</h1>
+                <h1 class="display-5 fw-bold" style="color: #0B69F1;">Demandes des apprenants</h1>
                 <p class="lead text-muted">Trouvez la mission qui correspond à vos compétences</p>
-                <div class="divider mx-auto" style="width: 80px; height: 4px; background: #0000FF; border-radius: 2px;"></div>
+                <div class="divider mx-auto" style="width: 80px; height: 4px; background: #0B69F1; border-radius: 2px;"></div>
             </div>
 
             <!-- Barre de recherche avec live search -->
@@ -17,7 +17,7 @@
                         <div class="search-wrapper bg-white rounded-pill shadow-sm p-2">
                             <div class="input-group">
                                 <span class="input-group-text bg-transparent border-0">
-                                    <i class="bi bi-search" style="color: #0000FF; font-size: 1.2rem;"></i>
+                                    <i class="bi bi-search" style="color: #0B69F1; font-size: 1.2rem;"></i>
                                 </span>
                                 <input type="text" name="search" id="liveSearch"
                                     class="form-control border-0 bg-transparent"
@@ -31,13 +31,13 @@
                                 @endif
                                 <!-- Le bouton Rechercher est caché car recherche automatique -->
                                 <button type="submit" class="btn rounded-pill px-4"
-                                    style="background: #0000FF; color: white; border: none; display: none;">
+                                    style="background: #0B69F1; color: white; border: none; display: none;">
                                     Rechercher
                                 </button>
                             </div>
                         </div>
 
-    
+
                     </form>
                 </div>
             </div>
@@ -56,7 +56,7 @@
                 <!-- Colonne de gauche : Filtres -->
                 <div class="col-lg-3" data-aos="fade-right">
                     <div class="filters-card bg-white rounded-4 shadow-sm p-4 sticky-top" style="top: 100px;">
-                        <h5 class="fw-bold mb-4" style="color: #0000FF;">
+                        <h5 class="fw-bold mb-4" style="color: #0B69F1;">
                             <i class="bi bi-funnel me-2"></i>Filtrer par
                         </h5>
 
@@ -69,7 +69,7 @@
                             <!-- Filtre par domaine -->
                             <div class="mb-4">
                                 <label class="form-label fw-semibold mb-3" style="color: #333;">
-                                    <i class="bi bi-book me-2" style="color: #0000FF;"></i>Domaine
+                                    <i class="bi bi-book me-2" style="color: #0B69F1;"></i>Domaine
                                 </label>
                                 <div class="domaines-list" style="max-height: 400px; overflow-y: auto;">
                                     <div class="form-check mb-2">

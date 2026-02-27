@@ -9,7 +9,7 @@
                 <div class="col-lg-6" data-aos="fade-right" data-aos-delay="200">
                     <h1 class="hero-title mb-4">Kopiao</h1>
 
-                    <p class="hero-subtitle mb-4">Trouvez le tuteur idéal pour réussir vos études</p>
+                    <p class="hero-subtitle mb-4" style="color: #0B69F1;">Trouvez le tuteur idéal pour réussir vos études</p>
 
                     <!-- Barre de recherche principale -->
                     <form action="{{ route('recherche.tuteur') }}" method="GET" class="search-main-form mb-4">
@@ -106,7 +106,7 @@
                                         <option value="50000+" {{ $selectedPriceRange == '50000+' ? 'selected' : '' }}>Plus
                                             de 50 000 FCFA</option>
                                     </select>
-                                </div> --}} 
+                                </div> --}}
                             </div>
                         </div>
 
@@ -172,15 +172,7 @@
                                     <span class="badge-label">Matières</span>
                                 </div>
                             </div>
-                            <div class="badge-item" data-aos="zoom-in" data-aos-delay="700">
-                                <div class="badge-icon">
-                                    <i class="bi bi-shield-lock"></i>
-                                </div>
-                                <div class="badge-content">
-                                    <span class="badge-number">100%</span>
-                                    <span class="badge-label">Paiement sécurisé</span>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -1860,9 +1852,9 @@
 <section id="annonces" class="annonces-section py-5">
     <div class="container-fluid px-4">
         <div class="section-header text-center mb-5" data-aos="fade-up">
-            <h2 class="display-5 fw-bold" style="color: #0000FF;">Opportunités d'enseignement</h2>
+            <h2 class="display-5 fw-bold" style="color: style="color: #0B69F1;";">Opportunités d'enseignement</h2>
             <p class="lead text-muted">Découvrez les {{ $annonces->count() }} annonces publiées par nos étudiants</p>
-            <div class="divider mx-auto" style="background: #0000FF;"></div>
+            <div class="divider mx-auto" style="background: style="color: #0B69F1;";"></div>
         </div>
 
         <!-- Filtres des annonces -->
@@ -1871,14 +1863,14 @@
                 <div class="row g-3 align-items-end">
                     <div class="col-lg-2 col-md-4">
                         <div class="filter-group">
-                            <label class="filter-label text-primary mb-2 fw-semibold" style="color: #0000FF !important;">
-                                <i class="bi bi-book me-1" style="color: #0000FF;"></i> Domaine
+                            <label class="filter-label text-primary mb-2 fw-semibold" style="color: #0B69F1 !important;">
+                                <i class="bi bi-book me-1" style="color: #0B69F1;"></i> Domaine
                             </label>
                             <input type="text"
                                    name="annonce_subject"
                                    class="form-control border-2"
                                    style="border-color: #e0e0e0; color: #333; background: white;"
-                                   placeholder="Maths, Français..."
+                                   placeholder="Mathématiques, Français..."
                                    value="{{ $selectedAnnonceSubject }}"
                                    list="annonceSubjects">
                             <datalist id="annonceSubjects">
@@ -1948,7 +1940,7 @@
 
                     <div class="col-lg-2 col-md-4">
                         <button type="submit" class="btn w-100 py-2"
-                                style="background: #0000FF; color: white; border: none; border-radius: 8px; font-weight: 500;">
+                                style="background: #0B69F1; color: white; border: none; border-radius: 8px; font-weight: 500;">
                             <i class="bi bi-funnel me-2"></i>Filtrer
                         </button>
                     </div>
@@ -2037,7 +2029,7 @@
                         <div class="no-annonces text-center py-5 w-100">
                             <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
                             <h4 class="mt-3" style="color: #333;">Aucune annonce pour le moment</h4>
-                            <p class="text-muted">Revenez plus tard ou créez une alerte</p>
+                            <p class="text-muted">Revenez plus tard</p>
                         </div>
                     @endforelse
                 </div>
@@ -2356,7 +2348,7 @@ function showLoginMessage() {
     <!-- Top Tutors Section -->
     <section id="tutors" class="tutors-gallery section">
         <div class="container section-title" data-aos="fade-up">
-            <h2>Tuteurs récemment inscrits</h2>
+            <h2 style="color: #0B69F1;">Tuteurs récemment inscrits</h2>
             <p>Découvrez les derniers professeurs à avoir rejoint Kopiao</p>
         </div>
 
@@ -3046,9 +3038,9 @@ function showLoginMessage() {
 <section id="annonces-cta" class="annonces-cta-section py-5">
     <div class="container">
         <div class="section-header text-center mb-5" data-aos="fade-up">
-            <h2 class="display-5 fw-bold" style="color: #0000FF;">Trouvez un tuteur ou proposez vos compétences</h2>
+            <h2 class="display-5 fw-bold" style="color: #0B69F1;">Trouvez un tuteur ou proposez vos compétences</h2>
             <p class="lead text-muted">Rejoignez notre communauté et donnez un coup d'accélérateur à votre apprentissage</p>
-            <div class="divider mx-auto" style="background: #0000FF; width: 80px; height: 4px; border-radius: 2px; margin-top: 20px;"></div>
+            <div class="divider mx-auto" style="background: #0B69F1; width: 80px; height: 4px; border-radius: 2px; margin-top: 20px;"></div>
         </div>
 
         <div class="row g-4 justify-content-center">
@@ -3096,7 +3088,7 @@ function showLoginMessage() {
                     @auth
                         @if(Auth::user()->role_id == 2)
                             <a href="{{ route('annonces.create') }}" class="btn-cta btn-publish py-2 px-4 rounded-pill fw-bold mt-auto"
-                               style="background: #0000FF; color: white; border: none; transition: all 0.3s ease; text-decoration: none;">
+                               style="background: #0B69F1; color: white; border: none; transition: all 0.3s ease; text-decoration: none;">
                                 <i class="bi bi-plus-circle me-2"></i>Publier une annonce
                             </a>
                         @else

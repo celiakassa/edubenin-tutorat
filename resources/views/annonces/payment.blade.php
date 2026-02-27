@@ -509,57 +509,16 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
+            border: 3px solid rgba(255, 255, 255, .3);
             border-radius: 50%;
             border-top-color: #fff;
             animation: spin 1s ease-in-out infinite;
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Payment Methods */
-        .payment-methods {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin: 20px 30px;
-        }
-
-        .payment-method-btn {
-            background: var(--white);
-            border: 2px solid var(--medium-gray);
-            border-radius: 12px;
-            padding: 15px 30px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            flex: 1;
-            max-width: 250px;
-            justify-content: center;
-        }
-
-        .payment-method-btn.active {
-            border-color: var(--primary-color);
-            background: var(--primary-light);
-            color: var(--white);
-        }
-
-        .payment-method-btn i {
-            font-size: 20px;
-        }
-
-        .payment-section {
-            display: none;
-        }
-
-        .payment-section.active {
-            display: block;
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         /* Responsive */
@@ -581,16 +540,69 @@
             .summary-grid {
                 grid-template-columns: 1fr;
             }
+        }
 
-            .payment-methods {
-                flex-direction: column;
-                align-items: center;
-            }
+        /* Version horizontale uniquement pour le succès */
+        .payment-actions-inline {
+            flex-direction: row !important;
+        }
 
-            .payment-method-btn {
-                width: 100%;
-                max-width: 100%;
-            }
+        .payment-actions-inline a {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            color: white;
+        }
+
+        /* Bleu = Voir */
+        .btn-view {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+        }
+
+        /* Vert = Payer */
+        .btn-pay-acompte {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+        }
+
+        /* Alertes */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 30px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert i {
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -667,16 +679,20 @@
 
             <!-- Payment Content -->
             <div class="payment-content">
-                @if(session('success'))
+                @if (session('success'))
                     <div class="payment-result">
                         <div class="result-icon success">
                             <i class="fas fa-check"></i>
                         </div>
-                        <h2 class="result-title">Paiement réussi !</h2>
+                        <h2 class="result-title">Annonce créée avec succès !</h2>
                         <p class="result-message">{{ session('success') }}</p>
-                        <div class="payment-actions">
-                            <a href="{{ route('annonces.show', $annonce->id) }}" class="btn-pay">
-                                <i class="fas fa-eye"></i> Voir mon annonce
+
+                        <div class="payment-actions payment-actions-inline">
+                            <a href="{{ route('annonces.show', $annonce->id) }}" class="btn-view">
+                                <i class="fas fa-eye"></i>&nbsp; Voir mon annonce
+                            </a>
+                            <a href="{{ route('annonces.payment', $annonce->id) }}" class="btn-pay-acompte">
+                                <i class="fas fa-credit-card"></i>&nbsp; Payer l'acompte
                             </a>
                         </div>
                     </div>
@@ -715,7 +731,7 @@
                             <div class="summary-item">
                                 <span class="summary-label">Format</span>
                                 <span class="summary-value">
-                                    @if($annonce->format == 'presentiel')
+                                    @if ($annonce->format == 'presentiel')
                                         Présentiel
                                     @elseif($annonce->format == 'en_ligne')
                                         En ligne
@@ -726,11 +742,13 @@
                             </div>
                             <div class="summary-item">
                                 <span class="summary-label">Disponibilités</span>
-                                <span class="summary-value" style="white-space: pre-line;">{{ $annonce->disponibilite }}</span>
+                                <span class="summary-value"
+                                    style="white-space: pre-line;">{{ $annonce->disponibilite }}</span>
                             </div>
                             <div class="summary-item">
                                 <span class="summary-label">Budget total</span>
-                                <span class="summary-value amount">{{ number_format($annonce->budget, 0, ',', ' ') }} FCFA</span>
+                                <span class="summary-value amount">{{ number_format($annonce->budget, 0, ',', ' ') }}
+                                    FCFA</span>
                             </div>
                         </div>
                     </div>
@@ -751,14 +769,16 @@
                             Instructions importantes
                         </h4>
                         <ul class="instructions-list">
-                            <li><i class="fas fa-check"></i> L'acompte sera déduit du montant total à payer au tuteur</li>
-                            <li><i class="fas fa-check"></i> Votre annonce sera visible par les tuteurs uniquement après paiement</li>
-                            <li><i class="fas fa-check"></i> Paiement 100% sécurisé</li>
-                            <li><i class="fas fa-check"></i> Remboursement possible sous 24h si annulation</li>
+                            <li><i class="fas fa-check"></i> L'acompte sera déduit du montant total à payer au tuteur
+                            </li>
+                            <li><i class="fas fa-check"></i> Votre annonce sera visible par les tuteurs uniquement
+                                après paiement</li>
+
                         </ul>
                     </div>
 
-                    <!-- Choix du mode de paiement -->
+                    <!-- Commentaire: Sélecteur de mode de paiement désactivé - Moneroo par défaut -->
+                    <!--
                     <div class="payment-methods">
                         <button type="button" class="payment-method-btn active" id="btn-fedapay">
                             <i class="fas fa-credit-card"></i>
@@ -769,16 +789,17 @@
                             Moneroo
                         </button>
                     </div>
+                    -->
 
-                    <!-- Section FedaPay -->
-                    <div class="payment-section active" id="section-fedapay">
+                    <!-- Commentaire: Section FedaPay désactivée -->
+                    <!--
+                    <div class="payment-section" id="section-fedapay">
                         <div class="payment-actions">
-                            <button type="button"
-                                    class="btn-pay"
-                                    id="pay-button-fedapay"
-                                    data-annonce-id="{{ $annonce->id }}">
+                            <button type="button" class="btn-pay" id="pay-button-fedapay"
+                                data-annonce-id="{{ $annonce->id }}">
                                 <i class="fas fa-lock"></i>
-                                <span>Payer avec FedaPay - {{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA</span>
+                                <span>Payer avec FedaPay - {{ number_format($annonce->acompte, 0, ',', ' ') }}
+                                    FCFA</span>
                             </button>
                             <div class="fees-notice">
                                 <i class="fas fa-exclamation-triangle"></i>
@@ -786,21 +807,17 @@
                             </div>
                         </div>
                     </div>
+                    -->
 
-                    <!-- Section Moneroo -->
-                    <div class="payment-section" id="section-moneroo">
+                    <!-- Section Moneroo (active par défaut) -->
+                    <div class="payment-section" id="section-moneroo" style="display: block;">
                         <div class="payment-actions">
-                            <button type="button"
-                                    class="btn-pay"
-                                    id="pay-button-moneroo"
-                                    data-annonce-id="{{ $annonce->id }}">
+                            <button type="button" class="btn-pay" id="pay-button-moneroo"
+                                data-annonce-id="{{ $annonce->id }}">
                                 <i class="fas fa-lock"></i>
-                                <span>Payer avec Moneroo - {{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA</span>
+                                <span>Payer la somme de {{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA pour publier l'annonce</span>
                             </button>
-                            <div class="fees-notice">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <strong>Note :</strong> Moneroo ajoute des frais de transaction (environ 2%).
-                            </div>
+
                         </div>
                     </div>
 
@@ -819,162 +836,179 @@
         </div>
     </div>
 
-    <!-- Script FedaPay -->
-    <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
+    <!-- Script FedaPay (commenté car plus utilisé) -->
+    <!-- <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script> -->
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            @if(!session('success') && !session('error'))
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (!session('success') && !session('error'))
 
-            // Switch entre les méthodes de paiement
-            const btnFedapay = document.getElementById('btn-fedapay');
-            const btnMoneroo = document.getElementById('btn-moneroo');
-            const sectionFedapay = document.getElementById('section-fedapay');
-            const sectionMoneroo = document.getElementById('section-moneroo');
+                // Commentaire: Switch de méthodes de paiement désactivé
+                /*
+                const btnFedapay = document.getElementById('btn-fedapay');
+                const btnMoneroo = document.getElementById('btn-moneroo');
+                const sectionFedapay = document.getElementById('section-fedapay');
+                const sectionMoneroo = document.getElementById('section-moneroo');
 
-            if (btnFedapay && btnMoneroo) {
-                btnFedapay.addEventListener('click', function() {
-                    btnFedapay.classList.add('active');
-                    btnMoneroo.classList.remove('active');
-                    sectionFedapay.classList.add('active');
-                    sectionMoneroo.classList.remove('active');
-                });
+                if (btnFedapay && btnMoneroo) {
+                    btnFedapay.addEventListener('click', function() {
+                        btnFedapay.classList.add('active');
+                        btnMoneroo.classList.remove('active');
+                        sectionFedapay.classList.add('active');
+                        sectionMoneroo.classList.remove('active');
+                    });
 
-                btnMoneroo.addEventListener('click', function() {
-                    btnMoneroo.classList.add('active');
-                    btnFedapay.classList.remove('active');
-                    sectionMoneroo.classList.add('active');
-                    sectionFedapay.classList.remove('active');
-                });
-            }
+                    btnMoneroo.addEventListener('click', function() {
+                        btnMoneroo.classList.add('active');
+                        btnFedapay.classList.remove('active');
+                        sectionMoneroo.classList.add('active');
+                        sectionFedapay.classList.remove('active');
+                    });
+                }
+                */
 
-            // Paiement FedaPay
-        // Paiement FedaPay
-const payButtonFedapay = document.getElementById('pay-button-fedapay');
-if (payButtonFedapay) {
-    payButtonFedapay.addEventListener('click', function () {
-        @auth
-        const annonceId = this.dataset.annonceId;
-        const button = this;
-        const originalText = button.innerHTML;
+                // Commentaire: Paiement FedaPay désactivé
+                /*
+                const payButtonFedapay = document.getElementById('pay-button-fedapay');
+                if (payButtonFedapay) {
+                    payButtonFedapay.addEventListener('click', function() {
+                        @auth
+                        const annonceId = this.dataset.annonceId;
+                        const button = this;
+                        const originalText = button.innerHTML;
 
-        // Afficher le chargement
-        button.disabled = true;
-        button.innerHTML = '<span class="loading-spinner"></span> Initialisation...';
+                        // Afficher le chargement
+                        button.disabled = true;
+                        button.innerHTML = '<span class="loading-spinner"></span> Initialisation...';
 
-        // Initialiser la transaction via AJAX
-        fetch(`/annonces/${annonceId}/init-payment`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.token) {
-                // Réinitialiser le bouton
-                button.disabled = false;
-                button.innerHTML = originalText;
+                        // Initialiser la transaction via AJAX
+                        fetch(`/annonces/${annonceId}/init-payment`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success && data.token) {
+                                    // Réinitialiser le bouton
+                                    button.disabled = false;
+                                    button.innerHTML = originalText;
 
-                // Ouvrir le widget FedaPay avec le token
-                const widget = FedaPay.init({
-                    public_key: '{{ config("services.fedapay.public_key") }}',
-                    transaction: {
-                        token: data.token
-                    },
-                    onComplete: function(response) {
-                        if (response.reason === 'CHECKOUT_COMPLETE' || response.reason === 'CHECKOUT COMPLETE') {
-                            // Créer un formulaire pour le callback
-                            const form = document.createElement('form');
-                            form.method = 'POST';
-                            form.action = '{{ route("annonces.payment.callback") }}';
+                                    // Ouvrir le widget FedaPay avec le token
+                                    const widget = FedaPay.init({
+                                        public_key: '{{ config('services.fedapay.public_key') }}',
+                                        transaction: {
+                                            token: data.token
+                                        },
+                                        onComplete: function(response) {
+                                            if (response.reason === 'CHECKOUT_COMPLETE' ||
+                                                response.reason === 'CHECKOUT COMPLETE') {
+                                                // Créer un formulaire pour le callback
+                                                const form = document.createElement('form');
+                                                form.method = 'POST';
+                                                form.action =
+                                                    '{{ route('annonces.payment.callback') }}';
 
-                            const csrf = document.createElement('input');
-                            csrf.type = 'hidden';
-                            csrf.name = '_token';
-                            csrf.value = '{{ csrf_token() }}';
-                            form.appendChild(csrf);
+                                                const csrf = document.createElement(
+                                                'input');
+                                                csrf.type = 'hidden';
+                                                csrf.name = '_token';
+                                                csrf.value = '{{ csrf_token() }}';
+                                                form.appendChild(csrf);
 
-                            const transactionInput = document.createElement('input');
-                            transactionInput.type = 'hidden';
-                            transactionInput.name = 'id';
-                            transactionInput.value = response.transaction.id;
-                            form.appendChild(transactionInput);
+                                                const transactionInput = document
+                                                    .createElement('input');
+                                                transactionInput.type = 'hidden';
+                                                transactionInput.name = 'id';
+                                                transactionInput.value = response
+                                                    .transaction.id;
+                                                form.appendChild(transactionInput);
 
-                            const annonceInput = document.createElement('input');
-                            annonceInput.type = 'hidden';
-                            annonceInput.name = 'annonce_id';
-                            annonceInput.value = annonceId;
-                            form.appendChild(annonceInput);
+                                                const annonceInput = document.createElement(
+                                                    'input');
+                                                annonceInput.type = 'hidden';
+                                                annonceInput.name = 'annonce_id';
+                                                annonceInput.value = annonceId;
+                                                form.appendChild(annonceInput);
 
-                            document.body.appendChild(form);
-                            form.submit();
-                        }
-                    }
-                });
+                                                document.body.appendChild(form);
+                                                form.submit();
+                                            }
+                                        }
+                                    });
 
-                widget.open();
-            } else {
-                alert('Erreur: ' + (data.message || 'Impossible d\'initialiser le paiement'));
-                button.disabled = false;
-                button.innerHTML = originalText;
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Une erreur est survenue lors de l\'initialisation du paiement');
-            button.disabled = false;
-            button.innerHTML = originalText;
-        });
-        @else
-        window.location.href = '{{ route("login") }}';
-        @endauth
-    });
-}
+                                    widget.open();
+                                } else {
+                                    alert('Erreur: ' + (data.message ||
+                                        'Impossible d\'initialiser le paiement'));
+                                    button.disabled = false;
+                                    button.innerHTML = originalText;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Erreur:', error);
+                                alert('Une erreur est survenue lors de l\'initialisation du paiement');
+                                button.disabled = false;
+                                button.innerHTML = originalText;
+                            });
+                        @else
+                            window.location.href = '{{ route('login') }}';
+                        @endauth
+                    });
+                }
+                */
 
-            // Paiement Moneroo
-            const payButtonMoneroo = document.getElementById('pay-button-moneroo');
-            if (payButtonMoneroo) {
-                payButtonMoneroo.addEventListener('click', async function () {
-                    const annonceId = this.dataset.annonceId;
-                    const originalText = this.innerHTML;
+                // Paiement Moneroo (actif)
+                const payButtonMoneroo = document.getElementById('pay-button-moneroo');
+                if (payButtonMoneroo) {
+                    payButtonMoneroo.addEventListener('click', async function() {
+                        @auth
+                        const annonceId = this.dataset.annonceId;
+                        const button = this;
+                        const originalText = button.innerHTML;
 
-                    // Afficher le chargement
-                    this.disabled = true;
-                    this.innerHTML = '<span class="loading-spinner"></span> Initialisation...';
+                        // Afficher le chargement
+                        button.disabled = true;
+                        button.innerHTML = '<span class="loading-spinner"></span> Initialisation...';
 
-                    try {
-                        const response = await fetch(`/annonces/${annonceId}/init-payment-moneroo`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
+                        try {
+                            const response = await fetch(`/annonces/${annonceId}/init-payment-moneroo`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                }
+                            });
+
+                            const data = await response.json();
+
+                            if (data.success && data.checkout_url) {
+                                // Rediriger vers la page de paiement Moneroo
+                                window.location.href = data.checkout_url;
+                            } else {
+                                alert('Erreur: ' + (data.message ||
+                                    'Impossible d\'initialiser le paiement'));
+                                button.disabled = false;
+                                button.innerHTML = originalText;
                             }
-                        });
-
-                        const data = await response.json();
-
-                        if (data.success && data.checkout_url) {
-                            // Rediriger vers la page de paiement Moneroo
-                            window.location.href = data.checkout_url;
-                        } else {
-                            alert('Erreur: ' + (data.message || 'Impossible d\'initialiser le paiement'));
-                            this.disabled = false;
-                            this.innerHTML = originalText;
+                        } catch (error) {
+                            console.error('Erreur:', error);
+                            alert('Une erreur est survenue lors de l\'initialisation du paiement');
+                            button.disabled = false;
+                            button.innerHTML = originalText;
                         }
-                    } catch (error) {
-                        console.error('Erreur:', error);
-                        alert('Une erreur est survenue lors de l\'initialisation du paiement');
-                        this.disabled = false;
-                        this.innerHTML = originalText;
-                    }
-                });
-            }
+                        @else
+                            window.location.href = '{{ route('login') }}';
+                        @endauth
+                    });
+                }
             @endif
         });
     </script>
 </body>
+
 </html>

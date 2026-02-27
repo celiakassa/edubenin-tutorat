@@ -42,10 +42,9 @@ return [
         'mode' => env('FEDAPAY_MODE', 'sandbox'),
     ],
 
-    'moneroo' => [
-        'public_key' => env('MONEROO_PUBLIC_KEY'),
-        'secret_key' => env('MONEROO_SECRET_KEY'),
-        'environment' => env('MONEROO_ENVIRONMENT', 'sandbox'),
-    ],
+  'moneroo' => [
+    'secret_key' => 'pvk_sandbox_4zyym7|01KH25P31KSBEX6E1K466WSB9M',
+    'environment' => env('MONEROO_ENVIRONMENT', 'sandbox'),
+],
 
 ];

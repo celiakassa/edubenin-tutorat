@@ -88,12 +88,12 @@
 
 
 
-<header id="header" class="header d-flex align-items-center fixed-top" style="background-color: blue;">
+<header id="header" class="header d-flex align-items-center fixed-top" style="background-color: #0B69F1;">
     <div class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between"
         style="margin-bottom: 35px;">
 
         <!-- Logo -->
-        <a href="{{ url('/') }}" class="logo d-flex align-items-center text-white text-decoration-none">
+        <a href="{{ url('/') }}" class="logo d-flex align-items-center text-white text-decoration-none" style="background-color: #0B69F1;">
             <h1 class="sitename fw-bold mb-0">Kopiao</h1>
         </a>
 

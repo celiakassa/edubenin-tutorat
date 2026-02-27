@@ -9,8 +9,6 @@
     @include('dashboard.partials.profile-banner')
 
   
-
-
 @endsection
 
 @push('scripts')

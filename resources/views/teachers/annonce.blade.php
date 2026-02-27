@@ -13,10 +13,6 @@
                 <h2 class="header-title">Trouvez votre prochaine mission</h2>
                 <p class="header-subtitle">{{ $annonces->total() }} annonce(s) disponible(s)</p>
             </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/xandrothedev
         </div>
     </div>
 
@@ -26,10 +22,6 @@
             <div class="annonce-card" data-domaine="{{ $annonce->domaine }}">
                 <!-- Badge de statut -->
                 <div class="annonce-badges">
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/xandrothedev
                     <span class="badge badge-format">
                         <i
                             class="fas fa-{{ $annonce->format === 'en_ligne' ? 'laptop' : ($annonce->format === 'presentiel' ? 'user-friends' : 'globe') }}"></i>

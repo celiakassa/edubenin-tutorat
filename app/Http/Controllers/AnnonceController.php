@@ -111,9 +111,8 @@ class AnnonceController extends Controller
         $annonce->disponibilite = $request->disponibilite;
         $annonce->format = $request->format;
 
-        // Calcul acompte
-        $percentage = rand(20, 30) / 100;
-        $annonce->acompte = round($annonce->budget * $percentage, 2);
+        // Calcul acompte FIXE à 30% (plus aléatoire)
+        $annonce->acompte = round($annonce->budget * 0.3, 2);
 
         // Statut initial
         $annonce->status = 'en_attente';
@@ -299,9 +298,6 @@ class AnnonceController extends Controller
                 return response()->json(['status' => 'ignored']);
             }
 
-            // Traiter le webhook si nécessaire
-            // ...
-
             return response()->json(['status' => 'success']);
 
         } catch (\Exception $e) {
@@ -310,11 +306,23 @@ class AnnonceController extends Controller
         }
     }
 
-    // ==================== MÉTHODES MONEROO ====================
+    // ==================== MÉTHODES MONEROO CORRIGÉES ====================
 
     // Initialiser le paiement Moneroo
     public function initPaymentMoneroo(Request $request, $id)
     {
+
+    // Vérification debug
+Log::info('Moneroo config check', [
+    'secret_key_from_env' => env('MONEROO_SECRET_KEY'),
+    'secret_key_from_config' => config('services.moneroo.secret_key'),
+    'config_array' => config('services.moneroo'),
+]);
+
+if (!config('services.moneroo.secret_key')) {
+    throw new \Exception('Config Moneroo: ' . json_encode(config('services.moneroo')));
+}
+
         $annonce = Annonce::findOrFail($id);
         $user = Auth::user();
 
@@ -332,11 +340,13 @@ class AnnonceController extends Controller
                 throw new \Exception('La clé secrète Moneroo n\'est pas configurée');
             }
 
+            // IMPORTANT: return_url doit être sans paramètre supplémentaire
+            // Moneroo ajoutera ?paymentId=xxx automatiquement
             $paymentData = [
                 'amount' => (int) $annonce->acompte,
                 'currency' => 'XOF',
                 'description' => 'Acompte pour annonce: ' . $annonce->domaine,
-                'return_url' => route('annonces.payment.callback.moneroo', ['annonce_id' => $annonce->id]),
+                'return_url' => route('annonces.payment.callback.moneroo'), // Pas d'annonce_id ici !
                 'customer' => [
                     'email' => $user->email,
                     'first_name' => $user->firstname,
@@ -379,16 +389,14 @@ class AnnonceController extends Controller
         }
     }
 
-    // Callback de paiement Moneroo
+    // Callback de paiement Moneroo (corrigé - sans paramètre annonce_id)
     public function handlePaymentMoneroo(Request $request)
     {
         $user = Auth::user();
         $transactionId = $request->query('paymentId');
-        $annonceId = $request->query('annonce_id');
 
         Log::info('Payment success callback Moneroo', [
             'transaction_id' => $transactionId,
-            'annonce_id' => $annonceId,
             'all_params' => $request->all()
         ]);
 
@@ -412,7 +420,15 @@ class AnnonceController extends Controller
             // Vérifier si déjà traité
             if (isset($payment->is_processed) && $payment->is_processed === true) {
                 Log::info('Payment already processed by Moneroo');
-                return redirect()->route('annonces.show', $annonceId)
+
+                // Récupérer l'annonce_id depuis les métadonnées du paiement existant
+                $existingPayment = Payment::where('moneroo_payment_id', $transactionId)->first();
+                if ($existingPayment && $existingPayment->annonce_id) {
+                    return redirect()->route('annonces.show', $existingPayment->annonce_id)
+                        ->with('info', 'Ce paiement a déjà été traité.');
+                }
+
+                return redirect()->route('annonces.index')
                     ->with('info', 'Ce paiement a déjà été traité.');
             }
 
@@ -421,6 +437,14 @@ class AnnonceController extends Controller
 
             if (strtolower($status) === 'success') {
                 Log::info('Starting annonce payment processing');
+
+                // Récupérer l'annonce_id depuis les métadonnées du paiement
+                $paymentData = json_decode(json_encode($payment), true);
+                $annonceId = $paymentData['metadata']['annonce_id'] ?? null;
+
+                if (!$annonceId) {
+                    throw new \Exception('Annonce ID non trouvé dans les métadonnées');
+                }
 
                 $this->processAnnoncePaymentMoneroo($payment, $transactionId, $annonceId);
 
@@ -437,7 +461,7 @@ class AnnonceController extends Controller
             } else {
                 Log::warning('Payment not successful', ['status' => $status]);
 
-                return redirect()->route('annonces.payment', $annonceId)
+                return redirect()->route('annonces.payment', $annonceId ?? '')
                     ->with('error', 'Le paiement n\'a pas été validé. Statut: ' . $status);
             }
 
@@ -448,7 +472,7 @@ class AnnonceController extends Controller
                 'error_line' => $e->getLine(),
             ]);
 
-            return redirect()->route('annonces.payment', $annonceId)
+            return redirect()->route('annonces.index')
                 ->with('error', 'Erreur lors de la vérification du paiement.');
         }
     }
@@ -599,8 +623,6 @@ class AnnonceController extends Controller
         try {
             $payload = $request->all();
 
-            // Vérifier la signature (à implémenter selon doc Moneroo)
-
             $transactionId = $payload['data']['id'] ?? null;
             $status = $payload['data']['status'] ?? null;
             $metadata = $payload['data']['metadata'] ?? [];
@@ -705,11 +727,70 @@ class AnnonceController extends Controller
         }
 
         $request->validate([
-            'domaine' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string', 'min:10'],
-            'budget' => ['required', 'numeric', 'min:1000'],
-            'disponibilite' => ['required', 'date', 'after:now'],
-            'format' => ['required', 'in:presentiel,en_ligne,hybrid']
+            'domaine' => 'required|string|max:255',
+            'description' => 'required|string|min:10',
+            'budget' => 'required|numeric|min:1000|max:1000000000',
+            'disponibilite' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (empty(trim($value))) {
+                        $fail('Veuillez ajouter au moins un créneau de disponibilité.');
+                        return;
+                    }
+
+                    $lines = explode("\n", trim($value));
+                    $validFormat = true;
+                    $errors = [];
+
+                    foreach ($lines as $index => $line) {
+                        $line = trim($line);
+                        if (!empty($line)) {
+                            if (!preg_match('/^([a-zA-Zéèêëàâäîïôöùûüç\s]+) (\d{2}:\d{2}) - (\d{2}:\d{2})$/', $line, $matches)) {
+                                $validFormat = false;
+                                $errors[] = "Ligne " . ($index + 1) . ": Format incorrect. Utilisez: 'jour HH:MM - HH:MM'";
+                                continue;
+                            }
+
+                            $jour = trim($matches[1]);
+                            $startTime = $matches[2];
+                            $endTime = $matches[3];
+
+                            if (!preg_match('/^(\d{2}):(\d{2})$/', $startTime, $timeStart) ||
+                                !preg_match('/^(\d{2}):(\d{2})$/', $endTime, $timeEnd)) {
+                                $validFormat = false;
+                                $errors[] = "Ligne " . ($index + 1) . ": Format d'heure incorrect";
+                                continue;
+                            }
+
+                            $startHour = (int)$timeStart[1];
+                            $startMinute = (int)$timeStart[2];
+                            $endHour = (int)$timeEnd[1];
+                            $endMinute = (int)$timeEnd[2];
+
+                            if ($startHour < 0 || $startHour > 23 || $endHour < 0 || $endHour > 23 ||
+                                $startMinute < 0 || $startMinute > 59 || $endMinute < 0 || $endMinute > 59) {
+                                $validFormat = false;
+                                $errors[] = "Ligne " . ($index + 1) . ": Heures invalides";
+                                continue;
+                            }
+
+                            $startTotal = $startHour * 60 + $startMinute;
+                            $endTotal = $endHour * 60 + $endMinute;
+
+                            if ($endTotal <= $startTotal) {
+                                $validFormat = false;
+                                $errors[] = "Ligne " . ($index + 1) . ": L'heure de fin doit être après l'heure de début";
+                            }
+                        }
+                    }
+
+                    if (!$validFormat) {
+                        $fail('Erreurs dans les disponibilités: ' . implode(', ', $errors));
+                    }
+                }
+            ],
+            'format' => 'required|in:presentiel,en_ligne,hybrid'
         ]);
 
         $annonce->domaine = $request->domaine;
@@ -718,10 +799,9 @@ class AnnonceController extends Controller
         $annonce->disponibilite = $request->disponibilite;
         $annonce->format = $request->format;
 
-        // Recalculer l'acompte si le budget a changé
+        // Recalculer l'acompte si le budget a changé (toujours 30%)
         if ($annonce->isDirty('budget')) {
-            $percentage = rand(20, 30) / 100;
-            $annonce->acompte = $request->budget * $percentage;
+            $annonce->acompte = $request->budget * 0.3;
         }
 
         $annonce->save();

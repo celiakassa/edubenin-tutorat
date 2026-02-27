@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Mêmes styles que dans create.blade.php */
         :root {
             --primary-color: #0351BC;
             --primary-light: #4a7fd4;
@@ -20,6 +21,8 @@
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --danger-dark: #991b1b;
         }
 
         * {
@@ -171,6 +174,17 @@
             border-right: 3px solid var(--primary-color);
         }
 
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .menu-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
         /* Main Content */
         .main-content {
             flex: 1;
@@ -182,7 +196,6 @@
             justify-content: center;
         }
 
-        /* Edit Form Container */
         .edit-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -258,11 +271,6 @@
             align-items: center;
             gap: 8px;
             font-weight: 600;
-        }
-
-        .form-section h2 i {
-            font-size: 18px;
-            width: 24px;
         }
 
         .form-group {
@@ -419,12 +427,6 @@
             border-radius: 8px;
             font-size: 14px;
             background: var(--white);
-        }
-
-        .disponibilite-fields select:focus,
-        .disponibilite-fields input:focus {
-            outline: none;
-            border-color: var(--primary-color);
         }
 
         .add-disponibilite-btn {
@@ -601,7 +603,126 @@
             font-size: 14px;
         }
 
-        /* Responsive */
+        /* Error Modal */
+        .error-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .error-modal {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transform: translateY(0);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .error-modal-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--danger-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 30px;
+            color: var(--danger-dark);
+        }
+
+        .error-modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .error-modal-message {
+            color: var(--dark-gray);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .error-modal-details {
+            background: var(--light-gray);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--danger);
+            display: none;
+        }
+
+        .error-modal-detail-item {
+            display: flex;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        .error-modal-detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .error-modal-detail-icon {
+            color: var(--danger);
+            font-size: 14px;
+            margin-top: 3px;
+        }
+
+        .error-modal-detail-text {
+            font-size: 13px;
+            color: var(--text-dark);
+            flex: 1;
+        }
+
+        .error-modal-close {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .error-modal-close:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -637,14 +758,11 @@
 </head>
 <body>
     <!-- Navigation Sidebar -->
-    <!-- Navigation Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
             <a href="{{ route('dashboardUser') }}" style="text-decoration: none;">
                 <div class="platform-logo">
-                    <div class="logo-icon">
-                        KP
-                    </div>
+                    <div class="logo-icon">KP</div>
                     <div class="platform-name">Kopiao</div>
                 </div>
             </a>
@@ -672,35 +790,49 @@
 
         <div class="sidebar-stats">
             <div class="stat-item">
-                <span>Statut</span>
-                <span>Étudiant</span>
+                <span class="stat-label">Statut</span>
+                <span class="stat-value">Étudiant</span>
             </div>
             <div class="stat-item">
-                <span>Crédit</span>
-                <span>-</span>
+                <span class="stat-label">Crédit</span>
+                <span class="stat-value">-</span>
             </div>
         </div>
 
         <div class="sidebar-menu">
             <a href="{{ route('dashboardUser') }}" class="menu-item">
                 <i class="fas fa-home"></i>
-                <span>Tableau de bord</span>
+                <span class="menu-text">Tableau de bord</span>
             </a>
             <a href="{{ route('CompleterProfilUser.show') }}" class="menu-item">
                 <i class="fas fa-user-edit"></i>
-                <span>Mon profil</span>
+                <span class="menu-text">Mon profil</span>
             </a>
             <a href="{{ route('annonces.index') }}" class="menu-item">
                 <i class="fas fa-bullhorn"></i>
-                <span>Mes annonces</span>
+                <span class="menu-text">Mes annonces</span>
             </a>
             <a href="{{ route('annonces.create') }}" class="menu-item">
                 <i class="fas fa-plus-circle"></i>
-                <span>Nouvelle annonce</span>
+                <span class="menu-text">Nouvelle annonce</span>
             </a>
         </div>
     </div>
 
+    <!-- Error Modal -->
+    <div class="error-modal-overlay" id="errorModal">
+        <div class="error-modal">
+            <div class="error-modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="error-modal-title" id="errorModalTitle">Erreur de validation</h3>
+            <div class="error-modal-message" id="errorModalMessage"></div>
+            <div class="error-modal-details" id="errorModalDetails"></div>
+            <button class="error-modal-close" onclick="closeErrorModal()">
+                <i class="fas fa-times"></i> Compris
+            </button>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -782,17 +914,12 @@
                             Ajoutez vos créneaux de disponibilité en sélectionnant le jour et les heures
                         </small>
 
-                        <!-- Container pour les créneaux -->
-                        <div id="disponibilite-container">
-                            <!-- Les créneaux seront ajoutés ici dynamiquement -->
-                        </div>
+                        <div id="disponibilite-container"></div>
 
-                        <!-- Bouton pour ajouter un créneau -->
                         <button type="button" id="add-disponibilite" class="add-disponibilite-btn">
                             <i class="fas fa-plus"></i> Ajouter un créneau
                         </button>
 
-                        <!-- Prévisualisation -->
                         <div class="disponibilite-preview" id="disponibilite-preview">
                             <h4><i class="fas fa-eye"></i> Prévisualisation</h4>
                             <ul class="disponibilite-list" id="preview-list">
@@ -800,7 +927,6 @@
                             </ul>
                         </div>
 
-                        <!-- Champ caché pour stocker les disponibilités formatées -->
                         <input type="hidden" name="disponibilite" id="disponibilite-input" value="{{ old('disponibilite', $annonce->disponibilite) }}">
 
                         @error('disponibilite')
@@ -825,7 +951,6 @@
                         @enderror
                     </div>
 
-                    <!-- Budget Information -->
                     <div class="budget-info">
                         <h3><i class="fas fa-info-circle"></i> Information sur l'acompte</h3>
                         <div class="budget-details">
@@ -834,13 +959,13 @@
                                 <div class="budget-value">{{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA</div>
                             </div>
                             <div class="budget-item">
-                                <div class="budget-label">Nouvel acompte estimé</div>
-                                <div class="budget-value" id="newDeposit">0 FCFA</div>
+                                <div class="budget-label">Nouvel acompte (30%)</div>
+                                <div class="budget-value" id="newDeposit">{{ number_format($annonce->budget * 0.3, 0, ',', ' ') }} FCFA</div>
                             </div>
                         </div>
                         <p style="font-size: 12px; color: var(--dark-gray); margin-top: 10px;">
                             <i class="fas fa-exclamation-triangle"></i>
-                            L'acompte sera recalculé (20-30% du nouveau budget) lors de la sauvegarde.
+                            L'acompte est fixé à <strong>30%</strong> du budget total.
                         </p>
                     </div>
                 </div>
@@ -865,17 +990,84 @@
         const disponibiliteContainer = document.getElementById('disponibilite-container');
         const disponibiliteInput = document.getElementById('disponibilite-input');
         const previewList = document.getElementById('preview-list');
+        const errorModal = document.getElementById('errorModal');
+        const errorModalTitle = document.getElementById('errorModalTitle');
+        const errorModalMessage = document.getElementById('errorModalMessage');
+        const errorModalDetails = document.getElementById('errorModalDetails');
 
-        // Fonction pour formater l'heure (HH:MM)
+        // Fonctions utilitaires
         function formatTime(time) {
             if (!time) return '00:00';
             const [hours, minutes] = time.split(':');
             return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
         }
 
-        // Fonction pour générer un ID unique
         function generateId() {
             return 'disp_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        }
+
+        function formatCurrency(amount) {
+            return amount.toLocaleString('fr-FR', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+
+        // Fonction pour afficher l'erreur de façon stylisée
+        function showErrorModal(title, message, details = []) {
+            errorModalTitle.textContent = title;
+            errorModalMessage.textContent = message;
+
+            if (details.length > 0) {
+                let detailsHtml = '';
+                details.forEach(detail => {
+                    detailsHtml += `
+                        <div class="error-modal-detail-item">
+                            <div class="error-modal-detail-icon">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div class="error-modal-detail-text">${detail}</div>
+                        </div>
+                    `;
+                });
+                errorModalDetails.innerHTML = detailsHtml;
+                errorModalDetails.style.display = 'block';
+            } else {
+                errorModalDetails.style.display = 'none';
+            }
+
+            errorModal.style.display = 'flex';
+        }
+
+        // Fonction pour fermer l'erreur
+        window.closeErrorModal = function() {
+            errorModal.style.display = 'none';
+        }
+
+        errorModal.addEventListener('click', function(e) {
+            if (e.target === errorModal) {
+                closeErrorModal();
+            }
+        });
+
+        // Fonction pour vérifier les doublons
+        function checkDuplicate(jour, debut, fin, currentId = null) {
+            const items = disponibiliteContainer.querySelectorAll('.disponibilite-item');
+            let duplicates = [];
+
+            items.forEach(item => {
+                if (currentId && item.id === currentId) return;
+
+                const itemJour = item.querySelector('.jour-select').value;
+                const itemDebut = item.querySelector('.heure-debut').value;
+                const itemFin = item.querySelector('.heure-fin').value;
+
+                if (itemJour === jour && itemDebut === debut && itemFin === fin) {
+                    duplicates.push(item);
+                }
+            });
+
+            return duplicates.length > 0;
         }
 
         // Fonction pour créer un nouvel élément de disponibilité
@@ -898,7 +1090,7 @@
                     </button>
                 </div>
                 <div class="disponibilite-fields">
-                    <select class="jour-select" onchange="updatePreview()">
+                    <select class="jour-select" onchange="validateAndUpdate('${id}')">
                         <option value="">Sélectionner un jour</option>
                         <option value="lundi" ${jour === 'lundi' ? 'selected' : ''}>Lundi</option>
                         <option value="mardi" ${jour === 'mardi' ? 'selected' : ''}>Mardi</option>
@@ -908,8 +1100,8 @@
                         <option value="samedi" ${jour === 'samedi' ? 'selected' : ''}>Samedi</option>
                         <option value="dimanche" ${jour === 'dimanche' ? 'selected' : ''}>Dimanche</option>
                     </select>
-                    <input type="time" class="heure-debut" value="${debut}" onchange="updatePreview()">
-                    <input type="time" class="heure-fin" value="${fin}" onchange="updatePreview()">
+                    <input type="time" class="heure-debut" value="${debut}" onchange="validateAndUpdate('${id}')">
+                    <input type="time" class="heure-fin" value="${fin}" onchange="validateAndUpdate('${id}')">
                 </div>
             `;
 
@@ -917,12 +1109,11 @@
         }
 
         // Fonction pour supprimer un créneau
-        function removeDisponibilite(id) {
+        window.removeDisponibilite = function(id) {
             const element = document.getElementById(id);
             if (element) {
                 element.remove();
                 disponibiliteCounter--;
-                // Renumérotation
                 const items = disponibiliteContainer.querySelectorAll('.disponibilite-item');
                 items.forEach((item, index) => {
                     const title = item.querySelector('.disponibilite-title');
@@ -935,16 +1126,40 @@
             }
         }
 
-        // Fonction pour mettre à jour la prévisualisation et le champ caché
+        // Fonction pour valider et mettre à jour
+        function validateAndUpdate(itemId) {
+            const item = document.getElementById(itemId);
+            if (!item) return;
+
+            const jour = item.querySelector('.jour-select').value;
+            const heureDebut = item.querySelector('.heure-debut').value;
+            const heureFin = item.querySelector('.heure-fin').value;
+
+            if (jour && heureDebut && heureFin) {
+                if (checkDuplicate(jour, heureDebut, heureFin, itemId)) {
+                    item.querySelector('.jour-select').value = '';
+                    item.querySelector('.heure-debut').value = '';
+                    item.querySelector('.heure-fin').value = '';
+                    showErrorModal(
+                        'Créneau en double',
+                        'Ce créneau existe déjà. Veuillez choisir un autre horaire.',
+                        []
+                    );
+                }
+            }
+
+            updatePreview();
+        }
+
+        // Fonction pour mettre à jour la prévisualisation
         function updatePreview() {
             const items = disponibiliteContainer.querySelectorAll('.disponibilite-item');
             const disponibilites = [];
 
             items.forEach(item => {
-                const jourSelect = item.querySelector('.jour-select');
+                const jour = item.querySelector('.jour-select').value;
                 const heureDebut = item.querySelector('.heure-debut').value;
                 const heureFin = item.querySelector('.heure-fin').value;
-                const jour = jourSelect ? jourSelect.value : '';
 
                 if (jour && heureDebut && heureFin) {
                     disponibilites.push({
@@ -955,7 +1170,6 @@
                 }
             });
 
-            // Mettre à jour la prévisualisation
             if (disponibilites.length > 0) {
                 previewList.innerHTML = '';
                 disponibilites.forEach(disp => {
@@ -970,7 +1184,6 @@
                 previewList.innerHTML = '<li class="text-muted">Aucun créneau ajouté</li>';
             }
 
-            // Mettre à jour le champ caché avec le format texte
             const textDisponibilites = disponibilites.map(disp =>
                 `${disp.jour} ${disp.debut} - ${disp.fin}`
             ).join('\n');
@@ -978,173 +1191,128 @@
             disponibiliteInput.value = textDisponibilites;
         }
 
-        // Ajouter un créneau au clic sur le bouton
+        // Ajouter un créneau
         document.getElementById('add-disponibilite').addEventListener('click', function() {
+            const items = disponibiliteContainer.querySelectorAll('.disponibilite-item');
+
+            if (items.length > 0) {
+                const lastItem = items[items.length - 1];
+                const jour = lastItem.querySelector('.jour-select').value;
+                const debut = lastItem.querySelector('.heure-debut').value;
+                const fin = lastItem.querySelector('.heure-fin').value;
+
+                if (!jour || !debut || !fin) {
+                    showErrorModal(
+                        'Créneau incomplet',
+                        'Veuillez d\'abord compléter le créneau actuel avant d\'en ajouter un nouveau.',
+                        []
+                    );
+                    return;
+                }
+            }
+
             const newItem = createDisponibiliteItem();
             disponibiliteContainer.appendChild(newItem);
             updatePreview();
         });
 
-        // Calcul automatique du nouvel acompte estimé
-        document.getElementById('budget').addEventListener('input', function() {
-            const budget = parseFloat(this.value) || 0;
-            const depositPercentage = 20 + Math.floor(Math.random() * 11); // 20 à 30%
-            const depositAmount = (budget * depositPercentage) / 100;
-
-            document.getElementById('newDeposit').textContent =
-                formatCurrency(depositAmount) + ' FCFA';
-        });
-
-        function formatCurrency(amount) {
-            return amount.toLocaleString('fr-FR', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            });
-        }
-
         // Validation du formulaire
         document.getElementById('editForm').addEventListener('submit', function(e) {
-            // Vérifier les disponibilités
             const items = disponibiliteContainer.querySelectorAll('.disponibilite-item');
             let isValid = true;
-            let errorMessage = '';
+            let errors = [];
+            let seenSlots = new Set();
 
             items.forEach((item, index) => {
-                const jourSelect = item.querySelector('.jour-select');
-                const jour = jourSelect ? jourSelect.value : '';
+                const jour = item.querySelector('.jour-select').value;
                 const heureDebut = item.querySelector('.heure-debut').value;
                 const heureFin = item.querySelector('.heure-fin').value;
 
                 if (!jour || !heureDebut || !heureFin) {
                     isValid = false;
-                    errorMessage = `Veuillez remplir tous les champs du créneau ${index + 1}`;
+                    errors.push(`Le créneau ${index + 1} est incomplet`);
                 } else if (heureFin <= heureDebut) {
                     isValid = false;
-                    errorMessage = `L'heure de fin doit être après l'heure de début dans le créneau ${index + 1}`;
+                    errors.push(`Créneau ${index + 1}: L'heure de fin doit être après l'heure de début`);
+                } else {
+                    const slotKey = `${jour}-${heureDebut}-${heureFin}`;
+                    if (seenSlots.has(slotKey)) {
+                        isValid = false;
+                        errors.push(`Créneau ${index + 1}: Ce créneau existe déjà (${jour} ${heureDebut} - ${heureFin})`);
+                    } else {
+                        seenSlots.add(slotKey);
+                    }
                 }
             });
 
             if (items.length === 0) {
                 isValid = false;
-                errorMessage = 'Veuillez ajouter au moins un créneau de disponibilité';
+                errors.push('Vous devez ajouter au moins un créneau de disponibilité');
+            }
+
+            const budgetInput = document.getElementById('budget');
+            if (parseFloat(budgetInput.value) < 1000) {
+                isValid = false;
+                errors.push('Le budget minimum est de 1000 FCFA');
             }
 
             if (!isValid) {
                 e.preventDefault();
-                alert(errorMessage);
-                return false;
-            }
-
-            // Vérifier le budget
-            const budgetInput = document.getElementById('budget');
-            if (parseFloat(budgetInput.value) < 1000) {
-                e.preventDefault();
-                alert('Le budget minimum est de 1000 FCFA.');
-                budgetInput.focus();
+                showErrorModal(
+                    'Erreur de validation',
+                    'Veuillez corriger les erreurs suivantes :',
+                    errors
+                );
                 return false;
             }
 
             return true;
         });
 
-        // Fonction pour extraire les données d'une ligne de disponibilité
-        function parseDisponibiliteLine(line) {
-            line = line.trim();
-
-            // Regex pour capturer: jour HH:MM - HH:MM
-            const regex = /^(\w+)\s+(\d{1,2}):(\d{2})\s+-\s+(\d{1,2}):(\d{2})$/;
-            const match = line.match(regex);
-
-            if (!match) return null;
-
-            const [, jour, debutHeure, debutMinute, finHeure, finMinute] = match;
-
-            // Formater les heures avec 2 chiffres
-            const debut = `${debutHeure.padStart(2, '0')}:${debutMinute}`;
-            const fin = `${finHeure.padStart(2, '0')}:${finMinute}`;
-
-            return {
-                jour: jour.toLowerCase(),
-                debut: debut,
-                fin: fin
-            };
-        }
-
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("Initialisation du formulaire d'édition...");
-
-            // Charger les disponibilités existantes
             const existingDisponibilite = @json($annonce->disponibilite);
-            console.log("Disponibilités existantes:", existingDisponibilite);
 
             if (existingDisponibilite && existingDisponibilite.trim()) {
-                // Séparer par les sauts de ligne
                 const lines = existingDisponibilite.split('\n');
-                console.log("Lignes trouvées:", lines);
+                let seenSlots = new Set();
 
-                // Ajouter un délai pour s'assurer que le DOM est prêt
-                setTimeout(() => {
-                    lines.forEach(line => {
-                        const trimmedLine = line.trim();
-                        if (trimmedLine) {
-                            console.log("Traitement de la ligne:", trimmedLine);
+                disponibiliteContainer.innerHTML = '';
+                disponibiliteCounter = 0;
 
-                            const disponibilite = parseDisponibiliteLine(trimmedLine);
-                            if (disponibilite) {
-                                console.log("Disponibilité parsée:", disponibilite);
+                lines.forEach(line => {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine) {
+                        const match = trimmedLine.match(/^(\w+)\s+(\d{2}:\d{2})\s+-\s+(\d{2}:\d{2})$/);
+                        if (match) {
+                            const [, jour, debut, fin] = match;
+                            const slotKey = `${jour.toLowerCase()}-${debut}-${fin}`;
 
-                                const newItem = createDisponibiliteItem(
-                                    disponibilite.jour,
-                                    disponibilite.debut,
-                                    disponibilite.fin
-                                );
-
+                            if (!seenSlots.has(slotKey)) {
+                                seenSlots.add(slotKey);
+                                const newItem = createDisponibiliteItem(jour.toLowerCase(), debut, fin);
                                 disponibiliteContainer.appendChild(newItem);
-                            } else {
-                                console.warn("Ligne non parsée:", trimmedLine);
                             }
                         }
-                    });
-
-                    // Mettre à jour la prévisualisation
-                    updatePreview();
-
-                    // Si aucun créneau n'a été ajouté, en ajouter un par défaut
-                    if (disponibiliteContainer.children.length === 0) {
-                        console.log("Aucun créneau trouvé, ajout d'un créneau par défaut");
-                        const addButton = document.getElementById('add-disponibilite');
-                        if (addButton) {
-                            addButton.click();
-                        }
                     }
-
-                    console.log("Nombre de créneaux créés:", disponibiliteContainer.children.length);
-                }, 100);
-            } else {
-                // Ajouter un créneau par défaut si vide
-                console.log("Aucune disponibilité existante, ajout d'un créneau par défaut");
-                const addButton = document.getElementById('add-disponibilite');
-                if (addButton) {
-                    setTimeout(() => {
-                        addButton.click();
-                    }, 100);
-                }
-            }
-
-            // Mettre à jour l'affichage du budget au chargement
-            const budgetInput = document.getElementById('budget');
-            if (budgetInput.value) {
-                budgetInput.dispatchEvent(new Event('input'));
-            }
-
-            // Vérifier que le bouton fonctionne
-            const addButton = document.getElementById('add-disponibilite');
-            if (addButton) {
-                addButton.addEventListener('click', function() {
-                    console.log("Bouton Ajouter un créneau cliqué");
                 });
+
+                updatePreview();
+
+                if (disponibiliteContainer.children.length === 0) {
+                    const addButton = document.getElementById('add-disponibilite');
+                    if (addButton) addButton.click();
+                }
+            } else {
+                const addButton = document.getElementById('add-disponibilite');
+                if (addButton) addButton.click();
             }
+
+            const budgetInput = document.getElementById('budget');
+            budgetInput.addEventListener('input', function() {
+                const budget = parseFloat(this.value) || 0;
+                document.getElementById('newDeposit').textContent = formatCurrency(budget * 0.3) + ' FCFA';
+            });
         });
     </script>
 </body>

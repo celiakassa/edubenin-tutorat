@@ -24,347 +24,504 @@
     </a>
 </div>
 
-{{-- Section Conseils et Bonnes Pratiques - UNIQUEMENT POUR LES ÉTUDIANTS --}}
+{{-- Section Tableau de bord - UNIQUEMENT POUR LES ÉTUDIANTS --}}
 @if (auth()->user()->isEtudiant())
-    <div class="profile-banner mt-4" style="padding: 30px;">
 
-        {{-- Grille de conseils avec container-fluid pour prendre toute la largeur --}}
-        <div class="container-fluid p-0">
-            <div class="row" style="margin-left: -15px; margin-right: -15px;">
-                {{-- Conseil 1: Création d'annonce efficace --}}
-                <div class="col-md-6 col-lg-4 mb-4" style="padding-left: 15px; padding-right: 15px;">
-                    <div class="conseil-card p-4 h-100"
-                        style="background: linear-gradient(to bottom right, #faf5ff, #ffffff); border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease;">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <h4 class="h6 font-weight-bold mb-0"
-                                style="color: #2c3e50; display: flex; align-items: center;">
-                                <i class="fas fa-bullhorn mr-2" style="color: #9333ea;"></i>
-                                Créer une Annonce Efficace
-                            </h4>
-                            <div
-                                style="width: 40px; height: 40px; background: #f3e8ff; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-lightbulb" style="color: #7e22ce;"></i>
-                            </div>
-                        </div>
+@php
+    $userId = auth()->id();
+    $annoncesPubliees      = \App\Models\Annonce::where('student_id', $userId)->where('status', 'publiée')->count();
+    $annoncesEnAttente     = \App\Models\Annonce::where('student_id', $userId)->where('status', 'en_attente')->count();
+    $annoncesAttribuees    = \App\Models\Annonce::where('student_id', $userId)->where('status', 'attribuée')->count();
+    $annoncesRefusees      = \App\Models\Annonce::where('student_id', $userId)->where('status', 'refusée')->count();
+    $totalAnnonces         = \App\Models\Annonce::where('student_id', $userId)->count();
+    $annoncesAvecCandidatures = \App\Models\Annonce::where('student_id', $userId)->has('candidatures')->count();
+    $tauxReponse           = $annoncesPubliees > 0 ? round(($annoncesAvecCandidatures / $annoncesPubliees) * 100) : 0;
+    $recentAnnonces        = \App\Models\Annonce::where('student_id', $userId)
+                                ->withCount('candidatures')
+                                ->orderBy('created_at', 'desc')
+                                ->limit(6)
+                                ->get();
+@endphp
 
-                        <ul class="list-unstyled mb-3" style="font-size: 0.9rem;">
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-check-circle text-success mr-2 mt-1"></i>
-                                <span><strong>Soyez précis</strong> sur vos besoins de formation</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-check-circle text-success mr-2 mt-1"></i>
-                                <span><strong>Indiquez votre budget</strong> réaliste (acompte 20-30%)</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-check-circle text-success mr-2 mt-1"></i>
-                                <span><strong>Précisez vos disponibilités</strong> (date/heure)</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-check-circle text-success mr-2 mt-1"></i>
-                                <span><strong>Choisissez le format</strong> : présentiel ou en ligne</span>
-                            </li>
-                        </ul>
+<style>
+/* ── Variables ── */
+:root {
+    --etu-primary:       #0351BC;
+    --etu-primary-light: rgba(3,81,188,0.08);
+    --etu-success:       #28a745;
+    --etu-success-light: rgba(40,167,69,0.08);
+    --etu-warning:       #f59e0b;
+    --etu-warning-light: rgba(245,158,11,0.08);
+    --etu-info:          #17a2b8;
+    --etu-info-light:    rgba(23,162,184,0.08);
+    --etu-danger:        #dc3545;
+    --etu-danger-light:  rgba(220,53,69,0.08);
+    --etu-purple:        #6f42c1;
+    --etu-purple-light:  rgba(111,66,193,0.08);
+    --etu-teal:          #20c997;
+    --etu-teal-light:    rgba(32,201,151,0.08);
+    --etu-gray:          #6c757d;
+    --etu-border:        #e9ecef;
+    --etu-radius:        16px;
+    --etu-shadow:        0 2px 12px rgba(0,0,0,0.06);
+    --etu-shadow-hover:  0 8px 24px rgba(0,0,0,0.10);
+}
 
-                        <div class="p-2 text-center" style="background: #f3e8ff; border-radius: 8px;">
-                            <small style="color: #6b21a8;">
-                                <i class="fas fa-info-circle"></i>
-                                Plus votre annonce est détaillée, plus vous recevrez de candidatures qualifiées
-                            </small>
-                        </div>
-                    </div>
+/* ── Wrapper général ── */
+.etu-dashboard {
+    padding: 32px;
+    background: #f0f4fb;
+    border-radius: 20px;
+    margin-top: 24px;
+}
+
+/* ── Titre section ── */
+.etu-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 28px 0;
+}
+.etu-title-icon { color: var(--etu-primary); }
+
+.etu-subsection-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 40px 0 20px 0;
+}
+
+/* ── Grilles ── */
+.etu-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.etu-stats-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+}
+.etu-annonces-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+/* ── Carte statistique ── */
+.etu-stat-card {
+    background: #fff;
+    border-radius: var(--etu-radius);
+    padding: 22px 20px;
+    box-shadow: var(--etu-shadow);
+    border: 1px solid var(--etu-border);
+    transition: transform 0.25s, box-shadow 0.25s;
+    display: flex;
+    flex-direction: column;
+}
+.etu-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--etu-shadow-hover);
+}
+.etu-stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+.etu-stat-label {
+    color: var(--etu-gray);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+.etu-stat-value {
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1;
+}
+.etu-stat-footer { margin-top: 12px; }
+
+/* ── Icône circulaire ── */
+.etu-icon-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.etu-icon-circle i { font-size: 1.2rem; }
+
+/* ── Couleurs texte ── */
+.etu-text-primary { color: var(--etu-primary) !important; }
+.etu-text-success { color: var(--etu-success) !important; }
+.etu-text-warning { color: var(--etu-warning) !important; }
+.etu-text-info    { color: var(--etu-info)    !important; }
+.etu-text-danger  { color: var(--etu-danger)  !important; }
+.etu-text-purple  { color: var(--etu-purple)  !important; }
+.etu-text-teal    { color: var(--etu-teal)    !important; }
+
+/* ── Couleurs fond icône ── */
+.etu-bg-primary-light { background: var(--etu-primary-light); }
+.etu-bg-success-light { background: var(--etu-success-light); }
+.etu-bg-warning-light { background: var(--etu-warning-light); }
+.etu-bg-info-light    { background: var(--etu-info-light);    }
+.etu-bg-danger-light  { background: var(--etu-danger-light);  }
+.etu-bg-purple-light  { background: var(--etu-purple-light);  }
+.etu-bg-teal-light    { background: var(--etu-teal-light);    }
+
+/* ── Badges ── */
+.etu-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 30px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+.etu-badge-success   { background: var(--etu-success); color: #fff; }
+.etu-badge-warning   { background: var(--etu-warning); color: #1e293b; }
+.etu-badge-danger    { background: var(--etu-danger);  color: #fff; }
+.etu-badge-info      { background: var(--etu-info);    color: #fff; }
+.etu-badge-secondary { background: var(--etu-gray);    color: #fff; }
+
+/* ── État vide ── */
+.etu-empty-state {
+    background: #fafbfc;
+    border-radius: 20px;
+    border: 2px dashed #cdd5e0;
+    padding: 60px 40px;
+    text-align: center;
+    margin: 20px 0 32px;
+}
+.etu-empty-icon {
+    width: 90px;
+    height: 90px;
+    background: var(--etu-primary-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+.etu-empty-icon i { font-size: 2.5rem; color: var(--etu-primary); }
+.etu-empty-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 10px;
+}
+.etu-empty-text {
+    color: var(--etu-gray);
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+}
+
+/* ── Boutons ── */
+.etu-btn-primary {
+    background: var(--etu-primary);
+    color: #fff;
+    padding: 12px 32px;
+    border-radius: 60px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.2s;
+    border: none;
+    cursor: pointer;
+}
+.etu-btn-primary:hover { background: #02459c; color: #fff; transform: translateY(-1px); }
+
+.etu-btn-outline {
+    background: #fff;
+    border: 1.5px solid var(--etu-primary);
+    color: var(--etu-primary);
+    padding: 5px 14px;
+    border-radius: 30px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.etu-btn-outline:hover { background: var(--etu-primary); color: #fff; }
+
+.etu-btn-outline-primary {
+    border: 1.5px solid var(--etu-primary);
+    color: var(--etu-primary);
+    padding: 10px 28px;
+    border-radius: 60px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.etu-btn-outline-primary:hover { background: var(--etu-primary); color: #fff; }
+
+.etu-text-center { text-align: center; margin-top: 16px; }
+
+/* ── Cartes annonces ── */
+.etu-annonce-card {
+    background: #fff;
+    border-radius: var(--etu-radius);
+    padding: 20px;
+    box-shadow: var(--etu-shadow);
+    border: 1px solid var(--etu-border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+.etu-annonce-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--etu-shadow-hover);
+}
+.etu-annonce-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+.etu-annonce-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 0;
+    color: #1e293b;
+    flex: 1;
+}
+.etu-annonce-description {
+    color: var(--etu-gray);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
+}
+.etu-annonce-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--etu-border);
+}
+.etu-annonce-price {
+    font-weight: 800;
+    color: var(--etu-primary);
+    font-size: 0.95rem;
+}
+.etu-candidature-info {
+    color: var(--etu-success);
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding-top: 8px;
+    border-top: 1px solid var(--etu-border);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+    .etu-stats-grid   { grid-template-columns: repeat(2, 1fr); }
+    .etu-stats-grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .etu-annonces-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+    .etu-dashboard    { padding: 16px; }
+    .etu-stats-grid,
+    .etu-stats-grid-3,
+    .etu-annonces-grid { grid-template-columns: 1fr; gap: 12px; }
+    .etu-stat-value   { font-size: 1.8rem; }
+}
+</style>
+
+<div class="etu-dashboard">
+
+    {{-- Titre --}}
+    <h4 class="etu-section-title">
+        <i class="fas fa-chart-line etu-title-icon"></i>
+        Tableau de bord de vos annonces
+    </h4>
+
+    {{-- Ligne 1 : 4 cartes --}}
+    <div class="etu-stats-grid">
+        <div class="etu-stat-card">
+            <div class="etu-stat-header">
+                <p class="etu-stat-label">Total annonces</p>
+                <div class="etu-icon-circle etu-bg-primary-light">
+                    <i class="fas fa-file-alt etu-text-primary"></i>
                 </div>
+            </div>
+            <h3 class="etu-stat-value etu-text-primary">{{ $totalAnnonces }}</h3>
+        </div>
 
-                {{-- Conseil 2: Sécurité du paiement --}}
-                <div class="col-md-6 col-lg-4 mb-4" style="padding-left: 15px; padding-right: 15px;">
-                    <div class="conseil-card p-4 h-100"
-                        style="background: linear-gradient(to bottom right, #f0fdf4, #ffffff); border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease;">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <h4 class="h6 font-weight-bold mb-0"
-                                style="color: #2c3e50; display: flex; align-items: center;">
-                                <i class="fas fa-shield-alt mr-2" style="color: #16a34a;"></i>
-                                Paiement Sécurisé
-                            </h4>
-                            <div
-                                style="width: 40px; height: 40px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-lock" style="color: #15803d;"></i>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-success mb-3 py-2">
-                            <strong style="display: flex; align-items: center;">
-                                <i class="fas fa-money-bill-wave mr-2"></i>
-                                Comment ça marche ?
-                            </strong>
-                        </div>
-                        <ol class="mb-3 pl-3" style="font-size: 0.9rem;">
-                            <li class="mb-2"><strong>Acompte sécurisé</strong> : Payez 20-30% de votre budget</li>
-                            <li class="mb-2"><strong>Protection garantie</strong> : Remboursé si cours non délivré
-                            </li>
-                            <li class="mb-2"><strong>Déblocage automatique</strong> : Quand vous confirmez le début
-                            </li>
-                            <li class="mb-2"><strong>Solde restant</strong> : Payez directement au tuteur</li>
-                        </ol>
-
-                        <div class="p-2 text-center" style="background: #dcfce7; border-radius: 8px;">
-                            <small style="color: #166534;">
-                                <i class="fas fa-check-double"></i>
-                                Votre argent est protégé jusqu'au début du cours
-                            </small>
-                        </div>
-                    </div>
+        <div class="etu-stat-card">
+            <div class="etu-stat-header">
+                <p class="etu-stat-label">Publiées</p>
+                <div class="etu-icon-circle etu-bg-success-light">
+                    <i class="fas fa-bullhorn etu-text-success"></i>
                 </div>
+            </div>
+            <h3 class="etu-stat-value etu-text-success">{{ $annoncesPubliees }}</h3>
+        </div>
 
-                {{-- Conseil 4: Sécurité du compte --}}
-                <div class="col-md-6 col-lg-4 mb-4" style="padding-left: 15px; padding-right: 15px;">
-                    <div class="conseil-card p-4 h-100"
-                        style="background: linear-gradient(to bottom right, #fef2f2, #ffffff); border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease;">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <h4 class="h6 font-weight-bold mb-0"
-                                style="color: #2c3e50; display: flex; align-items: center;">
-                                <i class="fas fa-key mr-2" style="color: #dc2626;"></i>
-                                Sécurité du Compte
-                            </h4>
-                            <div
-                                style="width: 40px; height: 40px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-user-shield" style="color: #b91c1c;"></i>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-danger mb-3 py-2">
-                            <strong style="display: flex; align-items: center;">
-                                <i class="fas fa-exclamation-triangle mr-2"></i>
-                                Protection Essentielle
-                            </strong>
-                        </div>
-                        <ul class="list-unstyled mb-3" style="font-size: 0.9rem;">
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-lock text-danger mr-2 mt-1"></i>
-                                <span><strong>Mot de passe fort</strong> : min. 8 caractères, symboles</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-ban text-danger mr-2 mt-1"></i>
-                                <span><strong>Ne partagez jamais</strong> vos identifiants</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-eye-slash text-danger mr-2 mt-1"></i>
-                                <span><strong>Infos personnelles</strong> masquées jusqu'à sélection</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-flag text-danger mr-2 mt-1"></i>
-                                <span><strong>Signalez</strong> tout comportement abusif</span>
-                            </li>
-                        </ul>
-
-                        <div class="p-2 text-center" style="background: #fee2e2; border-radius: 8px;">
-                            <small style="color: #991b1b;">
-                                <i class="fas fa-shield-virus"></i>
-                                Vos données sont cryptées et protégées
-                            </small>
-                        </div>
-                    </div>
+        <div class="etu-stat-card">
+            <div class="etu-stat-header">
+                <p class="etu-stat-label">En attente</p>
+                <div class="etu-icon-circle etu-bg-warning-light">
+                    <i class="fas fa-clock etu-text-warning"></i>
                 </div>
+            </div>
+            <h3 class="etu-stat-value etu-text-warning">{{ $annoncesEnAttente }}</h3>
+        </div>
 
-                {{-- Conseil 5: Compléter son profil --}}
-                <div class="col-md-6 col-lg-4 mb-4" style="padding-left: 15px; padding-right: 15px;">
-                    <div class="conseil-card p-4 h-100"
-                        style="background: linear-gradient(to bottom right, #fefce8, #ffffff); border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease;">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <h4 class="h6 font-weight-bold mb-0"
-                                style="color: #2c3e50; display: flex; align-items: center;">
-                                <i class="fas fa-user-edit mr-2" style="color: #ca8a04;"></i>
-                                Profil à 100%
-                            </h4>
-                            <div
-                                style="width: 40px; height: 40px; background: #fef9c3; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-percent" style="color: #a16207;"></i>
-                            </div>
-                        </div>
-
-                        <div class="progress mb-3" style="height: 25px; background: #e0e0e0; border-radius: 5px;">
-                            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
-                                style="width: 100%;">
-                                <strong>100% Complet</strong>
-                            </div>
-                        </div>
-
-                        <p class="mb-2" style="font-size: 0.9rem;"><strong>Éléments à compléter :</strong></p>
-                        <ul class="list-unstyled mb-3" style="font-size: 0.9rem;">
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-camera text-warning mr-2 mt-1"></i>
-                                <span><strong>Photo de profil</strong> professionnelle</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-file-alt text-warning mr-2 mt-1"></i>
-                                <span><strong>Description</strong> de vos objectifs d'apprentissage</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-calendar-check text-warning mr-2 mt-1"></i>
-                                <span><strong>Disponibilités</strong> régulières</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-tag text-warning mr-2 mt-1"></i>
-                                <span><strong>Domaines d'intérêt</strong> précis</span>
-                            </li>
-                        </ul>
-
-                        <div class="p-2 text-center" style="background: #fef9c3; border-radius: 8px;">
-                            <small style="color: #854d0e;">
-                                <i class="fas fa-thumbs-up"></i>
-                                Un profil complet = plus de tuteurs intéressés
-                            </small>
-                        </div>
-                    </div>
+        <div class="etu-stat-card">
+            <div class="etu-stat-header">
+                <p class="etu-stat-label">Attribuées</p>
+                <div class="etu-icon-circle etu-bg-info-light">
+                    <i class="fas fa-check-double etu-text-info"></i>
                 </div>
+            </div>
+            <h3 class="etu-stat-value etu-text-info">{{ $annoncesAttribuees }}</h3>
+        </div>
+    </div>
 
+    {{-- Ligne 2 : 3 cartes --}}
+    <div class="etu-stats-grid-3">
+        <div class="etu-stat-card">
+            <div class="etu-stat-header">
+                <p class="etu-stat-label">Refusées</p>
+                <div class="etu-icon-circle etu-bg-danger-light">
+                    <i class="fas fa-times-circle etu-text-danger"></i>
+                </div>
+            </div>
+            <h3 class="etu-stat-value etu-text-danger">{{ $annoncesRefusees }}</h3>
+        </div>
+
+        <div class="etu-stat-card">
+            <div class="etu-stat-header">
+                <p class="etu-stat-label">Avec candidatures</p>
+                <div class="etu-icon-circle etu-bg-purple-light">
+                    <i class="fas fa-users etu-text-purple"></i>
+                </div>
+            </div>
+            <h3 class="etu-stat-value etu-text-purple">{{ $annoncesAvecCandidatures }}</h3>
+        </div>
+
+        <div class="etu-stat-card">
+            <div class="etu-stat-header">
+                <p class="etu-stat-label">Taux de réponse</p>
+                <div class="etu-icon-circle etu-bg-teal-light">
+                    <i class="fas fa-percent etu-text-teal"></i>
+                </div>
+            </div>
+            <h3 class="etu-stat-value etu-text-teal">{{ $tauxReponse }}%</h3>
+            <div class="etu-stat-footer">
+                @if($tauxReponse >= 70)
+                    <span class="etu-badge etu-badge-success">Excellent !</span>
+                @elseif($tauxReponse >= 40)
+                    <span class="etu-badge etu-badge-warning">Bon début</span>
+                @elseif($tauxReponse > 0)
+                    <span class="etu-badge etu-badge-danger">À améliorer</span>
+                @else
+                    <span class="etu-badge etu-badge-secondary">Pas encore de réponses</span>
+                @endif
             </div>
         </div>
     </div>
 
-    <style>
-        /* Effet hover sur les cartes */
-        .conseil-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-        }
+    {{-- État vide --}}
+    @if($totalAnnonces == 0)
+        <div class="etu-empty-state">
+            <div class="etu-empty-icon">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+            <h4 class="etu-empty-title">Vous n'avez pas encore créé d'annonce</h4>
+            <p class="etu-empty-text">Publiez votre première annonce pour trouver le tuteur idéal !</p>
+            <a href="{{ route('annonces.create') }}" class="etu-btn-primary">
+                <i class="fas fa-plus-circle"></i>
+                Créer votre première annonce
+            </a>
+        </div>
+    @endif
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .profile-banner {
-                padding: 20px !important;
-            }
-        }
-    </style>
+    {{-- Annonces récentes --}}
+    @if($recentAnnonces->count() > 0)
+        <h5 class="etu-subsection-title">
+            <i class="fas fa-clock etu-title-icon"></i>
+            Vos annonces récentes
+        </h5>
+
+        <div class="etu-annonces-grid">
+            @foreach($recentAnnonces as $annonce)
+                @php
+                    $statusColor = match($annonce->status) {
+                        'publiée'    => 'success',
+                        'en_attente' => 'warning',
+                        'attribuée'  => 'info',
+                        'refusée'    => 'danger',
+                        default      => 'secondary'
+                    };
+                @endphp
+                <div class="etu-annonce-card">
+                    <div class="etu-annonce-header">
+                        <h6 class="etu-annonce-title">{{ Str::limit($annonce->domaine, 28) }}</h6>
+                        <span class="etu-badge etu-badge-{{ $statusColor }}">{{ $annonce->status }}</span>
+                    </div>
+                    <p class="etu-annonce-description">{{ Str::limit($annonce->description, 80) }}</p>
+                    <div class="etu-annonce-footer">
+                        <span class="etu-annonce-price">{{ number_format($annonce->budget, 0, ',', ' ') }} FCFA</span>
+                        <a href="{{ route('annonces.show', $annonce->id) }}" class="etu-btn-outline">Voir</a>
+                    </div>
+                    @if($annonce->candidatures_count > 0)
+                        <div class="etu-candidature-info">
+                            <i class="fas fa-user-check"></i>
+                            {{ $annonce->candidatures_count }} candidature(s)
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+
+        <div class="etu-text-center">
+            <a href="{{ route('annonces.index') }}" class="etu-btn-outline-primary">
+                Voir toutes mes annonces
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    @endif
+
+</div>
+
 @endif
 
-
-@if(auth()->user()->isTuteur())
-
+@if (auth()->user()->isTuteur())
     <div class="profile-banner mt-4" style="padding: 30px;">
-
-        {{-- Grille de conseils avec container-fluid pour prendre toute la largeur --}}
         <div class="container-fluid p-0">
             <div class="row" style="margin-left: -15px; margin-right: -15px;">
-
-
-
-
-                {{-- Conseil 4: Sécurité du compte --}}
-                <div class="col-md-6 col-lg-4 mb-4" style="padding-left: 15px; padding-right: 15px;">
-                    <div class="conseil-card p-4 h-100"
-                        style="background: linear-gradient(to bottom right, #fef2f2, #ffffff); border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease;">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <h4 class="h6 font-weight-bold mb-0"
-                                style="color: #2c3e50; display: flex; align-items: center;">
-                                <i class="fas fa-key mr-2" style="color: #dc2626;"></i>
-                                Sécurité du Compte
-                            </h4>
-                            <div
-                                style="width: 40px; height: 40px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-user-shield" style="color: #b91c1c;"></i>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-danger mb-3 py-2">
-                            <strong style="display: flex; align-items: center;">
-                                <i class="fas fa-exclamation-triangle mr-2"></i>
-                                Protection Essentielle
-                            </strong>
-                        </div>
-                        <ul class="list-unstyled mb-3" style="font-size: 0.9rem;">
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-lock text-danger mr-2 mt-1"></i>
-                                <span><strong>Mot de passe fort</strong> : min. 8 caractères, symboles</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-ban text-danger mr-2 mt-1"></i>
-                                <span><strong>Ne partagez jamais</strong> vos identifiants</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-eye-slash text-danger mr-2 mt-1"></i>
-                                <span><strong>Infos personnelles</strong> masquées jusqu'à sélection</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-flag text-danger mr-2 mt-1"></i>
-                                <span><strong>Signalez</strong> tout comportement abusif</span>
-                            </li>
-                        </ul>
-
-                        <div class="p-2 text-center" style="background: #fee2e2; border-radius: 8px;">
-                            <small style="color: #991b1b;">
-                                <i class="fas fa-shield-virus"></i>
-                                Vos données sont cryptées et protégées
-                            </small>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Conseil 5: Compléter son profil --}}
-                <div class="col-md-6 col-lg-4 mb-4" style="padding-left: 15px; padding-right: 15px;">
-                    <div class="conseil-card p-4 h-100"
-                        style="background: linear-gradient(to bottom right, #fefce8, #ffffff); border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease;">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <h4 class="h6 font-weight-bold mb-0"
-                                style="color: #2c3e50; display: flex; align-items: center;">
-                                <i class="fas fa-user-edit mr-2" style="color: #ca8a04;"></i>
-                                Profil à 100%
-                            </h4>
-                            <div
-                                style="width: 40px; height: 40px; background: #fef9c3; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-percent" style="color: #a16207;"></i>
-                            </div>
-                        </div>
-
-                        <div class="progress mb-3" style="height: 25px; background: #e0e0e0; border-radius: 5px;">
-                            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
-                                style="width: 100%;">
-                                <strong>100% Complet</strong>
-                            </div>
-                        </div>
-
-                        <p class="mb-2" style="font-size: 0.9rem;"><strong>Éléments à compléter :</strong></p>
-                        <ul class="list-unstyled mb-3" style="font-size: 0.9rem;">
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-camera text-warning mr-2 mt-1"></i>
-                                <span><strong>Photo de profil</strong> professionnelle</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-file-alt text-warning mr-2 mt-1"></i>
-                                <span><strong>Description</strong> de vos objectifs</span>
-                            </li>
-
-                            <li class="mb-2 d-flex align-items-start">
-                                <i class="fas fa-tag text-warning mr-2 mt-1"></i>
-                                <span><strong>Domaines d'intérêt</strong> précis</span>
-                            </li>
-                        </ul>
-
-                        <div class="p-2 text-center" style="background: #fef9c3; border-radius: 8px;">
-                            <small style="color: #854d0e;">
-                                <i class="fas fa-thumbs-up"></i>
-                                Un profil complet
-                            </small>
-                        </div>
-                    </div>
-                </div>
-
+                {{-- Tes cartes pour tuteurs ici --}}
             </div>
         </div>
     </div>
-
-    <style>
-        /* Effet hover sur les cartes */
-        .conseil-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .profile-banner {
-                padding: 20px !important;
-            }
-        }
-    </style>
-
 @endif

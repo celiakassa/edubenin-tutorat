@@ -5,9 +5,9 @@
     <div class="container">
         <!-- En-tête -->
         <div class="text-center mb-5" data-aos="fade-up">
-            <h1 class="display-4 fw-bold" style="color: #0000FF;">Foire Aux Questions</h1>
+            <h1 class="display-4 fw-bold" style="color: #0B69F1;">Foire Aux Questions</h1>
             <p class="lead text-muted">Trouvez rapidement des réponses à vos questions</p>
-            <div class="divider mx-auto" style="width: 80px; height: 4px; background: #0000FF; border-radius: 2px;"></div>
+            <div class="divider mx-auto" style="width: 80px; height: 4px; background: #0B69F1; border-radius: 2px;"></div>
         </div>
 
         <!-- Navigation des catégories -->
@@ -17,7 +17,7 @@
                     <a href="#etudiants" class="category-link text-decoration-none">
                         <div class="category-card bg-white rounded-4 shadow-sm p-3 text-center">
                             <div class="category-icon mb-2">
-                                <i class="bi bi-mortarboard" style="font-size: 2rem; color: #0000FF;"></i>
+                                <i class="bi bi-mortarboard" style="font-size: 2rem; color: #0B69F1;"></i>
                             </div>
                             <span class="fw-semibold" style="color: #333;">Apprenants</span>
                         </div>
@@ -38,7 +38,7 @@
 
         <!-- Section Étudiants -->
         <section id="etudiants" class="mb-5" data-aos="fade-up">
-            <h2 class="fw-bold mb-4 pb-2" style="color: #0000FF; border-bottom: 3px solid #0000FF;">
+            <h2 class="fw-bold mb-4 pb-2" style="color: #0B69F1; border-bottom: 3px solid #0B69F1;">
                 <i class="bi bi-mortarboard me-2"></i>Questions des Apprenants
             </h2>
 
@@ -649,11 +649,11 @@
 
         <!-- Contact Support -->
         <div class="support-cta text-center mt-5 p-5 bg-white rounded-4 shadow-sm" data-aos="fade-up">
-            <i class="bi bi-headset" style="font-size: 3rem; color: #0000FF;"></i>
+            <i class="bi bi-headset" style="font-size: 3rem; color: #0B69F1;"></i>
             <h3 class="fw-bold mt-3 mb-3">Vous n'avez pas trouvé votre réponse ?</h3>
             <p class="text-muted mb-4">Notre équipe est là pour vous aider</p>
             <a href="mailto:support@kopiao.com" class="btn btn-primary px-5 py-3 rounded-pill"
-               style="background: #0000FF; border: none;">
+               style="background: #0B69F1; border: none;">
                 <i class="bi bi-envelope me-2"></i>Contacter le support
             </a>
         </div>
@@ -674,11 +674,11 @@
 .category-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 35px rgba(0,0,255,0.1) !important;
-    border-color: #0000FF;
+    border-color: #0B69F1;
 }
 
 .category-link:hover .category-card {
-    border-color: #0000FF;
+    border-color: #0B69F1;
 }
 
 .accordion-item {
@@ -697,7 +697,7 @@
 }
 
 .accordion-button:not(.collapsed) {
-    background: linear-gradient(135deg, #0000FF, #0066ff);
+    background: linear-gradient(135deg, #0B69F1, #0066ff);
     color: white;
 }
 
@@ -718,7 +718,7 @@
 .support-cta:hover {
     transform: translateY(-5px);
     box-shadow: 0 20px 40px rgba(0,0,255,0.1) !important;
-    border-color: #0000FF;
+    border-color: #0B69F1;
 }
 
 .btn-primary {

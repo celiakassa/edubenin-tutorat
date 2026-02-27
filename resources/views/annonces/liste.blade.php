@@ -3,7 +3,7 @@
 @section('content')
 <div class="annonces-liste-page">
     <!-- Hero Section -->
-    <section class="hero-section py-5" style="background: linear-gradient(135deg, #0000FF 0%, #6f42c1 100%);">
+    <section class="hero-section py-5" style="background: linear-gradient(135deg, #0B69F1 0%, #6f42c1 100%);">
         <div class="container">
             <div class="text-center text-white py-4">
                 <h1 class="display-4 fw-bold mb-3">Toutes les annonces</h1>
@@ -32,7 +32,7 @@
                     <div class="row g-3">
                         <!-- Domaine -->
                         <div class="col-lg-3 col-md-6">
-                            <label class="form-label fw-semibold" style="color: #0000FF;">
+                            <label class="form-label fw-semibold" style="color: #0B69F1;">
                                 <i class="bi bi-book me-1"></i> Domaine
                             </label>
                             <select name="domaine" class="form-select">
@@ -47,7 +47,7 @@
 
                         <!-- Budget min -->
                         <div class="col-lg-2 col-md-6">
-                            <label class="form-label fw-semibold" style="color: #0000FF;">
+                            <label class="form-label fw-semibold" style="color: #0B69F1;">
                                 <i class="bi bi-coin me-1"></i> Budget min
                             </label>
                             <input type="number" name="budget_min" class="form-control"
@@ -56,7 +56,7 @@
 
                         <!-- Budget max -->
                         <div class="col-lg-2 col-md-6">
-                            <label class="form-label fw-semibold" style="color: #0000FF;">
+                            <label class="form-label fw-semibold" style="color: #0B69F1;">
                                 <i class="bi bi-coin me-1"></i> Budget max
                             </label>
                             <input type="number" name="budget_max" class="form-control"
@@ -65,7 +65,7 @@
 
                         <!-- Format -->
                         <div class="col-lg-2 col-md-6">
-                            <label class="form-label fw-semibold" style="color: #0000FF;">
+                            <label class="form-label fw-semibold" style="color: #0B69F1;">
                                 <i class="bi bi-laptop me-1"></i> Format
                             </label>
                             <select name="format" class="form-select">
@@ -78,7 +78,7 @@
 
                         <!-- Jour de disponibilité -->
                         <div class="col-lg-3 col-md-6">
-                            <label class="form-label fw-semibold" style="color: #0000FF;">
+                            <label class="form-label fw-semibold" style="color: #0B69F1;">
                                 <i class="bi bi-calendar me-1"></i> Disponible le
                             </label>
                             <select name="jour" class="form-select">
@@ -99,7 +99,7 @@
                             <a href="{{ route('annoncesListe.liste') }}" class="btn btn-outline-secondary">
                                 <i class="bi bi-x-circle"></i> Effacer les filtres
                             </a>
-                            <button type="submit" class="btn btn-primary" style="background: #0000FF; border: none;">
+                            <button type="submit" class="btn btn-primary" style="background: #0B69F1; border: none;">
                                 <i class="bi bi-funnel"></i> Appliquer les filtres
                             </button>
                         </div>
@@ -217,7 +217,7 @@
                                 </div>
 
                                 <a href="{{ route('annoncesListe.publique.detail', $annonce->id) }}" class="btn w-100 py-2 rounded-pill"
-                                   style="background: #0000FF; color: white; border: none;">
+                                   style="background: #0B69F1; color: white; border: none;">
                                     <i class="bi bi-eye me-2"></i> Voir les détails
                                 </a>
                             </div>
@@ -234,7 +234,7 @@
                     <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
                     <h3 class="mt-3" style="color: #333;">Aucune annonce trouvée</h3>
                     <p class="text-muted">Essayez de modifier vos filtres ou revenez plus tard.</p>
-                    <a href="{{ route('annoncesListe.liste') }}" class="btn btn-primary mt-3" style="background: #0000FF; border: none;">
+                    <a href="{{ route('annoncesListe.liste') }}" class="btn btn-primary mt-3" style="background: #0B69F1; border: none;">
                         <i class="bi bi-arrow-repeat"></i> Réinitialiser les filtres
                     </a>
                 </div>
@@ -298,13 +298,13 @@
 .search-form button {
     padding: 15px 30px;
     background: white;
-    color: #0000FF;
+    color: #0B69F1;
     border: none;
 }
 
 .search-form button:hover {
     background: #f8f9fa;
-    color: #0000CC;
+    color: #0B69F1;
 }
 
 .filters-container {
@@ -325,7 +325,7 @@
 }
 
 .btn-primary {
-    background: #0000FF;
+    background: #0B69F1;
     border: none;
     padding: 10px 25px;
     border-radius: 10px;
@@ -333,7 +333,7 @@
 }
 
 .btn-primary:hover {
-    background: #0000CC;
+    background: #0B69F1;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,0,255,0.3);
 }
