@@ -58,8 +58,6 @@
                             </div>
                         </div>
                     </form>
-
-
                 </div>
             </div>
 
@@ -165,7 +163,6 @@
                                 </div>
 
                                 {{-- Le badge vérifié --}}
-
                                 <style>
                                     /* Badge Tuteur Vérifié */
                                     .verified-badge {
@@ -210,7 +207,6 @@
                                     </div>
                                 @endif
 
-
                                 <!-- Photo du tuteur -->
                                 <div class="tutor-image-container position-relative" style="height: 200px;">
                                     <img src="{{ $tuteur->photo_path ? Storage::url($tuteur->photo_path) : asset('images/default-avatar.jpg') }}"
@@ -218,7 +214,6 @@
                                         alt="{{ $tuteur->firstname }} {{ $tuteur->lastname }}"
                                         onerror="this.src='{{ asset('images/profill_default.webp') }}'">
                                     <div class="image-overlay"></div>
-
                                 </div>
 
                                 <div class="card-body p-4">
@@ -229,12 +224,11 @@
                                             <i class="bi bi-mortarboard-fill me-1"></i>
                                             Professeur de
                                             @php
-                                                $subjects = json_decode($tuteur->subjects, true);
+                                                $subjects = $tuteur->subjects->pluck('nom')->toArray();
                                                 echo $subjects[0] ?? 'matières';
                                             @endphp
                                         </p>
                                     </div>
-
 
                                     <!-- Matières -->
                                     <div class="mb-3">
@@ -243,7 +237,7 @@
                                         </p>
 
                                         @php
-                                            $subjects = json_decode($tuteur->subjects, true) ?? [];
+                                            $subjects = $tuteur->subjects->pluck('nom')->toArray();
                                         @endphp
 
                                         <div class="d-flex flex-wrap gap-1">
@@ -279,11 +273,9 @@
                                                 </span>
                                             </div>
                                         </div>
-
                                     </div>
 
                                     <!-- Actions -->
-
                                 </div>
                             </div>
                         </div>

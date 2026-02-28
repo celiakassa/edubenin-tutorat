@@ -37,6 +37,7 @@
     $annoncesAvecCandidatures = \App\Models\Annonce::where('student_id', $userId)->has('candidatures')->count();
     $tauxReponse           = $annoncesPubliees > 0 ? round(($annoncesAvecCandidatures / $annoncesPubliees) * 100) : 0;
     $recentAnnonces        = \App\Models\Annonce::where('student_id', $userId)
+                                ->with('subject') // Ajout de la relation subject
                                 ->withCount('candidatures')
                                 ->orderBy('created_at', 'desc')
                                 ->limit(6)
@@ -483,10 +484,11 @@
                         'refusée'    => 'danger',
                         default      => 'secondary'
                     };
+                    $matiereNom = $annonce->subject->nom ?? 'Matière non spécifiée';
                 @endphp
                 <div class="etu-annonce-card">
                     <div class="etu-annonce-header">
-                        <h6 class="etu-annonce-title">{{ Str::limit($annonce->domaine, 28) }}</h6>
+                        <h6 class="etu-annonce-title" title="{{ $matiereNom }}">{{ Str::limit($matiereNom, 28) }}</h6>
                         <span class="etu-badge etu-badge-{{ $statusColor }}">{{ $annonce->status }}</span>
                     </div>
                     <p class="etu-annonce-description">{{ Str::limit($annonce->description, 80) }}</p>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Subject;
 
 class RechercheController extends Controller
 {
@@ -18,12 +19,14 @@ class RechercheController extends Controller
                       ->where('is_active', 1)  // Compte actif
                       ->where('is_valid', 1);  // Ajout de la validation des professeurs
 
-        // Filtre par matière (avec JSON ou tableau)
+        // Filtre par matière (avec la table pivot)
         if (!empty($subject)) {
-            $query->where(function($q) use ($subject) {
-                $q->where('subjects', 'LIKE', '%"' . $subject . '"%')  // Pour les JSON
-                  ->orWhere('subjects', 'LIKE', '%' . $subject . '%'); // Pour les chaînes simples
-            });
+            $subjectId = Subject::where('nom', $subject)->value('id');
+            if ($subjectId) {
+                $query->whereHas('subjects', function($q) use ($subjectId) {
+                    $q->where('subject_id', $subjectId);
+                });
+            }
         }
 
         // Filtre par ville (recherche insensible à la casse)
@@ -50,43 +53,19 @@ class RechercheController extends Controller
         // Résultats finaux avec pagination
         $tuteurs = $query->paginate(12);
 
-        // Récupérer les matières populaires (uniquement des professeurs validés)
-        $matieresPopulaires = User::where('role_id', 3)
-            ->where('is_active', 1)
-            ->where('is_valid', 1)  // Ajout de la validation
-            ->whereNotNull('subjects')
-            ->where('subjects', '!=', '[]')
-            ->pluck('subjects')
-            ->flatMap(function ($subjects) {
-                // Gérer à la fois les JSON et les chaînes simples
-                if (is_array($subjects) || is_string($subjects)) {
-                    if (is_string($subjects)) {
-                        // Essayer de décoder le JSON
-                        $decoded = json_decode($subjects, true);
-                        if (json_last_error() === JSON_ERROR_NONE) {
-                            return $decoded;
-                        }
-                        // Sinon, traiter comme une chaîne séparée par des virgules
-                        return array_map('trim', explode(',', $subjects));
-                    }
-                    return $subjects;
-                }
-                return [];
-            })
-            ->filter(function ($subject) {
-                // Filtrer les valeurs vides et les sujets non pertinents
-                return !empty($subject) && $subject !== '[]' && $subject !== 'null';
-            })
-            ->unique()
-            ->values()
+        // Récupérer les matières populaires (depuis la table subjects)
+        $matieresPopulaires = Subject::where('is_active', true)
+            ->orderBy('nom')
+            ->pluck('nom')
             ->take(40)
             ->sort()
+            ->values()
             ->all();
 
         // Récupérer les villes populaires (uniquement des professeurs validés)
         $villesPopulaires = User::where('role_id', 3)
             ->where('is_active', 1)
-            ->where('is_valid', 1)  // Ajout de la validation
+            ->where('is_valid', 1)
             ->whereNotNull('city')
             ->where('city', '!=', '')
             ->pluck('city')
@@ -98,6 +77,13 @@ class RechercheController extends Controller
             ->sort()
             ->all();
 
-        return view('recherche.resultats', ['tuteurs' => $tuteurs, 'matieresPopulaires' => $matieresPopulaires, 'villesPopulaires' => $villesPopulaires, 'subject' => $subject, 'city' => $city, 'learning' => $learning]);
+        return view('recherche.resultats', [
+            'tuteurs' => $tuteurs,
+            'matieresPopulaires' => $matieresPopulaires,
+            'villesPopulaires' => $villesPopulaires,
+            'subject' => $subject,
+            'city' => $city,
+            'learning' => $learning
+        ]);
     }
 }

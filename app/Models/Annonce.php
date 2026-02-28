@@ -14,7 +14,7 @@ class Annonce extends Model
 
     protected $fillable = [
         'student_id',
-        'domaine',
+        'subject_id', // Changé de 'domaine' à 'subject_id'
         'description',
         'budget',
         'acompte',
@@ -27,19 +27,31 @@ class Annonce extends Model
     ];
 
     protected $casts = [
-
         'budget' => 'decimal:2',
         'acompte' => 'decimal:2',
         'published_at' => 'datetime',
         'is_paid' => 'boolean',
-        
     ];
 
+    /**
+     * Relation avec l'étudiant (utilisateur)
+     */
     public function student(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_id');
     }
 
+    /**
+     * Relation avec la matière (NOUVELLE)
+     */
+    public function subject(): BelongsTo
+    {
+        return $this->belongsTo(Subject::class);
+    }
+
+    /**
+     * Relation avec les paiements
+     */
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
@@ -51,12 +63,11 @@ class Annonce extends Model
     }
 
     /**
-     * Calcul automatique de l'acompte (20% à 30%)
-     * Sécurisé pour les gros montants
+     * Calcul automatique de l'acompte (30% fixe)
      */
     public function calculateAcompte()
     {
-        $percentage = rand(20, 30) / 100;
+        $percentage = 0.3; // Fixé à 30%
 
         // Conversion explicite + arrondi pour éviter les overflow MySQL
         $budget = (float) $this->budget;
@@ -75,7 +86,7 @@ class Annonce extends Model
     // Marquer l'annonce comme publiée
     public function markAsPublished()
     {
-        $this->status = 'publiée'; // CORRECTION : 'publiée' avec accent
+        $this->status = 'publiée';
         $this->is_paid = true;
         $this->published_at = now();
         $this->save();
@@ -109,7 +120,7 @@ class Annonce extends Model
      */
     public function scopePubliees($query)
     {
-        return $query->where('status', 'publiée'); // CORRECTION : 'publiée' avec accent
+        return $query->where('status', 'publiée');
     }
 
     /**
@@ -134,26 +145,37 @@ class Annonce extends Model
      */
     public function estPubliee(): bool
     {
-        return $this->status === 'publiée'; // CORRECTION : 'publiée' avec accent
+        return $this->status === 'publiée';
     }
 
-    // Formatage disponiblite
-public function getFormattedDisponibiliteAttribute()
-{
-    if (empty($this->disponibilite)) {
-        return 'Non spécifié';
+    /**
+     * Obtenir le nom de la matière (accesseur)
+     */
+    public function getDomaineAttribute()
+    {
+        // Pour la rétrocompatibilité, si vous avez encore du code qui utilise $annonce->domaine
+        return $this->subject ? $this->subject->nom : null;
     }
 
-    $lines = explode("\n", trim($this->disponibilite));
-    $formatted = '';
-
-    foreach ($lines as $line) {
-        $line = trim($line);
-        if (!empty($line)) {
-            $formatted .= '<li>' . e($line) . '</li>';
+    /**
+     * Formatage disponibilité
+     */
+    public function getFormattedDisponibiliteAttribute()
+    {
+        if (empty($this->disponibilite)) {
+            return 'Non spécifié';
         }
-    }
 
-    return $formatted ? '<ul class="list-unstyled mb-0">' . $formatted . '</ul>' : 'Non spécifié';
-}
+        $lines = explode("\n", trim($this->disponibilite));
+        $formatted = '';
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (!empty($line)) {
+                $formatted .= '<li>' . e($line) . '</li>';
+            }
+        }
+
+        return $formatted ? '<ul class="list-unstyled mb-0">' . $formatted . '</ul>' : 'Non spécifié';
+    }
 }

@@ -49,10 +49,10 @@
                     Email
                 </label>
                 <input id="email" type="email" name="email" required autofocus
-                    style="width:100%; padding:12px; border:1px solid #a5b4fc;
+                    style="width:100%; padding:12px; border:1px solid #0B69F1;
                           border-radius:8px; transition: all 0.3s ease; outline:none;"
-                    onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 8px rgba(99,102,241,0.3)';"
-                    onblur="this.style.borderColor='#a5b4fc'; this.style.boxShadow='none';">
+                    onfocus="this.style.borderColor='#0B69F1'; this.style.boxShadow='0 0 8px rgba(99,102,241,0.3)';"
+                    onblur="this.style.borderColor='#0B69F1'; this.style.boxShadow='none';">
                 @error('email')
                     <span style="color:red; font-size:0.875rem;">{{ $message }}</span>
                 @enderror
@@ -65,14 +65,14 @@
                 </label>
 
                 <input id="password" type="password" name="password" required
-                    style="width:100%; padding:12px; border:1px solid #a5b4fc;
+                    style="width:100%; padding:12px; border:1px solid #0B69F1;
                border-radius:8px; transition: all 0.3s ease; outline:none; padding-right:45px;"
-                    onfocus="this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 8px rgba(99,102,241,0.3)';"
-                    onblur="this.style.borderColor='#a5b4fc'; this.style.boxShadow='none';">
+                    onfocus="this.style.borderColor='#0B69F1'; this.style.boxShadow='0 0 8px rgba(99,102,241,0.3)';"
+                    onblur="this.style.borderColor='#0B69F1'; this.style.boxShadow='none';">
 
                 <!-- Bouton afficher/masquer -->
                 <button type="button" onclick="togglePassword()"
-                    style="position:absolute; right:10px; top:36px; background:none; border:none; cursor:pointer; color:#6366f1; font-weight:bold;">
+                    style="position:absolute; right:10px; top:36px; background:none; border:none; cursor:pointer; color: #0B69F1; font-weight:bold;">
                     👁️
                 </button>
 
@@ -98,7 +98,7 @@
 
             <!-- Remember Me -->
             <div style="margin-bottom:20px;">
-                <label style="display:flex; align-items:center; font-size:0.9rem; color:#1e40af;">
+                <label style="display:flex; align-items:center; font-size:0.9rem; color: #0B69F1;">
                     <input type="checkbox" name="remember" style="margin-right:6px;">
                     Se souvenir de moi
                 </label>
@@ -108,13 +108,13 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                     @if (Route::has('password.request'))
                         <a href="{{ route('password.request') }}"
-                            style="color:#6366f1; text-decoration:underline; font-size:0.9rem; transition: color 0.3s;">
+                            style="color: #0B69F1; text-decoration:underline; font-size:0.9rem; transition: color 0.3s;">
                             Mot de passe oublié ?
                         </a>
                     @endif
 
                     <button type="submit"
-                        style="background: linear-gradient(135deg, #6366f1, #4f46e5);
+                        style="background: linear-gradient(135deg, #0B69F1, #0B69F1);
                        color:white; padding:12px 25px; border:none;
                        border-radius:8px; cursor:pointer; font-weight:bold;
                        transition: all 0.3s;">

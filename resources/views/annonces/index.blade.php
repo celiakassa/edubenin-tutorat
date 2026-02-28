@@ -713,7 +713,7 @@
                         @if ($user->role_id == 3)
                             Tuteur
                         @elseif($user->role_id == 2)
-                            Étudiant
+                            Apprenant
                         @else
                             Administrateur
                         @endif
@@ -722,16 +722,6 @@
             </div>
         </div>
 
-        <div class="sidebar-stats">
-            <div class="stat-item">
-                <span>Total Annonces</span>
-                <span>{{ $annonces->count() }}</span>
-            </div>
-            <div class="stat-item">
-                <span>À publier</span>
-                <span>{{ $annonces->where('status', 'en_attente')->count() }}</span>
-            </div>
-        </div>
 
         <div class="sidebar-menu">
             <a href="{{ route('dashboardUser') }}" class="menu-item">
@@ -818,8 +808,6 @@
                                 <canvas id="domainChart"></canvas>
                             </div>
                         </div>
-
-
                     </div>
 
                     <div class="stats-grid">
@@ -853,13 +841,8 @@
                             </div>
                         </div>
                     </div>
-
-
-
                 </div>
             @endif
-
-
 
             @if ($annonces->count() > 0)
                 <!-- Search -->
@@ -867,7 +850,7 @@
                     <div class="search-box">
                         <i class="fas fa-search"></i>
                         <input type="text" id="searchInput"
-                            placeholder="Rechercher une annonce par domaine, description...">
+                            placeholder="Rechercher une annonce par matière, description...">
                     </div>
                 </div>
 
@@ -875,10 +858,36 @@
                 <div class="annonces-list" id="annoncesList">
                     @foreach ($annonces as $annonce)
                         <div class="annonce-card"
-                            data-search="{{ strtolower($annonce->domaine . ' ' . $annonce->description) }}">
+                            data-search="{{ strtolower(($annonce->subject->nom ?? '') . ' ' . $annonce->description) }}">
                             <div class="annonce-header">
                                 <div>
-                                    <h3 class="annonce-title">{{ $annonce->domaine }}</h3>
+                                    <div>
+                                        <style>
+                                            .matiere-badge {
+                                                display: inline-block;
+                                                padding: 8px 18px;
+                                                font-size: 14px;
+                                                font-weight: 600;
+                                                border-radius: 25px;
+                                                background: linear-gradient(135deg, #4e73df, #224abe);
+                                                color: white;
+                                                text-transform: uppercase;
+                                                letter-spacing: 0.5px;
+                                                box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+                                                transition: all 0.3s ease;
+                                            }
+
+                                            .matiere-badge:hover {
+                                                transform: translateY(-2px);
+                                                box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+                                            }
+                                        </style>
+
+                                        <span class="matiere-badge">
+                                            {{ $annonce->subject->nom ?? 'Matière non spécifiée' }}
+                                        </span>
+                                    </div>
+                                    <br>
                                     <span class="annonce-status status-{{ str_replace('é', 'e', $annonce->status) }}">
                                         {{ $annonce->status }}
                                     </span>
@@ -914,8 +923,7 @@
                                     </div>
                                     <div class="detail-content">
                                         <h4>Mes disponibilités</h4>
-                                        <p>{{ $annonce->disponibilite }}</p>
-
+                                        <p>{{ Str::limit($annonce->disponibilite, 50) }}</p>
                                     </div>
                                 </div>
                                 <div class="detail-item">
@@ -992,8 +1000,8 @@
     </div>
 
     <script>
-        // Données pour les graphiques (utilisez les données PHP passées)
-        const annoncesData = @json($annonces);
+        // Données pour les graphiques avec chargement de la relation subject
+        const annoncesData = @json($annonces->load('subject'));
 
         // Préparation des données pour les graphiques
         const statusData = {
@@ -1002,7 +1010,7 @@
                 data: [
                     annoncesData.filter(a => a.status === 'en_attente').length,
                     annoncesData.filter(a => a.status === 'en_paiement').length,
-                    annoncesData.filter(a => a.status === 'publiee').length,
+                    annoncesData.filter(a => a.status === 'publiée').length,
                     annoncesData.filter(a => a.status === 'attribuee').length
                 ],
                 backgroundColor: [
@@ -1035,10 +1043,10 @@
             }]
         };
 
-        // Données pour le graphique de domaines
+        // Données pour le graphique de domaines (utilise le nom de la matière)
         const domainCounts = {};
         annoncesData.forEach(a => {
-            const domain = a.domaine || 'Non spécifié';
+            const domain = a.subject ? a.subject.nom : 'Non spécifié';
             domainCounts[domain] = (domainCounts[domain] || 0) + 1;
         });
 
@@ -1050,7 +1058,7 @@
                 backgroundColor: [
                     'rgba(3, 81, 188, 0.8)',
                     'rgba(16, 185, 129, 0.8)',
-                    'rgpa(245, 158, 11, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
                     'rgba(139, 92, 246, 0.8)',
                     'rgba(239, 68, 68, 0.8)',
                     'rgba(6, 182, 212, 0.8)'
@@ -1141,6 +1149,16 @@
                     plugins: {
                         legend: {
                             display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    return `Nombre d'annonces: ${context.raw}`;
+                                }
+                            }
                         }
                     }
                 }
@@ -1180,5 +1198,4 @@
         });
     </script>
 </body>
-
 </html>

@@ -493,7 +493,8 @@
             <div class="sidebar-header">
                 <div class="profile-header">
                     <img src="{{ $user->photo_path ? asset('storage/' . $user->photo_path) : asset('images/profill_default.webp') }}"
-                        alt="Photo de profil" class="profile-avatar" onclick="viewPhoto('{{ $user->photo_path ? asset('storage/' . $user->photo_path) : asset('images/profill_default.webp') }}')">
+                        alt="Photo de profil" class="profile-avatar"
+                        onclick="viewPhoto('{{ $user->photo_path ? asset('storage/' . $user->photo_path) : asset('images/profill_default.webp') }}')">
                     <h1 class="profile-name" style="color: white;">
                         {{ $user->firstname }} {{ $user->lastname }}
                         @if ($user->role_id == 3 && $user->is_valid == 1)
@@ -506,7 +507,7 @@
                         @if ($user->role_id == 3)
                             <i class="fas fa-chalkboard-teacher"></i> Tuteur
                         @elseif($user->role_id == 2)
-                            <i class="fas fa-user-graduate"></i> Étudiant
+                            <i class="fas fa-user-graduate"></i> Apprenant
                         @else
                             <i class="fas fa-user"></i> Utilisateur
                         @endif
@@ -594,14 +595,10 @@
                         <div class="info-item">
                             <span class="info-label">Matières</span>
                             <span class="info-value">
-                                @if ($user->subjects)
+                                @if ($user->subjects && $user->subjects->count() > 0)
                                     @php
-                                        $subjects = json_decode($user->subjects, true);
-                                        if (is_array($subjects)) {
-                                            echo implode(', ', $subjects);
-                                        } else {
-                                            echo $user->subjects;
-                                        }
+                                        $subjectNames = $user->subjects->pluck('nom')->toArray();
+                                        echo implode(', ', $subjectNames);
                                     @endphp
                                 @else
                                     Non renseignées
@@ -646,16 +643,17 @@
 
                                 <span class="document-status {{ $user->identity_verified ? 'verified' : 'pending' }}">
                                     @if ($user->identity_verified)
-                                        <i class="fas fa-check-circle"></i> Vérifiée par l'administrateur
+                                        <i class="fas fa-check-circle"></i> Vérifiée
                                     @else
                                         <i class="fas fa-clock"></i> En attente de vérification
                                     @endif
                                 </span>
 
                                 <br>
-                                <button class="document-view-btn" onclick="viewIdentityDocument('{{ asset('storage/' . $user->identity_document_path) }}', '{{ $extension }}')">
+                                <a href="{{ asset('storage/' . $user->identity_document_path) }}"
+                                    class="document-view-btn" target="_blank">
                                     <i class="fas fa-eye"></i> Voir la pièce
-                                </button>
+                                </a>
 
                                 <p style="margin-top: 15px; font-size: 0.8rem; color: #6c757d;">
                                     Format: .{{ strtoupper($extension) }}

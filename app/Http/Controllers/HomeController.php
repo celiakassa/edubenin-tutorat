@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Annonce;
+use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -13,19 +14,10 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        // Récupérer toutes les matières uniques de tous les tuteurs
-        $allSubjects = User::where('role_id', 3)
-            ->where('is_valid', 1)
-            ->where('is_active', 1)
-            ->whereNotNull('subjects')
-            ->get()
-            ->flatMap(function ($user) {
-                $subjects = json_decode($user->subjects, true);
-                return is_array($subjects) ? $subjects : [];
-            })
-            ->unique()
-            ->sort()
-            ->values()
+        // Récupérer toutes les matières depuis la nouvelle table subjects
+        $allSubjects = Subject::where('is_active', true)
+            ->orderBy('nom')
+            ->pluck('nom')
             ->toArray();
 
         // Récupérer toutes les villes uniques de tous les tuteurs
@@ -54,31 +46,39 @@ class HomeController extends Controller
             ->max('rate_per_hour') ?? 50000;
 
         // Récupérer les annonces publiées et non attribuées
-        $annoncesQuery = Annonce::with(['student'])
+        $annoncesQuery = Annonce::with(['student', 'subject']) // Ajout de la relation subject
             ->where('status', 'publiée')
             ->where('is_paid', true)
             ->orderBy('created_at', 'desc');
 
         // Appliquer les filtres aux annonces si présents
-        if ($request->has('annonce_subject') && !empty($request->annonce_subject)) {
-            $annoncesQuery->where('domaine', 'LIKE', '%' . $request->annonce_subject . '%');
+        if ($request->has('annonce_subject') && ! empty($request->annonce_subject)) {
+            $subjectId = Subject::where('nom', 'LIKE', '%'.$request->annonce_subject.'%')
+                ->value('id');
+
+            if ($subjectId) {
+                $annoncesQuery->where('subject_id', $subjectId);
+            } else {
+                // Si le nom ne correspond à aucun ID, ne retourner aucun résultat
+                $annoncesQuery->where('subject_id', 0);
+            }
         }
 
-        if ($request->has('annonce_budget_min') && !empty($request->annonce_budget_min)) {
+        if ($request->has('annonce_budget_min') && ! empty($request->annonce_budget_min)) {
             $annoncesQuery->where('budget', '>=', $request->annonce_budget_min);
         }
 
-        if ($request->has('annonce_budget_max') && !empty($request->annonce_budget_max)) {
+        if ($request->has('annonce_budget_max') && ! empty($request->annonce_budget_max)) {
             $annoncesQuery->where('budget', '<=', $request->annonce_budget_max);
         }
 
-        if ($request->has('annonce_format') && !empty($request->annonce_format)) {
+        if ($request->has('annonce_format') && ! empty($request->annonce_format)) {
             $annoncesQuery->where('format', $request->annonce_format);
         }
 
-        if ($request->has('annonce_disponibilite') && !empty($request->annonce_disponibilite)) {
+        if ($request->has('annonce_disponibilite') && ! empty($request->annonce_disponibilite)) {
             $searchDay = $request->annonce_disponibilite;
-            $annoncesQuery->where('disponibilite', 'LIKE', '%' . $searchDay . '%');
+            $annoncesQuery->where('disponibilite', 'LIKE', '%'.$searchDay.'%');
         }
 
         $annonces = $annoncesQuery->take(20)->get();
@@ -92,50 +92,52 @@ class HomeController extends Controller
         ];
 
         // Requête de base pour les tuteurs
-        $tutors = User::where('role_id', 3)
+        $tutorsQuery = User::where('role_id', 3)
             ->where('is_valid', 1)
             ->where('identity_verified', 1)
             ->where('is_active', 1);
 
-        // Appliquer le filtre par matière si présent
-        if ($request->has('subject') && !empty($request->subject)) {
-            $tutors->where(function ($query) use ($request) {
-                $query->where('subjects', 'LIKE', '%"' . $request->subject . '"%')
-                      ->orWhere('subjects', 'LIKE', '%' . $request->subject . '%');
-            });
+        // Appliquer le filtre par matière si présent (avec la nouvelle relation)
+        if ($request->has('subject') && ! empty($request->subject)) {
+            $subjectId = Subject::where('nom', $request->subject)->value('id');
+            if ($subjectId) {
+                $tutorsQuery->whereHas('subjects', function ($query) use ($subjectId) {
+                    $query->where('subject_id', $subjectId);
+                });
+            }
         }
 
         // Appliquer le filtre par ville si présent
-        if ($request->has('city') && !empty($request->city)) {
-            $tutors->where('city', $request->city);
+        if ($request->has('city') && ! empty($request->city)) {
+            $tutorsQuery->where('city', $request->city);
         }
 
         // Appliquer le filtre par mode d'enseignement
-        if ($request->has('learning_preference') && !empty($request->learning_preference)) {
-            $tutors->where('learning_preference', $request->learning_preference);
+        if ($request->has('learning_preference') && ! empty($request->learning_preference)) {
+            $tutorsQuery->where('learning_preference', $request->learning_preference);
         }
 
         // Appliquer le filtre par tarif
-        if ($request->has('price_range') && !empty($request->price_range)) {
+        if ($request->has('price_range') && ! empty($request->price_range)) {
             $priceRange = explode('-', $request->price_range);
 
             if (count($priceRange) == 2) {
                 if ($priceRange[1] == '+') {
-                    $tutors->where('rate_per_hour', '>=', $priceRange[0]);
+                    $tutorsQuery->where('rate_per_hour', '>=', (int) $priceRange[0]);
                 } else {
-                    $tutors->whereBetween('rate_per_hour', [(int)$priceRange[0], (int)$priceRange[1]]);
+                    $tutorsQuery->whereBetween('rate_per_hour', [(int) $priceRange[0], (int) $priceRange[1]]);
                 }
             }
         }
 
         // Appliquer le filtre de recherche textuelle
-        if ($request->has('search') && !empty($request->search)) {
+        if ($request->has('search') && ! empty($request->search)) {
             $searchTerm = $request->search;
-            $tutors->where(function ($query) use ($searchTerm) {
+            $tutorsQuery->where(function ($query) use ($searchTerm) {
                 $query->where('firstname', 'LIKE', "%{$searchTerm}%")
-                      ->orWhere('lastname', 'LIKE', "%{$searchTerm}%")
-                      ->orWhere('city', 'LIKE', "%{$searchTerm}%")
-                      ->orWhere('bio', 'LIKE', "%{$searchTerm}%");
+                    ->orWhere('lastname', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('city', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('bio', 'LIKE', "%{$searchTerm}%");
             });
         }
 
@@ -154,7 +156,7 @@ class HomeController extends Controller
             ->get();
 
         // Récupérer les tuteurs avec pagination
-        $tutors = $tutors->orderBy('created_at', 'desc')
+        $tutors = $tutorsQuery->orderBy('created_at', 'desc')
             ->paginate(12)
             ->withQueryString();
 
@@ -200,23 +202,11 @@ class HomeController extends Controller
      */
     public function getPopularSubjects()
     {
-        $matieres = User::where('role_id', 3)
-            ->where('is_active', 1)
-            ->whereNotNull('subjects')
-            ->pluck('subjects')
-            ->flatMap(function ($subjects) {
-                if (is_string($subjects)) {
-                    $subjects = str_replace(['[', ']', '"', "'"], '', $subjects);
-                    return explode(',', $subjects);
-                }
-                return [];
-            })
-            ->map(fn($subject) => trim($subject))
-            ->filter(fn($subject) => ! empty($subject) && $subject !== '')
-            ->unique()
+        $matieres = Subject::where('is_active', true)
+            ->orderBy('nom')
+            ->pluck('nom')
             ->take(40)
-            ->values()
-            ->all();
+            ->toArray();
 
         if (count($matieres) < 20) {
             $matieresDefaut = [
@@ -248,13 +238,9 @@ class HomeController extends Controller
             ->where('city', '!=', '')
             ->pluck('city')
             ->map(function ($city) {
-                if (is_string($city)) {
-                    $city = str_replace(['[', ']', '"', "'"], '', $city);
-                    return trim($city);
-                }
-                return '';
+                return trim($city);
             })
-            ->filter(fn($city) => ! empty($city) && $city !== '')
+            ->filter(fn ($city) => ! empty($city))
             ->unique()
             ->take(30)
             ->values()
@@ -262,10 +248,26 @@ class HomeController extends Controller
 
         if (count($villes) < 15) {
             $villesDefaut = [
-                'Paris', 'Lyon', 'Marseille', 'Toulouse', 'Nice',
-                'Nantes', 'Strasbourg', 'Montpellier', 'Bordeaux', 'Lille',
-                'Rennes', 'Reims', 'Le Havre', 'Saint-Étienne', 'Toulon',
-                'Grenoble', 'Dijon', 'Angers', 'Nîmes', 'Villeurbanne',
+                'Cotonou',
+                'Porto-Novo',
+                'Parakou',
+                'Abomey-Calavi',
+                'Djougou',
+                'Bohicon',
+                'Kandi',
+                'Lokossa',
+                'Ouidah',
+                'Abomey',
+                'Natitingou',
+                'Savalou',
+                'Comè',
+                'Malanville',
+                'Tchaourou',
+                'Banikoara',
+                'Aplahoué',
+                'Allada',
+                'Pobè',
+                'Kétou',
             ];
 
             $villes = array_unique(array_merge($villes, $villesDefaut));
@@ -280,16 +282,17 @@ class HomeController extends Controller
      */
     public function getAnnonceSubjects()
     {
-        $domaines = Annonce::where('status', 'publiée')
-            ->where('is_paid', true)
-            ->whereNotNull('domaine')
-            ->pluck('domaine')
+        $subjects = Subject::whereHas('annonces', function ($query) {
+            $query->where('status', 'publiée')
+                ->where('is_paid', true);
+        })
+            ->pluck('nom')
             ->unique()
             ->sort()
             ->values()
             ->take(30)
             ->toArray();
 
-        return response()->json($domaines);
+        return response()->json($subjects);
     }
 }

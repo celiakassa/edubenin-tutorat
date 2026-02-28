@@ -36,35 +36,37 @@
             </div>
         </div>
 
-        <!-- Section Étudiants -->
+        <!-- Section Apprenants -->
         <section id="etudiants" class="mb-5" data-aos="fade-up">
             <h2 class="fw-bold mb-4 pb-2" style="color: #0B69F1; border-bottom: 3px solid #0B69F1;">
                 <i class="bi bi-mortarboard me-2"></i>Questions des Apprenants
             </h2>
 
-            <!-- A. Inscription et création de compte -->
+            <!-- A. Création et publication d'une annonce -->
             <div class="faq-category mb-4">
                 <h3 class="h5 fw-bold mb-3" style="color: #333; background: #f0f0f0; padding: 10px 15px; border-radius: 10px;">
-                    Inscription et création de compte
+                    Création et publication d'une annonce
                 </h3>
                 <div class="accordion" id="accordionEtudiantA">
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE1">
-                                Comment créer un compte Apprenants ?
+                                Comment créer une annonce ?
                             </button>
                         </h2>
                         <div id="collapseE1" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantA">
                             <div class="accordion-body bg-light">
-                                <p>Pour créer un compte Apprenants :</p>
+                                <p>Pour créer une annonce :</p>
                                 <ol>
-                                    <li>Cliquez sur "S'inscrire" dans le menu supérieur</li>
-                                    <li>Sélectionnez "Étudiant" comme type de compte</li>
-                                    <li>Remplissez le formulaire avec vos informations</li>
-                                    <li>Confirmez votre email via le lien reçu</li>
-                                    <li>Complétez votre profil pour augmenter votre crédibilité</li>
+                                    <li>Connectez-vous à votre compte étudiant</li>
+                                    <li>Cliquez sur "Publier une annonce" dans votre tableau de bord</li>
+                                    <li>Sélectionnez le domaine/matière souhaité</li>
+                                    <li>Décrivez précisément votre besoin (niveau, objectifs, difficultés)</li>
+                                    <li>Indiquez votre budget total (ex: 50 000 FCFA)</li>
+                                    <li>Précisez vos disponibilités (jours et heures)</li>
+                                    <li>Soumettez votre annonce</li>
                                 </ol>
-                                <p class="mb-0">C'est gratuit et ne prend que 2 minutes !</p>
+                                <p class="mb-0"><strong>Important :</strong> Votre annonce ne sera pas visible immédiatement. Elle le deviendra seulement après paiement de l'acompte.</p>
                             </div>
                         </div>
                     </div>
@@ -72,13 +74,14 @@
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE2">
-                                Dois-je payer pour publier une annonce ?
+                                Quand mon annonce devient-elle visible pour les tuteurs ?
                             </button>
                         </h2>
                         <div id="collapseE2" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantA">
                             <div class="accordion-body bg-light">
-                                <p>La publication d'une annonce est <strong>totalement gratuite</strong> !</p>
-                                <p>Vous ne payez que si vous choisissez un tuteur. À ce moment-là, un dépôt de garantie équivalent à 20-30% du montant total vous sera demandé. Ce montant est sécurisé et reversé au tuteur à la fin de la première séance.</p>
+                                <p>Votre annonce devient visible uniquement après le <strong>paiement d'un acompte de 30%</strong> de votre budget total.</p>
+                                <p>Exemple : Si votre budget total est de 50 000 FCFA, vous devrez payer 15 000 FCFA d'acompte pour que votre annonce soit publiée.</p>
+                                <p class="mb-0">Cet acompte garantit votre sérieux et sera déduit du montant final à payer au tuteur.</p>
                             </div>
                         </div>
                     </div>
@@ -86,60 +89,54 @@
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE3">
-                                Puis-je modifier mon profil ou mes annonces ?
+                                Puis-je modifier mon annonce après publication ?
                             </button>
                         </h2>
                         <div id="collapseE3" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantA">
                             <div class="accordion-body bg-light">
-                                <p>Oui, à tout moment !</p>
-                                <ul>
-                                    <li><strong>Profil :</strong> Rendez-vous dans votre espace "Mon profil" pour modifier vos informations, photo, etc.</li>
-                                    <li><strong>Annonces :</strong> Vous pouvez modifier une annonce tant qu'elle n'a pas été attribuée. Une fois qu'un tuteur est sélectionné, l'annonce est verrouillée.</li>
-                                </ul>
+                                <p>Oui, vous pouvez modifier votre annonce tant qu'elle n'a pas été attribuée à un tuteur. Une fois qu'un tuteur est sélectionné, l'annonce est verrouillée.</p>
+                                <p>Pour modifier : allez dans "Mes annonces" et cliquez sur le bouton modifier.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE4">
+                                Combien de temps mon annonce reste visible ?
+                            </button>
+                        </h2>
+                        <div id="collapseE4" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantA">
+                            <div class="accordion-body bg-light">
+                                <p>Votre annonce reste visible <strong>30 jours</strong> après sa publication. Passé ce délai, si aucun tuteur n'a été choisi, elle sera automatiquement archivée.</p>
+                                <p>Vous pouvez à tout moment la republier pour 30 jours supplémentaires (sans frais supplémentaires).</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- B. Publication d'une annonce -->
+            <!-- B. Paiement et acompte -->
             <div class="faq-category mb-4">
                 <h3 class="h5 fw-bold mb-3" style="color: #333; background: #f0f0f0; padding: 10px 15px; border-radius: 10px;">
-                    Publication d'une annonce
+                    Paiement et acompte
                 </h3>
                 <div class="accordion" id="accordionEtudiantB">
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE4">
-                                Comment publier une annonce ?
-                            </button>
-                        </h2>
-                        <div id="collapseE4" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantB">
-                            <div class="accordion-body bg-light">
-                                <p>Pour publier une annonce :</p>
-                                <ol>
-                                    <li>Connectez-vous à votre compte étudiant</li>
-                                    <li>Cliquez sur "Publier une annonce"</li>
-                                    <li>Remplissez le formulaire : domaine, description, budget, disponibilités</li>
-                                    <li>Soumettez votre annonce (gratuit)</li>
-                                    <li>Patientez les candidatures des tuteurs</li>
-                                </ol>
-                                <p>Plus votre description est détaillée, plus vous aurez de candidatures de qualité !</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE5">
-                                Comment définir le budget et le dépôt de garantie ?
+                                Pourquoi dois-je payer un acompte ?
                             </button>
                         </h2>
                         <div id="collapseE5" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantB">
                             <div class="accordion-body bg-light">
-                                <p><strong>Budget :</strong> Indiquez le montant total que vous êtes prêt à payer pour l'ensemble des cours.</p>
-                                <p><strong>Dépôt de garantie :</strong> Calculé automatiquement (20-30% du budget total). Ce montant est bloqué mais pas débité tant que vous n'avez pas choisi un tuteur. Il garantit votre sérieux et sera reversé au tuteur après la première séance.</p>
-                                <p>Le reste du paiement se fait directement avec le tuteur selon vos modalités convenues.</p>
+                                <p>L'acompte de 30% est obligatoire pour :</p>
+                                <ul>
+                                    <li><strong>Garantir votre sérieux</strong> : Évite les annonces fictives</li>
+                                    <li><strong>Protéger les tuteurs</strong> : Ils savent que vous êtes réellement intéressé</li>
+                                    <li><strong>Déduire du paiement final</strong> : Cette somme sera déduite du montant total à payer au tuteur</li>
+                                    <li><strong>Frais de plateforme</strong> : Une petite partie couvre les frais de fonctionnement</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -147,13 +144,13 @@
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE6">
-                                Combien de temps mon annonce reste visible ?
+                                Quand l'acompte est-il reversé au tuteur ?
                             </button>
                         </h2>
                         <div id="collapseE6" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantB">
                             <div class="accordion-body bg-light">
-                                <p>Votre annonce reste visible <strong>30 jours</strong> après sa publication. Passé ce délai, si aucun tuteur n'a été choisi, elle sera automatiquement archivée.</p>
-                                <p>Vous pouvez à tout moment la republier pour 30 jours supplémentaires.</p>
+                                <p>L'acompte est reversé au tuteur <strong>après la première séance de cours</strong>, une fois que vous avez confirmé que la séance a bien eu lieu.</p>
+                                <p>Si vous ne confirmez pas dans les 48h, l'acompte est automatiquement reversé au tuteur.</p>
                             </div>
                         </div>
                     </div>
@@ -161,17 +158,36 @@
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE7">
-                                Que se passe-t-il si je ne choisis pas de tuteur ?
+                                Que se passe-t-il si j'annule ma demande ?
                             </button>
                         </h2>
                         <div id="collapseE7" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantB">
                             <div class="accordion-body bg-light">
-                                <p>Si vous ne choisissez aucun tuteur dans les 30 jours :</p>
+                                <p>Si vous annulez :</p>
                                 <ul>
-                                    <li>Votre annonce est automatiquement archivée</li>
-                                    <li>Aucun montant n'est prélevé</li>
-                                    <li>Vous pouvez créer une nouvelle annonce à tout moment</li>
+                                    <li><strong>Avant d'avoir choisi un tuteur</strong> : L'acompte vous est remboursé intégralement (sous 5-7 jours ouvrés)</li>
+                                    <li><strong>Après avoir choisi un tuteur mais avant le cours</strong> : L'acompte est reversé au tuteur pour compenser sa disponibilité</li>
+                                    <li><strong>Moins de 24h avant le cours</strong> : L'acompte est intégralement reversé au tuteur</li>
                                 </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE8">
+                                Que se passe-t-il si le tuteur annule ?
+                            </button>
+                        </h2>
+                        <div id="collapseE8" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantB">
+                            <div class="accordion-body bg-light">
+                                <p>Dans ce cas :</p>
+                                <ol>
+                                    <li>Vous recevez une notification immédiate</li>
+                                    <li>L'acompte vous est intégralement remboursé</li>
+                                    <li>Le tuteur peut être sanctionné (avertissement, suspension)</li>
+                                    <li>Vous pouvez republier votre annonce gratuitement</li>
+                                </ol>
                             </div>
                         </div>
                     </div>
@@ -186,37 +202,21 @@
                 <div class="accordion" id="accordionEtudiantC">
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE8">
-                                Comment savoir si un tuteur est fiable ?
-                            </button>
-                        </h2>
-                        <div id="collapseE8" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantC">
-                            <div class="accordion-body bg-light">
-                                <p>Plusieurs indicateurs de fiabilité :</p>
-                                <ul>
-                                    <li><strong>Badge "Tuteur vérifié"</strong> : indique que l'identité a été vérifiée</li>
-                                    <li><strong>Avis et notations</strong> : lisez les retours des autres étudiants</li>
-                                    <li><strong>Profil complet</strong> : photo, description, diplômes</li>
-                                    <li><strong>Taux de réponse</strong> : un tuteur qui répond rapidement</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE9">
-                                Puis-je contacter directement un tuteur avant de le choisir ?
+                                Comment choisir un tuteur ?
                             </button>
                         </h2>
                         <div id="collapseE9" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantC">
                             <div class="accordion-body bg-light">
-                                <p><strong>Non</strong>, pour protéger la vie privée de tous, les coordonnées ne sont échangées qu'après sélection du tuteur. Vous pouvez cependant :</p>
-                                <ul>
-                                    <li>Voir les candidatures détaillées des tuteurs</li>
-                                    <li>Poser des questions via le système de messagerie interne</li>
-                                    <li>Organiser une séance d'essai (payante selon accord)</li>
-                                </ul>
+                                <p>Pour choisir un tuteur :</p>
+                                <ol>
+                                    <li>Consultez les candidatures reçues sur votre annonce</li>
+                                    <li>Vérifiez leur profil (qualifications, expérience)</li>
+                                    <li>Lisez les avis des anciens étudiants</li>
+                                    <li>Comparez leurs propositions</li>
+                                    <li>Cliquez sur "Accepter" pour la candidature qui vous convient</li>
+                                </ol>
+                                <p>Une fois le tuteur sélectionné, ses coordonnées vous seront dévoilées pour organiser le cours.</p>
                             </div>
                         </div>
                     </div>
@@ -224,215 +224,18 @@
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE10">
-                                Que signifie "contacts débloqués après sélection" ?
+                                Comment savoir si un tuteur est fiable ?
                             </button>
                         </h2>
                         <div id="collapseE10" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantC">
                             <div class="accordion-body bg-light">
-                                <p>Cela signifie que les informations de contact (téléphone, email) ne sont visibles qu'après que vous ayez officiellement sélectionné un tuteur pour votre annonce.</p>
-                                <p>Cette mesure de sécurité évite les contacts non sollicités et garantit que les tuteurs sont sérieux.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- D. Paiement / dépôt de garantie -->
-            <div class="faq-category mb-4">
-                <h3 class="h5 fw-bold mb-3" style="color: #333; background: #f0f0f0; padding: 10px 15px; border-radius: 10px;">
-                    Paiement / Dépôt de garantie
-                </h3>
-                <div class="accordion" id="accordionEtudiantD">
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE11">
-                                Qu'est-ce que le dépôt de garantie et pourquoi est-il requis ?
-                            </button>
-                        </h2>
-                        <div id="collapseE11" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantD">
-                            <div class="accordion-body bg-light">
-                                <p>Le dépôt de garantie est un montant (20-30% du budget total) qui est bloqué mais pas débité. Il sert à :</p>
+                                <p>Plusieurs indicateurs de fiabilité :</p>
                                 <ul>
-                                    <li>Garantir votre sérieux en tant qu'étudiant</li>
-                                    <li>Assurer le tuteur que vous vous engagerez</li>
-                                    <li>Éviter les annulations de dernière minute</li>
-                                    <li>Protéger les deux parties en cas de litige</li>
+                                    <li><strong>Badge "Tuteur vérifié"</strong> : identité vérifiée par nos soins</li>
+                                    <li><strong>Avis et notations</strong> : lisez les retours des autres étudiants</li>
+                                    <li><strong>Profil complet</strong> : photo, diplômes, expérience détaillée</li>
+                                    <li><strong>Nombre de cours donnés</strong> : un tuteur expérimenté inspire confiance</li>
                                 </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE12">
-                                Quand le dépôt est-il reversé au tuteur ?
-                            </button>
-                        </h2>
-                        <div id="collapseE12" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantD">
-                            <div class="accordion-body bg-light">
-                                <p>Le dépôt de garantie est reversé au tuteur <strong>après la première séance de cours</strong>, une fois que vous avez confirmé que la séance a bien eu lieu.</p>
-                                <p>Si vous ne confirmez pas dans les 48h, le dépôt est automatiquement reversé au tuteur.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE13">
-                                Que se passe-t-il si le tuteur ne fait pas cours ?
-                            </button>
-                        </h2>
-                        <div id="collapseE13" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantD">
-                            <div class="accordion-body bg-light">
-                                <p>Dans ce cas :</p>
-                                <ol>
-                                    <li>Vous devez signaler le problème via l'option "Signaler un problème"</li>
-                                    <li>Notre équipe examine la situation dans les 24h</li>
-                                    <li>Le dépôt de garantie vous est intégralement remboursé</li>
-                                    <li>Le tuteur peut être sanctionné (avertissement, suspension)</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE14">
-                                Que se passe-t-il si je change d'avis ou annule le cours ?
-                            </button>
-                        </h2>
-                        <div id="collapseE14" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantD">
-                            <div class="accordion-body bg-light">
-                                <p>Si vous annulez :</p>
-                                <ul>
-                                    <li><strong>Plus de 48h avant le cours</strong> : remboursement intégral du dépôt</li>
-                                    <li><strong>Moins de 48h avant le cours</strong> : le dépôt est reversé au tuteur pour compenser sa disponibilité</li>
-                                </ul>
-                                <p>Les annulations répétées peuvent affecter votre crédibilité sur la plateforme.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- E. Avis et notation -->
-            <div class="faq-category mb-4">
-                <h3 class="h5 fw-bold mb-3" style="color: #333; background: #f0f0f0; padding: 10px 15px; border-radius: 10px;">
-                    Avis et notation
-                </h3>
-                <div class="accordion" id="accordionEtudiantE">
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE15">
-                                Comment fonctionne le système de notation ?
-                            </button>
-                        </h2>
-                        <div id="collapseE15" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantE">
-                            <div class="accordion-body bg-light">
-                                <p>Après chaque cours, vous pouvez noter le tuteur de 1 à 5 étoiles sur plusieurs critères :</p>
-                                <ul>
-                                    <li>Qualité pédagogique</li>
-                                    <li>Ponctualité</li>
-                                    <li>Communication</li>
-                                </ul>
-                                <p>La note moyenne est affichée sur le profil du tuteur.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE16">
-                                Puis-je voir les avis d'un tuteur avant de le choisir ?
-                            </button>
-                        </h2>
-                        <div id="collapseE16" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantE">
-                            <div class="accordion-body bg-light">
-                                <p><strong>Oui, absolument !</strong> Tous les avis et notes des tuteurs sont visibles publiquement sur leur profil. Vous pouvez ainsi vous faire une idée précise de la qualité de leurs cours avant de les sélectionner.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE17">
-                                Pourquoi la notation est-elle obligatoire ?
-                            </button>
-                        </h2>
-                        <div id="collapseE17" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantE">
-                            <div class="accordion-body bg-light">
-                                <p>La notation est obligatoire pour :</p>
-                                <ul>
-                                    <li>Maintenir la qualité des services</li>
-                                    <li>Aider les futurs étudiants dans leur choix</li>
-                                    <li>Encourager les tuteurs à donner le meilleur d'eux-mêmes</li>
-                                    <li>Créer une communauté de confiance</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- F. Sécurité et support -->
-            <div class="faq-category mb-4">
-                <h3 class="h5 fw-bold mb-3" style="color: #333; background: #f0f0f0; padding: 10px 15px; border-radius: 10px;">
-                    Sécurité et support
-                </h3>
-                <div class="accordion" id="accordionEtudiantF">
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE18">
-                                Mes informations personnelles sont-elles protégées ?
-                            </button>
-                        </h2>
-                        <div id="collapseE18" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantF">
-                            <div class="accordion-body bg-light">
-                                <p>Oui, nous prenons la protection des données très au sérieux :</p>
-                                <ul>
-                                    <li>Chiffrement des données sensibles</li>
-                                    <li>Non-divulgation des coordonnées sans consentement</li>
-                                    <li>Conformité RGPD</li>
-                                    <li>Vous pouvez demander la suppression de vos données à tout moment</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE19">
-                                Comment signaler un problème avec un tuteur ?
-                            </button>
-                        </h2>
-                        <div id="collapseE19" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantF">
-                            <div class="accordion-body bg-light">
-                                <p>Pour signaler un problème :</p>
-                                <ol>
-                                    <li>Allez sur le profil du tuteur</li>
-                                    <li>Cliquez sur "Signaler"</li>
-                                    <li>Choisissez le motif (comportement inapproprié, absence, etc.)</li>
-                                    <li>Notre équipe traite votre signalement sous 24h</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseE20">
-                                Qui dois-je contacter si j'ai un problème avec le dépôt ou le paiement ?
-                            </button>
-                        </h2>
-                        <div id="collapseE20" class="accordion-collapse collapse" data-bs-parent="#accordionEtudiantF">
-                            <div class="accordion-body bg-light">
-                                <p>En cas de problème de paiement :</p>
-                                <ul>
-                                    <li>Email : <a href="mailto:support@kopiao.com">support@kopiao.com</a></li>
-                                    <li>Formulaire de contact dans votre espace "Aide"</li>
-                                    <li>Chat en direct (disponible 9h-18h en semaine)</li>
-                                </ul>
-                                <p>Nous répondons à toutes les demandes sous 24h maximum.</p>
                             </div>
                         </div>
                     </div>
@@ -446,28 +249,30 @@
                 <i class="bi bi-person-workspace me-2"></i>Espace Tuteurs
             </h2>
 
-            <!-- A. Optimiser son profil -->
+            <!-- A. Abonnement et accès aux annonces -->
             <div class="faq-category mb-4">
                 <h3 class="h5 fw-bold mb-3" style="color: #333; background: #f0f0f0; padding: 10px 15px; border-radius: 10px;">
-                    Optimiser son profil
+                    Abonnement et accès aux annonces
                 </h3>
                 <div class="accordion" id="accordionTuteurA">
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT1">
-                                Comment optimiser mon profil ?
+                                Comment fonctionne l'abonnement pour postuler ?
                             </button>
                         </h2>
                         <div id="collapseT1" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurA">
                             <div class="accordion-body bg-light">
-                                <p><strong>Complétez TOUS les champs :</strong></p>
+                                <p><strong>Un abonnement est obligatoire pour postuler aux annonces.</strong></p>
+                                <p>L'abonnement mensuel de <strong>6 500 FCFA</strong> vous donne :</p>
                                 <ul>
-                                    <li><i class="bi bi-check-circle-fill text-success me-1"></i> Photo professionnelle de qualité</li>
-                                    <li><i class="bi bi-check-circle-fill text-success me-1"></i> Description détaillée (parcours, méthodes)</li>
-                                    <li><i class="bi bi-check-circle-fill text-success me-1"></i> Domaines précis (évitez les listes trop larges)</li>
-                                    <li><i class="bi bi-check-circle-fill text-success me-1"></i> Disponibilités à jour</li>
-                                    <li><i class="bi bi-check-circle-fill text-success me-1"></i> Diplômes et certifications</li>
+                                    <li>Accès illimité aux annonces dans vos domaines</li>
+                                    <li>Possibilité de postuler sans limitation</li>
+                                    <li>Notifications en temps réel des nouvelles annonces</li>
+                                    <li>Déblocage des contacts étudiants après sélection</li>
+                                    <li>Visibilité accrue de votre profil</li>
                                 </ul>
+                                <p>Sans abonnement, vous pouvez consulter les annonces mais pas postuler.</p>
                             </div>
                         </div>
                     </div>
@@ -475,153 +280,112 @@
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT2">
-                                Comment choisir des domaines précis ?
+                                Quelles annonces puis-je voir ?
                             </button>
                         </h2>
                         <div id="collapseT2" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurA">
                             <div class="accordion-body bg-light">
-                                <p>Au lieu de mettre "Mathématiques", précisez :</p>
-                                <ul>
-                                    <li>Algèbre linéaire (niveau universitaire)</li>
-                                    <li>Analyse (prépa BCPST)</li>
-                                    <li>Probabilités (licence économie)</li>
-                                </ul>
-                                <p>Les étudiants recherchent souvent des profils très spécifiques. Soyez précis pour être trouvé !</p>
+                                <p>Vous ne voyez que les annonces correspondant à vos <strong>domaines d'expertise</strong> déclarés dans votre profil.</p>
+                                <p>Exemple : Si vous avez choisi "Mathématiques" et "Physique", vous verrez uniquement les annonces dans ces matières, pas celles en Français ou en Histoire.</p>
+                                <p>Pour voir plus d'annonces, vous pouvez enrichir vos domaines d'expertise dans votre profil.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT3">
+                                Puis-je voir le budget de l'étudiant avant de postuler ?
+                            </button>
+                        </h2>
+                        <div id="collapseT3" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurA">
+                            <div class="accordion-body bg-light">
+                                <p><strong>Oui, le budget total est visible sur chaque annonce.</strong></p>
+                                <p>Cela vous permet de savoir si la mission correspond à vos attentes avant même de postuler. L'acompte de 30% que l'étudiant a payé n'est pas visible, seul le budget total est affiché.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- B. Rédiger des candidatures efficaces -->
+            <!-- B. Postuler aux annonces -->
             <div class="faq-category mb-4">
                 <h3 class="h5 fw-bold mb-3" style="color: #333; background: #f0f0f0; padding: 10px 15px; border-radius: 10px;">
-                    Rédiger des candidatures efficaces
+                    Postuler aux annonces
                 </h3>
                 <div class="accordion" id="accordionTuteurB">
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT3">
-                                Comment rédiger une candidature qui attire l'attention ?
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT4">
+                                Comment postuler à une annonce ?
                             </button>
                         </h2>
-                        <div id="collapseT3" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurB">
+                        <div id="collapseT4" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurB">
                             <div class="accordion-body bg-light">
-                                <p><strong>Exemple de structure gagnante :</strong></p>
-                                <div class="bg-white p-3 rounded-3 border">
-                                    <p><em>"Bonjour [Prénom],</em></p>
-                                    <p><em>J'ai vu votre annonce pour des cours de [domaine]. Avec mon expérience de [X ans] dans ce domaine et ma méthode basée sur [approche spécifique], je pourrais vous aider à [objectif spécifique de l'étudiant].</em></p>
-                                    <p><em>Je suis disponible [disponibilités]. N'hésitez pas à consulter mon profil pour voir les avis de mes précédents étudiants.</em></p>
-                                    <p><em>Cordialement, [Votre prénom]"</em></p>
-                                </div>
-                                <p class="mt-2">Personnalisez chaque candidature en fonction de l'annonce !</p>
+                                <ol>
+                                    <li>Connectez-vous avec un abonnement actif</li>
+                                    <li>Parcourez les annonces dans votre domaine</li>
+                                    <li>Cliquez sur "Voir les détails" de l'annonce qui vous intéresse</li>
+                                    <li>Vérifiez les informations (budget, disponibilités, description)</li>
+                                    <li>Cliquez sur "Postuler"</li>
+                                    <li>Attendez que l'étudiant examine votre candidature</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT5">
+                                Combien de candidatures puis-je envoyer ?
+                            </button>
+                        </h2>
+                        <div id="collapseT5" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurB">
+                            <div class="accordion-body bg-light">
+                                <p><strong>Avec un abonnement, vous pouvez postuler sans limitation</strong> - aucune limite de candidatures !</p>
+                                <p>Nous encourageons même à postuler régulièrement pour augmenter vos chances de trouver des missions.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT6">
+                                Comment savoir si ma candidature est retenue ?
+                            </button>
+                        </h2>
+                        <div id="collapseT6" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurB">
+                            <div class="accordion-body bg-light">
+                                <p>Vous recevrez une notification dans les cas suivants :</p>
+                                <ul>
+                                    <li><strong>Acceptée</strong> : L'étudiant vous a choisi, ses coordonnées vous sont dévoilées</li>
+                                    <li><strong>Refusée</strong> : L'étudiant a choisi un autre tuteur</li>
+                                    <li><strong>Expirée</strong> : L'annonce a expiré sans choix</li>
+                                </ul>
+                                <p>Vous pouvez aussi suivre l'état de vos candidatures dans votre tableau de bord.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- C. Gestion de la réputation -->
+            <!-- C. Contacts et suivi -->
             <div class="faq-category mb-4">
                 <h3 class="h5 fw-bold mb-3" style="color: #333; background: #f0f0f0; padding: 10px 15px; border-radius: 10px;">
-                    Gestion de la réputation
+                    Contacts et suivi
                 </h3>
                 <div class="accordion" id="accordionTuteurC">
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT4">
-                                Comment obtenir de bons avis ?
-                            </button>
-                        </h2>
-                        <div id="collapseT4" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurC">
-                            <div class="accordion-body bg-light">
-                                <ul>
-                                    <li>Soyez ponctuel et préparé</li>
-                                    <li>Communiquez clairement les objectifs du cours</li>
-                                    <li>Demandez poliment un avis en fin de séance</li>
-                                    <li>Répondez rapidement aux messages</li>
-                                    <li>Ne jamais annuler à la dernière minute</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- D. Maximiser la visibilité -->
-            <div class="faq-category mb-4">
-                <h3 class="h5 fw-bold mb-3" style="color: #333; background: #f0f0f0; padding: 10px 15px; border-radius: 10px;">
-                    Maximiser la visibilité
-                </h3>
-                <div class="accordion" id="accordionTuteurD">
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT5">
-                                Comment profiter des fonctionnalités premium ?
-                            </button>
-                        </h2>
-                        <div id="collapseT5" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurD">
-                            <div class="accordion-body bg-light">
-                                <p>L'abonnement premium vous donne accès à :</p>
-                                <ul>
-                                    <li><strong>Boost</strong> : Votre profil apparaît en tête des recherches</li>
-                                    <li><strong>Badge "Premium"</strong> : Gagnez en crédibilité</li>
-                                    <li><strong>Mise en avant</strong> : Dans les newsletters et recommandations</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- E. Conseils pédagogiques -->
-            <div class="faq-category mb-4">
-                <h3 class="h5 fw-bold mb-3" style="color: #333; background: #f0f0f0; padding: 10px 15px; border-radius: 10px;">
-                    Conseils pédagogiques
-                </h3>
-                <div class="accordion" id="accordionTuteurE">
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT6">
-                                Comment préparer un cours efficace ?
-                            </button>
-                        </h2>
-                        <div id="collapseT6" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurE">
-                            <div class="accordion-body bg-light">
-                                <ul>
-                                    <li>Demandez à l'avance les difficultés de l'étudiant</li>
-                                    <li>Préparez des exercices adaptés à son niveau</li>
-                                    <li>Ayez un plan de cours structuré</li>
-                                    <li>Prévoyez du temps pour les questions</li>
-                                    <li>Envoyez un résumé après le cours</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- F. Fonctionnement -->
-            <div class="faq-category mb-4">
-                <h3 class="h5 fw-bold mb-3" style="color: #333; background: #f0f0f0; padding: 10px 15px; border-radius: 10px;">
-                    Fonctionnement
-                </h3>
-                <div class="accordion" id="accordionTuteurF">
-                    <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
-                        <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT7">
-                                Comment fonctionne l'abonnement ?
+                                Quand puis-je voir les coordonnées de l'étudiant ?
                             </button>
                         </h2>
-                        <div id="collapseT7" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurF">
+                        <div id="collapseT7" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurC">
                             <div class="accordion-body bg-light">
-                                <p>L'abonnement est mensuel et sans engagement. Il vous donne accès à :</p>
-                                <ul>
-                                    <li>Postuler aux annonces</li>
-                                    <li>Fonctionnalités premium (boost, badge)</li>
-                                    <li>Statistiques détaillées</li>
-                                </ul>
-                                <p>Vous pouvez résilier à tout moment depuis votre espace.</p>
+                                <p>Les coordonnées de l'étudiant (téléphone, email) ne sont dévoilées qu'<strong>après que l'étudiant vous ait sélectionné</strong>.</p>
+                                <p>Cette mesure protège la vie privée des étudiants et évite les contacts non sollicités.</p>
+                                <p>Une fois sélectionné, vous pourrez le contacter directement pour organiser les cours.</p>
                             </div>
                         </div>
                     </div>
@@ -629,17 +393,17 @@
                     <div class="accordion-item border-0 mb-3 rounded-3 overflow-hidden shadow-sm">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseT8">
-                                Comment signaler un étudiant problématique ?
+                                Comment recevoir les paiements ?
                             </button>
                         </h2>
-                        <div id="collapseT8" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurF">
+                        <div id="collapseT8" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurC">
                             <div class="accordion-body bg-light">
-                                <p>En cas de problème :</p>
+                                <p>Le paiement se fait en deux temps :</p>
                                 <ol>
-                                    <li>Rassemblez les preuves (messages, etc.)</li>
-                                    <li>Cliquez sur "Signaler" dans la conversation</li>
-                                    <li>Notre équipe examine et prend les mesures nécessaires</li>
+                                    <li><strong>L'acompte (30%)</strong> : Versé par l'étudiant à la création de l'annonce, il vous est reversé après la première séance</li>
+                                    <li><strong>Le solde (70%)</strong> : À organiser directement avec l'étudiant selon vos modalités (espèces, virement, mobile money)</li>
                                 </ol>
+                                <p>L'acompte vous est versé sur votre compte bancaire ou mobile money (selon vos préférences).</p>
                             </div>
                         </div>
                     </div>

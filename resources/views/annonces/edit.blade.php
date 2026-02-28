@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Mêmes styles que dans create.blade.php */
         :root {
             --primary-color: #0351BC;
             --primary-light: #4a7fd4;
@@ -283,6 +282,94 @@
             font-weight: 500;
             color: var(--text-dark);
             font-size: 14px;
+        }
+
+        /* Style pour le select personnalisé */
+        .custom-select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select-search {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: var(--white);
+            cursor: pointer;
+        }
+
+        .custom-select-search:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(3, 81, 188, 0.1);
+        }
+
+        .custom-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            background: var(--white);
+            border: 2px solid var(--medium-gray);
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .custom-select-dropdown.show {
+            display: block;
+        }
+
+        .custom-select-option {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .custom-select-option:hover {
+            background: var(--primary-light);
+            color: var(--white);
+        }
+
+        .custom-select-option.selected {
+            background: var(--primary-color);
+            color: var(--white);
+            font-weight: 500;
+        }
+
+        .no-results {
+            padding: 15px;
+            text-align: center;
+            color: var(--dark-gray);
+            font-style: italic;
+        }
+
+        .selected-subject {
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--light-gray);
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .selected-subject i {
+            color: var(--primary-color);
+        }
+
+        .selected-subject span {
+            font-weight: 600;
+            color: var(--primary-color);
         }
 
         .form-group input,
@@ -779,7 +866,7 @@
                         @if ($user->role_id == 3)
                             Tuteur
                         @elseif($user->role_id == 2)
-                            Étudiant
+                            Apprenant
                         @else
                             Administrateur
                         @endif
@@ -788,16 +875,6 @@
             </div>
         </div>
 
-        <div class="sidebar-stats">
-            <div class="stat-item">
-                <span class="stat-label">Statut</span>
-                <span class="stat-value">Étudiant</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Crédit</span>
-                <span class="stat-value">-</span>
-            </div>
-        </div>
 
         <div class="sidebar-menu">
             <a href="{{ route('dashboardUser') }}" class="menu-item">
@@ -856,11 +933,35 @@
                     <h2><i class="fas fa-book"></i> Informations sur la formation</h2>
 
                     <div class="form-group">
-                        <label for="domaine">Domaine / Matière *</label>
-                        <input type="text" id="domaine" name="domaine"
-                               value="{{ old('domaine', $annonce->domaine) }}"
-                               placeholder="Ex: Mathématiques, Anglais, Physique..." required>
-                        @error('domaine')
+                        <label for="subject_id">Domaine / Matière *</label>
+                        <div class="custom-select-wrapper">
+                            <input type="text"
+                                   id="subject-search"
+                                   class="custom-select-search"
+                                   placeholder="Rechercher une matière..."
+                                   autocomplete="off"
+                                   value="{{ $annonce->subject->nom ?? '' }}">
+                            <input type="hidden" id="subject_id" name="subject_id" value="{{ old('subject_id', $annonce->subject_id) }}">
+
+                            <div class="custom-select-dropdown" id="subjects-dropdown">
+                                @foreach($subjects as $subject)
+                                    <div class="custom-select-option" data-value="{{ $subject->id }}" data-name="{{ $subject->nom }}">
+                                        {{ $subject->nom }}
+                                        @if($subject->description)
+                                            <small style="display: block; font-size: 11px; color: #666;">{{ Str::limit($subject->description, 50) }}</small>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="selected-subject" id="selected-subject" style="{{ $annonce->subject_id ? '' : 'display: none;' }}">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Matière sélectionnée :</span>
+                            <span id="selected-subject-name">{{ $annonce->subject->nom ?? '' }}</span>
+                        </div>
+
+                        @error('subject_id')
                             <span class="error">{{ $message }}</span>
                         @enderror
                     </div>
@@ -995,7 +1096,90 @@
         const errorModalMessage = document.getElementById('errorModalMessage');
         const errorModalDetails = document.getElementById('errorModalDetails');
 
-        // Fonctions utilitaires
+        // ===== GESTION DU SELECT PERSONNALISÉ POUR LES MATIÈRES =====
+        const searchInput = document.getElementById('subject-search');
+        const hiddenInput = document.getElementById('subject_id');
+        const dropdown = document.getElementById('subjects-dropdown');
+        const options = document.querySelectorAll('.custom-select-option');
+        const selectedSubjectDiv = document.getElementById('selected-subject');
+        const selectedSubjectName = document.getElementById('selected-subject-name');
+
+        // Afficher/masquer le dropdown
+        searchInput.addEventListener('focus', () => {
+            dropdown.classList.add('show');
+            filterOptions();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Filtrer les options
+        function filterOptions() {
+            const searchTerm = searchInput.value.toLowerCase();
+            let hasResults = false;
+
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    option.style.display = 'block';
+                    hasResults = true;
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+
+            // Afficher un message si aucun résultat
+            let noResults = dropdown.querySelector('.no-results');
+            if (!hasResults) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.className = 'no-results';
+                    noResults.textContent = 'Aucune matière trouvée';
+                    dropdown.appendChild(noResults);
+                }
+            } else if (noResults) {
+                noResults.remove();
+            }
+        }
+
+        searchInput.addEventListener('input', filterOptions);
+
+        // Sélectionner une option
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                const value = option.dataset.value; // ID de la matière
+                const name = option.dataset.name; // Nom de la matière
+
+                searchInput.value = name;
+                hiddenInput.value = value;
+                dropdown.classList.remove('show');
+
+                // Mettre à jour l'affichage de la sélection
+                selectedSubjectName.textContent = name;
+                selectedSubjectDiv.style.display = 'flex';
+
+                // Marquer l'option comme sélectionnée
+                options.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+            });
+        });
+
+        // Gérer la sélection par défaut (si old value existe ou valeur de l'annonce)
+        @if(old('subject_id', $annonce->subject_id))
+            const defaultOption = Array.from(options).find(opt => opt.dataset.value === "{{ old('subject_id', $annonce->subject_id) }}");
+            if (defaultOption) {
+                const name = defaultOption.dataset.name;
+                searchInput.value = name;
+                selectedSubjectName.textContent = name;
+                selectedSubjectDiv.style.display = 'flex';
+                defaultOption.classList.add('selected');
+            }
+        @endif
+
+        // Fonctions pour le reste du formulaire
         function formatTime(time) {
             if (!time) return '00:00';
             const [hours, minutes] = time.split(':');
@@ -1013,7 +1197,6 @@
             });
         }
 
-        // Fonction pour afficher l'erreur de façon stylisée
         function showErrorModal(title, message, details = []) {
             errorModalTitle.textContent = title;
             errorModalMessage.textContent = message;
@@ -1039,7 +1222,6 @@
             errorModal.style.display = 'flex';
         }
 
-        // Fonction pour fermer l'erreur
         window.closeErrorModal = function() {
             errorModal.style.display = 'none';
         }
@@ -1050,7 +1232,6 @@
             }
         });
 
-        // Fonction pour vérifier les doublons
         function checkDuplicate(jour, debut, fin, currentId = null) {
             const items = disponibiliteContainer.querySelectorAll('.disponibilite-item');
             let duplicates = [];
@@ -1070,7 +1251,6 @@
             return duplicates.length > 0;
         }
 
-        // Fonction pour créer un nouvel élément de disponibilité
         function createDisponibiliteItem(jour = '', debut = '', fin = '') {
             const id = generateId();
             disponibiliteCounter++;
@@ -1108,7 +1288,6 @@
             return item;
         }
 
-        // Fonction pour supprimer un créneau
         window.removeDisponibilite = function(id) {
             const element = document.getElementById(id);
             if (element) {
@@ -1126,7 +1305,6 @@
             }
         }
 
-        // Fonction pour valider et mettre à jour
         function validateAndUpdate(itemId) {
             const item = document.getElementById(itemId);
             if (!item) return;
@@ -1151,7 +1329,6 @@
             updatePreview();
         }
 
-        // Fonction pour mettre à jour la prévisualisation
         function updatePreview() {
             const items = disponibiliteContainer.querySelectorAll('.disponibilite-item');
             const disponibilites = [];
@@ -1191,7 +1368,6 @@
             disponibiliteInput.value = textDisponibilites;
         }
 
-        // Ajouter un créneau
         document.getElementById('add-disponibilite').addEventListener('click', function() {
             const items = disponibiliteContainer.querySelectorAll('.disponibilite-item');
 
@@ -1216,7 +1392,6 @@
             updatePreview();
         });
 
-        // Validation du formulaire
         document.getElementById('editForm').addEventListener('submit', function(e) {
             const items = disponibiliteContainer.querySelectorAll('.disponibilite-item');
             let isValid = true;
@@ -1269,7 +1444,6 @@
             return true;
         });
 
-        // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
             const existingDisponibilite = @json($annonce->disponibilite);
 

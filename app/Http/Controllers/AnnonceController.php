@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Annonce;
 use App\Models\Payment;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -22,13 +23,26 @@ class AnnonceController extends Controller
         FedaPay::setEnvironment(config('services.fedapay.environment', 'sandbox'));
     }
 
+    // Méthode pour récupérer les matières
+    private function getSubjects()
+    {
+        return Subject::where('is_active', true)
+            ->orderBy('nom')
+            ->get();
+    }
+
     // Afficher le formulaire de création
     public function create()
     {
         abort_if(Auth::user()->role_id != 2, 403, 'Accès réservé aux étudiants');
 
         $user = Auth::user();
-        return view('annonces.create', ['user' => $user]);
+        $subjects = $this->getSubjects();
+
+        return view('annonces.create', [
+            'user' => $user,
+            'subjects' => $subjects
+        ]);
     }
 
     // Enregistrer l'annonce
@@ -37,7 +51,7 @@ class AnnonceController extends Controller
         abort_if(Auth::user()->role_id != 2, 403, 'Accès réservé aux étudiants');
 
         $request->validate([
-            'domaine' => 'required|string|max:255',
+            'subject_id' => 'required|exists:subjects,id',
             'description' => 'required|string|min:10',
             'budget' => 'required|numeric|min:1000|max:1000000000',
             'disponibilite' => [
@@ -105,13 +119,13 @@ class AnnonceController extends Controller
 
         $annonce = new Annonce();
         $annonce->student_id = Auth::id();
-        $annonce->domaine = $request->domaine;
+        $annonce->subject_id = $request->subject_id;
         $annonce->description = $request->description;
         $annonce->budget = (float) $request->budget;
         $annonce->disponibilite = $request->disponibilite;
         $annonce->format = $request->format;
 
-        // Calcul acompte FIXE à 30% (plus aléatoire)
+        // Calcul acompte FIXE à 30%
         $annonce->acompte = round($annonce->budget * 0.3, 2);
 
         // Statut initial
@@ -127,7 +141,7 @@ class AnnonceController extends Controller
     // Afficher la page de paiement
     public function payment($id)
     {
-        $annonce = Annonce::findOrFail($id);
+        $annonce = Annonce::with('subject')->findOrFail($id);
         $user = Auth::user();
 
         abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
@@ -159,7 +173,7 @@ class AnnonceController extends Controller
         try {
             // Créer la transaction FedaPay
             $transaction = Transaction::create([
-                'description' => 'Acompte pour annonce: ' . $annonce->domaine,
+                'description' => 'Acompte pour annonce: ' . ($annonce->subject->nom ?? 'Formation'),
                 'amount' => (int) $annonce->acompte,
                 'currency' => ['iso' => 'XOF'],
                 'callback_url' => route('annonces.payment.callback'),
@@ -306,24 +320,22 @@ class AnnonceController extends Controller
         }
     }
 
-    // ==================== MÉTHODES MONEROO CORRIGÉES ====================
+    // ==================== MÉTHODES MONEROO ====================
 
     // Initialiser le paiement Moneroo
     public function initPaymentMoneroo(Request $request, $id)
     {
+        Log::info('Moneroo config check', [
+            'secret_key_from_env' => env('MONEROO_SECRET_KEY'),
+            'secret_key_from_config' => config('services.moneroo.secret_key'),
+            'config_array' => config('services.moneroo'),
+        ]);
 
-    // Vérification debug
-Log::info('Moneroo config check', [
-    'secret_key_from_env' => env('MONEROO_SECRET_KEY'),
-    'secret_key_from_config' => config('services.moneroo.secret_key'),
-    'config_array' => config('services.moneroo'),
-]);
+        if (!config('services.moneroo.secret_key')) {
+            throw new \Exception('Config Moneroo: ' . json_encode(config('services.moneroo')));
+        }
 
-if (!config('services.moneroo.secret_key')) {
-    throw new \Exception('Config Moneroo: ' . json_encode(config('services.moneroo')));
-}
-
-        $annonce = Annonce::findOrFail($id);
+        $annonce = Annonce::with('subject')->findOrFail($id);
         $user = Auth::user();
 
         if ($annonce->student_id != Auth::id()) {
@@ -335,18 +347,15 @@ if (!config('services.moneroo.secret_key')) {
         }
 
         try {
-            // Vérifier que la clé Moneroo est configurée
             if (!config('services.moneroo.secret_key')) {
                 throw new \Exception('La clé secrète Moneroo n\'est pas configurée');
             }
 
-            // IMPORTANT: return_url doit être sans paramètre supplémentaire
-            // Moneroo ajoutera ?paymentId=xxx automatiquement
             $paymentData = [
                 'amount' => (int) $annonce->acompte,
                 'currency' => 'XOF',
-                'description' => 'Acompte pour annonce: ' . $annonce->domaine,
-                'return_url' => route('annonces.payment.callback.moneroo'), // Pas d'annonce_id ici !
+                'description' => 'Acompte pour annonce: ' . ($annonce->subject->nom ?? 'Formation'),
+                'return_url' => route('annonces.payment.callback.moneroo'),
                 'customer' => [
                     'email' => $user->email,
                     'first_name' => $user->firstname,
@@ -389,7 +398,7 @@ if (!config('services.moneroo.secret_key')) {
         }
     }
 
-    // Callback de paiement Moneroo (corrigé - sans paramètre annonce_id)
+    // Callback de paiement Moneroo
     public function handlePaymentMoneroo(Request $request)
     {
         $user = Auth::user();
@@ -417,11 +426,9 @@ if (!config('services.moneroo.secret_key')) {
                 'status' => $payment->status ?? 'N/A',
             ]);
 
-            // Vérifier si déjà traité
             if (isset($payment->is_processed) && $payment->is_processed === true) {
                 Log::info('Payment already processed by Moneroo');
 
-                // Récupérer l'annonce_id depuis les métadonnées du paiement existant
                 $existingPayment = Payment::where('moneroo_payment_id', $transactionId)->first();
                 if ($existingPayment && $existingPayment->annonce_id) {
                     return redirect()->route('annonces.show', $existingPayment->annonce_id)
@@ -432,13 +439,11 @@ if (!config('services.moneroo.secret_key')) {
                     ->with('info', 'Ce paiement a déjà été traité.');
             }
 
-            // Vérifier le statut
             $status = $payment->status ?? 'unknown';
 
             if (strtolower($status) === 'success') {
                 Log::info('Starting annonce payment processing');
 
-                // Récupérer l'annonce_id depuis les métadonnées du paiement
                 $paymentData = json_decode(json_encode($payment), true);
                 $annonceId = $paymentData['metadata']['annonce_id'] ?? null;
 
@@ -448,7 +453,6 @@ if (!config('services.moneroo.secret_key')) {
 
                 $this->processAnnoncePaymentMoneroo($payment, $transactionId, $annonceId);
 
-                // Marquer comme traité
                 try {
                     $monerooPayment->markAsProcessed($transactionId);
                     Log::info('Payment marked as processed');
@@ -486,7 +490,6 @@ if (!config('services.moneroo.secret_key')) {
                 'annonce_id' => $annonceId
             ]);
 
-            // Vérifier si le paiement n'a pas déjà été traité dans notre DB
             $existingPayment = Payment::where('moneroo_payment_id', $transactionId)->first();
 
             if ($existingPayment) {
@@ -494,7 +497,6 @@ if (!config('services.moneroo.secret_key')) {
                 return;
             }
 
-            // Convertir l'objet Moneroo en array PHP
             $paymentData = json_decode(json_encode($payment), true);
 
             if (!is_array($paymentData)) {
@@ -503,10 +505,8 @@ if (!config('services.moneroo.secret_key')) {
 
             DB::beginTransaction();
 
-            // Récupérer l'annonce
             $annonce = Annonce::findOrFail($annonceId);
 
-            // Récupérer l'user_id depuis metadata
             $userId = null;
             if (isset($paymentData['metadata']) && is_array($paymentData['metadata'])) {
                 $userId = $paymentData['metadata']['user_id'] ?? null;
@@ -516,21 +516,17 @@ if (!config('services.moneroo.secret_key')) {
                 throw new \Exception('User ID manquant dans les metadata');
             }
 
-            // Vérifier que l'utilisateur est propriétaire de l'annonce
             if ($annonce->student_id != $userId) {
                 throw new \Exception('L\'utilisateur n\'est pas propriétaire de l\'annonce');
             }
 
-            // Extraire amount
             $amount = (float) ($paymentData['amount'] ?? $annonce->acompte);
 
-            // Extraire currency
             $currency = 'XOF';
             if (isset($paymentData['currency']) && is_array($paymentData['currency'])) {
                 $currency = $paymentData['currency']['code'] ?? 'XOF';
             }
 
-            // Extraire la méthode de paiement
             $methodCode = 'moneroo';
             $methodName = 'Moneroo';
 
@@ -547,7 +543,6 @@ if (!config('services.moneroo.secret_key')) {
                 'method_code' => $methodCode,
             ]);
 
-            // Préparer payment_details
             $paymentDetailsArray = [
                 'id' => $paymentData['id'] ?? $transactionId,
                 'status' => $paymentData['status'] ?? 'success',
@@ -566,12 +561,10 @@ if (!config('services.moneroo.secret_key')) {
                 'initiated_at' => $paymentData['initiated_at'] ?? null,
             ];
 
-            // Date de paiement
             $paidAt = isset($paymentData['initiated_at'])
                 ? Carbon::parse($paymentData['initiated_at'])
                 : now();
 
-            // Créer l'enregistrement de paiement
             Log::info('Creating payment record for annonce');
 
             $paymentRecord = Payment::create([
@@ -586,7 +579,6 @@ if (!config('services.moneroo.secret_key')) {
                 'paid_at' => $paidAt,
             ]);
 
-            // Mettre à jour l'annonce
             $annonce->update([
                 'status' => 'publiée',
                 'is_paid' => true,
@@ -638,17 +630,14 @@ if (!config('services.moneroo.secret_key')) {
                 return response()->json(['status' => 'ignored']);
             }
 
-            // Vérifier si déjà traité
             $existingPayment = Payment::where('moneroo_payment_id', $transactionId)->first();
 
             if ($existingPayment) {
                 return response()->json(['status' => 'already_processed']);
             }
 
-            // Créer un objet payment simulé
             $payment = (object) $payload['data'];
 
-            // Traiter le paiement
             $this->processAnnoncePaymentMoneroo($payment, $transactionId, $annonceId);
 
             return response()->json(['status' => 'success']);
@@ -680,7 +669,8 @@ if (!config('services.moneroo.secret_key')) {
         abort_if(Auth::user()->role_id != 2, 403, 'Accès réservé aux étudiants');
 
         $user = Auth::user();
-        $annonces = Annonce::where('student_id', Auth::id())
+        $annonces = Annonce::with('subject')
+            ->where('student_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -690,7 +680,7 @@ if (!config('services.moneroo.secret_key')) {
     // Afficher une annonce spécifique
     public function show($id)
     {
-        $annonce = Annonce::with(['student', 'payments'])->findOrFail($id);
+        $annonce = Annonce::with(['student', 'subject', 'payments'])->findOrFail($id);
         $user = Auth::user();
 
         abort_if($annonce->student_id != Auth::id() && Auth::user()->role_id != 1, 403, 'Accès non autorisé');
@@ -701,7 +691,7 @@ if (!config('services.moneroo.secret_key')) {
     // Afficher le formulaire d'édition
     public function edit($id)
     {
-        $annonce = Annonce::findOrFail($id);
+        $annonce = Annonce::with('subject')->findOrFail($id);
         $user = Auth::user();
 
         abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
@@ -711,7 +701,13 @@ if (!config('services.moneroo.secret_key')) {
                 ->with('error', 'Cette annonce ne peut plus être modifiée.');
         }
 
-        return view('annonces.edit', ['annonce' => $annonce, 'user' => $user]);
+        $subjects = $this->getSubjects();
+
+        return view('annonces.edit', [
+            'annonce' => $annonce,
+            'user' => $user,
+            'subjects' => $subjects
+        ]);
     }
 
     // Mettre à jour l'annonce
@@ -727,7 +723,7 @@ if (!config('services.moneroo.secret_key')) {
         }
 
         $request->validate([
-            'domaine' => 'required|string|max:255',
+            'subject_id' => 'required|exists:subjects,id',
             'description' => 'required|string|min:10',
             'budget' => 'required|numeric|min:1000|max:1000000000',
             'disponibilite' => [
@@ -793,7 +789,7 @@ if (!config('services.moneroo.secret_key')) {
             'format' => 'required|in:presentiel,en_ligne,hybrid'
         ]);
 
-        $annonce->domaine = $request->domaine;
+        $annonce->subject_id = $request->subject_id;
         $annonce->description = $request->description;
         $annonce->budget = $request->budget;
         $annonce->disponibilite = $request->disponibilite;

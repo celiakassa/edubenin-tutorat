@@ -79,6 +79,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isSubscribed()
     {
         $sub = $this->activeSubscription;
+
         return $sub && $sub->date_fin && $sub->date_fin->isFuture();
     }
 
@@ -97,6 +98,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->role_id === 3;
     }
+
     protected function casts(): array
     {
         return [
@@ -104,5 +106,10 @@ class User extends Authenticatable implements MustVerifyEmail
             'last_login' => 'datetime',
             'learning_preference' => LearningPreference::class,
         ];
+    }
+
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'subject_user');
     }
 }

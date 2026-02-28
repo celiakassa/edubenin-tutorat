@@ -18,14 +18,10 @@ class TeacherController extends Controller
     /**
      * Initialiser le paiement d'abonnement
      */
-
-
-
-    public function register(){
-
+    public function register()
+    {
         return view('teachers.register');
     }
-
 
     public function initSubscriptionPayment(Request $request)
     {
@@ -273,7 +269,7 @@ class TeacherController extends Controller
                 'user_id' => $user->id,
                 'subscription_id' => $subscription->id,
                 'amount' => $amount,
-                'currency' => $currency, // Maintenant c'est bien une string "XOF"
+                'currency' => $currency,
                 'status' => 'completed',
                 'payment_method' => $methodCode,
                 'payment_details' => $paymentDetailsArray,
@@ -301,22 +297,35 @@ class TeacherController extends Controller
         }
     }
 
+    /**
+     * Afficher les annonces correspondant aux matières du tuteur
+     */
     public function ShowAnnonces()
     {
         $tuteur = auth()->user();
 
         abort_if(!$tuteur || !$tuteur->isTuteur(), 403, 'Accès interdit');
 
-        $subjects = json_decode($tuteur->subjects, true) ?? [];
+        // Récupérer les IDs des matières du tuteur via la relation
+        $subjectIds = $tuteur->subjects->pluck('id')->toArray();
 
-        $annonces = \App\Models\Annonce::whereIn('domaine', $subjects)
-            ->where('status', 'publiée')
-            ->orderBy('created_at', 'desc')
-            ->paginate(6);
+        // Si le tuteur n'a pas de matières, retourner une collection vide
+        if (empty($subjectIds)) {
+            $annonces = collect();
+        } else {
+            $annonces = \App\Models\Annonce::whereIn('subject_id', $subjectIds)
+                ->where('status', 'publiée')
+                ->with(['student', 'subject']) // Charger les relations
+                ->orderBy('created_at', 'desc')
+                ->paginate(6);
+        }
 
         return view('teachers.annonce', ['annonces' => $annonces]);
     }
 
+    /**
+     * Afficher la page d'abonnement
+     */
     public function showSubscription()
     {
         return view('teachers.subscription-teacher');
@@ -336,13 +345,13 @@ class TeacherController extends Controller
         $subscriptions = Subscription::where('user_id', $user->id)
             ->with('user')
             ->orderBy('created_at', 'desc')
-            ->paginate(15); // 15 abonnements par page
+            ->paginate(15);
 
         // Récupérer tous les paiements liés aux abonnements avec pagination
         $payments = Payment::where('user_id', $user->id)
             ->whereNotNull('subscription_id')
             ->orderBy('paid_at', 'desc')
-            ->paginate(15); // 15 paiements par page
+            ->paginate(15);
 
         // Abonnement actif
         $activeSubscription = Subscription::where('user_id', $user->id)
@@ -350,12 +359,20 @@ class TeacherController extends Controller
             ->where('date_fin', '>', now())
             ->first();
 
-        return view('teachers.subscription-history', ['subscriptions' => $subscriptions, 'payments' => $payments, 'activeSubscription' => $activeSubscription]);
+        return view('teachers.subscription-history', [
+            'subscriptions' => $subscriptions,
+            'payments' => $payments,
+            'activeSubscription' => $activeSubscription
+        ]);
     }
 
+    /**
+     * Afficher le détail d'une annonce
+     */
     public function showAnnonceDetail($hash)
     {
-        $annonce = Annonce::findByHashidOrFail($hash);
+        $annonce = Annonce::with(['student', 'subject']) // Ajout de la relation subject
+                    ->findByHashidOrFail($hash);
         $hasApplied = false;
 
         if (auth()->check() && auth()->user()->isTuteur()) {
@@ -376,9 +393,25 @@ class TeacherController extends Controller
 
         $student = $annonce->student ?? null;
 
-        return view('teachers.annonce-detail', ['annonce' => $annonce, 'hasApplied' => $hasApplied, 'teacher_validate' => $teacher_validate, 'student' => $student, 'candidature' => $candidature]);
+        // Récupérer les matières du tuteur (si connecté)
+        $tutorSubjects = [];
+        if (auth()->check() && auth()->user()->isTuteur()) {
+            $tutorSubjects = auth()->user()->subjects->pluck('nom')->toArray();
+        }
+
+        return view('teachers.annonce-detail', [
+            'annonce' => $annonce,
+            'hasApplied' => $hasApplied,
+            'teacher_validate' => $teacher_validate,
+            'student' => $student,
+            'candidature' => $candidature,
+            'tutorSubjects' => $tutorSubjects
+        ]);
     }
 
+    /**
+     * Postuler à une annonce
+     */
     public function postuler($id)
     {
         $user = auth()->user();

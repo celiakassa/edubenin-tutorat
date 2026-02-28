@@ -1,10 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Annonce;
 use App\Models\Candidature;
+use App\Models\Subject;
+use Illuminate\Support\Facades\DB;
 
 class UserDashboard extends Controller
 {
@@ -41,12 +44,14 @@ class UserDashboard extends Controller
                 'photo_path',
                 'bio',
                 'qualifications',
-                'subjects',
                 'rate_per_hour',
                 'identity_document_path',
                 'city',
                 'learning_preference',
             ];
+
+            // Vérification spéciale pour les matières (relation)
+            $hasSubjects = $user->subjects()->count() > 0;
         } elseif ($user->role_id == 2) { // Étudiant
             $fields = [
                 'firstname',
@@ -74,25 +79,19 @@ class UserDashboard extends Controller
         // --- Calcul du pourcentage complété ---
         $filled = 0;
         foreach ($fields as $field) {
-            // Vérification spéciale pour certains champs
-            if ($field === 'subjects' && $user->role_id == 3) {
-                // Pour les sujets, vérifier que ce n'est pas un tableau vide
-                $subjects = $user->subjects;
-                if (!empty($subjects)) {
-                    $decoded = json_decode($subjects, true);
-                    if (is_array($decoded) && $decoded !== []) {
-                        $filled++;
-                    } elseif (is_string($subjects) && trim($subjects) !== '') {
-                        $filled++;
-                    }
-                }
-            } elseif (!empty($user->$field)) {
-                // Vérification standard pour les autres champs
+            if (!empty($user->$field)) {
                 $filled++;
             }
         }
 
-        $total = count($fields);
+        // Ajouter la vérification des matières pour les tuteurs
+        if ($user->role_id == 3) {
+            if ($hasSubjects) {
+                $filled++;
+            }
+        }
+
+        $total = count($fields) + ($user->role_id == 3 ? 1 : 0);
 
         return $total > 0 ? round(($filled / $total) * 100) : 0;
     }
@@ -102,21 +101,14 @@ class UserDashboard extends Controller
      */
     private function getTutorStatistics($user)
     {
-        // Récupérer les subjects du tuteur
-        $tutorSubjects = json_decode($user->subjects, true);
-        if (!is_array($tutorSubjects)) {
-            $tutorSubjects = [];
-        }
+        // Récupérer les IDs des matières du tuteur
+        $tutorSubjectIds = $user->subjects->pluck('id')->toArray();
 
-        // Nombre d'annonces dans son domaine (subjects)
+        // Nombre d'annonces dans son domaine (via subject_id)
         $annoncesInDomain = 0;
-        if ($tutorSubjects !== []) {
+        if (!empty($tutorSubjectIds)) {
             $annoncesInDomain = Annonce::where('status', 'publiée')
-                ->where(function($query) use ($tutorSubjects) {
-                    foreach ($tutorSubjects as $subject) {
-                        $query->orWhere('domaine', 'LIKE', '%' . $subject . '%');
-                    }
-                })
+                ->whereIn('subject_id', $tutorSubjectIds)
                 ->count();
         }
 
@@ -134,24 +126,17 @@ class UserDashboard extends Controller
             ->count();
 
         // Acompte total (somme des acomptes des annonces avec candidature acceptée)
-        $acompteTotal = Annonce::whereHas('candidatures', function(\Illuminate\Contracts\Database\Query\Builder $query) use ($user) {
+        $acompteTotal = Annonce::whereHas('candidatures', function($query) use ($user) {
             $query->where('user_id', $user->id)
                 ->where('statut', 'acceptee');
         })->sum('acompte');
 
-        // Pour le moment, on utilise une valeur statique si demandé
-        $acompteStatique = 0; // Tu peux mettre une valeur par défaut ici
-
         // Récentes annonces dans son domaine (5 dernières)
         $recentAnnonces = collect();
-        if ($tutorSubjects !== []) {
+        if (!empty($tutorSubjectIds)) {
             $recentAnnonces = Annonce::where('status', 'publiée')
-                ->where(function($query) use ($tutorSubjects) {
-                    foreach ($tutorSubjects as $subject) {
-                        $query->orWhere('domaine', 'LIKE', '%' . $subject . '%');
-                    }
-                })
-                ->with('student')
+                ->whereIn('subject_id', $tutorSubjectIds)
+                ->with(['student', 'subject'])
                 ->orderBy('published_at', 'desc')
                 ->limit(5)
                 ->get();
@@ -159,10 +144,13 @@ class UserDashboard extends Controller
 
         // Dernières candidatures
         $dernieresCandidatures = Candidature::where('user_id', $user->id)
-            ->with(['annonce', 'annonce.student'])
+            ->with(['annonce', 'annonce.student', 'annonce.subject'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
+
+        // Récupérer les noms des matières pour l'affichage
+        $tutorSubjects = $user->subjects->pluck('nom')->toArray();
 
         return [
             'annoncesInDomain' => $annoncesInDomain,
@@ -170,10 +158,10 @@ class UserDashboard extends Controller
             'totalCandidatures' => $totalCandidatures,
             'candidaturesEnAttente' => $candidaturesEnAttente,
             'acompteTotal' => $acompteTotal,
-            'acompteStatique' => $acompteStatique,
             'recentAnnonces' => $recentAnnonces,
             'dernieresCandidatures' => $dernieresCandidatures,
             'tutorSubjects' => $tutorSubjects,
+            'tutorSubjectIds' => $tutorSubjectIds,
         ];
     }
 
@@ -194,6 +182,7 @@ class UserDashboard extends Controller
 
         // Annonces récentes
         $recentAnnonces = Annonce::where('student_id', $user->id)
+            ->with('subject')
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();

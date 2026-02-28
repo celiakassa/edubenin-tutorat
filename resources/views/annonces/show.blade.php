@@ -789,7 +789,7 @@
                     <div>
                         <h1 class="annonce-title">
                             <i class="fas fa-book"></i>
-                            {{ $annonce->domaine }}
+                            {{ $annonce->subject->nom ?? 'Matière non spécifiée' }}
                         </h1>
                         <div class="annonce-meta">
                             <div class="meta-item">

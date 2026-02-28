@@ -10,6 +10,21 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // ✅ ADMIN
+        User::create([
+            'firstname'        => 'Admin',
+            'lastname'         => 'Principal',
+            'email'            => 'admin@kopiao.com',
+            'email_verified_at'=> now(),
+            'password'         => Hash::make('12345678'),
+            'telephone'        => '0100000000',
+            'photo_path'       => null,
+            'role_id'          => 1, 
+            'is_active'        => true,
+            'remember_token'   => str()->random(10),
+        ]);
+
+        // ✅ USER TEST
         User::create([
             'firstname'        => 'Test',
             'lastname'         => 'User',

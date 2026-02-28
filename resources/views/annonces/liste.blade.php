@@ -3,7 +3,7 @@
 @section('content')
 <div class="annonces-liste-page">
     <!-- Hero Section -->
-    <section class="hero-section py-5" style="background: linear-gradient(135deg, #0B69F1 0%, #6f42c1 100%);">
+    <section class="hero-section py-5" style="background: linear-gradient(135deg, #0B69F1 0%, #0B69F1 100%);">
         <div class="container">
             <div class="text-center text-white py-4">
                 <h1 class="display-4 fw-bold mb-3">Toutes les annonces</h1>
@@ -33,7 +33,7 @@
                         <!-- Domaine -->
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold" style="color: #0B69F1;">
-                                <i class="bi bi-book me-1"></i> Domaine
+                                <i class="bi bi-book me-1" style="color: #0B69F1;"></i> Domaine
                             </label>
                             <select name="domaine" class="form-select">
                                 <option value="">Tous les domaines</option>
@@ -48,7 +48,7 @@
                         <!-- Budget min -->
                         <div class="col-lg-2 col-md-6">
                             <label class="form-label fw-semibold" style="color: #0B69F1;">
-                                <i class="bi bi-coin me-1"></i> Budget min
+                                <i class="bi bi-coin me-1" style="color: #0B69F1;"></i> Budget min
                             </label>
                             <input type="number" name="budget_min" class="form-control"
                                    placeholder="Min (FCFA)" value="{{ request('budget_min') }}">
@@ -57,7 +57,7 @@
                         <!-- Budget max -->
                         <div class="col-lg-2 col-md-6">
                             <label class="form-label fw-semibold" style="color: #0B69F1;">
-                                <i class="bi bi-coin me-1"></i> Budget max
+                                <i class="bi bi-coin me-1" style="color: #0B69F1;"></i> Budget max
                             </label>
                             <input type="number" name="budget_max" class="form-control"
                                    placeholder="Max (FCFA)" value="{{ request('budget_max') }}">
@@ -66,7 +66,7 @@
                         <!-- Format -->
                         <div class="col-lg-2 col-md-6">
                             <label class="form-label fw-semibold" style="color: #0B69F1;">
-                                <i class="bi bi-laptop me-1"></i> Format
+                                <i class="bi bi-laptop me-1" style="color: #0B69F1;"></i> Format
                             </label>
                             <select name="format" class="form-select">
                                 <option value="">Tous</option>
@@ -79,7 +79,7 @@
                         <!-- Jour de disponibilité -->
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold" style="color: #0B69F1;">
-                                <i class="bi bi-calendar me-1"></i> Disponible le
+                                <i class="bi bi-calendar me-1" style="color: #0B69F1;"></i> Disponible le
                             </label>
                             <select name="jour" class="form-select">
                                 <option value="">Tous les jours</option>
@@ -113,11 +113,11 @@
                     <div class="stat-card bg-white p-3 rounded-3 shadow-sm">
                         <div class="d-flex align-items-center gap-3">
                             <div class="stat-icon rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 50px; height: 50px; background: rgba(0,0,255,0.1);">
-                                <i class="bi bi-megaphone" style="color: #0000FF; font-size: 1.5rem;"></i>
+                                 style="width: 50px; height: 50px; background: rgba(11, 105, 241, 0.1);">
+                                <i class="bi bi-megaphone" style="color: #0B69F1; font-size: 1.5rem;"></i>
                             </div>
                             <div>
-                                <span class="stat-value d-block fw-bold" style="color: #0000FF; font-size: 1.5rem;">
+                                <span class="stat-value d-block fw-bold" style="color: #0B69F1; font-size: 1.5rem;">
                                     {{ $stats['total'] }}
                                 </span>
                                 <span class="stat-label text-muted">Annonces actives</span>
@@ -129,11 +129,11 @@
                     <div class="stat-card bg-white p-3 rounded-3 shadow-sm">
                         <div class="d-flex align-items-center gap-3">
                             <div class="stat-icon rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 50px; height: 50px; background: rgba(0,0,255,0.1);">
-                                <i class="bi bi-cash-stack" style="color: #0000FF; font-size: 1.5rem;"></i>
+                                 style="width: 50px; height: 50px; background: rgba(11, 105, 241, 0.1);">
+                                <i class="bi bi-cash-stack" style="color: #0B69F1; font-size: 1.5rem;"></i>
                             </div>
                             <div>
-                                <span class="stat-value d-block fw-bold" style="color: #0000FF; font-size: 1.5rem;">
+                                <span class="stat-value d-block fw-bold" style="color: #0B69F1; font-size: 1.5rem;">
                                     {{ number_format($stats['budget_moyen'] ?? 0, 0, ',', ' ') }} F
                                 </span>
                                 <span class="stat-label text-muted">Budget moyen</span>
@@ -145,11 +145,11 @@
                     <div class="stat-card bg-white p-3 rounded-3 shadow-sm">
                         <div class="d-flex align-items-center gap-3">
                             <div class="stat-icon rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 50px; height: 50px; background: rgba(0,0,255,0.1);">
-                                <i class="bi bi-bar-chart" style="color: #0000FF; font-size: 1.5rem;"></i>
+                                 style="width: 50px; height: 50px; background: rgba(11, 105, 241, 0.1);">
+                                <i class="bi bi-bar-chart" style="color: #0B69F1; font-size: 1.5rem;"></i>
                             </div>
                             <div>
-                                <span class="stat-value d-block fw-bold" style="color: #0000FF; font-size: 1.5rem;">
+                                <span class="stat-value d-block fw-bold" style="color: #0B69F1; font-size: 1.5rem;">
                                     {{ number_format($stats['budget_max'] ?? 0, 0, ',', ' ') }} F
                                 </span>
                                 <span class="stat-label text-muted">Budget max</span>
@@ -164,9 +164,9 @@
                 <div class="annonces-grid">
                     @foreach($annonces as $annonce)
                         <div class="annonce-card bg-white rounded-4 shadow-sm overflow-hidden" data-aos="fade-up">
-                            <div class="card-header p-3" style="background: #0000FF;">
+                            <div class="card-header p-3" style="background: #0B69F1;">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span class="badge bg-white text-primary px-3 py-2 rounded-pill">
+                                    <span class="badge bg-white text-primary px-3 py-2 rounded-pill" style="color: #0B69F1 !important;">
                                         @if($annonce->format == 'presentiel')
                                             <i class="bi bi-person-workspace"></i> Présentiel
                                         @elseif($annonce->format == 'en_ligne')
@@ -198,7 +198,7 @@
                                                  alt="{{ $annonce->student->firstname }}"
                                                  style="width: 100%; height: 100%; object-fit: cover;">
                                         @else
-                                            <i class="bi bi-person-circle" style="color: #0000FF; font-size: 1.5rem;"></i>
+                                            <i class="bi bi-person-circle" style="color: #0B69F1; font-size: 1.5rem;"></i>
                                         @endif
                                     </div>
                                     <div>
@@ -212,7 +212,7 @@
                                 </div>
 
                                 <div class="disponibilite mb-3 p-2 rounded" style="background: #f8f9fa;">
-                                    <i class="bi bi-calendar-check me-2" style="color: #0000FF;"></i>
+                                    <i class="bi bi-calendar-check me-2" style="color: #0B69F1;"></i>
                                     <small>{{ Str::limit($annonce->disponibilite, 50) }}</small>
                                 </div>
 
@@ -252,6 +252,7 @@
 .hero-section {
     position: relative;
     overflow: hidden;
+    background: linear-gradient(135deg, #0B69F1 0%, #0B69F1 100%) !important;
 }
 
 .hero-section::before {
@@ -308,7 +309,7 @@
 }
 
 .filters-container {
-    border: 1px solid rgba(0,0,255,0.1);
+    border: 1px solid rgba(11, 105, 241, 0.1);
 }
 
 .filters-container .form-control,
@@ -320,22 +321,22 @@
 
 .filters-container .form-control:focus,
 .filters-container .form-select:focus {
-    border-color: #0000FF;
-    box-shadow: 0 0 0 0.2rem rgba(0,0,255,0.1);
+    border-color: #0B69F1;
+    box-shadow: 0 0 0 0.2rem rgba(11, 105, 241, 0.1);
 }
 
 .btn-primary {
-    background: #0B69F1;
-    border: none;
+    background: #0B69F1 !important;
+    border: none !important;
     padding: 10px 25px;
     border-radius: 10px;
     font-weight: 500;
 }
 
 .btn-primary:hover {
-    background: #0B69F1;
+    background: #0855c4 !important;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,255,0.3);
+    box-shadow: 0 5px 15px rgba(11, 105, 241, 0.3);
 }
 
 .annonces-grid {
@@ -354,8 +355,8 @@
 
 .annonce-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0,0,255,0.1) !important;
-    border-color: rgba(0,0,255,0.2);
+    box-shadow: 0 20px 40px rgba(11, 105, 241, 0.1) !important;
+    border-color: rgba(11, 105, 241, 0.2);
 }
 
 .card-header {
@@ -367,9 +368,9 @@
 }
 
 .annonce-card .btn:hover {
-    background: #0000CC !important;
+    background: #0855c4 !important;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,255,0.3);
+    box-shadow: 0 5px 15px rgba(11, 105, 241, 0.3);
 }
 
 .stat-card {
@@ -379,7 +380,7 @@
 
 .stat-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0,0,255,0.1) !important;
+    box-shadow: 0 10px 25px rgba(11, 105, 241, 0.1) !important;
 }
 
 /* Pagination */
@@ -397,14 +398,18 @@
 }
 
 .pagination .page-link:hover {
-    background: #0000FF;
+    background: #0B69F1;
     color: white;
     transform: translateY(-2px);
 }
 
 .pagination .active .page-link {
-    background: #0000FF;
+    background: #0B69F1;
     color: white;
+}
+
+.badge.bg-white.text-primary {
+    color: #0B69F1 !important;
 }
 
 /* Responsive */
