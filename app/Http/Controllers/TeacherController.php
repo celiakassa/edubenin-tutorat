@@ -308,11 +308,11 @@ class TeacherController extends Controller
 
         abort_if(!$tuteur || !$tuteur->isTuteur(), 403, 'Accès interdit');
 
-        // 🔥 noms des domaines du tuteur (STRING)
-        $domaines = $tuteur->subjects()->pluck('subjects.nom');
+        // Récupère les IDs des matières du tuteur
+        $subjectIds = $tuteur->subjects()->pluck('subjects.id');
 
         $annonces = \App\Models\Annonce::query()
-            ->whereIn('domaine', $domaines) // ✅ comparaison texte correcte
+            ->whereIn('subject_id', $subjectIds) // filtre par ID
             ->publiees()
             ->latest()
             ->paginate(6);

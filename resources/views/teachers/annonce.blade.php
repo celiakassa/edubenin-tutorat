@@ -76,7 +76,7 @@
                             <div class="detail-content">
                                 <span class="detail-label">Disponibilité</span>
                                 <span class="detail-value">
-                                    {{ \Carbon\Carbon::parse($annonce->disponibilite)->format('d/m/y \à H \h') }}
+                                    {{ $annonce->disponibilite }}
                                 </span>
 
                             </div>
