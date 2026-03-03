@@ -3,162 +3,180 @@
 @section('title', 'Détail de la Mission')
 
 @section('content')
-<div class="container-fluid py-5 px-md-5">
+    <div class="container-fluid py-5 px-md-5">
 
-    <div class="d-flex justify-content-start mb-4">
-        <a href="{{ url()->previous() }}" class="btn-back">
-            <i class="fas fa-arrow-left mr-2"></i>
-            Retour aux offres
-        </a>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card main-card border-0 shadow-sm mb-4">
-                <div class="card-body p-4 p-lg-5">
-
-                    <div class="mb-4">
-                        <span class="category-tag mb-3">{{ $annonce->domaine }}</span>
-                        <h1 class="display-title text-navy mb-4">{{ $annonce->title ?? 'Mission en ' . $annonce->domaine }}</h1>
-
-                        <div class="quick-info-grid">
-                            <div class="info-item">
-                                <div class="icon-box"><i class="far fa-calendar-alt"></i></div>
-                                <div>
-                                    <p class="label">Début de mission</p>
-                                   <p class="value text-navy">
-    {{ $annonce->disponibilite ?? 'Dès que possible' }}
-</p>
-
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <div class="icon-box"><i class="fas fa-video"></i></div>
-                                <div>
-                                    <p class="label">Format</p>
-                                    <p class="value text-navy text-capitalize">{{ str_replace('_', ' ', $annonce->format) }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="custom-divider my-5"></div>
-
-                    <div class="description-section mb-5">
-                        <h5 class="section-subtitle text-navy mb-3">
-                            <i class="fas fa-info-circle mr-2 text-primary"></i>Description de la mission
-                        </h5>
-                        <div class="content-text text-secondary">
-                            {!! nl2br(e($annonce->description)) !!}
-                        </div>
-                    </div>
-
-                    <div class="finance-footer-card p-4">
-                        <div class="row align-items-center text-center text-md-left">
-                            <div class="col-md-6 border-md-right">
-                                <p class="label-muted text-uppercase small mb-1">Acompte requis</p>
-                                <p class="h4 font-weight-bold text-navy mb-0">{{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA</p>
-                            </div>
-                            <div class="col-md-6 pl-md-4 mt-3 mt-md-0">
-                                <p class="label-muted text-uppercase small mb-1">Publié le</p>
-                                <p class="h6 font-weight-bold text-navy mb-0">{{ $annonce->created_at->translatedFormat('d F Y') }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+        <div class="d-flex justify-content-start mb-4">
+            <a href="{{ url()->previous() }}" class="btn-back">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Retour aux offres
+            </a>
         </div>
 
-        <div class="col-lg-4">
-            <div class="sticky-top" style="top: 20px;">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card main-card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4 p-lg-5">
 
-                <div class="card action-card-blue border-0 shadow-lg mb-4 overflow-hidden">
-                    <div class="card-body p-4 text-center text-white" style="background-color:#0351BC; border-radius: 20px;">
-                        <p class="text-white-50 mb-1">Rémunération Totale</p>
-                        <h2 class="budget-display mb-4">
-                            {{ number_format($annonce->budget, 0, ',', ' ') }} <small>FCFA</small>
-                        </h2>
+                        <div class="mb-4">
+                            <span class="category-tag mb-3">{{ $annonce->domaine }}</span>
+                            <h1 class="display-title text-navy mb-4">{{ $annonce->title ?? 'Mission en ' . $annonce->domaine }}</h1>
 
-                        @auth
-                            @if(auth()->user()->isTuteur())
-                                @if($hasApplied)
-                                    <button class="btn btn-applied w-100 py-3" disabled>
-                                        <i class="fas fa-check-circle mr-2"></i>Candidature envoyée
-                                    </button>
-                                @else
-                                    <button class="btn btn-white-cta btn-apply-trigger w-100 py-3 mb-3 shadow" data-id="{{ $annonce->id }}">
-                                        Postuler maintenant
-                                    </button>
-                                    <p class="small mb-0 opacity-75">
-                                        <i class="fas fa-shield-alt mr-1"></i> Paiement sécurisé via Kopiao
+                            <div class="quick-info-grid">
+                                <div class="info-item">
+                                    <div class="icon-box"><i class="far fa-calendar-alt"></i></div>
+                                    <div>
+                                        <p class="label">Début de mission</p>
+                                        <p class="value text-navy">
+                                            {{-- Formatage de la date de disponibilité --}}
+                                            @if($annonce->disponibilite && strtotime($annonce->disponibilite))
+                                                {{ \Carbon\Carbon::parse($annonce->disponibilite)->locale('fr')->translatedFormat('d F Y') }}
+                                            @else
+                                                {{ $annonce->disponibilite ?? 'Dès que possible' }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="icon-box"><i class="fas fa-video"></i></div>
+                                    <div>
+                                        <p class="label">Format</p>
+                                        <p class="value text-navy text-capitalize">{{ str_replace('_', ' ', $annonce->format) }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="custom-divider my-5"></div>
+
+                        <div class="description-section mb-5">
+                            <h5 class="section-subtitle text-navy mb-3">
+                                <i class="fas fa-info-circle mr-2 text-primary"></i>Description de la mission
+                            </h5>
+                            <div class="content-text text-secondary">
+                                {!! nl2br(e($annonce->description)) !!}
+                            </div>
+                        </div>
+
+                        <div class="finance-footer-card p-4">
+                            <div class="row align-items-center text-center text-md-left">
+                                <div class="col-md-6 border-md-right">
+                                    <p class="label-muted text-uppercase small mb-1">Acompte requis</p>
+                                    <p class="h4 font-weight-bold text-navy mb-0">{{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA</p>
+                                </div>
+                                <div class="col-md-6 pl-md-4 mt-3 mt-md-0">
+                                    <p class="label-muted text-uppercase small mb-1">Publié le</p>
+                                    <p class="h6 font-weight-bold text-navy mb-0">
+                                        {{-- Date de publication formatée --}}
+                                        {{ \Carbon\Carbon::parse($annonce->created_at)->locale('fr')->translatedFormat('d F Y') }}
                                     </p>
-                                @endif
-                            @endif
-                        @endauth
-                    </div>
-                </div>
-
-                @if(isset($candidature) && $candidature)
-                    <div class="card border-0 shadow-sm mb-4 card-status">
-                        <div class="card-body p-4">
-                            <h6 class="sidebar-title mb-3">Statut du dossier</h6>
-                            @php
-                                $statusStyle = [
-                                    'valide' => ['bg' => '#ecfdf5', 'text' => '#065f46', 'icon' => 'fa-check-circle', 'label' => 'Validée'],
-                                    'en_attente' => ['bg' => '#fffbeb', 'text' => '#92400e', 'icon' => 'fa-clock', 'label' => 'En attente'],
-                                    'refuse' => ['bg' => '#fef2f2', 'text' => '#991b1b', 'icon' => 'fa-times-circle', 'label' => 'Refusée'],
-                                ];
-                                $st = $statusStyle[$candidature->statut] ?? ['bg' => '#f8fafc', 'text' => '#64748b', 'icon' => 'fa-info-circle', 'label' => $candidature->statut];
-                            @endphp
-                            <div class="status-badge-box d-flex align-items-center p-3 rounded-lg" style="background-color: {{ $st['bg'] }}; color: {{ $st['text'] }};">
-                                <i class="fas {{ $st['icon'] }} mr-3 fa-lg"></i>
-                                <span class="font-weight-bold">{{ $st['label'] }}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endif
 
-                <div class="card border-0 shadow-sm profile-card">
-                    <div class="card-body p-4">
-                        <h6 class="sidebar-title mb-4">Profil de l'étudiant</h6>
-
-                        @if(isset($student))
-                            <div class="d-flex align-items-center mb-4">
-                                <div class="avatar-box mr-3">
-                                    @if($student->photo_path)
-                                        <img src="{{ asset('storage/' . $student->photo_path) }}" class="rounded-circle shadow-sm">
-                                    @else
-                                        <div class="avatar-letter">{{ strtoupper(substr($student->firstname, 0, 1)) }}</div>
-                                    @endif
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 font-weight-bold text-navy">
-                                        {{ $student->firstname }} {{ (isset($teacher_validate) && $teacher_validate) ? $student->lastname : '' }}
-                                    </h6>
-                                    <span class="text-success small"><i class="fas fa-check-double mr-1"></i>Vérifié</span>
-                                </div>
-                            </div>
-
-                            @if(isset($teacher_validate) && $teacher_validate)
-                                <div class="contact-info bg-light p-3 rounded-lg">
-                                    <p class="small mb-2 text-navy"><i class="fas fa-phone-alt text-primary mr-2"></i> {{ $student->telephone ?? 'N/A' }}</p>
-                                    <p class="small mb-0 text-navy"><i class="fas fa-envelope text-primary mr-2"></i> {{ $student->email ?? 'N/A' }}</p>
-                                </div>
-                            @else
-                                <div class="locked-info text-center p-3 border rounded-lg">
-                                    <i class="fas fa-lock text-muted mb-2"></i>
-                                    <p class="small text-muted mb-0">Coordonnées visibles après validation de votre profil par l'étudiant.</p>
-                                </div>
-                            @endif
-                        @endif
                     </div>
                 </div>
+            </div>
 
+            <div class="col-lg-4">
+                <div class="sticky-top" style="top: 20px;">
+
+                    <div class="card action-card-blue border-0 shadow-lg mb-4 overflow-hidden">
+                        <div class="card-body p-4 text-center text-white" style="background-color:#0351BC; border-radius: 20px;">
+                            <p class="text-white-50 mb-1">Rémunération Totale</p>
+                            <h2 class="budget-display mb-4">
+                                {{ number_format($annonce->budget, 0, ',', ' ') }} <small>FCFA</small>
+                            </h2>
+
+                            @auth
+                                @if(auth()->user()->isTuteur())
+                                    @if($hasApplied)
+                                        <button class="btn btn-applied w-100 py-3" disabled>
+                                            <i class="fas fa-check-circle mr-2"></i>Candidature envoyée
+                                        </button>
+                                    @else
+                                        <button class="btn btn-white-cta btn-apply-trigger w-100 py-3 mb-3 shadow" data-id="{{ $annonce->id }}">
+                                            Postuler maintenant
+                                        </button>
+                                        <p class="small mb-0 opacity-75">
+                                            <i class="fas fa-shield-alt mr-1"></i> Paiement sécurisé via Kopiao
+                                        </p>
+                                    @endif
+                                @endif
+                            @endauth
+                        </div>
+                    </div>
+
+                    @if(isset($candidature) && $candidature)
+                        <div class="card border-0 shadow-sm mb-4 card-status">
+                            <div class="card-body p-4">
+                                <h6 class="sidebar-title mb-3">Statut du dossier</h6>
+                                @php
+                                    $statusStyle = [
+                                        'acceptee' => ['bg' => '#ecfdf5', 'text' => '#065f46', 'icon' => 'fa-check-circle', 'label' => 'Validée'],
+                                        'en_attente' => ['bg' => '#fffbeb', 'text' => '#92400e', 'icon' => 'fa-clock', 'label' => 'En attente'],
+                                        'refuse' => ['bg' => '#fef2f2', 'text' => '#991b1b', 'icon' => 'fa-times-circle', 'label' => 'Refusée'],
+                                    ];
+                                    $st = $statusStyle[$candidature->statut] ?? ['bg' => '#f8fafc', 'text' => '#64748b', 'icon' => 'fa-info-circle', 'label' => $candidature->statut];
+                                @endphp
+                                <div class="status-badge-box d-flex align-items-center p-3 rounded-lg" style="background-color: {{ $st['bg'] }}; color: {{ $st['text'] }};">
+                                    <i class="fas {{ $st['icon'] }} mr-3 fa-lg"></i>
+                                    <span class="font-weight-bold">{{ $st['label'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Section Profil de l'étudiant --}}
+                    <div class="card border-0 shadow-sm profile-card">
+                        <div class="card-body p-4">
+                            <h6 class="sidebar-title mb-4">Profil de l'étudiant</h6>
+
+                            @if($student)
+                                <div class="d-flex align-items-center mb-4">
+                                    <div class="avatar-box mr-3">
+                                        {{-- Si validé : photo ou initiale. Si non validé : cadenas --}}
+                                        @if(isset($teacher_validate) && $teacher_validate)
+                                            @if($student->photo_path)
+                                                <img src="{{ asset('storage/' . $student->photo_path) }}" class="rounded-circle shadow-sm">
+                                            @else
+                                                <div class="avatar-letter">{{ strtoupper(substr($student->firstname, 0, 1)) }}</div>
+                                            @endif
+                                        @else
+                                            <div class="avatar-letter">
+                                                <i class="fas fa-lock"></i>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 font-weight-bold text-navy">
+                                            {{ $student->firstname }}
+                                            {{ (isset($teacher_validate) && $teacher_validate) ? $student->lastname : '***' }}
+                                        </h6>
+                                        <span class="text-success small"><i class="fas fa-check-double mr-1"></i>Vérifié</span>
+                                    </div>
+                                </div>
+
+                                @if(isset($teacher_validate) && $teacher_validate)
+                                    <div class="contact-info bg-light p-3 rounded-lg">
+                                        <p class="small mb-2 text-navy"><i class="fas fa-phone-alt text-primary mr-2"></i> {{ $student->telephone ?? 'N/A' }}</p>
+                                        <p class="small mb-0 text-navy"><i class="fas fa-envelope text-primary mr-2"></i> {{ $student->email ?? 'N/A' }}</p>
+                                    </div>
+                                @else
+                                    <div class="locked-info text-center p-3 border rounded-lg">
+                                        <i class="fas fa-lock text-muted mb-2"></i>
+                                        <p class="small text-muted mb-0">Coordonnées visibles après validation de votre candidature.</p>
+                                    </div>
+                                @endif
+                            @else
+                                <p class="text-muted small">Informations étudiant non disponibles.</p>
+                            @endif
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 @push('styles')
 <style>

@@ -75,7 +75,9 @@
                             <i class="fas fa-calendar-alt"></i>
                             <div class="detail-content">
                                 <span class="detail-label">Disponibilité</span>
-                           
+                                <span class="detail-value">
+                                    {{ \Carbon\Carbon::parse($annonce->disponibilite)->format('d/m/y \à H \h') }}
+                                </span>
 
                             </div>
                         </div>
@@ -174,6 +176,7 @@
             margin-bottom: 8px;
             color: var(--white);
         }
+
 
         .header-subtitle {
             font-size: 16px;

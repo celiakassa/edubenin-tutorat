@@ -14,7 +14,7 @@ class Annonce extends Model
 
     protected $fillable = [
         'student_id',
-        'subject_id', // Changé de 'domaine' à 'subject_id'
+        'domaine', // Changé de 'domaine' à 'subject_id'
         'description',
         'budget',
         'acompte',
