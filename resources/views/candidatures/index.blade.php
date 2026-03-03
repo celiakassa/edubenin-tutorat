@@ -555,6 +555,164 @@
             cursor: not-allowed;
         }
 
+        /* Styles pour les modales de confirmation */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background: var(--white);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            position: relative;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+            animation: modalPop 0.3s ease forwards;
+        }
+
+        @keyframes modalPop {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .modal-icon.warning {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .modal-icon.success {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        .modal-icon.danger {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-message {
+            font-size: 16px;
+            color: var(--dark-gray);
+            text-align: center;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            min-width: 120px;
+        }
+
+        .modal-btn.cancel {
+            background: var(--light-gray);
+            color: var(--dark-gray);
+        }
+
+        .modal-btn.cancel:hover {
+            background: var(--medium-gray);
+            transform: translateY(-2px);
+        }
+
+        .modal-btn.confirm-warning {
+            background: var(--warning);
+            color: var(--white);
+        }
+
+        .modal-btn.confirm-warning:hover {
+            background: #e68a00;
+            transform: translateY(-2px);
+        }
+
+        .modal-btn.confirm-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .modal-btn.confirm-success:hover {
+            background: #0d9488;
+            transform: translateY(-2px);
+        }
+
+        .modal-btn.confirm-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .modal-btn.confirm-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--dark-gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -643,6 +801,14 @@
             .btn-action {
                 width: 100%;
             }
+
+            .modal-buttons {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -674,31 +840,12 @@
                         @if (Auth::user()->role_id == 3)
                             Tuteur
                         @elseif(Auth::user()->role_id == 2)
-                            Étudiant
+                            Apprenant
                         @else
                             Administrateur
                         @endif
                     </p>
                 </div>
-            </div>
-        </div>
-
-        <div class="sidebar-stats">
-            <div class="stat-item">
-                <span class="stat-label">Statut</span>
-                <span class="stat-value">
-                    @if (Auth::user()->role_id == 3)
-                        Tuteur
-                    @elseif(Auth::user()->role_id == 2)
-                        Étudiant
-                    @else
-                        Admin
-                    @endif
-                </span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Annonces actives</span>
-                <span class="stat-value">{{ Auth::user()->annonces()->where('status', 'publiée')->count() }}</span>
             </div>
         </div>
 
@@ -725,6 +872,20 @@
                     <span class="menu-text">Administration</span>
                 </a>
             @endif
+        </div>
+    </div>
+
+    <!-- Modales de confirmation -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-container" id="modalContainer">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-icon" id="modalIcon"></div>
+            <h2 class="modal-title" id="modalTitle">Confirmation</h2>
+            <p class="modal-message" id="modalMessage"></p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" id="modalCancel">Annuler</button>
+                <button class="modal-btn" id="modalConfirm">Confirmer</button>
+            </div>
         </div>
     </div>
 
@@ -760,7 +921,7 @@
                     </a>
                 </div>
             </div>
-
+<br>
             <!-- Messages -->
             @if(session('success'))
                 <div class="alert-message alert-success">
@@ -855,13 +1016,13 @@
                                 <div class="tuteur-info">
                                     <h3>{{ $candidature->tuteur->firstname }} {{ $candidature->tuteur->lastname }}</h3>
                                     <div class="tuteur-matiere">
-    <i class="fas fa-book"></i>
-    @php
-        $subjects = json_decode($candidature->tuteur->subjects, true);
-    @endphp
-    {{ $subjects ? implode(', ', $subjects) : ($candidature->tuteur->subjects ?? 'Non spécifié') }}
-</div>
-
+                                        <i class="fas fa-book"></i>
+                                        @if($candidature->tuteur->subjects && $candidature->tuteur->subjects->count() > 0)
+                                            {{ $candidature->tuteur->subjects->pluck('nom')->implode(', ') }}
+                                        @else
+                                            Non spécifié
+                                        @endif
+                                    </div>
                                     <span class="candidature-status status-{{ $candidature->statut }}">
                                         {{ $candidature->statut }}
                                     </span>
@@ -894,34 +1055,28 @@
                             </div>
 
                             <div class="candidature-actions">
-                                <a href="{{ route('candidatures.profil', $candidature->id) }}" class="btn-action btn-profil">
+                                <a href="{{ route('annonces.candidatures.profil', $candidature->id) }}" class="btn-action btn-profil">
                                     <i class="fas fa-user"></i> Voir profil
                                 </a>
-                                
+
                                 @if($candidature->estEnAttente())
-                                <form action="{{ route('candidatures.accepter', $candidature->id) }}" method="POST" class="action-form">
-                                    @csrf
-                                    <button type="submit" class="btn-action btn-accepter" 
-                                            onclick="return confirm('Êtes-vous sûr de vouloir accepter ce tuteur ? Cela refusera automatiquement les autres candidatures.')">
-                                        <i class="fas fa-check"></i> Accepter
-                                    </button>
-                                </form>
-                                
-                                <form action="{{ route('candidatures.refuser', $candidature->id) }}" method="POST" class="action-form">
-                                    @csrf
-                                    <button type="submit" class="btn-action btn-refuser"
-                                            onclick="return confirm('Êtes-vous sûr de vouloir refuser ce tuteur ?')">
-                                        <i class="fas fa-times"></i> Refuser
-                                    </button>
-                                </form>
+                                <button type="button" class="btn-action btn-accepter"
+                                        onclick="showAcceptModal({{ $candidature->id }}, '{{ $candidature->tuteur->firstname }} {{ $candidature->tuteur->lastname }}')">
+                                    <i class="fas fa-check"></i> Accepter
+                                </button>
+
+                                <button type="button" class="btn-action btn-refuser"
+                                        onclick="showRejectModal({{ $candidature->id }}, '{{ $candidature->tuteur->firstname }} {{ $candidature->tuteur->lastname }}')">
+                                    <i class="fas fa-times"></i> Refuser
+                                </button>
                                 @endif
-                                
+
                                 @if($candidature->estAcceptee())
                                 <button class="btn-action btn-accepter" disabled>
                                     <i class="fas fa-check"></i> Accepté
                                 </button>
                                 @endif
-                                
+
                                 @if($candidature->estRefusee())
                                 <button class="btn-action btn-refuser" disabled>
                                     <i class="fas fa-times"></i> Refusé
@@ -945,115 +1100,210 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Chart des candidatures
-            @if($stats['total'] > 0)
-            const ctx = document.getElementById('candidaturesChart').getContext('2d');
-            const chart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['En attente', 'Acceptées', 'Refusées'],
-                    datasets: [{
-                        data: [
-                            {{ $stats['en_attente'] }},
-                            {{ $stats['acceptees'] }},
-                            {{ $stats['refusees'] }}
-                        ],
-                        backgroundColor: [
-                            'rgba(245, 158, 11, 0.8)',
-                            'rgba(16, 185, 129, 0.8)',
-                            'rgba(239, 68, 68, 0.8)'
-                        ],
-                        borderColor: [
-                            '#f59e0b',
-                            '#10b981',
-                            '#ef4444'
-                        ],
-                        borderWidth: 2,
-                        hoverOffset: 15
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true,
-                                font: {
-                                    size: 14
-                                }
+    <!-- Formulaire caché pour soumettre les actions -->
+    <form id="actionForm" method="POST" style="display: none;">
+        @csrf
+    </form>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Chart des candidatures
+        @if($stats['total'] > 0)
+        const ctx = document.getElementById('candidaturesChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['En attente', 'Acceptées', 'Refusées'],
+                datasets: [{
+                    data: [
+                        {{ $stats['en_attente'] }},
+                        {{ $stats['acceptees'] }},
+                        {{ $stats['refusees'] }}
+                    ],
+                    backgroundColor: [
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(239, 68, 68, 0.8)'
+                    ],
+                    borderColor: [
+                        '#f59e0b',
+                        '#10b981',
+                        '#ef4444'
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                size: 14
                             }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
                             }
                         }
                     }
                 }
-            });
-            @endif
+            }
+        });
+        @endif
 
-            // Filtrage des candidatures
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            const candidatureCards = document.querySelectorAll('.candidature-card');
+        // Filtrage des candidatures
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const candidatureCards = document.querySelectorAll('.candidature-card');
 
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Retirer la classe active de tous les boutons
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    // Ajouter la classe active au bouton cliqué
-                    this.classList.add('active');
-                    
-                    const filter = this.dataset.filter;
-                    
-                    candidatureCards.forEach(card => {
-                        if (filter === 'all' || card.dataset.statut === filter) {
-                            card.style.display = 'block';
-                            setTimeout(() => {
-                                card.style.opacity = '1';
-                                card.style.transform = 'translateY(0)';
-                            }, 10);
-                        } else {
-                            card.style.opacity = '0';
-                            card.style.transform = 'translateY(20px)';
-                            setTimeout(() => {
-                                card.style.display = 'none';
-                            }, 300);
-                        }
-                    });
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                const filter = this.dataset.filter;
+
+                candidatureCards.forEach(card => {
+                    if (filter === 'all' || card.dataset.statut === filter) {
+                        card.style.display = 'block';
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, 10);
+                    } else {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            card.style.display = 'none';
+                        }, 300);
+                    }
                 });
             });
-
-            // Animation des cartes
-            const cards = document.querySelectorAll('.candidature-card');
-            cards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
-            });
-
-            // Rafraîchir les stats toutes les 30 secondes
-            setInterval(function() {
-                fetch('{{ route("candidatures.stats", $annonce->id) }}')
-                    .then(response => response.json())
-                    .then(data => {
-                        // Mettre à jour le graphique si nécessaire
-                        if (chart) {
-                            chart.data.datasets[0].data = data.data;
-                            chart.update();
-                        }
-                    });
-            }, 30000);
         });
-    </script>
+
+        // Animation des cartes
+        const cards = document.querySelectorAll('.candidature-card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Rafraîchir les stats toutes les 30 secondes
+        setInterval(function() {
+            fetch('{{ route("annonces.candidatures.stats", $annonce->id) }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (chart) {
+                        chart.data.datasets[0].data = data.data;
+                        chart.update();
+                    }
+                });
+        }, 30000);
+    });
+
+    // Variables pour la modale
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalContainer = document.getElementById('modalContainer');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalCancel = document.getElementById('modalCancel');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const modalClose = document.getElementById('modalClose');
+    const actionForm = document.getElementById('actionForm');
+
+    let currentAction = null;
+    let currentCandidatureId = null;
+
+    // Fonction pour fermer la modale
+    function closeModal() {
+        modalOverlay.classList.remove('active');
+    }
+
+    // Fonction pour ouvrir la modale d'acceptation
+    function showAcceptModal(candidatureId, tuteurName) {
+        currentAction = 'accept';
+        currentCandidatureId = candidatureId;
+
+        modalIcon.className = 'modal-icon success';
+        modalIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        modalTitle.textContent = 'Accepter ce tuteur ?';
+        modalMessage.innerHTML = `Êtes-vous sûr de vouloir accepter <strong>${tuteurName}</strong> ?<br><br>
+                                <span style="color: var(--warning); font-weight: 500;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Cela refusera automatiquement toutes les autres candidatures.
+                                </span>`;
+
+        modalConfirm.className = 'modal-btn confirm-success';
+        modalConfirm.textContent = 'Oui, accepter';
+
+        modalOverlay.classList.add('active');
+    }
+
+    // Fonction pour ouvrir la modale de refus
+    function showRejectModal(candidatureId, tuteurName) {
+        currentAction = 'reject';
+        currentCandidatureId = candidatureId;
+
+        modalIcon.className = 'modal-icon danger';
+        modalIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
+        modalTitle.textContent = 'Refuser ce tuteur ?';
+        modalMessage.innerHTML = `Êtes-vous sûr de vouloir refuser <strong>${tuteurName}</strong> ?<br><br>
+                                <span style="color: var(--dark-gray); font-size: 14px;">
+                                Cette action est irréversible.
+                                </span>`;
+
+        modalConfirm.className = 'modal-btn confirm-danger';
+        modalConfirm.textContent = 'Oui, refuser';
+
+        modalOverlay.classList.add('active');
+    }
+
+    // Gestionnaire pour le bouton de confirmation
+    modalConfirm.addEventListener('click', function() {
+        if (currentAction && currentCandidatureId) {
+            let baseUrl = '';
+
+            // Construire l'URL manuellement sans utiliser route() dans le JavaScript
+            if (currentAction === 'accept') {
+                baseUrl = '/annonces/candidatures/' + currentCandidatureId + '/accepter';
+            } else if (currentAction === 'reject') {
+                baseUrl = '/annonces/candidatures/' + currentCandidatureId + '/refuser';
+            }
+
+            actionForm.action = baseUrl;
+            actionForm.submit();
+        }
+        closeModal();
+    });
+
+    // Gestionnaires pour fermer la modale
+    modalCancel.addEventListener('click', closeModal);
+    modalClose.addEventListener('click', closeModal);
+
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+            closeModal();
+        }
+    });
+
+    // Fermer avec la touche Echap
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+            closeModal();
+        }
+    });
+</script>
 </body>
 </html>

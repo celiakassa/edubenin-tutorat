@@ -7,9 +7,9 @@
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}" style="color: #0000FF;">Accueil</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('annoncesListe.liste') }}" style="color: #0000FF;">Annonces</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ $annonce->domaine }}</li>
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}" style="color: #0B69F1;">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('annoncesListe.liste') }}" style="color: #0B69F1;">Annonces</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ $annonce->subject->nom ?? 'Matière non spécifiée' }}</li>
                 </ol>
             </nav>
         </div>
@@ -25,7 +25,7 @@
                         <!-- En-tête -->
                         <div class="d-flex justify-content-between align-items-start mb-4">
                             <div>
-                                <span class="badge mb-3" style="background: #0000FF; color: white; padding: 8px 15px; border-radius: 30px;">
+                                <span class="badge mb-3" style="background: #0B69F1; color: white; padding: 8px 15px; border-radius: 30px;">
                                     @if($annonce->format == 'presentiel')
                                         <i class="bi bi-person-workspace"></i> Présentiel
                                     @elseif($annonce->format == 'en_ligne')
@@ -34,13 +34,13 @@
                                         <i class="bi bi-arrow-left-right"></i> Hybride
                                     @endif
                                 </span>
-                                <h1 class="fw-bold mb-2" style="color: #333; font-size: 2rem;">{{ $annonce->domaine }}</h1>
+                                <h1 class="fw-bold mb-2" style="color: #333; font-size: 2rem;">{{ $annonce->subject->nom ?? 'Matière non spécifiée' }}</h1>
                                 <p class="text-muted">
                                     <i class="bi bi-clock"></i> Publiée {{ $annonce->created_at->diffForHumans() }}
                                 </p>
                             </div>
-                            <div class="budget-box text-center p-3 rounded-3" style="background: rgba(0,0,255,0.05); min-width: 150px;">
-                                <span class="d-block fw-bold" style="color: #0000FF; font-size: 2rem;">
+                            <div class="budget-box text-center p-3 rounded-3" style="background: rgba(11, 105, 241, 0.05); min-width: 150px;">
+                                <span class="d-block fw-bold" style="color: #0B69F1; font-size: 2rem;">
                                     {{ number_format($annonce->budget, 0, ',', ' ') }}
                                 </span>
                                 <span class="text-muted">FCFA</span>
@@ -50,7 +50,7 @@
                         <!-- Description complète -->
                         <div class="description-section mb-4">
                             <h4 class="fw-bold mb-3" style="color: #333;">
-                                <i class="bi bi-file-text me-2" style="color: #0000FF;"></i> Description
+                                <i class="bi bi-file-text me-2" style="color: #0B69F1;"></i> Description
                             </h4>
                             <div class="p-3 rounded-3" style="background: #f8f9fa; line-height: 1.8;">
                                 {{ $annonce->description }}
@@ -60,64 +60,28 @@
                         <!-- Disponibilités détaillées -->
                         <div class="disponibilite-section mb-4">
                             <h4 class="fw-bold mb-3" style="color: #333;">
-                                <i class="bi bi-calendar-week me-2" style="color: #0000FF;"></i> Disponibilités
+                                <i class="bi bi-calendar-week me-2" style="color: #0B69F1;"></i> Disponibilités
                             </h4>
                             <div class="p-3 rounded-3" style="background: #f8f9fa;">
-                                @php
-                                    $disponibilites = explode("\n", $annonce->disponibilite);
-                                @endphp
-                                @foreach($disponibilites as $dispo)
-                                    @if(!empty(trim($dispo)))
-                                        <div class="dispo-item d-flex align-items-center gap-2 mb-2">
-                                            <i class="bi bi-check-circle-fill" style="color: #0000FF;"></i>
-                                            <span>{{ trim($dispo) }}</span>
-                                        </div>
-                                    @endif
-                                @endforeach
+                                @if($annonce->disponibilite)
+                                    @php
+                                        $disponibilites = explode("\n", $annonce->disponibilite);
+                                    @endphp
+                                    @foreach($disponibilites as $dispo)
+                                        @if(!empty(trim($dispo)))
+                                            <div class="dispo-item d-flex align-items-center gap-2 mb-2">
+                                                <i class="bi bi-check-circle-fill" style="color: #0B69F1;"></i>
+                                                <span>{{ trim($dispo) }}</span>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    <p class="text-muted mb-0">Non spécifié</p>
+                                @endif
                             </div>
                         </div>
 
-                        <!-- Informations sur l'étudiant -->
-                        <div class="student-section">
-                            <h4 class="fw-bold mb-3" style="color: #333;">
-                                <i class="bi bi-person me-2" style="color: #0000FF;"></i> À propos de l'étudiant
-                            </h4>
-                            <div class="student-card p-3 rounded-3 d-flex align-items-center gap-3" style="background: #f8f9fa;">
-                                <div class="student-avatar rounded-circle overflow-hidden d-flex align-items-center justify-content-center"
-                                     style="width: 80px; height: 80px; background: white; border: 3px solid #0000FF;">
-                                    @if($annonce->student->photo_path)
-                                        <img src="{{ asset('storage/' . $annonce->student->photo_path) }}"
-                                             alt="{{ $annonce->student->firstname }}"
-                                             style="width: 100%; height: 100%; object-fit: cover;">
-                                    @else
-                                        <i class="bi bi-person-circle" style="color: #0000FF; font-size: 3rem;"></i>
-                                    @endif
-                                </div>
-                                <div>
-                                    <h5 class="fw-bold mb-1">{{ $annonce->student->firstname }} {{ $annonce->student->lastname }}</h5>
-                                    @if($annonce->student->bio)
-                                        <p class="text-muted mb-2">{{ Str::limit($annonce->student->bio, 100) }}</p>
-                                    @endif
-                                    <div class="d-flex gap-2">
-                                        <span class="badge bg-light text-dark">
-                                            <i class="bi bi-geo-alt"></i> {{ $annonce->student->city ?? 'Non précisé' }}
-                                        </span>
-                                        @if($annonce->student->learning_preference)
-                                            <span class="badge bg-light text-dark">
-                                                <i class="bi bi-laptop"></i>
-                                                @if($annonce->student->learning_preference == 'online')
-                                                    En ligne
-                                                @elseif($annonce->student->learning_preference == 'in_person')
-                                                    Présentiel
-                                                @else
-                                                    Hybride
-                                                @endif
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+          
                     </div>
                 </div>
 
@@ -131,26 +95,24 @@
                             @auth
                                 @if(Auth::user()->role_id == 3)
                                     <a href="{{ route('login') }}" class="btn btn-primary w-100 py-3 mb-2 rounded-pill"
-                                       style="background: #0000FF; border: none;"
+                                       style="background: #0B69F1; border: none;"
                                        onclick="event.preventDefault(); showPostulerMessage();">
                                         <i class="bi bi-send me-2"></i> Postuler à cette annonce
                                     </a>
                                 @else
                                     <button class="btn btn-primary w-100 py-3 mb-2 rounded-pill"
-                                            style="background: #0000FF; border: none;"
+                                            style="background: #0B69F1; border: none;"
                                             onclick="showRoleMessage('postuler')">
                                         <i class="bi bi-send me-2"></i> Postuler à cette annonce
                                     </button>
                                 @endif
                             @else
                                 <button class="btn btn-primary w-100 py-3 mb-2 rounded-pill"
-                                        style="background: #0000FF; border: none;"
+                                        style="background: #0B69F1; border: none;"
                                         onclick="showLoginMessage()">
                                     <i class="bi bi-send me-2"></i> Postuler à cette annonce
                                 </button>
                             @endauth
-
-                       
                         </div>
 
                         <!-- Résumé rapide -->
@@ -179,7 +141,7 @@
                                 </div>
                                 <div class="resume-item d-flex justify-content-between py-2">
                                     <span class="text-muted">Disponibilités</span>
-                                    <span class="fw-bold">{{ substr_count($annonce->disponibilite, "\n") + 1 }} créneaux</span>
+                                    <span class="fw-bold">{{ $annonce->disponibilite ? substr_count($annonce->disponibilite, "\n") + 1 : 0 }} créneaux</span>
                                 </div>
                             </div>
                         </div>
@@ -193,17 +155,17 @@
                                    style="width: 45px; height: 45px; background: #1877f2; color: white;">
                                     <i class="bi bi-facebook"></i>
                                 </a>
-                                <a href="https://twitter.com/intent/tweet?url={{ urlencode(request()->url()) }}&text={{ urlencode($annonce->domaine) }}"
+                                <a href="https://twitter.com/intent/tweet?url={{ urlencode(request()->url()) }}&text={{ urlencode($annonce->subject->nom ?? 'Annonce') }}"
                                    target="_blank" class="share-btn d-flex align-items-center justify-content-center rounded-circle"
                                    style="width: 45px; height: 45px; background: #1da1f2; color: white;">
-                                    <i class="bi bi-twitter"></i>
+                                    <i class="bi bi-twitter-x"></i>
                                 </a>
-                                <a href="https://wa.me/?text={{ urlencode($annonce->domaine . ' ' . request()->url()) }}"
+                                <a href="https://wa.me/?text={{ urlencode(($annonce->subject->nom ?? 'Annonce') . ' ' . request()->url()) }}"
                                    target="_blank" class="share-btn d-flex align-items-center justify-content-center rounded-circle"
                                    style="width: 45px; height: 45px; background: #25d366; color: white;">
                                     <i class="bi bi-whatsapp"></i>
                                 </a>
-                                <a href="mailto:?subject={{ urlencode($annonce->domaine) }}&body={{ urlencode('Découvrez cette annonce: ' . request()->url()) }}"
+                                <a href="mailto:?subject={{ urlencode($annonce->subject->nom ?? 'Annonce') }}&body={{ urlencode('Découvrez cette annonce: ' . request()->url()) }}"
                                    class="share-btn d-flex align-items-center justify-content-center rounded-circle"
                                    style="width: 45px; height: 45px; background: #333; color: white;">
                                     <i class="bi bi-envelope"></i>
@@ -213,18 +175,18 @@
                     </div>
 
                     <!-- Annonces similaires -->
-                    @if($annoncesSimilaires->count() > 0)
+                    @if(isset($annoncesSimilaires) && $annoncesSimilaires->count() > 0)
                         <div class="similaires-card bg-white rounded-4 shadow-sm p-4 mt-4">
                             <h5 class="fw-bold mb-3">Annonces similaires</h5>
                             @foreach($annoncesSimilaires as $similaire)
                                 <div class="similaire-item d-flex align-items-center gap-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}">
                                     <div class="similaire-icon d-flex align-items-center justify-content-center rounded-circle"
-                                         style="width: 50px; height: 50px; background: rgba(0,0,255,0.1);">
-                                        <i class="bi bi-briefcase" style="color: #0000FF;"></i>
+                                         style="width: 50px; height: 50px; background: rgba(11, 105, 241, 0.1);">
+                                        <i class="bi bi-briefcase" style="color: #0B69F1;"></i>
                                     </div>
                                     <div class="flex-grow-1">
                                         <a href="{{ route('annoncesListe.publique.detail', $similaire->id) }}" class="text-decoration-none">
-                                            <h6 class="fw-bold mb-1" style="color: #333;">{{ $similaire->domaine }}</h6>
+                                            <h6 class="fw-bold mb-1" style="color: #333;">{{ $similaire->subject->nom ?? 'Matière' }}</h6>
                                             <small class="text-muted">{{ number_format($similaire->budget, 0, ',', ' ') }} FCFA</small>
                                         </a>
                                     </div>
@@ -246,13 +208,13 @@
                 </div>
                 <div class="modal-body text-center p-4">
                     <div class="modal-icon mb-4 mx-auto d-flex align-items-center justify-content-center rounded-circle"
-                         style="width: 80px; height: 80px; background: #0000FF;">
+                         style="width: 80px; height: 80px; background: #0B69F1;">
                         <i class="bi bi-person-lock" style="font-size: 2.5rem; color: white;"></i>
                     </div>
                     <h4 class="fw-bold mb-3">Connexion requise</h4>
                     <p class="text-muted mb-4">Pour postuler à cette annonce, vous devez être connecté en tant que tuteur.</p>
                     <div class="d-flex flex-column gap-2">
-                        <a href="{{ route('login') }}" class="btn w-100 py-2" style="background: #0000FF; color: white;">
+                        <a href="{{ route('login') }}" class="btn w-100 py-2" style="background: #0B69F1; color: white;">
                             <i class="bi bi-box-arrow-in-right"></i> Se connecter
                         </a>
                         <a href="{{ route('register.tuteur') }}" class="btn w-100 py-2" style="background: #00a36c; color: white;">
@@ -277,7 +239,7 @@
                     </div>
                     <h4 class="fw-bold mb-3">Action non autorisée</h4>
                     <p class="text-muted mb-4" id="roleMessage">Seuls les tuteurs peuvent postuler aux annonces.</p>
-                    <a href="{{ route('home') }}" class="btn w-100 py-2" style="background: #0000FF; color: white;">
+                    <a href="{{ route('home') }}" class="btn w-100 py-2" style="background: #0B69F1; color: white;">
                         <i class="bi bi-house"></i> Retour à l'accueil
                     </a>
                 </div>
@@ -307,7 +269,7 @@
 }
 
 .detail-card:hover, .sidebar-card:hover, .similaires-card:hover {
-    box-shadow: 0 15px 35px rgba(0,0,255,0.1) !important;
+    box-shadow: 0 15px 35px rgba(11, 105, 241, 0.1) !important;
 }
 
 .budget-box {
@@ -316,7 +278,7 @@
 
 .budget-box:hover {
     transform: scale(1.02);
-    background: rgba(0,0,255,0.1) !important;
+    background: rgba(11, 105, 241, 0.1) !important;
 }
 
 .dispo-item {
@@ -333,7 +295,7 @@
 
 .student-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0,0,255,0.1);
+    box-shadow: 0 10px 25px rgba(11, 105, 241, 0.1);
 }
 
 .student-avatar {
@@ -342,7 +304,7 @@
 
 .student-card:hover .student-avatar {
     transform: scale(1.05);
-    border-color: #00a36c !important;
+    border-color: #0B69F1 !important;
 }
 
 .btn-outline-primary {
@@ -350,7 +312,7 @@
 }
 
 .btn-outline-primary:hover {
-    background: #0000FF;
+    background: #0B69F1;
     color: white;
 }
 

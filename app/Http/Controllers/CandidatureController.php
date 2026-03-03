@@ -18,7 +18,8 @@ class CandidatureController extends Controller
      */
     public function index($annonceId)
     {
-        $annonce = Annonce::with(['candidatures.tuteur'])->findOrFail($annonceId);
+        // Charger les candidatures avec les relations tuteur et leurs matières
+        $annonce = Annonce::with(['candidatures.tuteur.subjects'])->findOrFail($annonceId);
 
         // Vérifier que l'utilisateur est l'étudiant propriétaire
         abort_if($annonce->student_id !== Auth::id(), 403, 'Non autorisé. Vous n\'êtes pas le propriétaire de cette annonce.');
@@ -42,7 +43,12 @@ class CandidatureController extends Controller
         // Vérifier si un tuteur a déjà été accepté
         $tuteurAccepte = $annonce->tuteurAccepte;
 
-        return view('candidatures.index', ['annonce' => $annonce, 'stats' => $stats, 'candidaturesParStatut' => $candidaturesParStatut, 'tuteurAccepte' => $tuteurAccepte]);
+        return view('candidatures.index', [
+            'annonce' => $annonce,
+            'stats' => $stats,
+            'candidaturesParStatut' => $candidaturesParStatut,
+            'tuteurAccepte' => $tuteurAccepte
+        ]);
     }
 
     /**
@@ -130,7 +136,7 @@ class CandidatureController extends Controller
             }
         }
 
-        return to_route('candidatures.index', $candidature->annonce_id)
+        return to_route('annonces.candidatures.index', $candidature->annonce_id)
             ->with('success', 'Tuteur accepté ! Les emails ont été envoyés.');
     }
 
@@ -163,5 +169,43 @@ class CandidatureController extends Controller
         return back()->with('success', 'Candidature refusée et notification envoyée.');
     }
 
-    // ... autres méthodes ...
+    /**
+     * Voir le profil d'un tuteur (pour l'étudiant)
+     */
+    public function voirProfilTuteur($candidatureId)
+    {
+        $candidature = Candidature::with(['annonce', 'tuteur.subjects'])->findOrFail($candidatureId);
+
+        // Vérifier que l'utilisateur est l'étudiant propriétaire de l'annonce
+        abort_if($candidature->annonce->student_id !== Auth::id(), 403, 'Non autorisé. Vous n\'êtes pas le propriétaire de cette annonce.');
+
+        $tuteur = $candidature->tuteur;
+
+        return view('candidatures.profil-tuteur', [
+            'tuteur' => $tuteur,
+            'candidature' => $candidature,
+            'annonce' => $candidature->annonce
+        ]);
+    }
+
+    /**
+     * Obtenir les statistiques des candidatures (pour AJAX)
+     */
+    public function stats($annonceId)
+    {
+        $annonce = Annonce::with('candidatures')->findOrFail($annonceId);
+
+        abort_if($annonce->student_id !== Auth::id(), 403);
+
+        $stats = [
+            'en_attente' => $annonce->candidatures->where('statut', 'en_attente')->count(),
+            'acceptees' => $annonce->candidatures->where('statut', 'acceptee')->count(),
+            'refusees' => $annonce->candidatures->where('statut', 'refusee')->count(),
+        ];
+
+        return response()->json([
+            'data' => [$stats['en_attente'], $stats['acceptees'], $stats['refusees']],
+            'stats' => $stats
+        ]);
+    }
 }

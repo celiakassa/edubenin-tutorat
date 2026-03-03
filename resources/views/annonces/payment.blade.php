@@ -629,23 +629,12 @@
                         @if ($user->role_id == 3)
                             Tuteur
                         @elseif($user->role_id == 2)
-                            Étudiant
+                            Apprenant
                         @else
                             Administrateur
                         @endif
                     </p>
                 </div>
-            </div>
-        </div>
-
-        <div class="sidebar-stats">
-            <div class="stat-item">
-                <span class="stat-label">Statut</span>
-                <span class="stat-value">Étudiant</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Crédit</span>
-                <span class="stat-value">-</span>
             </div>
         </div>
 

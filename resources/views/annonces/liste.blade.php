@@ -30,18 +30,20 @@
             <div class="filters-container bg-white rounded-4 shadow-sm p-4 mb-5" data-aos="fade-up">
                 <form action="{{ route('annoncesListe.liste') }}" method="GET" class="filters-form">
                     <div class="row g-3">
-                        <!-- Domaine -->
+                        <!-- Domaine (Matière) -->
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold" style="color: #0B69F1;">
-                                <i class="bi bi-book me-1" style="color: #0B69F1;"></i> Domaine
+                                <i class="bi bi-book me-1" style="color: #0B69F1;"></i> Matière
                             </label>
                             <select name="domaine" class="form-select">
-                                <option value="">Tous les domaines</option>
-                                @foreach($domaines as $domaine)
-                                    <option value="{{ $domaine }}" {{ request('domaine') == $domaine ? 'selected' : '' }}>
-                                        {{ $domaine }}
-                                    </option>
-                                @endforeach
+                                <option value="">Toutes les matières</option>
+                                @if(!empty($matieres))
+                                    @foreach($matieres as $matiere)
+                                        <option value="{{ $matiere }}" {{ request('domaine') == $matiere ? 'selected' : '' }}>
+                                            {{ $matiere }}
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
 
@@ -183,7 +185,7 @@
 
                             <div class="card-body p-4">
                                 <h3 class="fw-bold mb-3" style="color: #333; font-size: 1.3rem;">
-                                    {{ $annonce->domaine }}
+                                    {{ $annonce->subject->nom ?? 'Matière non spécifiée' }}
                                 </h3>
 
                                 <p class="text-muted mb-3" style="line-height: 1.6;">
@@ -193,7 +195,7 @@
                                 <div class="student-info d-flex align-items-center gap-2 mb-3">
                                     <div class="student-avatar rounded-circle overflow-hidden d-flex align-items-center justify-content-center"
                                          style="width: 40px; height: 40px; background: #f0f0f0;">
-                                        @if($annonce->student->photo_path)
+                                        @if($annonce->student && $annonce->student->photo_path)
                                             <img src="{{ asset('storage/' . $annonce->student->photo_path) }}"
                                                  alt="{{ $annonce->student->firstname }}"
                                                  style="width: 100%; height: 100%; object-fit: cover;">
@@ -203,7 +205,7 @@
                                     </div>
                                     <div>
                                         <span class="d-block fw-semibold" style="color: #333;">
-                                            {{ $annonce->student->firstname }} {{ $annonce->student->lastname }}
+                                            {{ $annonce->student->firstname ?? '' }} {{ $annonce->student->lastname ?? '' }}
                                         </span>
                                         <small class="text-muted">
                                             <i class="bi bi-clock"></i> {{ $annonce->created_at->diffForHumans() }}
@@ -213,7 +215,7 @@
 
                                 <div class="disponibilite mb-3 p-2 rounded" style="background: #f8f9fa;">
                                     <i class="bi bi-calendar-check me-2" style="color: #0B69F1;"></i>
-                                    <small>{{ Str::limit($annonce->disponibilite, 50) }}</small>
+                                    <small>{{ Str::limit($annonce->disponibilite ?? 'Non spécifié', 50) }}</small>
                                 </div>
 
                                 <a href="{{ route('annoncesListe.publique.detail', $annonce->id) }}" class="btn w-100 py-2 rounded-pill"

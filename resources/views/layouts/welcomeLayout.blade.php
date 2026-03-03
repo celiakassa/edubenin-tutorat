@@ -202,8 +202,8 @@
                 <h4 class="text-warning fw-semibold mb-3">Liens utiles</h4>
                 <ul class="list-unstyled">
                     <li><a href="#" class="text-white-50 text-decoration-none">Accueil</a></li>
-                    <li><a href="{{ route('professeurs.index') }}"
-                            class="text-white-50 text-decoration-none">Tuteurs</a></li>
+                   {{--  <li><a href="{{ route('professeurs.index') }}"
+                            class="text-white-50 text-decoration-none">Tuteurs</a></li>  --}}
 
                 </ul>
             </div>
