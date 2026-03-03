@@ -75,8 +75,8 @@
                             <i class="fas fa-calendar-alt"></i>
                             <div class="detail-content">
                                 <span class="detail-label">Disponibilité</span>
-                                <span
-                                    class="detail-value">{{ $annonce->disponibilite ? $annonce->disponibilite->format('d/m/Y') : 'Non spécifiée' }}</span>
+                           
+
                             </div>
                         </div>
                         <div class="detail-item">

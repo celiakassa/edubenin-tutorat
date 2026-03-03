@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Annonce;
-use App\Models\User;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 
 class ListeAnnonceController extends Controller
@@ -14,22 +14,26 @@ class ListeAnnonceController extends Controller
     public function index(Request $request)
     {
         // Requête de base avec relations
-        $annonces = Annonce::with(['student'])
+        $annonces = Annonce::with(['student', 'subject'])
             ->where('status', 'publiée')
             ->where('is_paid', true);
 
-        // Filtre par recherche textuelle (domaine ou description)
+        // Filtre par recherche textuelle (nom de la matière ou description)
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
             $annonces->where(function($query) use ($searchTerm) {
-                $query->where('domaine', 'LIKE', "%{$searchTerm}%")
-                      ->orWhere('description', 'LIKE', "%{$searchTerm}%");
+                $query->whereHas('subject', function($q) use ($searchTerm) {
+                        $q->where('nom', 'LIKE', "%{$searchTerm}%");
+                    })
+                    ->orWhere('description', 'LIKE', "%{$searchTerm}%");
             });
         }
 
-        // Filtre par domaine spécifique
+        // Filtre par matière spécifique (via le nom de la matière)
         if ($request->has('domaine') && !empty($request->domaine)) {
-            $annonces->where('domaine', 'LIKE', "%{$request->domaine}%");
+            $annonces->whereHas('subject', function($q) use ($request) {
+                $q->where('nom', 'LIKE', "%{$request->domaine}%");
+            });
         }
 
         // Filtre par budget minimum
@@ -53,11 +57,11 @@ class ListeAnnonceController extends Controller
             $annonces->where('disponibilite', 'LIKE', "%{$jour}%");
         }
 
-        // Récupérer tous les domaines uniques pour le filtre
-        $domaines = Annonce::where('status', 'publiée')
-            ->where('is_paid', true)
-            ->whereNotNull('domaine')
-            ->pluck('domaine')
+        // Récupérer toutes les matières uniques pour le filtre
+        $matieres = Subject::whereHas('annonces', function($q) {
+                $q->where('status', 'publiée')->where('is_paid', true);
+            })
+            ->pluck('nom')
             ->unique()
             ->sort()
             ->values()
@@ -74,7 +78,8 @@ class ListeAnnonceController extends Controller
         // Pagination
         $annonces = $annonces->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
 
-        return view('annonces.liste', compact('annonces', 'domaines', 'stats'));
+        // Passer 'matieres' à la vue au lieu de 'domaines'
+        return view('annonces.liste', compact('annonces', 'matieres', 'stats'));
     }
 
     /**
@@ -82,17 +87,17 @@ class ListeAnnonceController extends Controller
      */
     public function show($id)
     {
-        $annonce = Annonce::with(['student', 'payments'])
+        $annonce = Annonce::with(['student', 'payments', 'subject'])
             ->where('status', 'publiée')
             ->where('is_paid', true)
             ->findOrFail($id);
 
-        // Annonces similaires (même domaine)
-        $annoncesSimilaires = Annonce::with(['student'])
+        // Annonces similaires (même matière)
+        $annoncesSimilaires = Annonce::with(['student', 'subject'])
             ->where('status', 'publiée')
             ->where('is_paid', true)
             ->where('id', '!=', $id)
-            ->where('domaine', 'LIKE', "%{$annonce->domaine}%")
+            ->where('subject_id', $annonce->subject_id)
             ->limit(3)
             ->get();
 
@@ -104,10 +109,10 @@ class ListeAnnonceController extends Controller
      */
     public function getFiltres()
     {
-        $domaines = Annonce::where('status', 'publiée')
-            ->where('is_paid', true)
-            ->whereNotNull('domaine')
-            ->pluck('domaine')
+        $matieres = Subject::whereHas('annonces', function($q) {
+                $q->where('status', 'publiée')->where('is_paid', true);
+            })
+            ->pluck('nom')
             ->unique()
             ->sort()
             ->values()
@@ -122,53 +127,54 @@ class ListeAnnonceController extends Controller
             ->max('budget') ?? 1000000;
 
         return response()->json([
-            'domaines' => $domaines,
+            'domaines' => $matieres, // Garder le nom 'domaines' pour la compatibilité JS
             'budget_min' => $budgetMin,
             'budget_max' => $budgetMax
         ]);
     }
 
-
     /**
- * Afficher la liste des demandes (annonces) avec filtre par domaine
- */
-/**
- * Afficher la liste des demandes (annonces) avec filtre par domaine et recherche
- */
-public function demandesListe(Request $request)
-{
-    // Requête de base
-    $demandes = Annonce::with(['student'])
-        ->where('status', 'publiée')
-        ->where('is_paid', true);
+     * Afficher la liste des demandes (annonces) avec filtre par matière et recherche
+     */
+    public function demandesListe(Request $request)
+    {
+        // Requête de base
+        $demandes = Annonce::with(['student', 'subject'])
+            ->where('status', 'publiée')
+            ->where('is_paid', true);
 
-    // RECHERCHE PAR TEXTE (domaine OU description)
-    if ($request->has('search') && !empty($request->search)) {
-        $searchTerm = $request->search;
-        $demandes->where(function($query) use ($searchTerm) {
-            $query->where('domaine', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('description', 'LIKE', "%{$searchTerm}%");
-        });
+        // RECHERCHE PAR TEXTE (nom de la matière OU description)
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $demandes->where(function($query) use ($searchTerm) {
+                $query->whereHas('subject', function($q) use ($searchTerm) {
+                        $q->where('nom', 'LIKE', "%{$searchTerm}%");
+                    })
+                    ->orWhere('description', 'LIKE', "%{$searchTerm}%");
+            });
+        }
+
+        // Filtre par matière (indépendant de la recherche)
+        if ($request->has('domaine') && !empty($request->domaine)) {
+            $demandes->whereHas('subject', function($q) use ($request) {
+                $q->where('nom', 'LIKE', "%{$request->domaine}%");
+            });
+        }
+
+        // Récupérer toutes les matières uniques pour le filtre
+        $matieres = Subject::whereHas('annonces', function($q) {
+                $q->where('status', 'publiée')->where('is_paid', true);
+            })
+            ->pluck('nom')
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
+
+        // Pagination (6 par page)
+        $demandes = $demandes->orderBy('created_at', 'desc')->paginate(6)->withQueryString();
+
+        // Passer 'matieres' à la vue
+        return view('demandes.liste', compact('demandes', 'matieres'));
     }
-
-    // Filtre par domaine (indépendant de la recherche)
-    if ($request->has('domaine') && !empty($request->domaine)) {
-        $demandes->where('domaine', 'LIKE', "%{$request->domaine}%");
-    }
-
-    // Récupérer tous les domaines uniques pour le filtre
-    $domaines = Annonce::where('status', 'publiée')
-        ->where('is_paid', true)
-        ->whereNotNull('domaine')
-        ->pluck('domaine')
-        ->unique()
-        ->sort()
-        ->values()
-        ->toArray();
-
-    // Pagination (6 par page)
-    $demandes = $demandes->orderBy('created_at', 'desc')->paginate(6)->withQueryString();
-
-    return view('demandes.liste', compact('demandes', 'domaines'));
-}
 }

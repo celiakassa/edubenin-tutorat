@@ -21,7 +21,7 @@
                                 </span>
                                 <input type="text" name="search" id="liveSearch"
                                     class="form-control border-0 bg-transparent"
-                                    placeholder="Rechercher par domaine ou mot-clé..." value="{{ request('search') }}"
+                                    placeholder="Rechercher par matière ou mot-clé..." value="{{ request('search') }}"
                                     autocomplete="off" style="box-shadow: none; outline: none; padding: 12px 5px;">
                                 @if (request('search') || request('domaine'))
                                     <a href="{{ route('demandesliste.liste') }}" class="btn btn-link text-decoration-none"
@@ -36,8 +36,6 @@
                                 </button>
                             </div>
                         </div>
-
-
                     </form>
                 </div>
             </div>
@@ -66,31 +64,33 @@
                                 <input type="hidden" name="search" value="{{ request('search') }}" id="filterSearchInput">
                             @endif
 
-                            <!-- Filtre par domaine -->
+                            <!-- Filtre par matière (anciennement domaine) -->
                             <div class="mb-4">
                                 <label class="form-label fw-semibold mb-3" style="color: #333;">
-                                    <i class="bi bi-book me-2" style="color: #0B69F1;"></i>Domaine
+                                    <i class="bi bi-book me-2" style="color: #0B69F1;"></i>Matière
                                 </label>
-                                <div class="domaines-list" style="max-height: 400px; overflow-y: auto;">
+                                <div class="matieres-list" style="max-height: 400px; overflow-y: auto;">
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="domaine" id="domaineTous"
+                                        <input class="form-check-input" type="radio" name="domaine" id="matiereTous"
                                             value="" {{ !request('domaine') ? 'checked' : '' }}
                                             onchange="document.getElementById('filterForm').submit()">
-                                        <label class="form-check-label" for="domaineTous">
-                                            Tous les domaines
+                                        <label class="form-check-label" for="matiereTous">
+                                            Toutes les matières
                                         </label>
                                     </div>
-                                    @foreach ($domaines as $domaine)
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="radio" name="domaine"
-                                                id="domaine{{ $loop->index }}" value="{{ $domaine }}"
-                                                {{ request('domaine') == $domaine ? 'checked' : '' }}
-                                                onchange="document.getElementById('filterForm').submit()">
-                                            <label class="form-check-label" for="domaine{{ $loop->index }}">
-                                                {{ $domaine }}
-                                            </label>
-                                        </div>
-                                    @endforeach
+                                    @if (!empty($matieres))
+                                        @foreach ($matieres as $matiere)
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="radio" name="domaine"
+                                                    id="matiere{{ $loop->index }}" value="{{ $matiere }}"
+                                                    {{ request('domaine') == $matiere ? 'checked' : '' }}
+                                                    onchange="document.getElementById('filterForm').submit()">
+                                                <label class="form-check-label" for="matiere{{ $loop->index }}">
+                                                    {{ $matiere }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                 </div>
                             </div>
 
@@ -105,12 +105,12 @@
                         <!-- Statistiques -->
                         <div class="stats-box mt-4 p-3 rounded-3" style="background: #f8f9fa;">
                             <div class="d-flex align-items-center gap-2 mb-2">
-                                <i class="bi bi-megaphone" style="color: #0000FF;"></i>
+                                <i class="bi bi-megaphone" style="color: #0B69F1;"></i>
                                 <span class="fw-bold">{{ $demandes->total() }} demande(s)</span>
                             </div>
                             <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-tags" style="color: #0000FF;"></i>
-                                <span>{{ count($domaines) }} domaine(s)</span>
+                                <i class="bi bi-tags" style="color: #0B69F1;"></i>
+                                <span>{{ count($matieres ?? []) }} matière(s)</span>
                             </div>
                         </div>
                     </div>
@@ -127,7 +127,7 @@
                                         <div class="col-1 d-flex align-items-start p-3">
                                             <span
                                                 class="badge rounded-circle d-flex align-items-center justify-content-center"
-                                                style="width: 40px; height: 40px; background: {{ $demande->format == 'presentiel' ? '#0000FF' : ($demande->format == 'en_ligne' ? '#00a36c' : '#ff6b6b') }};">
+                                                style="width: 40px; height: 40px; background: {{ $demande->format == 'presentiel' ? '#0B69F1' : ($demande->format == 'en_ligne' ? '#00a36c' : '#ff6b6b') }};">
                                                 @if ($demande->format == 'presentiel')
                                                     <i class="bi bi-person-workspace text-white"></i>
                                                 @elseif($demande->format == 'en_ligne')
@@ -144,14 +144,17 @@
                                                 <div class="row align-items-center">
                                                     <div class="col-md-8">
                                                         <h4 class="fw-bold mb-2" style="color: #333;">
-                                                            {{ $demande->domaine }}
+                                                            {{ $demande->subject->nom ?? 'Matière non spécifiée' }}
                                                             @if (request('search'))
                                                                 @php
                                                                     $search = request('search');
                                                                     $position =
                                                                         stripos($demande->description, $search) !==
                                                                             false ||
-                                                                        stripos($demande->domaine, $search) !== false;
+                                                                        stripos(
+                                                                            $demande->subject->nom ?? '',
+                                                                            $search,
+                                                                        ) !== false;
                                                                 @endphp
                                                                 @if ($position)
                                                                     <span class="badge ms-2"
@@ -201,26 +204,17 @@
                                                         <div class="d-flex flex-wrap gap-3 mt-2">
                                                             <small class="text-muted">
                                                                 <i class="bi bi-calendar me-1"
-                                                                    style="color: #0000FF;"></i>
+                                                                    style="color: #0B69F1;"></i>
                                                                 {{ $demande->created_at->format('d/m/Y') }}
                                                             </small>
-                                                            <small class="text-muted">
-                                                                <i class="bi bi-person me-1" style="color: #0000FF;"></i>
-                                                                {{ $demande->student->firstname }}
-                                                                {{ $demande->student->lastname }}
-                                                            </small>
-                                                            <small class="text-muted">
-                                                                <i class="bi bi-clock me-1" style="color: #0000FF;"></i>
-                                                                {{ substr_count($demande->disponibilite, "\n") + 1 }}
-                                                                créneau(x)
-                                                            </small>
+                                                       
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4 text-md-end mt-3 mt-md-0">
                                                         <div class="budget-box p-2 rounded-3 d-inline-block mb-2"
-                                                            style="background: rgba(0,0,255,0.05);">
+                                                            style="background: rgba(11, 105, 241, 0.05);">
                                                             <span class="fw-bold"
-                                                                style="color: #0000FF; font-size: 1.2rem;">
+                                                                style="color: #0B69F1; font-size: 1.2rem;">
                                                                 {{ number_format($demande->budget, 0, ',', ' ') }}
                                                             </span>
                                                             <small class="text-muted">FCFA</small>
@@ -228,7 +222,7 @@
                                                         <br>
                                                         <a href="{{ route('annoncesListe.publique.detail', $demande->id) }}"
                                                             class="btn btn-sm px-3 py-1 rounded-pill"
-                                                            style="background: #0000FF; color: white; border: none;">
+                                                            style="background: #0B69F1; color: white; border: none;">
                                                             Voir détails <i class="bi bi-arrow-right ms-1"></i>
                                                         </a>
                                                     </div>
@@ -255,17 +249,17 @@
                                     <a href="{{ route('demandesliste.liste') }}"
                                         style="
         display:inline-block;
-        background:linear-gradient(135deg,#0d6efd,#0047ff);
+        background:linear-gradient(135deg,#0B69F1,#0047ff);
         color:#ffffff;
         padding:10px 22px;
         font-weight:600;
         text-decoration:none;
         border-radius:50px;
-        box-shadow:0 8px 20px rgba(13,110,253,0.3);
+        box-shadow:0 8px 20px rgba(11, 105, 241, 0.3);
         transition:all 0.3s ease;
    "
-                                        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 25px rgba(13,110,253,0.5)';"
-                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(13,110,253,0.3)';">
+                                        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 25px rgba(11, 105, 241, 0.5)';"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(11, 105, 241, 0.3)';">
                                         Voir toutes les demandes
                                     </a>
                                 @else
@@ -287,18 +281,18 @@
 
         /* Style de la barre de recherche */
         .search-wrapper {
-            border: 2px solid rgba(0, 0, 255, 0.1);
+            border: 2px solid rgba(11, 105, 241, 0.1);
             transition: all 0.3s ease;
         }
 
         .search-wrapper:hover {
-            border-color: rgba(0, 0, 255, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 0, 255, 0.1) !important;
+            border-color: rgba(11, 105, 241, 0.3);
+            box-shadow: 0 10px 30px rgba(11, 105, 241, 0.1) !important;
         }
 
         .search-wrapper:focus-within {
-            border-color: #0000FF;
-            box-shadow: 0 10px 30px rgba(0, 0, 255, 0.15) !important;
+            border-color: #0B69F1;
+            box-shadow: 0 10px 30px rgba(11, 105, 241, 0.15) !important;
         }
 
         .search-wrapper input:focus {
@@ -306,22 +300,22 @@
         }
 
         .filters-card {
-            border: 1px solid rgba(0, 0, 255, 0.1);
+            border: 1px solid rgba(11, 105, 241, 0.1);
             transition: all 0.3s ease;
         }
 
         .filters-card:hover {
-            box-shadow: 0 15px 35px rgba(0, 0, 255, 0.1) !important;
+            box-shadow: 0 15px 35px rgba(11, 105, 241, 0.1) !important;
         }
 
         .form-check-input:checked {
-            background-color: #0000FF;
-            border-color: #0000FF;
+            background-color: #0B69F1;
+            border-color: #0B69F1;
         }
 
         .form-check-input:focus {
-            box-shadow: 0 0 0 0.2rem rgba(0, 0, 255, 0.1);
-            border-color: #0000FF;
+            box-shadow: 0 0 0 0.2rem rgba(11, 105, 241, 0.1);
+            border-color: #0B69F1;
         }
 
         .demande-card {
@@ -331,8 +325,8 @@
 
         .demande-card:hover {
             transform: translateX(5px) translateY(-2px);
-            box-shadow: 0 15px 35px rgba(0, 0, 255, 0.1) !important;
-            border-color: rgba(0, 0, 255, 0.2);
+            box-shadow: 0 15px 35px rgba(11, 105, 241, 0.1) !important;
+            border-color: rgba(11, 105, 241, 0.2);
         }
 
         .badge {
@@ -348,7 +342,7 @@
         }
 
         .demande-card:hover .budget-box {
-            background: rgba(0, 0, 255, 0.1) !important;
+            background: rgba(11, 105, 241, 0.1) !important;
         }
 
         .btn {
@@ -357,7 +351,7 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(11, 105, 241, 0.3);
         }
 
         .stats-box {
@@ -390,12 +384,12 @@
         }
 
         .pagination .page-link:hover {
-            background: #0000FF;
+            background: #0B69F1;
             color: white;
         }
 
         .pagination .active .page-link {
-            background: #0000FF;
+            background: #0B69F1;
             color: white;
         }
 

@@ -727,7 +727,7 @@
                         @if (Auth::user()->role_id == 3)
                             Tuteur
                         @elseif(Auth::user()->role_id == 2)
-                            Étudiant
+                            Apprenant
                         @else
                             Administrateur
                         @endif
@@ -736,24 +736,7 @@
             </div>
         </div>
 
-        <div class="sidebar-stats">
-            <div class="stat-item">
-                <span class="stat-label">Statut</span>
-                <span class="stat-value">
-                    @if (Auth::user()->role_id == 3)
-                        Tuteur
-                    @elseif(Auth::user()->role_id == 2)
-                        Étudiant
-                    @else
-                        Admin
-                    @endif
-                </span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Annonces actives</span>
-                <span class="stat-value">{{ Auth::user()->annonces()->where('status', 'publiée')->count() }}</span>
-            </div>
-        </div>
+
 
         <div class="sidebar-menu">
             <a href="{{ route('dashboardUser') }}" class="menu-item">
@@ -1034,7 +1017,7 @@
                     @endif
 
                     @if(($annonce->status == 'publiée' || $annonce->status == 'attribuee') && Auth::user()->id == $annonce->student_id)
-                        <a href="{{ route('candidatures.index', $annonce->id) }}" class="btn-action btn-purple">
+                      <a href="{{ route('annonces.candidatures.index', $annonce->id) }}" class="btn-action btn-purple">
                             <i class="fas fa-users"></i> Voir les candidatures
                             @if($annonce->candidatures()->count() > 0)
                                 <span class="badge">
