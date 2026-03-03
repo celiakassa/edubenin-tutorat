@@ -152,7 +152,7 @@
 
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="fw-bold text-primary">{{ number_format($annonce->budget, 0, ',', ' ') }} FCFA</span>
-                                    <a href="{{ route('annonces.show', $annonce->hashid) }}"
+                                    <a href="{{ route('annonces.dashboard.detail', $annonce->hashid) }}"
                                        class="btn btn-sm btn-primary">
                                         Voir <i class="bi bi-arrow-right ms-1"></i>
                                     </a>
@@ -188,7 +188,7 @@
 
                 @if(count($stats['recentAnnonces']) > 0)
                     <div class="card-footer bg-light border-top">
-                        <a href="{{ route('annonces.index') }}" class="btn btn-link text-primary text-decoration-none d-block text-center small fw-semibold">
+                        <a href="{{ route('annonces') }}" class="btn btn-link text-primary text-decoration-none d-block text-center small fw-semibold">
                             Voir toutes les annonces <i class="bi bi-arrow-right ms-1"></i>
                         </a>
                     </div>

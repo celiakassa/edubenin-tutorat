@@ -101,18 +101,18 @@ class UserDashboard extends Controller
      */
     private function getTutorStatistics($user)
     {
-        // Récupérer les IDs des matières du tuteur
-        $tutorSubjectIds = $user->subjects->pluck('id')->toArray();
+        // noms des domaines du tuteur
+        $tutorDomaines = $user->subjects->pluck('nom')->toArray();
 
-        // Nombre d'annonces dans son domaine (via subject_id)
+        // Nombre d'annonces dans son domaine
         $annoncesInDomain = 0;
-        if (!empty($tutorSubjectIds)) {
+        if (!empty($tutorDomaines)) {
             $annoncesInDomain = Annonce::where('status', 'publiée')
-                ->whereIn('subject_id', $tutorSubjectIds)
+                ->whereIn('domaine', $tutorDomaines)
                 ->count();
         }
 
-        // Nombre de candidatures validées (acceptées)
+        // Nombre de candidatures validées
         $candidaturesValidees = Candidature::where('user_id', $user->id)
             ->where('statut', 'acceptee')
             ->count();
@@ -125,32 +125,28 @@ class UserDashboard extends Controller
             ->where('statut', 'en_attente')
             ->count();
 
-        // Acompte total (somme des acomptes des annonces avec candidature acceptée)
-        $acompteTotal = Annonce::whereHas('candidatures', function($query) use ($user) {
+        // Acompte total
+        $acompteTotal = Annonce::whereHas('candidatures', function ($query) use ($user) {
             $query->where('user_id', $user->id)
                 ->where('statut', 'acceptee');
         })->sum('acompte');
 
-        // Récentes annonces dans son domaine (5 dernières)
+        // Récentes annonces dans son domaine
         $recentAnnonces = collect();
-        if (!empty($tutorSubjectIds)) {
+        if (!empty($tutorDomaines)) {
             $recentAnnonces = Annonce::where('status', 'publiée')
-                ->whereIn('subject_id', $tutorSubjectIds)
-                ->with(['student', 'subject'])
+                ->whereIn('domaine', $tutorDomaines)
                 ->orderBy('published_at', 'desc')
                 ->limit(5)
                 ->get();
         }
 
-        // Dernières candidatures
+        // ✅ Dernières candidatures (5 dernières)
         $dernieresCandidatures = Candidature::where('user_id', $user->id)
-            ->with(['annonce', 'annonce.student', 'annonce.subject'])
+            ->with(['annonce'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
-
-        // Récupérer les noms des matières pour l'affichage
-        $tutorSubjects = $user->subjects->pluck('nom')->toArray();
 
         return [
             'annoncesInDomain' => $annoncesInDomain,
@@ -159,9 +155,8 @@ class UserDashboard extends Controller
             'candidaturesEnAttente' => $candidaturesEnAttente,
             'acompteTotal' => $acompteTotal,
             'recentAnnonces' => $recentAnnonces,
-            'dernieresCandidatures' => $dernieresCandidatures,
-            'tutorSubjects' => $tutorSubjects,
-            'tutorSubjectIds' => $tutorSubjectIds,
+            'dernieresCandidatures' => $dernieresCandidatures, // ✅ rajouté
+            'tutorSubjects' => $tutorDomaines,
         ];
     }
 

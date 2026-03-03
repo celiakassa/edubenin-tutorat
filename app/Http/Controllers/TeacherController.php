@@ -12,12 +12,14 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Moneroo\Laravel\Payment as MonerooPayment;
+use App\Traits\HasHashid;
 
 class TeacherController extends Controller
 {
     /**
      * Initialiser le paiement d'abonnement
      */
+    use  HasHashid;
     public function register()
     {
         return view('teachers.register');
@@ -306,21 +308,16 @@ class TeacherController extends Controller
 
         abort_if(!$tuteur || !$tuteur->isTuteur(), 403, 'Accès interdit');
 
-        // Récupérer les IDs des matières du tuteur via la relation
-        $subjectIds = $tuteur->subjects->pluck('id')->toArray();
+        // 🔥 noms des domaines du tuteur (STRING)
+        $domaines = $tuteur->subjects()->pluck('subjects.nom');
 
-        // Si le tuteur n'a pas de matières, retourner une collection vide
-        if (empty($subjectIds)) {
-            $annonces = collect();
-        } else {
-            $annonces = \App\Models\Annonce::whereIn('subject_id', $subjectIds)
-                ->where('status', 'publiée')
-                ->with(['student', 'subject']) // Charger les relations
-                ->orderBy('created_at', 'desc')
-                ->paginate(6);
-        }
+        $annonces = \App\Models\Annonce::query()
+            ->whereIn('domaine', $domaines) // ✅ comparaison texte correcte
+            ->publiees()
+            ->latest()
+            ->paginate(6);
 
-        return view('teachers.annonce', ['annonces' => $annonces]);
+        return view('teachers.annonce', compact('annonces'));
     }
 
     /**
@@ -371,10 +368,12 @@ class TeacherController extends Controller
      */
     public function showAnnonceDetail($hash)
     {
-        $annonce = Annonce::with(['student', 'subject']) // Ajout de la relation subject
-                    ->findByHashidOrFail($hash);
-        $hasApplied = false;
+        $annonce = Annonce::findByHashidOrFail($hash);
 
+        // On récupère l'étudiant qui a créé l'annonce (en supposant que la relation s'appelle 'user')
+        $student = $annonce->student;
+
+        $hasApplied = false;
         if (auth()->check() && auth()->user()->isTuteur()) {
             $hasApplied = Candidature::where('annonce_id', $annonce->id)
                 ->where('user_id', auth()->id())
@@ -385,27 +384,19 @@ class TeacherController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
+        // On vérifie si la candidature est validée
         $teacher_validate = Candidature::where([
             ['annonce_id', '=', $annonce->id],
             ['user_id', '=', auth()->id()],
             ['statut', '=', StatutCandidat::VALIDE],
-        ])->first();
-
-        $student = $annonce->student ?? null;
-
-        // Récupérer les matières du tuteur (si connecté)
-        $tutorSubjects = [];
-        if (auth()->check() && auth()->user()->isTuteur()) {
-            $tutorSubjects = auth()->user()->subjects->pluck('nom')->toArray();
-        }
+        ])->exists(); // Utiliser exists() est plus simple ici pour un booléen
 
         return view('teachers.annonce-detail', [
             'annonce' => $annonce,
             'hasApplied' => $hasApplied,
             'teacher_validate' => $teacher_validate,
-            'student' => $student,
-            'candidature' => $candidature,
-            'tutorSubjects' => $tutorSubjects
+            'student' => $student, // On envoie l'objet student à la vue
+            'candidature' => $candidature
         ]);
     }
 
