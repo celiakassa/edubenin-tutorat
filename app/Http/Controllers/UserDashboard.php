@@ -101,14 +101,14 @@ class UserDashboard extends Controller
      */
     private function getTutorStatistics($user)
     {
-        // noms des domaines du tuteur
-        $tutorDomaines = $user->subjects->pluck('nom')->toArray();
+        // IDs des matières du tuteur
+        $tutorSubjectIds = $user->subjects->pluck('id')->toArray();
 
-        // Nombre d'annonces dans son domaine
+        // Nombre d'annonces dans ses matières
         $annoncesInDomain = 0;
-        if (!empty($tutorDomaines)) {
+        if (!empty($tutorSubjectIds)) {
             $annoncesInDomain = Annonce::where('status', 'publiée')
-                ->whereIn('domaine', $tutorDomaines)
+                ->whereIn('subject_id', $tutorSubjectIds)
                 ->count();
         }
 
@@ -125,23 +125,23 @@ class UserDashboard extends Controller
             ->where('statut', 'en_attente')
             ->count();
 
-        // Acompte total
+        // Acompte total pour les annonces validées
         $acompteTotal = Annonce::whereHas('candidatures', function ($query) use ($user) {
             $query->where('user_id', $user->id)
                 ->where('statut', 'acceptee');
         })->sum('acompte');
 
-        // Récentes annonces dans son domaine
+        // Récentes annonces dans ses matières
         $recentAnnonces = collect();
-        if (!empty($tutorDomaines)) {
+        if (!empty($tutorSubjectIds)) {
             $recentAnnonces = Annonce::where('status', 'publiée')
-                ->whereIn('domaine', $tutorDomaines)
+                ->whereIn('subject_id', $tutorSubjectIds)
                 ->orderBy('published_at', 'desc')
                 ->limit(5)
                 ->get();
         }
 
-        // ✅ Dernières candidatures (5 dernières)
+        // Dernières candidatures du tuteur (5 dernières)
         $dernieresCandidatures = Candidature::where('user_id', $user->id)
             ->with(['annonce'])
             ->orderBy('created_at', 'desc')
@@ -155,8 +155,8 @@ class UserDashboard extends Controller
             'candidaturesEnAttente' => $candidaturesEnAttente,
             'acompteTotal' => $acompteTotal,
             'recentAnnonces' => $recentAnnonces,
-            'dernieresCandidatures' => $dernieresCandidatures, // ✅ rajouté
-            'tutorSubjects' => $tutorDomaines,
+            'dernieresCandidatures' => $dernieresCandidatures,
+            'tutorSubjects' => $user->subjects->pluck('nom')->toArray(), // noms des matières
         ];
     }
 

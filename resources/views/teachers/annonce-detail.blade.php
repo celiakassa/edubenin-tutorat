@@ -94,9 +94,12 @@
                                             <i class="fas fa-check-circle mr-2"></i>Candidature envoyée
                                         </button>
                                     @else
-                                        <button class="btn btn-white-cta btn-apply-trigger w-100 py-3 mb-3 shadow" data-id="{{ $annonce->id }}">
-                                            Postuler maintenant
-                                        </button>
+                                        <form action="{{ route('annonce.postuler', $annonce->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-white-cta w-100 py-3 mb-3 shadow">
+                                                Postuler maintenant
+                                            </button>
+                                        </form>
                                         <p class="small mb-0 opacity-75">
                                             <i class="fas fa-shield-alt mr-1"></i> Paiement sécurisé via Kopiao
                                         </p>
@@ -255,7 +258,12 @@
         font-weight: 800;
         transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .btn-white-cta:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.2) !important; }
+    .btn-white-cta:hover {
+        background: white;      /* garde le fond blanc */
+        color: var(--primary-blue); /* couleur du texte */
+        transform: translateY(-4px); /* effet de lift */
+        box-shadow: 0 12px 24px rgba(0,0,0,0.2) !important;
+    }
 
     .btn-applied {
         background: rgba(255,255,255,0.2);
