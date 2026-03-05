@@ -51,11 +51,15 @@ class CompleterProfilUser extends Controller
 
         $filled = 0;
         foreach ($fields as $field) {
-            if (!empty($user->$field)) $filled++;
+            if (!empty($user->$field)) {
+                $filled++;
+            }
         }
 
         if ($user->role_id == 3) {
-            if ($hasSubjects) $filled++;
+            if ($hasSubjects) {
+                $filled++;
+            }
             $total = count($fields) + 1;
         } else {
             $total = count($fields);
