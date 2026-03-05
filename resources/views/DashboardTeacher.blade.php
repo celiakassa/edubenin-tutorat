@@ -53,11 +53,11 @@
                         Sur {{ $stats['totalCandidatures'] }} candidature{{ $stats['totalCandidatures'] > 1 ? 's' : '' }}
                     </p>
                 </div>
-                <div class="card-footer bg-success bg-opacity-10 border-0">
+               {{--  <div class="card-footer bg-success bg-opacity-10 border-0">
                     <a href="#" class="text-success text-decoration-none small fw-semibold">
                         Mes candidatures <i class="bi bi-arrow-right ms-1"></i>
                     </a>
-                </div>
+                </div>   --}}
             </div>
         </div>
 
@@ -78,11 +78,11 @@
                     </div>
                     <p class="text-muted mb-0 small">Réponse en attente</p>
                 </div>
-                <div class="card-footer bg-warning bg-opacity-10 border-0">
+              {{--   <div class="card-footer bg-warning bg-opacity-10 border-0">
                     <a href="#" class="text-warning text-decoration-none small fw-semibold">
                         Voir les détails <i class="bi bi-arrow-right ms-1"></i>
                     </a>
-                </div>
+                </div>  --}}
             </div>
         </div>
 
@@ -103,11 +103,11 @@
                     </div>
                     <p class="text-muted mb-0 small">Missions acceptées</p>
                 </div>
-                <div class="card-footer bg-info bg-opacity-10 border-0">
+               {{--  <div class="card-footer bg-info bg-opacity-10 border-0">
                     <a href="#" class="text-info text-decoration-none small fw-semibold">
                         Historique <i class="bi bi-arrow-right ms-1"></i>
                     </a>
-                </div>
+                </div>   --}}
             </div>
         </div>
     </div>
@@ -252,10 +252,10 @@
                                     @endif
                                 </div>
 
-                                <a href="{{ route('annonces.show', $candidature->annonce->hashid) }}"
+                             {{--    <a href="{{ route('annonces.show', $candidature->annonce->hashid) }}"
                                    class="btn btn-sm btn-outline-secondary">
                                     Détails <i class="bi bi-arrow-right ms-1"></i>
-                                </a>
+                                </a>  --}}
                             </div>
                         </div>
                     @empty

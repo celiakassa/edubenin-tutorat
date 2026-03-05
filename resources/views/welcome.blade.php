@@ -777,7 +777,7 @@
                         <h3 class="fw-bold mb-3" style="color: #000; font-size: 1.8rem;">Vous êtes tuteur ?</h3>
 
                         <p class="mb-3 px-2" style="color: #333; font-size: 1rem; line-height: 1.6;">
-                            Consultez les annonces publiées par les étudiants et trouvez des missions qui correspondent à vos compétences.
+                            Consultez les annonces publiées par les apprenants et trouvez des missions qui correspondent à vos compétences.
                         </p>
 
                         @auth
@@ -1006,7 +1006,7 @@
                             <p class="mb-0">Vous êtes connecté en tant que
                                 <strong>
                                     @if(Auth::user()->role_id == 2)
-                                        Étudiant
+                                        Apprenant
                                     @elseif(Auth::user()->role_id == 3)
                                         Tuteur
                                     @else
@@ -2402,7 +2402,7 @@
         const modalMessage = document.getElementById('modalMessage');
 
         if (action === 'publier') {
-            modalMessage.textContent = 'Pour publier une annonce, vous devez d\'abord créer un compte étudiant ou vous connecter.';
+            modalMessage.textContent = 'Pour publier une annonce, vous devez d\'abord créer un compte apprenant ou vous connecter.';
         } else {
             modalMessage.textContent = 'Pour consulter les annonces et postuler, vous devez d\'abord créer un compte tuteur ou vous connecter.';
         }
