@@ -317,7 +317,7 @@ class TeacherController extends Controller
             ->latest()
             ->paginate(6);
 
-        return view('teachers.annonce', compact('annonces'));
+        return view('teachers.annonce', ['annonces' => $annonces]);
     }
 
     /**

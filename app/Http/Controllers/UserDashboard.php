@@ -85,10 +85,8 @@ class UserDashboard extends Controller
         }
 
         // Ajouter la vérification des matières pour les tuteurs
-        if ($user->role_id == 3) {
-            if ($hasSubjects) {
-                $filled++;
-            }
+        if ($user->role_id == 3 && $hasSubjects) {
+            $filled++;
         }
 
         $total = count($fields) + ($user->role_id == 3 ? 1 : 0);
@@ -126,7 +124,7 @@ class UserDashboard extends Controller
             ->count();
 
         // Acompte total pour les annonces validées
-        $acompteTotal = Annonce::whereHas('candidatures', function ($query) use ($user) {
+        $acompteTotal = Annonce::whereHas('candidatures', function (\Illuminate\Contracts\Database\Query\Builder $query) use ($user) {
             $query->where('user_id', $user->id)
                 ->where('statut', 'acceptee');
         })->sum('acompte');

@@ -51,14 +51,14 @@ class AnnonceController extends Controller
         abort_if(Auth::user()->role_id != 2, 403, 'Accès réservé aux étudiants');
 
         $request->validate([
-            'subject_id' => 'required|exists:subjects,id',
-            'description' => 'required|string|min:10',
-            'budget' => 'required|numeric|min:1000|max:1000000000',
+            'subject_id' => ['required', 'exists:subjects,id'],
+            'description' => ['required', 'string', 'min:10'],
+            'budget' => ['required', 'numeric', 'min:1000', 'max:1000000000'],
             'disponibilite' => [
                 'required',
                 'string',
                 function ($attribute, $value, $fail) {
-                    if (empty(trim($value))) {
+                    if (in_array(trim($value), ['', '0'], true)) {
                         $fail('Veuillez ajouter au moins un créneau de disponibilité.');
                         return;
                     }
@@ -69,7 +69,7 @@ class AnnonceController extends Controller
 
                     foreach ($lines as $index => $line) {
                         $line = trim($line);
-                        if (!empty($line)) {
+                        if ($line !== '' && $line !== '0') {
                             if (!preg_match('/^([a-zA-Zéèêëàâäîïôöùûüç\s]+) (\d{2}:\d{2}) - (\d{2}:\d{2})$/', $line, $matches)) {
                                 $validFormat = false;
                                 $errors[] = "Ligne " . ($index + 1) . ": Format incorrect. Utilisez: 'jour HH:MM - HH:MM'";
@@ -114,7 +114,7 @@ class AnnonceController extends Controller
                     }
                 }
             ],
-            'format' => 'required|in:presentiel,en_ligne,hybrid'
+            'format' => ['required', 'in:presentiel,en_ligne,hybrid']
         ]);
 
         $annonce = new Annonce();
@@ -282,7 +282,7 @@ class AnnonceController extends Controller
 
             DB::commit();
 
-            return redirect()->route('annonces.show', $annonce->id)
+            return to_route('annonces.show', $annonce->id)
                 ->with('success', 'Paiement effectué avec succès ! Votre annonce est maintenant publiée.');
 
         } catch (\Exception $e) {
@@ -293,7 +293,7 @@ class AnnonceController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return redirect()->route('annonces.payment', $annonceId)
+            return to_route('annonces.payment', $annonceId)
                 ->with('error', 'Une erreur est survenue lors du traitement du paiement.');
         }
     }
@@ -347,9 +347,7 @@ class AnnonceController extends Controller
         }
 
         try {
-            if (!config('services.moneroo.secret_key')) {
-                throw new \Exception('La clé secrète Moneroo n\'est pas configurée');
-            }
+            throw_unless(config('services.moneroo.secret_key'), \Exception::class, 'La clé secrète Moneroo n\'est pas configurée');
 
             $paymentData = [
                 'amount' => (int) $annonce->acompte,
@@ -410,7 +408,7 @@ class AnnonceController extends Controller
         ]);
 
         if (!$transactionId) {
-            return redirect()->route('annonces.index')
+            return to_route('annonces.index')
                 ->with('error', 'Transaction invalide.');
         }
 
@@ -431,11 +429,11 @@ class AnnonceController extends Controller
 
                 $existingPayment = Payment::where('moneroo_payment_id', $transactionId)->first();
                 if ($existingPayment && $existingPayment->annonce_id) {
-                    return redirect()->route('annonces.show', $existingPayment->annonce_id)
+                    return to_route('annonces.show', $existingPayment->annonce_id)
                         ->with('info', 'Ce paiement a déjà été traité.');
                 }
 
-                return redirect()->route('annonces.index')
+                return to_route('annonces.index')
                     ->with('info', 'Ce paiement a déjà été traité.');
             }
 
@@ -447,9 +445,7 @@ class AnnonceController extends Controller
                 $paymentData = json_decode(json_encode($payment), true);
                 $annonceId = $paymentData['metadata']['annonce_id'] ?? null;
 
-                if (!$annonceId) {
-                    throw new \Exception('Annonce ID non trouvé dans les métadonnées');
-                }
+                throw_unless($annonceId, \Exception::class, 'Annonce ID non trouvé dans les métadonnées');
 
                 $this->processAnnoncePaymentMoneroo($payment, $transactionId, $annonceId);
 
@@ -460,12 +456,12 @@ class AnnonceController extends Controller
                     Log::warning('Could not mark as processed: ' . $e->getMessage());
                 }
 
-                return redirect()->route('annonces.show', $annonceId)
+                return to_route('annonces.show', $annonceId)
                     ->with('success', 'Paiement effectué avec succès ! Votre annonce est maintenant publiée.');
             } else {
                 Log::warning('Payment not successful', ['status' => $status]);
 
-                return redirect()->route('annonces.payment', $annonceId ?? '')
+                return to_route('annonces.payment', $annonceId ?? '')
                     ->with('error', 'Le paiement n\'a pas été validé. Statut: ' . $status);
             }
 
@@ -476,7 +472,7 @@ class AnnonceController extends Controller
                 'error_line' => $e->getLine(),
             ]);
 
-            return redirect()->route('annonces.index')
+            return to_route('annonces.index')
                 ->with('error', 'Erreur lors de la vérification du paiement.');
         }
     }
@@ -499,9 +495,7 @@ class AnnonceController extends Controller
 
             $paymentData = json_decode(json_encode($payment), true);
 
-            if (!is_array($paymentData)) {
-                throw new \Exception('Impossible de convertir les données de paiement');
-            }
+            throw_unless(is_array($paymentData), \Exception::class, 'Impossible de convertir les données de paiement');
 
             DB::beginTransaction();
 
@@ -512,13 +506,9 @@ class AnnonceController extends Controller
                 $userId = $paymentData['metadata']['user_id'] ?? null;
             }
 
-            if (!$userId) {
-                throw new \Exception('User ID manquant dans les metadata');
-            }
+            throw_unless($userId, \Exception::class, 'User ID manquant dans les metadata');
 
-            if ($annonce->student_id != $userId) {
-                throw new \Exception('L\'utilisateur n\'est pas propriétaire de l\'annonce');
-            }
+            throw_if($annonce->student_id != $userId, \Exception::class, 'L\'utilisateur n\'est pas propriétaire de l\'annonce');
 
             $amount = (float) ($paymentData['amount'] ?? $annonce->acompte);
 
@@ -530,11 +520,9 @@ class AnnonceController extends Controller
             $methodCode = 'moneroo';
             $methodName = 'Moneroo';
 
-            if (isset($paymentData['capture']) && is_array($paymentData['capture'])) {
-                if (isset($paymentData['capture']['method']) && is_array($paymentData['capture']['method'])) {
-                    $methodCode = $paymentData['capture']['method']['short_code'] ?? 'moneroo';
-                    $methodName = $paymentData['capture']['method']['name'] ?? 'Moneroo';
-                }
+            if (isset($paymentData['capture']) && is_array($paymentData['capture']) && (isset($paymentData['capture']['method']) && is_array($paymentData['capture']['method']))) {
+                $methodCode = $paymentData['capture']['method']['short_code'] ?? 'moneroo';
+                $methodName = $paymentData['capture']['method']['name'] ?? 'Moneroo';
             }
 
             Log::info('Payment details extracted', [
@@ -562,7 +550,7 @@ class AnnonceController extends Controller
             ];
 
             $paidAt = isset($paymentData['initiated_at'])
-                ? Carbon::parse($paymentData['initiated_at'])
+                ? \Illuminate\Support\Facades\Date::parse($paymentData['initiated_at'])
                 : now();
 
             Log::info('Creating payment record for annonce');
@@ -582,7 +570,7 @@ class AnnonceController extends Controller
             $annonce->update([
                 'status' => 'publiée',
                 'is_paid' => true,
-                'published_at' => Carbon::now()
+                'published_at' => \Illuminate\Support\Facades\Date::now()
             ]);
 
             Log::info('Annonce payment record created successfully', [
@@ -670,8 +658,7 @@ class AnnonceController extends Controller
 
         $user = Auth::user();
         $annonces = Annonce::with('subject')
-            ->where('student_id', Auth::id())
-            ->orderBy('created_at', 'desc')
+            ->where('student_id', Auth::id())->latest()
             ->get();
 
         return view('annonces.index', ['annonces' => $annonces, 'user' => $user]);
@@ -723,14 +710,14 @@ class AnnonceController extends Controller
         }
 
         $request->validate([
-            'subject_id' => 'required|exists:subjects,id',
-            'description' => 'required|string|min:10',
-            'budget' => 'required|numeric|min:1000|max:1000000000',
+            'subject_id' => ['required', 'exists:subjects,id'],
+            'description' => ['required', 'string', 'min:10'],
+            'budget' => ['required', 'numeric', 'min:1000', 'max:1000000000'],
             'disponibilite' => [
                 'required',
                 'string',
                 function ($attribute, $value, $fail) {
-                    if (empty(trim($value))) {
+                    if (in_array(trim($value), ['', '0'], true)) {
                         $fail('Veuillez ajouter au moins un créneau de disponibilité.');
                         return;
                     }
@@ -741,7 +728,7 @@ class AnnonceController extends Controller
 
                     foreach ($lines as $index => $line) {
                         $line = trim($line);
-                        if (!empty($line)) {
+                        if ($line !== '' && $line !== '0') {
                             if (!preg_match('/^([a-zA-Zéèêëàâäîïôöùûüç\s]+) (\d{2}:\d{2}) - (\d{2}:\d{2})$/', $line, $matches)) {
                                 $validFormat = false;
                                 $errors[] = "Ligne " . ($index + 1) . ": Format incorrect. Utilisez: 'jour HH:MM - HH:MM'";
@@ -786,7 +773,7 @@ class AnnonceController extends Controller
                     }
                 }
             ],
-            'format' => 'required|in:presentiel,en_ligne,hybrid'
+            'format' => ['required', 'in:presentiel,en_ligne,hybrid']
         ]);
 
         $annonce->subject_id = $request->subject_id;

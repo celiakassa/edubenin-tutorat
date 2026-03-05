@@ -16,10 +16,6 @@ class Subject extends Model
         'is_active'
     ];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
-
     public function users()
     {
         return $this->belongsToMany(User::class, 'subject_user');
@@ -28,5 +24,11 @@ class Subject extends Model
     public function annonces()
     {
         return $this->hasMany(Annonce::class);
+    }
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
     }
 }

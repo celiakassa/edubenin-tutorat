@@ -21,8 +21,8 @@ class ListeAnnonceController extends Controller
         // Filtre par recherche textuelle (nom de la matière ou description)
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
-            $annonces->where(function($query) use ($searchTerm) {
-                $query->whereHas('subject', function($q) use ($searchTerm) {
+            $annonces->where(function(\Illuminate\Contracts\Database\Query\Builder $query) use ($searchTerm) {
+                $query->whereHas('subject', function(\Illuminate\Contracts\Database\Query\Builder $q) use ($searchTerm) {
                         $q->where('nom', 'LIKE', "%{$searchTerm}%");
                     })
                     ->orWhere('description', 'LIKE', "%{$searchTerm}%");
@@ -31,7 +31,7 @@ class ListeAnnonceController extends Controller
 
         // Filtre par matière spécifique (via le nom de la matière)
         if ($request->has('domaine') && !empty($request->domaine)) {
-            $annonces->whereHas('subject', function($q) use ($request) {
+            $annonces->whereHas('subject', function(\Illuminate\Contracts\Database\Query\Builder $q) use ($request) {
                 $q->where('nom', 'LIKE', "%{$request->domaine}%");
             });
         }
@@ -47,7 +47,7 @@ class ListeAnnonceController extends Controller
         }
 
         // Filtre par format
-        if ($request->has('format') && !empty($request->format)) {
+        if ($request->has('format') && !in_array($request->format, [null, '', '0'], true)) {
             $annonces->where('format', $request->format);
         }
 
@@ -58,7 +58,7 @@ class ListeAnnonceController extends Controller
         }
 
         // Récupérer toutes les matières uniques pour le filtre
-        $matieres = Subject::whereHas('annonces', function($q) {
+        $matieres = Subject::whereHas('annonces', function(\Illuminate\Contracts\Database\Query\Builder $q) {
                 $q->where('status', 'publiée')->where('is_paid', true);
             })
             ->pluck('nom')
@@ -76,10 +76,10 @@ class ListeAnnonceController extends Controller
         ];
 
         // Pagination
-        $annonces = $annonces->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
+        $annonces = $annonces->latest()->paginate(12)->withQueryString();
 
         // Passer 'matieres' à la vue au lieu de 'domaines'
-        return view('annonces.liste', compact('annonces', 'matieres', 'stats'));
+        return view('annonces.liste', ['annonces' => $annonces, 'matieres' => $matieres, 'stats' => $stats]);
     }
 
     /**
@@ -101,7 +101,7 @@ class ListeAnnonceController extends Controller
             ->limit(3)
             ->get();
 
-        return view('annonces.detail', compact('annonce', 'annoncesSimilaires'));
+        return view('annonces.detail', ['annonce' => $annonce, 'annoncesSimilaires' => $annoncesSimilaires]);
     }
 
     /**
@@ -109,7 +109,7 @@ class ListeAnnonceController extends Controller
      */
     public function getFiltres()
     {
-        $matieres = Subject::whereHas('annonces', function($q) {
+        $matieres = Subject::whereHas('annonces', function(\Illuminate\Contracts\Database\Query\Builder $q) {
                 $q->where('status', 'publiée')->where('is_paid', true);
             })
             ->pluck('nom')
@@ -146,8 +146,8 @@ class ListeAnnonceController extends Controller
         // RECHERCHE PAR TEXTE (nom de la matière OU description)
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
-            $demandes->where(function($query) use ($searchTerm) {
-                $query->whereHas('subject', function($q) use ($searchTerm) {
+            $demandes->where(function(\Illuminate\Contracts\Database\Query\Builder $query) use ($searchTerm) {
+                $query->whereHas('subject', function(\Illuminate\Contracts\Database\Query\Builder $q) use ($searchTerm) {
                         $q->where('nom', 'LIKE', "%{$searchTerm}%");
                     })
                     ->orWhere('description', 'LIKE', "%{$searchTerm}%");
@@ -156,13 +156,13 @@ class ListeAnnonceController extends Controller
 
         // Filtre par matière (indépendant de la recherche)
         if ($request->has('domaine') && !empty($request->domaine)) {
-            $demandes->whereHas('subject', function($q) use ($request) {
+            $demandes->whereHas('subject', function(\Illuminate\Contracts\Database\Query\Builder $q) use ($request) {
                 $q->where('nom', 'LIKE', "%{$request->domaine}%");
             });
         }
 
         // Récupérer toutes les matières uniques pour le filtre
-        $matieres = Subject::whereHas('annonces', function($q) {
+        $matieres = Subject::whereHas('annonces', function(\Illuminate\Contracts\Database\Query\Builder $q) {
                 $q->where('status', 'publiée')->where('is_paid', true);
             })
             ->pluck('nom')
@@ -172,9 +172,9 @@ class ListeAnnonceController extends Controller
             ->toArray();
 
         // Pagination (6 par page)
-        $demandes = $demandes->orderBy('created_at', 'desc')->paginate(6)->withQueryString();
+        $demandes = $demandes->latest()->paginate(6)->withQueryString();
 
         // Passer 'matieres' à la vue
-        return view('demandes.liste', compact('demandes', 'matieres'));
+        return view('demandes.liste', ['demandes' => $demandes, 'matieres' => $matieres]);
     }
 }

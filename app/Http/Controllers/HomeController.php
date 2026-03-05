@@ -48,8 +48,7 @@ class HomeController extends Controller
         // Récupérer les annonces publiées et non attribuées
         $annoncesQuery = Annonce::with(['student', 'subject']) // Ajout de la relation subject
             ->where('status', 'publiée')
-            ->where('is_paid', true)
-            ->orderBy('created_at', 'desc');
+            ->where('is_paid', true)->latest();
 
         // Appliquer les filtres aux annonces si présents
         if ($request->has('annonce_subject') && ! empty($request->annonce_subject)) {
@@ -121,7 +120,7 @@ class HomeController extends Controller
         if ($request->has('price_range') && ! empty($request->price_range)) {
             $priceRange = explode('-', $request->price_range);
 
-            if (count($priceRange) == 2) {
+            if (count($priceRange) === 2) {
                 if ($priceRange[1] == '+') {
                     $tutorsQuery->where('rate_per_hour', '>=', (int) $priceRange[0]);
                 } else {
@@ -174,27 +173,7 @@ class HomeController extends Controller
         $selectedAnnonceFormat = $request->annonce_format ?? '';
         $selectedAnnonceDisponibilite = $request->annonce_disponibilite ?? '';
 
-        return view('welcome', compact(
-            'allSubjects',
-            'allCities',
-            'tutors',
-            'totalTutors',
-            'selectedSubject',
-            'selectedCity',
-            'selectedPreference',
-            'selectedPriceRange',
-            'searchQuery',
-            'recentTutors',
-            'minPrice',
-            'maxPrice',
-            'annonces',
-            'annoncesStats',
-            'selectedAnnonceSubject',
-            'selectedAnnonceBudgetMin',
-            'selectedAnnonceBudgetMax',
-            'selectedAnnonceFormat',
-            'selectedAnnonceDisponibilite'
-        ));
+        return view('welcome', ['allSubjects' => $allSubjects, 'allCities' => $allCities, 'tutors' => $tutors, 'totalTutors' => $totalTutors, 'selectedSubject' => $selectedSubject, 'selectedCity' => $selectedCity, 'selectedPreference' => $selectedPreference, 'selectedPriceRange' => $selectedPriceRange, 'searchQuery' => $searchQuery, 'recentTutors' => $recentTutors, 'minPrice' => $minPrice, 'maxPrice' => $maxPrice, 'annonces' => $annonces, 'annoncesStats' => $annoncesStats, 'selectedAnnonceSubject' => $selectedAnnonceSubject, 'selectedAnnonceBudgetMin' => $selectedAnnonceBudgetMin, 'selectedAnnonceBudgetMax' => $selectedAnnonceBudgetMax, 'selectedAnnonceFormat' => $selectedAnnonceFormat, 'selectedAnnonceDisponibilite' => $selectedAnnonceDisponibilite]);
     }
 
     /**
@@ -282,7 +261,7 @@ class HomeController extends Controller
      */
     public function getAnnonceSubjects()
     {
-        $subjects = Subject::whereHas('annonces', function ($query) {
+        $subjects = Subject::whereHas('annonces', function (\Illuminate\Contracts\Database\Query\Builder $query) {
             $query->where('status', 'publiée')
                 ->where('is_paid', true);
         })
