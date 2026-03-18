@@ -21,103 +21,144 @@
             <div class="row g-4">
                 <!-- Colonne principale -->
                 <div class="col-lg-8">
-                    <div class="detail-card bg-white rounded-4 shadow-sm p-4" data-aos="fade-right">
+                    <div class="main-card bg-white rounded-4 shadow-sm p-4" data-aos="fade-right">
                         <!-- En-tête -->
-                        <div class="d-flex justify-content-between align-items-start mb-4">
-                            <div>
-                                <span class="badge mb-3" style="background: #0B69F1; color: white; padding: 8px 15px; border-radius: 30px;">
-                                    @if($annonce->format == 'presentiel')
-                                        <i class="bi bi-person-workspace"></i> Présentiel
-                                    @elseif($annonce->format == 'en_ligne')
-                                        <i class="bi bi-laptop"></i> En ligne
-                                    @else
-                                        <i class="bi bi-arrow-left-right"></i> Hybride
-                                    @endif
-                                </span>
-                                <h1 class="fw-bold mb-2" style="color: #333; font-size: 2rem;">{{ $annonce->subject->nom ?? 'Matière non spécifiée' }}</h1>
-                                <p class="text-muted">
-                                    <i class="bi bi-clock"></i> Publiée {{ $annonce->created_at->diffForHumans() }}
-                                </p>
+                        <div class="mb-4">
+                            <span class="category-tag mb-3">
+                                @if($annonce->format == 'presentiel')
+                                    <i class="fas fa-user-graduate mr-2"></i>Présentiel
+                                @elseif($annonce->format == 'en_ligne')
+                                    <i class="fas fa-video mr-2"></i>En ligne
+                                @else
+                                    <i class="fas fa-sync-alt mr-2"></i>Hybride
+                                @endif
+                            </span>
+
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h1 class="display-title mb-0">{{ $annonce->subject->nom ?? 'Matière non spécifiée' }}</h1>
+                                <div class="budget-box text-center p-3 rounded-3" style="background: rgba(11, 105, 241, 0.05); min-width: 150px;">
+                                    <span class="d-block fw-bold" style="color: #0B69F1; font-size: 2rem;">
+                                        {{ number_format($annonce->budget, 0, ',', ' ') }}
+                                    </span>
+                                    <span class="text-muted">FCFA</span>
+                                </div>
                             </div>
-                            <div class="budget-box text-center p-3 rounded-3" style="background: rgba(11, 105, 241, 0.05); min-width: 150px;">
-                                <span class="d-block fw-bold" style="color: #0B69F1; font-size: 2rem;">
-                                    {{ number_format($annonce->budget, 0, ',', ' ') }}
-                                </span>
-                                <span class="text-muted">FCFA</span>
+
+                            <!-- Quick info grid -->
+                            <div class="quick-info-grid mt-4">
+                                <div class="info-item">
+                                    <div class="icon-box">
+                                        <i class="far fa-calendar-alt"></i>
+                                    </div>
+                                    <div>
+                                        <p class="label">Publiée le</p>
+                                        <p class="value">{{ $annonce->created_at->format('d/m/Y') }}</p>
+                                    </div>
+                                </div>
+                               
                             </div>
                         </div>
 
+                        <!-- Divider -->
+                        <div class="custom-divider my-5"></div>
+
                         <!-- Description complète -->
-                        <div class="description-section mb-4">
-                            <h4 class="fw-bold mb-3" style="color: #333;">
-                                <i class="bi bi-file-text me-2" style="color: #0B69F1;"></i> Description
-                            </h4>
-                            <div class="p-3 rounded-3" style="background: #f8f9fa; line-height: 1.8;">
+                        <div class="description-section mb-5">
+                            <h5 class="section-subtitle mb-3">
+                                <i class="fas fa-info-circle mr-2" style="color: #0B69F1;"></i>Description de la mission
+                            </h5>
+                            <div class="content-text">
                                 {{ $annonce->description }}
                             </div>
                         </div>
 
                         <!-- Disponibilités détaillées -->
-                        <div class="disponibilite-section mb-4">
-                            <h4 class="fw-bold mb-3" style="color: #333;">
-                                <i class="bi bi-calendar-week me-2" style="color: #0B69F1;"></i> Disponibilités
-                            </h4>
-                            <div class="p-3 rounded-3" style="background: #f8f9fa;">
-                                @if($annonce->disponibilite)
+                        @if($annonce->disponibilite)
+                            <div class="description-section mb-5">
+                                <h5 class="section-subtitle mb-3">
+                                    <i class="fas fa-clock mr-2" style="color: #0B69F1;"></i>Disponibilités détaillées
+                                </h5>
+                                <div class="content-text">
                                     @php
                                         $disponibilites = explode("\n", $annonce->disponibilite);
                                     @endphp
                                     @foreach($disponibilites as $dispo)
                                         @if(!empty(trim($dispo)))
-                                            <div class="dispo-item d-flex align-items-center gap-2 mb-2">
-                                                <i class="bi bi-check-circle-fill" style="color: #0B69F1;"></i>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fas fa-check-circle mr-3" style="color: #0B69F1;"></i>
                                                 <span>{{ trim($dispo) }}</span>
                                             </div>
                                         @endif
                                     @endforeach
-                                @else
-                                    <p class="text-muted mb-0">Non spécifié</p>
-                                @endif
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Footer finance -->
+                        <div class="finance-footer-card p-4 mt-4">
+                            <div class="row align-items-center text-center text-md-left">
+                                <div class="col-md-6 border-md-right">
+                                    <p class="label-muted text-uppercase small mb-1">Budget total</p>
+                                    <p class="h4 font-weight-bold mb-0" style="color: #333;">{{ number_format($annonce->budget, 0, ',', ' ') }} FCFA</p>
+                                </div>
+                                <div class="col-md-6 pl-md-4 mt-3 mt-md-0">
+                                    <p class="label-muted text-uppercase small mb-1">Format</p>
+                                    <p class="h6 font-weight-bold mb-0 text-capitalize" style="color: #333;">
+                                        @if($annonce->format == 'presentiel')
+                                            Présentiel
+                                        @elseif($annonce->format == 'en_ligne')
+                                            En ligne
+                                        @else
+                                            Hybride
+                                        @endif
+                                    </p>
+                                </div>
                             </div>
                         </div>
-
-          
                     </div>
                 </div>
 
                 <!-- Colonne latérale -->
                 <div class="col-lg-4">
-                    <div class="sidebar-card bg-white rounded-4 shadow-sm p-4" data-aos="fade-left">
-                        <!-- Actions -->
-                        <div class="actions-section mb-4">
-                            <h5 class="fw-bold mb-3">Actions</h5>
+                    <div class="sticky-sidebar">
+                        <!-- Carte action bleue -->
+                        <div class="action-card-blue bg-white rounded-4 shadow-sm p-4 mb-4" data-aos="fade-left">
+                            <div class="text-center">
+                                <p class="text-muted mb-1">Rémunération Totale</p>
+                                <h2 class="budget-display mb-4" style="color: #0B69F1; font-size: 2.5rem;">
+                                    {{ number_format($annonce->budget, 0, ',', ' ') }} <small style="font-size: 1rem;">FCFA</small>
+                                </h2>
 
-                            @auth
-                                @if(Auth::user()->role_id == 3)
-                                    <a href="{{ route('login') }}" class="btn btn-primary w-100 py-3 mb-2 rounded-pill"
-                                       style="background: #0B69F1; border: none;"
-                                       onclick="event.preventDefault(); showPostulerMessage();">
-                                        <i class="bi bi-send me-2"></i> Postuler à cette annonce
-                                    </a>
+                                @auth
+                                    @if(Auth::user()->role_id == 3)
+                                        <button class="btn btn-primary w-100 py-3 mb-3 rounded-pill"
+                                                style="background: #0B69F1; border: none;"
+                                                onclick="showPostulerMessage()">
+                                            <i class="fas fa-paper-plane mr-2"></i>Postuler maintenant
+                                        </button>
+                                    @else
+                                        <button class="btn btn-primary w-100 py-3 mb-3 rounded-pill"
+                                                style="background: #0B69F1; border: none;"
+                                                onclick="showRoleMessage('postuler')">
+                                            <i class="fas fa-paper-plane mr-2"></i>Postuler maintenant
+                                        </button>
+                                    @endif
                                 @else
-                                    <button class="btn btn-primary w-100 py-3 mb-2 rounded-pill"
+                                    <button class="btn btn-primary w-100 py-3 mb-3 rounded-pill"
                                             style="background: #0B69F1; border: none;"
-                                            onclick="showRoleMessage('postuler')">
-                                        <i class="bi bi-send me-2"></i> Postuler à cette annonce
+                                            onclick="showLoginMessage()">
+                                        <i class="fas fa-paper-plane mr-2"></i>Postuler maintenant
                                     </button>
-                                @endif
-                            @else
-                                <button class="btn btn-primary w-100 py-3 mb-2 rounded-pill"
-                                        style="background: #0B69F1; border: none;"
-                                        onclick="showLoginMessage()">
-                                    <i class="bi bi-send me-2"></i> Postuler à cette annonce
-                                </button>
-                            @endauth
+                                @endauth
+                                <p class="small text-muted mb-0">
+                                    <i class="fas fa-shield-alt mr-1" style="color: #0B69F1;"></i> Paiement sécurisé via Kopiao
+                                </p>
+                            </div>
                         </div>
 
                         <!-- Résumé rapide -->
-                        <div class="resume-section mb-4">
-                            <h5 class="fw-bold mb-3">Résumé</h5>
+                        <div class="resume-card bg-white rounded-4 shadow-sm p-4 mb-4">
+                            <h5 class="sidebar-title mb-4">Résumé</h5>
                             <div class="resume-items">
                                 <div class="resume-item d-flex justify-content-between py-2 border-bottom">
                                     <span class="text-muted">Budget</span>
@@ -146,60 +187,36 @@
                             </div>
                         </div>
 
-                        <!-- Partager -->
-                        <div class="share-section">
-                            <h5 class="fw-bold mb-3">Partager</h5>
-                            <div class="d-flex gap-2">
-                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->url()) }}"
-                                   target="_blank" class="share-btn d-flex align-items-center justify-content-center rounded-circle"
-                                   style="width: 45px; height: 45px; background: #1877f2; color: white;">
-                                    <i class="bi bi-facebook"></i>
-                                </a>
-                                <a href="https://twitter.com/intent/tweet?url={{ urlencode(request()->url()) }}&text={{ urlencode($annonce->subject->nom ?? 'Annonce') }}"
-                                   target="_blank" class="share-btn d-flex align-items-center justify-content-center rounded-circle"
-                                   style="width: 45px; height: 45px; background: #1da1f2; color: white;">
-                                    <i class="bi bi-twitter-x"></i>
-                                </a>
-                                <a href="https://wa.me/?text={{ urlencode(($annonce->subject->nom ?? 'Annonce') . ' ' . request()->url()) }}"
-                                   target="_blank" class="share-btn d-flex align-items-center justify-content-center rounded-circle"
-                                   style="width: 45px; height: 45px; background: #25d366; color: white;">
-                                    <i class="bi bi-whatsapp"></i>
-                                </a>
-                                <a href="mailto:?subject={{ urlencode($annonce->subject->nom ?? 'Annonce') }}&body={{ urlencode('Découvrez cette annonce: ' . request()->url()) }}"
-                                   class="share-btn d-flex align-items-center justify-content-center rounded-circle"
-                                   style="width: 45px; height: 45px; background: #333; color: white;">
-                                    <i class="bi bi-envelope"></i>
-                                </a>
+                        <!-- Annonces similaires -->
+                        @if(isset($annoncesSimilaires) && $annoncesSimilaires->count() > 0)
+                            <div class="similaires-card bg-white rounded-4 shadow-sm p-4">
+                                <h5 class="sidebar-title mb-4">Annonces similaires</h5>
+                                @foreach($annoncesSimilaires as $similaire)
+                                    <div class="d-flex align-items-center py-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+                                        <div class="avatar-box mr-3">
+                                            <div class="avatar-letter" style="background: #eef5ff; color: #0B69F1;">
+                                                <i class="fas fa-briefcase"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <a href="{{ route('annoncesListe.publique.detail', $similaire->id) }}" class="text-decoration-none">
+                                                <h6 class="mb-0 fw-bold" style="color: #333;">{{ $similaire->subject->nom ?? 'Matière' }}</h6>
+                                                <small class="text-muted">{{ number_format($similaire->budget, 0, ',', ' ') }} FCFA</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
-                        </div>
-                    </div>
+                        @endif
 
-                    <!-- Annonces similaires -->
-                    @if(isset($annoncesSimilaires) && $annoncesSimilaires->count() > 0)
-                        <div class="similaires-card bg-white rounded-4 shadow-sm p-4 mt-4">
-                            <h5 class="fw-bold mb-3">Annonces similaires</h5>
-                            @foreach($annoncesSimilaires as $similaire)
-                                <div class="similaire-item d-flex align-items-center gap-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}">
-                                    <div class="similaire-icon d-flex align-items-center justify-content-center rounded-circle"
-                                         style="width: 50px; height: 50px; background: rgba(11, 105, 241, 0.1);">
-                                        <i class="bi bi-briefcase" style="color: #0B69F1;"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <a href="{{ route('annoncesListe.publique.detail', $similaire->id) }}" class="text-decoration-none">
-                                            <h6 class="fw-bold mb-1" style="color: #333;">{{ $similaire->subject->nom ?? 'Matière' }}</h6>
-                                            <small class="text-muted">{{ number_format($similaire->budget, 0, ',', ' ') }} FCFA</small>
-                                        </a>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
+
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Modals -->
+    <!-- Modals (inchangés) -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="border-radius: 20px;">
@@ -249,11 +266,16 @@
 </div>
 
 <style>
+/* Font */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
 .annonce-detail-page {
     background: #f8f9fa;
     min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
+/* Breadcrumb */
 .breadcrumb-item a {
     text-decoration: none;
     transition: all 0.3s ease;
@@ -263,15 +285,105 @@
     text-decoration: underline;
 }
 
-.detail-card, .sidebar-card, .similaires-card {
-    border: 1px solid rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
+/* Category Tag */
+.category-tag {
+    display: inline-block;
+    background: #eef5ff;
+    color: #0B69F1;
+    padding: 6px 18px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
 }
 
-.detail-card:hover, .sidebar-card:hover, .similaires-card:hover {
-    box-shadow: 0 15px 35px rgba(11, 105, 241, 0.1) !important;
+/* Display Title */
+.display-title {
+    font-weight: 800;
+    font-size: 2rem;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    color: #333;
 }
 
+/* Quick Info Grid */
+.quick-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+}
+
+.icon-box {
+    width: 48px;
+    height: 48px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: #0B69F1;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+}
+
+.info-item .label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 0;
+    font-weight: 600;
+}
+
+.info-item .value {
+    font-weight: 700;
+    margin-bottom: 0;
+    color: #333;
+}
+
+/* Divider */
+.custom-divider {
+    height: 1px;
+    background: linear-gradient(to right, #e2e8f0, transparent);
+}
+
+/* Section Subtitle */
+.section-subtitle {
+    font-weight: 700;
+    color: #333;
+}
+
+/* Content Text */
+.content-text {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #64748b;
+}
+
+/* Finance Footer */
+.finance-footer-card {
+    background: #f8fafc;
+    border-radius: 18px;
+    border: 1px solid #edf2f7;
+}
+
+.label-muted {
+    color: #64748b;
+    font-weight: 600;
+}
+
+/* Border MD */
+@media (min-width: 768px) {
+    .border-md-right {
+        border-right: 1px solid #e2e8f0;
+    }
+}
+
+/* Budget Box */
 .budget-box {
     transition: all 0.3s ease;
 }
@@ -281,41 +393,33 @@
     background: rgba(11, 105, 241, 0.1) !important;
 }
 
-.dispo-item {
-    transition: all 0.3s ease;
+/* Sidebar Title */
+.sidebar-title {
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
 }
 
-.dispo-item:hover {
-    transform: translateX(5px);
+/* Avatar Box */
+.avatar-box {
+    width: 50px;
+    height: 50px;
 }
 
-.student-card {
-    transition: all 0.3s ease;
+.avatar-letter {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
 }
 
-.student-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(11, 105, 241, 0.1);
-}
-
-.student-avatar {
-    transition: all 0.3s ease;
-}
-
-.student-card:hover .student-avatar {
-    transform: scale(1.05);
-    border-color: #0B69F1 !important;
-}
-
-.btn-outline-primary {
-    transition: all 0.3s ease;
-}
-
-.btn-outline-primary:hover {
-    background: #0B69F1;
-    color: white;
-}
-
+/* Share Buttons */
 .share-btn {
     transition: all 0.3s ease;
     text-decoration: none;
@@ -326,24 +430,25 @@
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-.similaire-item {
+/* Sticky Sidebar */
+.sticky-sidebar {
+    position: sticky;
+    top: 20px;
+}
+
+/* Cards */
+.main-card, .action-card-blue, .resume-card, .similaires-card, .share-card {
+    border: 1px solid rgba(0,0,0,0.05);
     transition: all 0.3s ease;
 }
 
-.similaire-item:hover {
-    transform: translateX(5px);
+.main-card:hover, .action-card-blue:hover, .resume-card:hover, .similaires-card:hover, .share-card:hover {
+    box-shadow: 0 15px 35px rgba(11, 105, 241, 0.1) !important;
 }
 
-.similaire-item:hover .similaire-icon {
-    transform: rotate(10deg) scale(1.1);
-}
-
-.similaire-icon {
-    transition: all 0.3s ease;
-}
-
+/* Responsive */
 @media (max-width: 768px) {
-    .detail-card h1 {
+    .display-title {
         font-size: 1.5rem !important;
     }
 
