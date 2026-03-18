@@ -416,7 +416,7 @@
                         <div class="col-lg-2 col-md-4">
                             <button type="submit" class="btn w-100 py-2"
                                     style="background: #0B69F1; color: white; border: none; border-radius: 8px; font-weight: 500;">
-                                <i class="bi bi-funnel me-2"></i>Filtrer
+                                <i class="bi bi-funnel me-2"></i>Rechercher
                             </button>
                         </div>
                     </div>
@@ -470,9 +470,7 @@
                                             @endif
                                         </div>
                                         <div class="student-info">
-                                            <span class="student-name d-block fw-semibold" style="color: #333;">
-                                                {{ $annonce->student->firstname }} {{ $annonce->student->lastname }}
-                                            </span>
+
                                             <span class="post-date" style="color: #666; font-size: 0.8rem;">
                                                 Publiée {{ $annonce->created_at->diffForHumans() }}
                                             </span>
