@@ -42,7 +42,7 @@ class AuthenticatedSessionController extends Controller
         return to_route('admin.dashboard'); // Dashboard Admin
     }
 
-    // Tous les autres rôles → dashboard utilisateur
+    // Tous les autres rôles → dashboard utilisateur  909594887475-obkctd5kn6r486b8tmhkld8658nskf2r.apps.googleusercontent.com
     return to_route('dashboardUser');
 }
 
