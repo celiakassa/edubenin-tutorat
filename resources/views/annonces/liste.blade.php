@@ -204,9 +204,7 @@
                                         @endif
                                     </div>
                                     <div>
-                                        <span class="d-block fw-semibold" style="color: #333;">
-                                            {{ $annonce->student->firstname ?? '' }} {{ $annonce->student->lastname ?? '' }}
-                                        </span>
+                                      
                                         <small class="text-muted">
                                             <i class="bi bi-clock"></i> {{ $annonce->created_at->diffForHumans() }}
                                         </small>

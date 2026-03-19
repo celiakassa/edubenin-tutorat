@@ -416,7 +416,7 @@
                         <div class="col-lg-2 col-md-4">
                             <button type="submit" class="btn w-100 py-2"
                                     style="background: #0B69F1; color: white; border: none; border-radius: 8px; font-weight: 500;">
-                                <i class="bi bi-funnel me-2"></i>Filtrer
+                                <i class="bi bi-funnel me-2"></i>Rechercher
                             </button>
                         </div>
                     </div>
@@ -470,9 +470,7 @@
                                             @endif
                                         </div>
                                         <div class="student-info">
-                                            <span class="student-name d-block fw-semibold" style="color: #333;">
-                                                {{ $annonce->student->firstname }} {{ $annonce->student->lastname }}
-                                            </span>
+
                                             <span class="post-date" style="color: #666; font-size: 0.8rem;">
                                                 Publiée {{ $annonce->created_at->diffForHumans() }}
                                             </span>
@@ -777,7 +775,7 @@
                         <h3 class="fw-bold mb-3" style="color: #000; font-size: 1.8rem;">Vous êtes tuteur ?</h3>
 
                         <p class="mb-3 px-2" style="color: #333; font-size: 1rem; line-height: 1.6;">
-                            Consultez les annonces publiées par les étudiants et trouvez des missions qui correspondent à vos compétences.
+                            Consultez les annonces publiées par les apprenants et trouvez des missions qui correspondent à vos compétences.
                         </p>
 
                         @auth
@@ -1006,7 +1004,7 @@
                             <p class="mb-0">Vous êtes connecté en tant que
                                 <strong>
                                     @if(Auth::user()->role_id == 2)
-                                        Étudiant
+                                        Apprenant
                                     @elseif(Auth::user()->role_id == 3)
                                         Tuteur
                                     @else
@@ -2402,7 +2400,7 @@
         const modalMessage = document.getElementById('modalMessage');
 
         if (action === 'publier') {
-            modalMessage.textContent = 'Pour publier une annonce, vous devez d\'abord créer un compte étudiant ou vous connecter.';
+            modalMessage.textContent = 'Pour publier une annonce, vous devez d\'abord créer un compte apprenant ou vous connecter.';
         } else {
             modalMessage.textContent = 'Pour consulter les annonces et postuler, vous devez d\'abord créer un compte tuteur ou vous connecter.';
         }

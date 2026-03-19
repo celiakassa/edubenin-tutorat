@@ -14,7 +14,7 @@
                                  style="width: 70px; height: 70px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.2);">
                                 <i class="bi bi-mortarboard-fill" style="font-size: 2rem; color: #0d6efd;"></i>
                             </div>
-                            <h2 class="text-white fw-bold mb-1 fs-4">Devenir Étudiant</h2>
+                            <h2 class="text-white fw-bold mb-1 fs-4">Devenir Apprenant</h2>
                             <p class="text-white-50 mb-0 small">Trouvez le tuteur parfait pour vous</p>
                         </div>
 

@@ -60,10 +60,10 @@
                     <span class="menu-text" style="color: white;">Voir les annonces</span>
                 </div>
 
-                <div class="menu-item {{ request()->routeIs('candidatures.index') ? 'active' : '' }}">
+              {{--   <div class="menu-item {{ request()->routeIs('candidatures.index') ? 'active' : '' }}">
                     <i class="fas fa-clipboard-list" style="color: white;"></i>
                     <span class="menu-text" style="color: white;">État de mes candidatures</span>
-                </div>
+                </div>  --}}
 
                 <div class="menu-item {{ request()->routeIs('abonnements.user') ? 'active' : '' }}"
                      onclick="window.location.href='{{ route('abonnements.user') }}'">
