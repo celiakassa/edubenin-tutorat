@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Created by Reliese Model.
  */
@@ -10,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Job
- * 
+ *
  * @property int $id
  * @property string $queue
  * @property string $payload
@@ -18,27 +20,27 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $reserved_at
  * @property int $available_at
  * @property int $created_at
- *
- * @package App\Models
  */
-class Job extends Model
+final class Job extends Model
 {
-	protected $table = 'jobs';
-	public $timestamps = false;
+    public $timestamps = false;
 
-	protected $fillable = [
-		'queue',
-		'payload',
-		'attempts',
-		'reserved_at',
-		'available_at'
-	];
+    protected $table = 'jobs';
+
+    protected $fillable = [
+        'queue',
+        'payload',
+        'attempts',
+        'reserved_at',
+        'available_at',
+    ];
+
     protected function casts(): array
     {
         return [
-    		'attempts' => 'int',
-    		'reserved_at' => 'int',
-    		'available_at' => 'int'
-    	];
+            'attempts' => 'int',
+            'reserved_at' => 'int',
+            'available_at' => 'int',
+        ];
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Mail;
 
 use App\Models\Candidature;
@@ -7,32 +9,34 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class CandidatureAcceptee extends Mailable
+final class CandidatureAcceptee extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
 
-    public $candidature;
+    use SerializesModels;
+
     public $annonce;
+
     public $etudiant;
+
     public $tuteur;
 
-    public function __construct(Candidature $candidature)
+    public function __construct(public Candidature $candidature)
     {
-        $this->candidature = $candidature;
-        $this->annonce = $candidature->annonce;
-        $this->etudiant = $candidature->annonce->student;
-        $this->tuteur = $candidature->tuteur;
+        $this->annonce = $this->candidature->annonce;
+        $this->etudiant = $this->candidature->annonce->student;
+        $this->tuteur = $this->candidature->tuteur;
     }
 
     public function build()
     {
         return $this->subject('🎉 Félicitations ! Votre candidature a été acceptée - Kopiao')
-                    ->view('emails.candidature-acceptee')
-                    ->with([
-                        'candidature' => $this->candidature,
-                        'annonce' => $this->annonce,
-                        'etudiant' => $this->etudiant,
-                        'tuteur' => $this->tuteur,
-                    ]);
+            ->view('emails.candidature-acceptee')
+            ->with([
+                'candidature' => $this->candidature,
+                'annonce' => $this->annonce,
+                'etudiant' => $this->etudiant,
+                'tuteur' => $this->tuteur,
+            ]);
     }
 }

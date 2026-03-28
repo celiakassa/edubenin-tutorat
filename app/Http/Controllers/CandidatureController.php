@@ -1,22 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
+use App\Mail\CandidatureAcceptee;
+use App\Mail\CandidatureRefusee;
 use App\Models\Annonce;
 use App\Models\Candidature;
-use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\CandidatureAcceptee;
-use App\Mail\CandidatureRefusee;
+use Log;
 
-class CandidatureController extends Controller
+final class CandidatureController extends Controller
 {
     /**
      * Afficher les candidatures pour une annonce (pour l'étudiant)
      */
-    public function index($annonceId)
+    public function index($annonceId): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         // Charger les candidatures avec les relations tuteur et leurs matières
         $annonce = Annonce::with(['candidatures.tuteur.subjects'])->findOrFail($annonceId);
@@ -47,7 +50,7 @@ class CandidatureController extends Controller
             'annonce' => $annonce,
             'stats' => $stats,
             'candidaturesParStatut' => $candidaturesParStatut,
-            'tuteurAccepte' => $tuteurAccepte
+            'tuteurAccepte' => $tuteurAccepte,
         ]);
     }
 
@@ -65,7 +68,7 @@ class CandidatureController extends Controller
 
         // Vérifier que l'annonce est publiée (avec accent)
         if ($annonce->status !== 'publiée') {
-            return back()->with('error', 'Cette annonce n\'est pas disponible.');
+            return back()->with('error', "Cette annonce n'est pas disponible.");
         }
 
         // Vérifier si le tuteur a déjà postulé
@@ -117,8 +120,8 @@ class CandidatureController extends Controller
         try {
             Mail::to($candidature->tuteur->email)
                 ->send(new CandidatureAcceptee($candidature));
-        } catch (\Exception $e) {
-            \Log::error('Erreur envoi email acceptation: ' . $e->getMessage());
+        } catch (Exception $exception) {
+            Log::error('Erreur envoi email acceptation: '.$exception->getMessage());
         }
 
         // Envoyer des emails de refus aux autres tuteurs
@@ -131,8 +134,8 @@ class CandidatureController extends Controller
             try {
                 Mail::to($candidatureRefusee->tuteur->email)
                     ->send(new CandidatureRefusee($candidatureRefusee));
-            } catch (\Exception $e) {
-                \Log::error('Erreur envoi email refus: ' . $e->getMessage());
+            } catch (Exception $e) {
+                Log::error('Erreur envoi email refus: '.$e->getMessage());
             }
         }
 
@@ -162,8 +165,8 @@ class CandidatureController extends Controller
         try {
             Mail::to($candidature->tuteur->email)
                 ->send(new CandidatureRefusee($candidature));
-        } catch (\Exception $e) {
-            \Log::error('Erreur envoi email refus: ' . $e->getMessage());
+        } catch (Exception $exception) {
+            Log::error('Erreur envoi email refus: '.$exception->getMessage());
         }
 
         return back()->with('success', 'Candidature refusée et notification envoyée.');
@@ -172,7 +175,7 @@ class CandidatureController extends Controller
     /**
      * Voir le profil d'un tuteur (pour l'étudiant)
      */
-    public function voirProfilTuteur($candidatureId)
+    public function voirProfilTuteur($candidatureId): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $candidature = Candidature::with(['annonce', 'tuteur.subjects'])->findOrFail($candidatureId);
 
@@ -184,7 +187,7 @@ class CandidatureController extends Controller
         return view('candidatures.profil-tuteur', [
             'tuteur' => $tuteur,
             'candidature' => $candidature,
-            'annonce' => $candidature->annonce
+            'annonce' => $candidature->annonce,
         ]);
     }
 
@@ -205,7 +208,7 @@ class CandidatureController extends Controller
 
         return response()->json([
             'data' => [$stats['en_attente'], $stats['acceptees'], $stats['refusees']],
-            'stats' => $stats
+            'stats' => $stats,
         ]);
     }
 }

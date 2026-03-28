@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Traits\HasHashid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Annonce extends Model
+final class Annonce extends Model
 {
-    use HasFactory, HasHashid;
-
+    use HasFactory;
+    use HasHashid;
     protected $fillable = [
         'student_id',
         'subject_id', // Changé de 'domaine' à 'subject_id'
@@ -23,12 +25,23 @@ class Annonce extends Model
         'format',
         'is_paid',
         'published_at',
-        'payment_reference'
+        'payment_reference',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'budget' => 'decimal:2',
+            'acompte' => 'decimal:2',
+            'published_at' => 'datetime',
+            'is_paid' => 'boolean',
+        ];
+    }
 
     /**
      * Relation avec l'étudiant (utilisateur)
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User, $this>
+     *
+     * @return BelongsTo<User, $this>
      */
     public function student(): BelongsTo
     {
@@ -37,7 +50,8 @@ class Annonce extends Model
 
     /**
      * Relation avec la matière (NOUVELLE)
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Subject, $this>
+     *
+     * @return BelongsTo<Subject, $this>
      */
     public function subject(): BelongsTo
     {
@@ -46,7 +60,8 @@ class Annonce extends Model
 
     /**
      * Relation avec les paiements
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Payment, $this>
+     *
+     * @return HasMany<Payment, $this>
      */
     public function payments(): HasMany
     {
@@ -61,7 +76,7 @@ class Annonce extends Model
     /**
      * Calcul automatique de l'acompte (30% fixe)
      */
-    public function calculateAcompte()
+    public function calculateAcompte(): float
     {
         $percentage = 0.3; // Fixé à 30%
 
@@ -74,13 +89,13 @@ class Annonce extends Model
     }
 
     // Vérifier si le paiement est en cours
-    public function isPaymentPending()
+    public function isPaymentPending(): bool
     {
         return $this->status === 'en_paiement';
     }
 
     // Marquer l'annonce comme publiée
-    public function markAsPublished()
+    public function markAsPublished(): void
     {
         $this->status = 'publiée';
         $this->is_paid = true;
@@ -90,7 +105,8 @@ class Annonce extends Model
 
     /**
      * Relation avec les candidatures
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Candidature, $this>
+     *
+     * @return HasMany<Candidature, $this>
      */
     public function candidatures(): HasMany
     {
@@ -113,28 +129,11 @@ class Annonce extends Model
     }
 
     /**
-     * Scope pour les annonces publiées
-     */
-    protected function scopePubliees($query)
-    {
-        return $query->where('status', 'publiée');
-    }
-
-    /**
      * Vérifie si l'annonce est attribuée
      */
     public function estAttribuee(): bool
     {
         return $this->candidatures()->where('statut', 'acceptee')->exists();
-    }
-
-    /**
-     * Obtenir le tuteur accepté
-     */
-    protected function getTuteurAccepteAttribute()
-    {
-        $candidatureAcceptee = $this->candidatures()->where('statut', 'acceptee')->first();
-        return $candidatureAcceptee ? $candidatureAcceptee->tuteur : null;
     }
 
     /**
@@ -144,43 +143,55 @@ class Annonce extends Model
     {
         return $this->status === 'publiée';
     }
+
+    /**
+     * Scope pour les annonces publiées
+     */
+    protected function scopePubliees($query)
+    {
+        return $query->where('status', 'publiée');
+    }
+
+    /**
+     * Obtenir le tuteur accepté
+     */
+    protected function getTuteurAccepteAttribute()
+    {
+        $candidatureAcceptee = $this->candidatures()->where('statut', 'acceptee')->first();
+
+        return $candidatureAcceptee ? $candidatureAcceptee->tuteur : null;
+    }
+
     /**
      * Obtenir le nom de la matière (accesseur)
      */
     protected function domaine(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: 
             // Pour la rétrocompatibilité, si vous avez encore du code qui utilise $annonce->domaine
-            return $this->subject ? $this->subject->nom : null;
-        });
+            fn() => $this->subject ? $this->subject->nom : null);
     }
+
     /**
      * Formatage disponibilité
      */
     protected function formattedDisponibilite(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function (): string {
             if (empty($this->disponibilite)) {
                 return 'Non spécifié';
             }
-            $lines = explode("\n", trim($this->disponibilite));
+
+            $lines = explode("\n", mb_trim($this->disponibilite));
             $formatted = '';
             foreach ($lines as $line) {
-                $line = trim($line);
+                $line = mb_trim($line);
                 if ($line !== '' && $line !== '0') {
-                    $formatted .= '<li>' . e($line) . '</li>';
+                    $formatted .= '<li>'.e($line).'</li>';
                 }
             }
-            return $formatted !== '' && $formatted !== '0' ? '<ul class="list-unstyled mb-0">' . $formatted . '</ul>' : 'Non spécifié';
+
+            return $formatted !== '' && $formatted !== '0' ? '<ul class="list-unstyled mb-0">'.$formatted.'</ul>' : 'Non spécifié';
         });
-    }
-    protected function casts(): array
-    {
-        return [
-            'budget' => 'decimal:2',
-            'acompte' => 'decimal:2',
-            'published_at' => 'datetime',
-            'is_paid' => 'boolean',
-        ];
     }
 }

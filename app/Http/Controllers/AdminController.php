@@ -1,19 +1,67 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use App\Models\User;
-use App\Mail\TeacherApprovedMail;
-use App\Mail\TeacherRejectedMail;
 use App\Mail\AccountDeactivatedMail;
 use App\Mail\AccountReactivatedMail;
+use App\Mail\TeacherApprovedMail;
+use App\Mail\TeacherRejectedMail;
+use App\Models\User;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Log;
 
-class AdminController extends Controller
+final class AdminController extends Controller
 {
+    // Méthode statique pour utilisation dans la vue
+    public static function calculateProfileCompletionStatic($user): int|float
+    {
+        if ($user->role_id !== 3) {
+            return 0;
+        }
+
+        $fields = [
+            'firstname',
+            'lastname',
+            'email',
+            'telephone',
+            'photo_path',
+            'bio',
+            'qualifications',
+            'subjects',
+            'rate_per_hour',
+            'identity_document_path',
+            'city',
+            'learning_preference',
+        ];
+
+        $filled = 0;
+        foreach ($fields as $field) {
+            if ($field === 'subjects') {
+                $subjects = $user->subjects;
+                if (! empty($subjects)) {
+                    $decoded = json_decode($subjects, true);
+                    if (is_array($decoded) && $decoded !== []) {
+                        $filled++;
+                    } elseif (is_string($subjects) && mb_trim($subjects) !== '') {
+                        $filled++;
+                    }
+                }
+            } elseif (! empty($user->$field)) {
+                $filled++;
+            }
+        }
+
+        $total = count($fields);
+
+        return $total > 0 ? round(($filled / $total) * 100) : 0;
+    }
+
     // Page principale du dashboard
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         // Statistiques
         $totalUsers = User::count();
@@ -26,13 +74,13 @@ class AdminController extends Controller
         $verifiedTeachersCount = User::where('role_id', 3)->where('identity_verified', 1)->count();
         $rejectedTeachersCount = User::where('role_id', 3)->where('identity_verified', 0)->whereNotNull('identity_document_path')->count();
         $pendingTeachersCount = User::where('role_id', 3)
-            ->where(function($query) {
+            ->where(function ($query): void {
                 $query->where('identity_verified', 0)
-                      ->orWhereNull('identity_verified');
+                    ->orWhereNull('identity_verified');
             })
-            ->where(function($query) {
+            ->where(function ($query): void {
                 $query->whereNotNull('identity_document_path')
-                      ->where('identity_document_path', '!=', '');
+                    ->where('identity_document_path', '!=', '');
             })
             ->count();
 
@@ -40,13 +88,13 @@ class AdminController extends Controller
 
         // Professeurs avec pièce d'identité non vérifiée (en attente)
         $pendingTeachers = User::where('role_id', 3)
-            ->where(function($query) {
+            ->where(function ($query): void {
                 $query->where('identity_verified', 0)
-                      ->orWhereNull('identity_verified');
+                    ->orWhereNull('identity_verified');
             })
-            ->where(function($query) {
+            ->where(function ($query): void {
                 $query->whereNotNull('identity_document_path')
-                      ->where('identity_document_path', '!=', '');
+                    ->where('identity_document_path', '!=', '');
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -64,9 +112,9 @@ class AdminController extends Controller
 
         // Professeurs sans pièce d'identité
         $teachersWithoutDoc = User::where('role_id', 3)
-            ->where(function($query) {
+            ->where(function ($query): void {
                 $query->whereNull('identity_document_path')
-                      ->orWhere('identity_document_path', '');
+                    ->orWhere('identity_document_path', '');
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -81,7 +129,7 @@ class AdminController extends Controller
     }
 
     // Voir les détails d'un professeur
-    public function showTeacher($id)
+    public function showTeacher($id): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $teacher = User::findOrFail($id);
 
@@ -114,21 +162,22 @@ class AdminController extends Controller
                         $teacher,
                         $request->approval_reason ?? 'Votre profil a été vérifié avec succès.'
                     ));
-                } catch (\Exception $e) {
-                    \Log::error('Erreur envoi email approbation: ' . $e->getMessage());
+                } catch (Exception $e) {
+                    Log::error('Erreur envoi email approbation: '.$e->getMessage());
                     // Continuer même si l'email échoue
                 }
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Professeur approuvé avec succès.'
+                'message' => 'Professeur approuvé avec succès.',
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Erreur approbation professeur: ' . $e->getMessage());
+        } catch (Exception $exception) {
+            Log::error('Erreur approbation professeur: '.$exception->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de l\'approbation: ' . $e->getMessage()
+                'message' => "Erreur lors de l'approbation: ".$exception->getMessage(),
             ], 500);
         }
     }
@@ -155,21 +204,22 @@ class AdminController extends Controller
                         $teacher,
                         $request->rejection_reason
                     ));
-                } catch (\Exception $e) {
-                    \Log::error('Erreur envoi email rejet: ' . $e->getMessage());
+                } catch (Exception $e) {
+                    Log::error('Erreur envoi email rejet: '.$e->getMessage());
                     // Continuer même si l'email échoue
                 }
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Professeur rejeté.'
+                'message' => 'Professeur rejeté.',
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Erreur rejet professeur: ' . $e->getMessage());
+        } catch (Exception $exception) {
+            Log::error('Erreur rejet professeur: '.$exception->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors du rejet: ' . $e->getMessage()
+                'message' => 'Erreur lors du rejet: '.$exception->getMessage(),
             ], 500);
         }
     }
@@ -195,21 +245,22 @@ class AdminController extends Controller
                         $teacher,
                         $request->deactivation_reason
                     ));
-                } catch (\Exception $e) {
-                    \Log::error('Erreur envoi email désactivation: ' . $e->getMessage());
+                } catch (Exception $e) {
+                    Log::error('Erreur envoi email désactivation: '.$e->getMessage());
                     // Continuer même si l'email échoue
                 }
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Compte désactivé avec succès.'
+                'message' => 'Compte désactivé avec succès.',
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Erreur désactivation compte: ' . $e->getMessage());
+        } catch (Exception $exception) {
+            Log::error('Erreur désactivation compte: '.$exception->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de la désactivation: ' . $e->getMessage()
+                'message' => 'Erreur lors de la désactivation: '.$exception->getMessage(),
             ], 500);
         }
     }
@@ -235,21 +286,22 @@ class AdminController extends Controller
                         $teacher,
                         $request->reactivation_reason ?? 'Votre compte a été réactivé.'
                     ));
-                } catch (\Exception $e) {
-                    \Log::error('Erreur envoi email réactivation: ' . $e->getMessage());
+                } catch (Exception $e) {
+                    Log::error('Erreur envoi email réactivation: '.$e->getMessage());
                     // Continuer même si l'email échoue
                 }
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Compte réactivé avec succès.'
+                'message' => 'Compte réactivé avec succès.',
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Erreur réactivation compte: ' . $e->getMessage());
+        } catch (Exception $exception) {
+            Log::error('Erreur réactivation compte: '.$exception->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de la réactivation: ' . $e->getMessage()
+                'message' => 'Erreur lors de la réactivation: '.$exception->getMessage(),
             ], 500);
         }
     }
@@ -261,7 +313,7 @@ class AdminController extends Controller
 
         abort_unless($teacher->identity_document_path, 404, 'Pièce d\'identité non trouvée');
 
-        $filePath = storage_path('app/public/' . $teacher->identity_document_path);
+        $filePath = storage_path('app/public/'.$teacher->identity_document_path);
 
         abort_unless(file_exists($filePath), 404, 'Fichier non trouvé');
 
@@ -269,9 +321,9 @@ class AdminController extends Controller
     }
 
     // Calcul du pourcentage de complétion du profil
-    private function calculateProfileCompletion($user)
+    private function calculateProfileCompletion($user): int|float
     {
-        if ($user->role_id != 3) {
+        if ($user->role_id !== 3) {
             return 0;
         }
 
@@ -294,63 +346,21 @@ class AdminController extends Controller
         foreach ($fields as $field) {
             if ($field === 'subjects') {
                 $subjects = $user->subjects;
-                if (!empty($subjects)) {
+                if (! empty($subjects)) {
                     $decoded = json_decode($subjects, true);
                     if (is_array($decoded) && $decoded !== []) {
                         $filled++;
-                    } elseif (is_string($subjects) && trim($subjects) !== '') {
+                    } elseif (is_string($subjects) && mb_trim($subjects) !== '') {
                         $filled++;
                     }
                 }
-            } elseif (!empty($user->$field)) {
+            } elseif (! empty($user->$field)) {
                 $filled++;
             }
         }
 
         $total = count($fields);
-        return $total > 0 ? round(($filled / $total) * 100) : 0;
-    }
 
-    // Méthode statique pour utilisation dans la vue
-    public static function calculateProfileCompletionStatic($user)
-    {
-        if ($user->role_id != 3) {
-            return 0;
-        }
-
-        $fields = [
-            'firstname',
-            'lastname',
-            'email',
-            'telephone',
-            'photo_path',
-            'bio',
-            'qualifications',
-            'subjects',
-            'rate_per_hour',
-            'identity_document_path',
-            'city',
-            'learning_preference',
-        ];
-
-        $filled = 0;
-        foreach ($fields as $field) {
-            if ($field === 'subjects') {
-                $subjects = $user->subjects;
-                if (!empty($subjects)) {
-                    $decoded = json_decode($subjects, true);
-                    if (is_array($decoded) && $decoded !== []) {
-                        $filled++;
-                    } elseif (is_string($subjects) && trim($subjects) !== '') {
-                        $filled++;
-                    }
-                }
-            } elseif (!empty($user->$field)) {
-                $filled++;
-            }
-        }
-
-        $total = count($fields);
         return $total > 0 ? round(($filled / $total) * 100) : 0;
     }
 }

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Subject extends Model
+final class Subject extends Model
 {
     use HasFactory;
 
@@ -13,8 +15,15 @@ class Subject extends Model
         'nom',
         'description',
         'icon',
-        'is_active'
+        'is_active',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function users()
     {
@@ -24,11 +33,5 @@ class Subject extends Model
     public function annonces()
     {
         return $this->hasMany(Annonce::class);
-    }
-    protected function casts(): array
-    {
-        return [
-            'is_active' => 'boolean',
-        ];
     }
 }

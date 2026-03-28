@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Created by Reliese Model.
  */
@@ -10,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class JobBatch
- * 
+ *
  * @property string $id
  * @property string $name
  * @property int $total_jobs
@@ -21,33 +23,34 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $cancelled_at
  * @property int $created_at
  * @property int|null $finished_at
- *
- * @package App\Models
  */
-class JobBatch extends Model
+final class JobBatch extends Model
 {
-	protected $table = 'job_batches';
-	public $incrementing = false;
-	public $timestamps = false;
+    public $incrementing = false;
 
-	protected $fillable = [
-		'name',
-		'total_jobs',
-		'pending_jobs',
-		'failed_jobs',
-		'failed_job_ids',
-		'options',
-		'cancelled_at',
-		'finished_at'
-	];
+    public $timestamps = false;
+
+    protected $table = 'job_batches';
+
+    protected $fillable = [
+        'name',
+        'total_jobs',
+        'pending_jobs',
+        'failed_jobs',
+        'failed_job_ids',
+        'options',
+        'cancelled_at',
+        'finished_at',
+    ];
+
     protected function casts(): array
     {
         return [
-    		'total_jobs' => 'int',
-    		'pending_jobs' => 'int',
-    		'failed_jobs' => 'int',
-    		'cancelled_at' => 'int',
-    		'finished_at' => 'int'
-    	];
+            'total_jobs' => 'int',
+            'pending_jobs' => 'int',
+            'failed_jobs' => 'int',
+            'cancelled_at' => 'int',
+            'finished_at' => 'int',
+        ];
     }
 }

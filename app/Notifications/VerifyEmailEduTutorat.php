@@ -1,15 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\URL;
 
-class VerifyEmailEduTutorat extends Notification
+final class VerifyEmailEduTutorat extends Notification
 {
     use Queueable;
 
@@ -42,7 +42,7 @@ class VerifyEmailEduTutorat extends Notification
             ->subject('Vérifie ton adresse e-mail - EduTutorat')
             ->view('emails.verify-edututorat', [
                 'user' => $notifiable,
-                'url' => $verificationUrl
+                'url' => $verificationUrl,
             ]);
     }
 
@@ -57,14 +57,15 @@ class VerifyEmailEduTutorat extends Notification
             //
         ];
     }
-    protected function verificationUrl($notifiable)
+
+    private function verificationUrl($notifiable)
     {
         return URL::temporarySignedRoute(
             'verification.verify',
             \Illuminate\Support\Facades\Date::now()->addMinutes(60),
             [
                 'id' => $notifiable->getKey(),
-                'hash' => sha1($notifiable->getEmailForVerification()),
+                'hash' => sha1((string) $notifiable->getEmailForVerification()),
             ]
         );
     }

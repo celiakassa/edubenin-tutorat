@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -12,14 +14,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
-class RegisteredUserController extends Controller
+final class RegisteredUserController extends Controller
 {
     /**
      * Display the registration view.
      */
-    public function create()
+    public function create(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $roles = Role::where('name', '!=', 'admin')->get();
+
         return view('auth.register', ['roles' => $roles]);
     }
 
@@ -59,12 +62,11 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         // Message personnalisé selon le rôle
-        $roleMessage = $validated['role_id'] == 3
+        $roleMessage = $validated['role_id'] === 3
             ? 'Bienvenue parmi nos tuteurs !'
             : 'Bienvenue sur EduConnect !';
 
         return to_route('verification.notice')
-            ->with('message', "Un email de confirmation a été envoyé à {$user->email}. Veuillez vérifier votre boîte mail.  {$roleMessage}");
+            ->with('message', sprintf('Un email de confirmation a été envoyé à %s. Veuillez vérifier votre boîte mail.  %s', $user->email, $roleMessage));
     }
-
 }

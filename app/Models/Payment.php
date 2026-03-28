@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Payment extends Model
+final class Payment extends Model
 {
     use HasFactory;
 
@@ -20,8 +22,17 @@ class Payment extends Model
         'payment_details',
         'subscription_id',
         'paid_at',
-        'moneroo_payment_id'
+        'moneroo_payment_id',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'payment_details' => 'array',
+            'amount' => 'decimal:2',
+            'paid_at' => 'datetime',
+        ];
+    }
 
     public function annonce()
     {
@@ -50,13 +61,5 @@ class Payment extends Model
     protected function scopeCompleted($query)
     {
         return $query->where('status', 'completed');
-    }
-    protected function casts(): array
-    {
-        return [
-            'payment_details' => 'array',
-            'amount' => 'decimal:2',
-            'paid_at' => 'datetime'
-        ];
     }
 }

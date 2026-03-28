@@ -1,31 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class AccountDeactivatedMail extends Mailable
+final class AccountDeactivatedMail extends Mailable
 {
-    use Queueable, SerializesModels;
-
-    public $user;
-    public $reason;
-
-    public function __construct($user, $reason)
+    use Queueable;
+    use SerializesModels;
+    public function __construct(public $user, public $reason)
     {
-        $this->user = $user;
-        $this->reason = $reason;
     }
 
     public function build()
     {
         return $this->subject('Votre compte a été désactivé')
-                    ->view('emails.account-deactivated')
-                    ->with([
-                        'user' => $this->user,
-                        'reason' => $this->reason
-                    ]);
+            ->view('emails.account-deactivated')
+            ->with([
+                'user' => $this->user,
+                'reason' => $this->reason,
+            ]);
     }
 }

@@ -1,17 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use App\Models\Annonce;
 use App\Models\Candidature;
-use App\Models\Subject;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
-class UserDashboard extends Controller
+final class UserDashboard extends Controller
 {
-    public function home()
+    public function home(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $user = Auth::user();
         $profileCompletion = $this->calculateProfileCompletion($user);
@@ -20,22 +20,28 @@ class UserDashboard extends Controller
         if ($user->isAdmin()) {
             // Statistiques pour admin
             $stats = $this->getPlatformStatistics();
-            return view('dashboardUsers', ['user' => $user, 'profileCompletion' => $profileCompletion, 'stats' => $stats]);
-        } elseif ($user->isTuteur()) {
-            // Statistiques pour tuteur
-            $stats = $this->getTutorStatistics($user);
-            return view('DashboardTeacher', ['user' => $user, 'profileCompletion' => $profileCompletion, 'stats' => $stats]);
-        } else {
-            // Statistiques pour étudiant
-            $stats = $this->getStudentStatistics($user);
+
             return view('dashboardUsers', ['user' => $user, 'profileCompletion' => $profileCompletion, 'stats' => $stats]);
         }
+
+        if ($user->isTuteur()) {
+            // Statistiques pour tuteur
+            $stats = $this->getTutorStatistics($user);
+
+            return view('DashboardTeacher', ['user' => $user, 'profileCompletion' => $profileCompletion, 'stats' => $stats]);
+        }
+
+        // Statistiques pour étudiant
+        $stats = $this->getStudentStatistics($user);
+
+        return view('dashboardUsers', ['user' => $user, 'profileCompletion' => $profileCompletion, 'stats' => $stats]);
+
     }
 
-    private function calculateProfileCompletion($user)
+    private function calculateProfileCompletion($user): float|int
     {
         // --- Définir les champs à vérifier selon le rôle ---
-        if ($user->role_id == 3) { // Tuteur
+        if ($user->role_id === 3) { // Tuteur
             $fields = [
                 'firstname',
                 'lastname',
@@ -52,7 +58,7 @@ class UserDashboard extends Controller
 
             // Vérification spéciale pour les matières (relation)
             $hasSubjects = $user->subjects()->count() > 0;
-        } elseif ($user->role_id == 2) { // Étudiant
+        } elseif ($user->role_id === 2) { // Étudiant
             $fields = [
                 'firstname',
                 'lastname',
@@ -79,17 +85,17 @@ class UserDashboard extends Controller
         // --- Calcul du pourcentage complété ---
         $filled = 0;
         foreach ($fields as $field) {
-            if (!empty($user->$field)) {
+            if (! empty($user->$field)) {
                 $filled++;
             }
         }
 
         // Ajouter la vérification des matières pour les tuteurs
-        if ($user->role_id == 3 && $hasSubjects) {
+        if ($user->role_id === 3 && $hasSubjects) {
             $filled++;
         }
 
-        $total = count($fields) + ($user->role_id == 3 ? 1 : 0);
+        $total = count($fields) + ($user->role_id === 3 ? 1 : 0);
 
         return $total > 0 ? round(($filled / $total) * 100) : 0;
     }
@@ -97,14 +103,14 @@ class UserDashboard extends Controller
     /**
      * Statistiques spécifiques pour les tuteurs
      */
-    private function getTutorStatistics($user)
+    private function getTutorStatistics($user): array
     {
         // IDs des matières du tuteur
         $tutorSubjectIds = $user->subjects->pluck('id')->toArray();
 
         // Nombre d'annonces dans ses matières
         $annoncesInDomain = 0;
-        if (!empty($tutorSubjectIds)) {
+        if (! empty($tutorSubjectIds)) {
             $annoncesInDomain = Annonce::where('status', 'publiée')
                 ->whereIn('subject_id', $tutorSubjectIds)
                 ->count();
@@ -124,14 +130,14 @@ class UserDashboard extends Controller
             ->count();
 
         // Acompte total pour les annonces validées
-        $acompteTotal = Annonce::whereHas('candidatures', function (\Illuminate\Contracts\Database\Query\Builder $query) use ($user) {
+        $acompteTotal = Annonce::whereHas('candidatures', function (\Illuminate\Contracts\Database\Query\Builder $query) use ($user): void {
             $query->where('user_id', $user->id)
                 ->where('statut', 'acceptee');
         })->sum('acompte');
 
         // Récentes annonces dans ses matières
         $recentAnnonces = collect();
-        if (!empty($tutorSubjectIds)) {
+        if (! empty($tutorSubjectIds)) {
             $recentAnnonces = Annonce::where('status', 'publiée')
                 ->whereIn('subject_id', $tutorSubjectIds)
                 ->orderBy('published_at', 'desc')
@@ -161,7 +167,7 @@ class UserDashboard extends Controller
     /**
      * Statistiques pour les étudiants
      */
-    private function getStudentStatistics($user)
+    private function getStudentStatistics($user): array
     {
         // Nombre d'annonces publiées
         $annoncesPubliees = Annonce::where('student_id', $user->id)
@@ -187,7 +193,7 @@ class UserDashboard extends Controller
         ];
     }
 
-    private function getPlatformStatistics()
+    private function getPlatformStatistics(): array
     {
         // Statistiques des rôles
         $totalUsers = User::where('is_active', true)->count();

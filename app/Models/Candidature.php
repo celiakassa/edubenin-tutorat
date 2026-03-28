@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Candidature extends Model
+final class Candidature extends Model
 {
     protected $fillable = [
         'annonce_id',
@@ -13,9 +15,18 @@ class Candidature extends Model
         'statut', // en_attente, acceptee, refusee
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
+    }
+
     /**
      * Relation avec l'annonce
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Annonce, $this>
+     *
+     * @return BelongsTo<Annonce, $this>
      */
     public function annonce(): BelongsTo
     {
@@ -24,7 +35,8 @@ class Candidature extends Model
 
     /**
      * Relation avec le tuteur (user)
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User, $this>
+     *
+     * @return BelongsTo<User, $this>
      */
     public function tuteur(): BelongsTo
     {
@@ -44,30 +56,6 @@ class Candidature extends Model
             'annonce_id', // Local key on Candidature table
             'user_id' // Local key on Annonce table
         );
-    }
-
-    /**
-     * Scope pour les candidatures en attente
-     */
-    protected function scopeEnAttente($query)
-    {
-        return $query->where('statut', 'en_attente');
-    }
-
-    /**
-     * Scope pour les candidatures acceptées
-     */
-    protected function scopeAcceptees($query)
-    {
-        return $query->where('statut', 'acceptee');
-    }
-
-    /**
-     * Scope pour les candidatures refusées
-     */
-    protected function scopeRefusees($query)
-    {
-        return $query->where('statut', 'refusee');
     }
 
     /**
@@ -93,11 +81,28 @@ class Candidature extends Model
     {
         return $this->statut === 'refusee';
     }
-    protected function casts(): array
+
+    /**
+     * Scope pour les candidatures en attente
+     */
+    protected function scopeEnAttente($query)
     {
-        return [
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
-        ];
+        return $query->where('statut', 'en_attente');
+    }
+
+    /**
+     * Scope pour les candidatures acceptées
+     */
+    protected function scopeAcceptees($query)
+    {
+        return $query->where('statut', 'acceptee');
+    }
+
+    /**
+     * Scope pour les candidatures refusées
+     */
+    protected function scopeRefusees($query)
+    {
+        return $query->where('statut', 'refusee');
     }
 }

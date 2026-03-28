@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 
-class GoogleController extends Controller
+final class GoogleController extends Controller
 {
     /**
      * Redirige l'utilisateur vers Google
@@ -31,9 +33,9 @@ class GoogleController extends Controller
             // Vérifier si l'utilisateur existe déjà avec cet email
             $user = User::where('email', $googleUser->email)->first();
 
-            if (!$user) {
+            if (! $user) {
                 // Séparer le nom complet en prénom et nom
-                $nameParts = explode(' ', $googleUser->name);
+                $nameParts = explode(' ', (string) $googleUser->name);
                 $firstName = $nameParts[0] ?? '';
                 $lastName = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : '';
 
@@ -56,26 +58,26 @@ class GoogleController extends Controller
                 Auth::login($user, true);
 
                 // Rediriger vers la page de choix du rôle
-                return redirect()->route('choose.role');
+                return to_route('choose.role');
 
-            } else {
-                // L'utilisateur existe déjà
-                Auth::login($user, true);
-
-                // Vérifier si l'inscription est complète
-                if (!$user->registration_completed || !$user->role_id) {
-                    return redirect()->route('choose.role');
-                }
-
-                // Mise à jour de la date de dernière connexion
-                $user->update(['last_login' => now()]);
-
-                // Redirection selon le rôle
-                return $this->redirectBasedOnRole($user);
             }
 
-        } catch (Exception $e) {
-            return redirect()->route('login')->with('error', 'Erreur de connexion Google: ' . $e->getMessage());
+            // L'utilisateur existe déjà
+            Auth::login($user, true);
+
+            // Vérifier si l'inscription est complète
+            if (! $user->registration_completed || ! $user->role_id) {
+                return to_route('choose.role');
+            }
+
+            // Mise à jour de la date de dernière connexion
+            $user->update(['last_login' => now()]);
+
+            // Redirection selon le rôle
+            return $this->redirectBasedOnRole($user);
+
+        } catch (Exception $exception) {
+            return to_route('login')->with('error', 'Erreur de connexion Google: '.$exception->getMessage());
         }
     }
 
@@ -100,7 +102,7 @@ class GoogleController extends Controller
     public function storeRoleChoice(Request $request)
     {
         $request->validate([
-            'role' => 'required|in:etudiant,tuteur'
+            'role' => ['required', 'in:etudiant,tuteur'],
         ]);
 
         $user = Auth::user();
@@ -108,7 +110,7 @@ class GoogleController extends Controller
         // Récupérer l'ID du rôle
         $role = Role::where('name', $request->role)->first();
 
-        if (!$role) {
+        if (! $role) {
             return back()->with('error', 'Rôle invalide');
         }
 
@@ -116,7 +118,7 @@ class GoogleController extends Controller
         $user->update([
             'role_id' => $role->id,
             'registration_completed' => true,
-            'last_login' => now()
+            'last_login' => now(),
         ]);
 
         // Redirection selon le rôle choisi
@@ -126,16 +128,15 @@ class GoogleController extends Controller
     /**
      * Redirige l'utilisateur en fonction de son rôle
      */
-/**
- * Redirige l'utilisateur en fonction de son rôle
- */
-private function redirectBasedOnRole($user)
-{
-    if ($user->role_id == 1) {
-        return redirect()->route('admin.dashboard');
-    }
+    /**
+     * Redirige l'utilisateur en fonction de son rôle
+     */
+    private function redirectBasedOnRole($user)
+    {
+        if ($user->role_id === 1) {
+            return to_route('admin.dashboard');
+        }
 
-  
-    return redirect()->route('dashboardUser');
-}
+        return to_route('dashboardUser');
+    }
 }

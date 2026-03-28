@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Created by Reliese Model.
  */
@@ -10,28 +12,30 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class CacheLock
- * 
+ *
  * @property string $key
  * @property string $owner
  * @property int $expiration
- *
- * @package App\Models
  */
-class CacheLock extends Model
+final class CacheLock extends Model
 {
-	protected $table = 'cache_locks';
-	protected $primaryKey = 'key';
-	public $incrementing = false;
-	public $timestamps = false;
+    public $incrementing = false;
 
-	protected $fillable = [
-		'owner',
-		'expiration'
-	];
+    public $timestamps = false;
+
+    protected $table = 'cache_locks';
+
+    protected $primaryKey = 'key';
+
+    protected $fillable = [
+        'owner',
+        'expiration',
+    ];
+
     protected function casts(): array
     {
         return [
-    		'expiration' => 'int'
-    	];
+            'expiration' => 'int',
+        ];
     }
 }

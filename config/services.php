@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -42,15 +44,15 @@ return [
         'mode' => env('FEDAPAY_MODE', 'sandbox'),
     ],
 
-  'moneroo' => [
-    'secret_key' => 'pvk_sandbox_4zyym7|01KH25P31KSBEX6E1K466WSB9M',
-    'environment' => env('MONEROO_ENVIRONMENT', 'sandbox'),
-],
+    'moneroo' => [
+        'secret_key' => 'pvk_sandbox_4zyym7|01KH25P31KSBEX6E1K466WSB9M',
+        'environment' => env('MONEROO_ENVIRONMENT', 'sandbox'),
+    ],
 
-'google' => [
-    'client_id' => env('GOOGLE_CLIENT_ID'),
-    'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-    'redirect' => env('GOOGLE_REDIRECT_URI'),
-],
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+    ],
 
 ];

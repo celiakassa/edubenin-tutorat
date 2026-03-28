@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Enums\StatutCandidat;
@@ -7,20 +9,21 @@ use App\Models\Annonce;
 use App\Models\Candidature;
 use App\Models\Payment;
 use App\Models\Subscription;
+use App\Traits\HasHashid;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Moneroo\Laravel\Payment as MonerooPayment;
-use App\Traits\HasHashid;
 
-class TeacherController extends Controller
+final class TeacherController extends Controller
 {
     /**
      * Initialiser le paiement d'abonnement
      */
-    use  HasHashid;
-    public function register()
+    use HasHashid;
+
+    public function register(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         return view('teachers.register');
     }
@@ -42,7 +45,7 @@ class TeacherController extends Controller
                     'phone' => $user->telephone ?? '',
                 ],
                 'metadata' => [
-                    'user_id' => (string)$user->id,
+                    'user_id' => (string) $user->id,
                     'subscription_type' => 'mensuel',
                 ],
             ];
@@ -62,15 +65,15 @@ class TeacherController extends Controller
                 'transaction_id' => $payment->id,
             ]);
 
-        } catch (\Exception $e) {
-            Log::error('Erreur init paiement Moneroo: ' . $e->getMessage(), [
+        } catch (Exception $exception) {
+            Log::error('Erreur init paiement Moneroo: '.$exception->getMessage(), [
                 'user_id' => $user->id ?? null,
-                'trace' => $e->getTraceAsString()
+                'trace' => $exception->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur: ' . $e->getMessage(),
+                'message' => 'Erreur: '.$exception->getMessage(),
             ], 500);
         }
     }
@@ -84,10 +87,10 @@ class TeacherController extends Controller
 
         Log::info('Payment success callback', [
             'transaction_id' => $transactionId,
-            'all_params' => $request->all()
+            'all_params' => $request->all(),
         ]);
 
-        if (!$transactionId) {
+        if (! $transactionId) {
             return to_route('subscription.user')
                 ->with('error', 'Transaction invalide.');
         }
@@ -115,7 +118,7 @@ class TeacherController extends Controller
             // Vérifier le statut
             $status = $payment->status ?? 'unknown';
 
-            if (strtolower($status) === 'success') {
+            if (mb_strtolower($status) === 'success') {
                 Log::info('Starting subscription processing');
 
                 $this->processSubscription($payment, $transactionId);
@@ -124,24 +127,24 @@ class TeacherController extends Controller
                 try {
                     $monerooPayment->markAsProcessed($transactionId);
                     Log::info('Payment marked as processed');
-                } catch (\Exception $e) {
-                    Log::warning('Could not mark as processed: ' . $e->getMessage());
+                } catch (Exception $e) {
+                    Log::warning('Could not mark as processed: '.$e->getMessage());
                 }
 
                 return to_route('annonces')
                     ->with('success', 'Abonnement activé avec succès !');
-            } else {
-                Log::warning('Payment not successful', ['status' => $status]);
-
-                return to_route('subscription.user')
-                    ->with('error', 'Le paiement n\'a pas été validé. Statut: ' . $status);
             }
 
-        } catch (\Exception $e) {
+            Log::warning('Payment not successful', ['status' => $status]);
+
+            return to_route('subscription.user')
+                ->with('error', 'Le paiement n\'a pas été validé. Statut: '.$status);
+
+        } catch (Exception $exception) {
             Log::error('Erreur verification paiement', [
                 'transaction_id' => $transactionId,
-                'error_message' => $e->getMessage(),
-                'error_line' => $e->getLine(),
+                'error_message' => $exception->getMessage(),
+                'error_line' => $exception->getLine(),
             ]);
 
             return to_route('subscription.user')
@@ -150,9 +153,134 @@ class TeacherController extends Controller
     }
 
     /**
+     * Afficher les annonces correspondant aux matières du tuteur
+     */
+    public function ShowAnnonces(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        $tuteur = auth()->user();
+
+        abort_if(! $tuteur || ! $tuteur->isTuteur(), 403, 'Accès interdit');
+
+        // Récupère les IDs des matières du tuteur
+        $subjectIds = $tuteur->subjects()->pluck('subjects.id');
+
+        $annonces = Annonce::query()
+            ->whereIn('subject_id', $subjectIds) // filtre par ID
+            ->publiees()
+            ->latest()
+            ->paginate(6);
+
+        return view('teachers.annonce', ['annonces' => $annonces]);
+    }
+
+    /**
+     * Afficher la page d'abonnement
+     */
+    public function showSubscription(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        return view('teachers.subscription-teacher');
+    }
+
+    /**
+     * Afficher l'historique des abonnements du tuteur
+     */
+    public function showSubscriptionHistory(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        $user = auth()->user();
+
+        // Vérifier que l'utilisateur est un tuteur
+        abort_unless($user->isTuteur(), 403, 'Accès interdit. Cette page est réservée aux tuteurs.');
+
+        // Récupérer tous les abonnements avec pagination
+        $subscriptions = Subscription::where('user_id', $user->id)
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        // Récupérer tous les paiements liés aux abonnements avec pagination
+        $payments = Payment::where('user_id', $user->id)
+            ->whereNotNull('subscription_id')
+            ->orderBy('paid_at', 'desc')
+            ->paginate(15);
+
+        // Abonnement actif
+        $activeSubscription = Subscription::where('user_id', $user->id)
+            ->where('statut', 'active')
+            ->where('date_fin', '>', now())
+            ->first();
+
+        return view('teachers.subscription-history', [
+            'subscriptions' => $subscriptions,
+            'payments' => $payments,
+            'activeSubscription' => $activeSubscription,
+        ]);
+    }
+
+    /**
+     * Afficher le détail d'une annonce
+     */
+    public function showAnnonceDetail($hash): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        $annonce = Annonce::findByHashidOrFail($hash);
+
+        // On récupère l'étudiant qui a créé l'annonce (en supposant que la relation s'appelle 'user')
+        $student = $annonce->student;
+
+        $hasApplied = false;
+        if (auth()->check() && auth()->user()->isTuteur()) {
+            $hasApplied = Candidature::where('annonce_id', $annonce->id)
+                ->where('user_id', auth()->id())
+                ->exists();
+        }
+
+        $candidature = Candidature::where('annonce_id', $annonce->id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        // On vérifie si la candidature est validée
+        $teacher_validate = Candidature::where([
+            ['annonce_id', '=', $annonce->id],
+            ['user_id', '=', auth()->id()],
+            ['statut', '=', StatutCandidat::VALIDE],
+        ])->exists(); // Utiliser exists() est plus simple ici pour un booléen
+
+        return view('teachers.annonce-detail', [
+            'annonce' => $annonce,
+            'hasApplied' => $hasApplied,
+            'teacher_validate' => $teacher_validate,
+            'student' => $student, // On envoie l'objet student à la vue
+            'candidature' => $candidature,
+        ]);
+    }
+
+    /**
+     * Postuler à une annonce
+     */
+    public function postuler($id)
+    {
+        $user = auth()->user();
+
+        $existing = Candidature::where('annonce_id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($existing) {
+            return back()->with('info', 'Vous avez déjà postulé à cette annonce.');
+        }
+
+        Candidature::create([
+            'annonce_id' => $id,
+            'user_id' => $user->id,
+            'statut' => 'en_attente',
+        ]);
+
+        return back()->with('success', 'Votre candidature a été envoyée avec succès !');
+    }
+
+    /**
      * Traiter l'abonnement après paiement réussi
      */
-    private function processSubscription($payment, $transactionId)
+    private function processSubscription($payment, $transactionId): void
     {
         try {
             Log::info('Processing subscription started');
@@ -162,13 +290,14 @@ class TeacherController extends Controller
 
             if ($existingPayment) {
                 Log::info('Payment already processed in database');
+
                 return;
             }
 
             // Convertir l'objet Moneroo en array PHP
             $paymentData = json_decode(json_encode($payment), true);
 
-            throw_unless(is_array($paymentData), \Exception::class, 'Impossible de convertir les données de paiement');
+            throw_unless(is_array($paymentData), Exception::class, 'Impossible de convertir les données de paiement');
 
             // Récupérer l'user_id depuis metadata
             $userId = null;
@@ -176,7 +305,7 @@ class TeacherController extends Controller
                 $userId = $paymentData['metadata']['user_id'] ?? null;
             }
 
-            throw_unless($userId, \Exception::class, 'User ID manquant dans les metadata');
+            throw_unless($userId, Exception::class, 'User ID manquant dans les metadata');
 
             DB::beginTransaction();
 
@@ -286,141 +415,16 @@ class TeacherController extends Controller
 
             Log::info('Subscription processed successfully');
 
-        } catch (\Exception $e) {
+        } catch (Exception $exception) {
             DB::rollBack();
 
             Log::error('Error in processSubscription', [
-                'error' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
+                'error' => $exception->getMessage(),
+                'line' => $exception->getLine(),
+                'file' => $exception->getFile(),
             ]);
 
-            throw $e;
+            throw $exception;
         }
-    }
-
-    /**
-     * Afficher les annonces correspondant aux matières du tuteur
-     */
-    public function ShowAnnonces()
-    {
-        $tuteur = auth()->user();
-
-        abort_if(!$tuteur || !$tuteur->isTuteur(), 403, 'Accès interdit');
-
-        // Récupère les IDs des matières du tuteur
-        $subjectIds = $tuteur->subjects()->pluck('subjects.id');
-
-        $annonces = \App\Models\Annonce::query()
-            ->whereIn('subject_id', $subjectIds) // filtre par ID
-            ->publiees()
-            ->latest()
-            ->paginate(6);
-
-        return view('teachers.annonce', ['annonces' => $annonces]);
-    }
-
-    /**
-     * Afficher la page d'abonnement
-     */
-    public function showSubscription()
-    {
-        return view('teachers.subscription-teacher');
-    }
-
-    /**
-     * Afficher l'historique des abonnements du tuteur
-     */
-    public function showSubscriptionHistory()
-    {
-        $user = auth()->user();
-
-        // Vérifier que l'utilisateur est un tuteur
-        abort_unless($user->isTuteur(), 403, 'Accès interdit. Cette page est réservée aux tuteurs.');
-
-        // Récupérer tous les abonnements avec pagination
-        $subscriptions = Subscription::where('user_id', $user->id)
-            ->with('user')
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-
-        // Récupérer tous les paiements liés aux abonnements avec pagination
-        $payments = Payment::where('user_id', $user->id)
-            ->whereNotNull('subscription_id')
-            ->orderBy('paid_at', 'desc')
-            ->paginate(15);
-
-        // Abonnement actif
-        $activeSubscription = Subscription::where('user_id', $user->id)
-            ->where('statut', 'active')
-            ->where('date_fin', '>', now())
-            ->first();
-
-        return view('teachers.subscription-history', [
-            'subscriptions' => $subscriptions,
-            'payments' => $payments,
-            'activeSubscription' => $activeSubscription
-        ]);
-    }
-
-    /**
-     * Afficher le détail d'une annonce
-     */
-    public function showAnnonceDetail($hash)
-    {
-        $annonce = Annonce::findByHashidOrFail($hash);
-
-        // On récupère l'étudiant qui a créé l'annonce (en supposant que la relation s'appelle 'user')
-        $student = $annonce->student;
-
-        $hasApplied = false;
-        if (auth()->check() && auth()->user()->isTuteur()) {
-            $hasApplied = Candidature::where('annonce_id', $annonce->id)
-                ->where('user_id', auth()->id())
-                ->exists();
-        }
-
-        $candidature = Candidature::where('annonce_id', $annonce->id)
-            ->where('user_id', auth()->id())
-            ->first();
-
-        // On vérifie si la candidature est validée
-        $teacher_validate = Candidature::where([
-            ['annonce_id', '=', $annonce->id],
-            ['user_id', '=', auth()->id()],
-            ['statut', '=', StatutCandidat::VALIDE],
-        ])->exists(); // Utiliser exists() est plus simple ici pour un booléen
-
-        return view('teachers.annonce-detail', [
-            'annonce' => $annonce,
-            'hasApplied' => $hasApplied,
-            'teacher_validate' => $teacher_validate,
-            'student' => $student, // On envoie l'objet student à la vue
-            'candidature' => $candidature
-        ]);
-    }
-
-    /**
-     * Postuler à une annonce
-     */
-    public function postuler($id)
-    {
-        $user = auth()->user();
-
-        $existing = \App\Models\Candidature::where('annonce_id', $id)
-            ->where('user_id', $user->id)
-            ->first();
-
-        if ($existing) {
-            return back()->with('info', 'Vous avez déjà postulé à cette annonce.');
-        }
-
-        \App\Models\Candidature::create([
-            'annonce_id' => $id,
-            'user_id' => $user->id,
-            'statut' => 'en_attente',
-        ]);
-
-        return back()->with('success', 'Votre candidature a été envoyée avec succès !');
     }
 }

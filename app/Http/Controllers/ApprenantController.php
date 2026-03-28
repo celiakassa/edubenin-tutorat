@@ -1,23 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Mail;
 use App\Mail\StudentDeactivatedMail;
 use App\Mail\StudentReactivatedMail;
 use App\Mail\StudentValidatedMail;
+use App\Models\User;
+use DB;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Log;
 
-class ApprenantController extends Controller
+final class ApprenantController extends Controller
 {
     /**
      * Afficher la liste des apprenants avec statistiques
      */
-    public function index()
+    public function index(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $apprenants = User::where('role_id', 2)
             ->orderBy('created_at', 'desc')
@@ -37,102 +41,9 @@ class ApprenantController extends Controller
     }
 
     /**
-     * Obtenir les statistiques des apprenants
-     */
-    private function getApprenantsStats()
-    {
-        $totalApprenants = User::where('role_id', 2)->count();
-
-        // Calcul du pourcentage de profil complet
-        $apprenantsWithCompleteProfile = 0;
-        $allApprenants = User::where('role_id', 2)->get();
-
-        foreach ($allApprenants as $apprenant) {
-            if ($this->calculateProfileCompletion($apprenant) == 100) {
-                $apprenantsWithCompleteProfile++;
-            }
-        }
-
-        $profileCompletionPercentage = $totalApprenants > 0
-            ? round(($apprenantsWithCompleteProfile / $totalApprenants) * 100, 2)
-            : 0;
-
-        // Statistiques par ville
-        $villeStats = User::where('role_id', 2)
-            ->select('city', \DB::raw('count(*) as total'))
-            ->groupBy('city')
-            ->orderBy('total', 'desc')
-            ->limit(5)
-            ->get()
-            ->pluck('total', 'city')
-            ->toArray();
-
-        // Inscriptions par mois (derniers 6 mois)
-        $inscriptionsParMois = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $date = \Illuminate\Support\Facades\Date::now()->subMonths($i);
-            $monthYear = $date->format('M Y');
-
-            $count = User::where('role_id', 2)
-                ->whereMonth('created_at', $date->month)
-                ->whereYear('created_at', $date->year)
-                ->count();
-
-            $inscriptionsParMois[$monthYear] = $count;
-        }
-
-        // Statut des apprenants
-        $actifs = User::where('role_id', 2)->where('is_active', true)->count();
-        $inactifs = User::where('role_id', 2)->where('is_active', false)->count();
-        $valides = User::where('role_id', 2)->where('is_valid', true)->count();
-        $nonValides = User::where('role_id', 2)->where('is_valid', false)->count();
-
-        return [
-            'total' => $totalApprenants,
-            'avecProfilComplet' => $apprenantsWithCompleteProfile,
-            'pourcentageProfilComplet' => $profileCompletionPercentage,
-            'parVille' => $villeStats,
-            'inscriptionsParMois' => $inscriptionsParMois,
-            'actifs' => $actifs,
-            'inactifs' => $inactifs,
-            'valides' => $valides,
-            'nonValides' => $nonValides,
-        ];
-    }
-
-    /**
-     * Calculer le pourcentage de complétion du profil
-     */
-    private function calculateProfileCompletion($user)
-    {
-        $fields = [
-            'firstname',
-            'lastname',
-            'email',
-            'telephone',
-            'photo_path',
-            'bio',
-            'learning_history',
-            'learning_preference',
-            'city',
-        ];
-
-        $filled = 0;
-        foreach ($fields as $field) {
-            if (! empty($user->$field)) {
-                $filled++;
-            }
-        }
-
-        $total = count($fields);
-
-        return $total > 0 ? round(($filled / $total) * 100) : 0;
-    }
-
-    /**
      * Afficher les détails d'un apprenant
      */
-    public function show($id)
+    public function show($id): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $apprenant = User::where('id', $id)
             ->where('role_id', 2)
@@ -147,7 +58,7 @@ class ApprenantController extends Controller
     /**
      * Afficher le formulaire de modification
      */
-    public function edit($id)
+    public function edit($id): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $apprenant = User::where('id', $id)
             ->where('role_id', 2)
@@ -159,7 +70,7 @@ class ApprenantController extends Controller
     /**
      * Mettre à jour un apprenant
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
         $apprenant = User::where('id', $id)
             ->where('role_id', 2)
@@ -257,8 +168,8 @@ class ApprenantController extends Controller
                     $apprenant,
                     $request->validation_reason ?? 'Votre compte a été validé avec succès.'
                 ));
-            } catch (\Exception $e) {
-                \Log::error('Erreur envoi email validation étudiant: ' . $e->getMessage());
+            } catch (Exception $e) {
+                Log::error('Erreur envoi email validation étudiant: '.$e->getMessage());
             }
         }
 
@@ -289,14 +200,14 @@ class ApprenantController extends Controller
                     $apprenant,
                     $request->deactivation_reason
                 ));
-            } catch (\Exception $e) {
-                \Log::error('Erreur envoi email désactivation étudiant: ' . $e->getMessage());
+            } catch (Exception $e) {
+                Log::error('Erreur envoi email désactivation étudiant: '.$e->getMessage());
             }
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Compte étudiant désactivé avec succès.'
+            'message' => 'Compte étudiant désactivé avec succès.',
         ]);
     }
 
@@ -323,14 +234,14 @@ class ApprenantController extends Controller
                     $apprenant,
                     $request->reactivation_reason ?? 'Votre compte a été réactivé.'
                 ));
-            } catch (\Exception $e) {
-                \Log::error('Erreur envoi email réactivation étudiant: ' . $e->getMessage());
+            } catch (Exception $e) {
+                Log::error('Erreur envoi email réactivation étudiant: '.$e->getMessage());
             }
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Compte étudiant réactivé avec succès.'
+            'message' => 'Compte étudiant réactivé avec succès.',
         ]);
     }
 
@@ -349,6 +260,99 @@ class ApprenantController extends Controller
         $status = $apprenant->is_active ? 'activé' : 'désactivé';
 
         return back()
-            ->with('success', "Apprenant $status avec succès!");
+            ->with('success', sprintf('Apprenant %s avec succès!', $status));
+    }
+
+    /**
+     * Obtenir les statistiques des apprenants
+     */
+    private function getApprenantsStats(): array
+    {
+        $totalApprenants = User::where('role_id', 2)->count();
+
+        // Calcul du pourcentage de profil complet
+        $apprenantsWithCompleteProfile = 0;
+        $allApprenants = User::where('role_id', 2)->get();
+
+        foreach ($allApprenants as $apprenant) {
+            if ($this->calculateProfileCompletion($apprenant) === 100) {
+                $apprenantsWithCompleteProfile++;
+            }
+        }
+
+        $profileCompletionPercentage = $totalApprenants > 0
+            ? round(($apprenantsWithCompleteProfile / $totalApprenants) * 100, 2)
+            : 0;
+
+        // Statistiques par ville
+        $villeStats = User::where('role_id', 2)
+            ->select('city', DB::raw('count(*) as total'))
+            ->groupBy('city')
+            ->orderBy('total', 'desc')
+            ->limit(5)
+            ->get()
+            ->pluck('total', 'city')
+            ->toArray();
+
+        // Inscriptions par mois (derniers 6 mois)
+        $inscriptionsParMois = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = \Illuminate\Support\Facades\Date::now()->subMonths($i);
+            $monthYear = $date->format('M Y');
+
+            $count = User::where('role_id', 2)
+                ->whereMonth('created_at', $date->month)
+                ->whereYear('created_at', $date->year)
+                ->count();
+
+            $inscriptionsParMois[$monthYear] = $count;
+        }
+
+        // Statut des apprenants
+        $actifs = User::where('role_id', 2)->where('is_active', true)->count();
+        $inactifs = User::where('role_id', 2)->where('is_active', false)->count();
+        $valides = User::where('role_id', 2)->where('is_valid', true)->count();
+        $nonValides = User::where('role_id', 2)->where('is_valid', false)->count();
+
+        return [
+            'total' => $totalApprenants,
+            'avecProfilComplet' => $apprenantsWithCompleteProfile,
+            'pourcentageProfilComplet' => $profileCompletionPercentage,
+            'parVille' => $villeStats,
+            'inscriptionsParMois' => $inscriptionsParMois,
+            'actifs' => $actifs,
+            'inactifs' => $inactifs,
+            'valides' => $valides,
+            'nonValides' => $nonValides,
+        ];
+    }
+
+    /**
+     * Calculer le pourcentage de complétion du profil
+     */
+    private function calculateProfileCompletion($user): float|int
+    {
+        $fields = [
+            'firstname',
+            'lastname',
+            'email',
+            'telephone',
+            'photo_path',
+            'bio',
+            'learning_history',
+            'learning_preference',
+            'city',
+        ];
+
+        $filled = 0;
+        foreach ($fields as $field) {
+            if (! empty($user->$field)) {
+                $filled++;
+            }
+        }
+
+        $total = count($fields);
+
+        return $total > 0 ? round(($filled / $total) * 100) : 0;
     }
 }
