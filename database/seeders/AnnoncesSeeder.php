@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Models\Annonce;
 use App\Models\Subject;
 use Illuminate\Database\Seeder;
 
-class AnnoncesSeeder extends Seeder
+final class AnnoncesSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -26,11 +28,12 @@ class AnnoncesSeeder extends Seeder
             'Chimie',
             'Histoire',
             'Philosophie',
-            'Comptabilité'
+            'Comptabilité',
         ])->get();
 
         if ($subjects->isEmpty()) {
             $this->command->warn('Aucune matière trouvée. Veuillez exécuter SubjectsSeeder d\'abord.');
+
             return;
         }
 
@@ -152,6 +155,6 @@ class AnnoncesSeeder extends Seeder
             $annonce->save();
         }
 
-        $this->command->info('✅ ' . count($annonces) . ' annonces créées pour le student_id ' . $studentId);
+        $this->command->info('✅ '.count($annonces).' annonces créées pour le student_id '.$studentId);
     }
 }

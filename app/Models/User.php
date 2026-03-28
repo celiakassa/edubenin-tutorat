@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\LearningPreference;
@@ -8,10 +10,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements MustVerifyEmail
+final class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
-
+    use HasFactory;
+    use Notifiable;
     protected $fillable = [
         'firstname',
         'lastname',
@@ -21,8 +23,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'photo_path',
         'birthdate',
         'remember_token',
-         'google_id',
-         'registration_completed',
+        'google_id',
+        'registration_completed',
         'bio',
         'qualifications',
         'subjects',
@@ -46,6 +48,15 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'remember_token',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'last_login' => 'datetime',
+            'learning_preference' => LearningPreference::class,
+        ];
+    }
 
     public function role()
     {
@@ -78,7 +89,7 @@ class User extends Authenticatable implements MustVerifyEmail
             ->where('date_fin', '>', now());
     }
 
-    public function isSubscribed()
+    public function isSubscribed(): bool
     {
         $sub = $this->activeSubscription;
 
@@ -86,28 +97,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     // Méthodes de rôle
-    public function isAdmin()
+    public function isAdmin(): bool
     {
         return $this->role_id === 1;
     }
 
-    public function isEtudiant()
+    public function isEtudiant(): bool
     {
         return $this->role_id === 2;
     }
 
-    public function isTuteur()
+    public function isTuteur(): bool
     {
         return $this->role_id === 3;
-    }
-
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'last_login' => 'datetime',
-            'learning_preference' => LearningPreference::class,
-        ];
     }
 
     public function subjects()

@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\ApprenantController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\CandidatureController;
 use App\Http\Controllers\CompleterProfilUser;
 use App\Http\Controllers\HomeController;
@@ -13,8 +16,6 @@ use App\Http\Controllers\RechercheController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserDashboard;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\GoogleController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 // Routes d'authentification Google
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
@@ -25,7 +26,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/choose-role', [GoogleController::class, 'showRoleChoice'])->name('choose.role');
     Route::post('/choose-role', [GoogleController::class, 'storeRoleChoice'])->name('store.role');
 });
-
 
 // ==================== ROUTES PUBLIQUES ====================
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -139,14 +139,14 @@ Route::middleware(['auth'])->group(function () {
 // ==================== ROUTES PUBLIC POUR CALLBACKS ET WEBHOOKS (SANS CSRF) ====================
 Route::post('/annonces/payment/callback', [AnnonceController::class, 'handlePayment'])
     ->name('annonces.payment.callback')
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+    ->withoutMiddleware([App\Http\Middleware\VerifyCsrfToken::class]);
 
 Route::post('/annonces/webhook/moneroo', [AnnonceController::class, 'webhookMoneroo'])
     ->name('annonces.webhook.moneroo')
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+    ->withoutMiddleware([App\Http\Middleware\VerifyCsrfToken::class]);
 
 Route::post('/annonces/webhook/fedapay', [AnnonceController::class, 'webhook'])
     ->name('annonces.webhook.fedapay')
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+    ->withoutMiddleware([App\Http\Middleware\VerifyCsrfToken::class]);
 
 require __DIR__.'/auth.php';

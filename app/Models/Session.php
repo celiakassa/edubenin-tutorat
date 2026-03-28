@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Created by Reliese Model.
  */
@@ -10,34 +12,35 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Session
- * 
+ *
  * @property string $id
  * @property int|null $user_id
  * @property string|null $ip_address
  * @property string|null $user_agent
  * @property string $payload
  * @property int $last_activity
- *
- * @package App\Models
  */
-class Session extends Model
+final class Session extends Model
 {
-	protected $table = 'sessions';
-	public $incrementing = false;
-	public $timestamps = false;
+    public $incrementing = false;
 
-	protected $fillable = [
-		'user_id',
-		'ip_address',
-		'user_agent',
-		'payload',
-		'last_activity'
-	];
+    public $timestamps = false;
+
+    protected $table = 'sessions';
+
+    protected $fillable = [
+        'user_id',
+        'ip_address',
+        'user_agent',
+        'payload',
+        'last_activity',
+    ];
+
     protected function casts(): array
     {
         return [
-    		'user_id' => 'int',
-    		'last_activity' => 'int'
-    	];
+            'user_id' => 'int',
+            'last_activity' => 'int',
+        ];
     }
 }

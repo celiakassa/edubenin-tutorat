@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
 
-class ProfesseurController extends Controller
+final class ProfesseurController extends Controller
 {
     /**
      * Afficher la liste des professeurs
      */
-    public function index()
+    public function index(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         // Récupérer les professeurs actifs et validés
         $professeurs = User::where('role_id', 3)

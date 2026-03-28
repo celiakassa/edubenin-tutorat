@@ -1,18 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Subscription extends Model
+final class Subscription extends Model
 {
     protected $fillable = [
         'user_id',
         'date_debut',
         'date_fin',
         'statut',
-        'type_abonnement'
+        'type_abonnement',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'date_debut' => 'datetime',
+            'date_fin' => 'datetime',
+        ];
+    }
 
     /**
      * Relation avec l'utilisateur abonné
@@ -28,12 +38,5 @@ class Subscription extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
-    }
-    protected function casts(): array
-    {
-        return [
-            'date_debut' => 'datetime',
-            'date_fin' => 'datetime',
-        ];
     }
 }

@@ -15,6 +15,7 @@
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.6",
         "moneroo/moneroo-laravel": "^0.2.0",
+        "nunomaduro/essentials": "^1.2",
         "symfony/http-foundation": "7.3.7",
         "vinkla/hashids": "^13.0"
     },

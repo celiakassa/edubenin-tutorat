@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Traits;
 
 use Vinkla\Hashids\Facades\Hashids;
@@ -14,21 +16,9 @@ use Vinkla\Hashids\Facades\Hashids;
 trait HasHashid
 {
     /**
-     * Accesseur pour obtenir le hashid du modèle à partir de son id.
-     * Utilisable comme $model->hashid
-     *
-     * @return string
-     */
-    protected function getHashidAttribute()
-    {
-        // Encode l'id du modèle en hashid unique
-        return Hashids::encode($this->id);
-    }
-
-    /**
      * Retrouve un modèle par son hashid ou échoue avec une 404.
      *
-     * @param string $hash Le hashid à décoder
+     * @param  string  $hash  Le hashid à décoder
      * @return static
      */
     public static function findByHashidOrFail($hash)
@@ -41,5 +31,17 @@ trait HasHashid
 
         // Recherche le modèle par l'id décodé
         return static::findOrFail($decoded[0]);
+    }
+
+    /**
+     * Accesseur pour obtenir le hashid du modèle à partir de son id.
+     * Utilisable comme $model->hashid
+     *
+     * @return string
+     */
+    protected function getHashidAttribute()
+    {
+        // Encode l'id du modèle en hashid unique
+        return Hashids::encode($this->id);
     }
 }

@@ -1,20 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Annonce;
 use App\Models\Payment;
 use App\Models\Subject;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Exception;
 use FedaPay\FedaPay;
 use FedaPay\Transaction;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Moneroo\Laravel\Payment as MonerooPayment;
 
-class AnnonceController extends Controller
+final class AnnonceController extends Controller
 {
     public function __construct()
     {
@@ -23,32 +25,24 @@ class AnnonceController extends Controller
         FedaPay::setEnvironment(config('services.fedapay.environment', 'sandbox'));
     }
 
-    // Méthode pour récupérer les matières
-    private function getSubjects()
-    {
-        return Subject::where('is_active', true)
-            ->orderBy('nom')
-            ->get();
-    }
-
     // Afficher le formulaire de création
-    public function create()
+    public function create(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        abort_if(Auth::user()->role_id != 2, 403, 'Accès réservé aux étudiants');
+        abort_if(Auth::user()->role_id !== 2, 403, 'Accès réservé aux étudiants');
 
         $user = Auth::user();
         $subjects = $this->getSubjects();
 
         return view('annonces.create', [
             'user' => $user,
-            'subjects' => $subjects
+            'subjects' => $subjects,
         ]);
     }
 
     // Enregistrer l'annonce
     public function store(Request $request)
     {
-        abort_if(Auth::user()->role_id != 2, 403, 'Accès réservé aux étudiants');
+        abort_if(Auth::user()->role_id !== 2, 403, 'Accès réservé aux étudiants');
 
         $request->validate([
             'subject_id' => ['required', 'exists:subjects,id'],
@@ -57,45 +51,49 @@ class AnnonceController extends Controller
             'disponibilite' => [
                 'required',
                 'string',
-                function ($attribute, $value, $fail) {
-                    if (in_array(trim($value), ['', '0'], true)) {
+                function ($attribute, $value, $fail): void {
+                    if (in_array(mb_trim($value), ['', '0'], true)) {
                         $fail('Veuillez ajouter au moins un créneau de disponibilité.');
+
                         return;
                     }
 
-                    $lines = explode("\n", trim($value));
+                    $lines = explode("\n", mb_trim($value));
                     $validFormat = true;
                     $errors = [];
 
                     foreach ($lines as $index => $line) {
-                        $line = trim($line);
+                        $line = mb_trim($line);
                         if ($line !== '' && $line !== '0') {
-                            if (!preg_match('/^([a-zA-Zéèêëàâäîïôöùûüç\s]+) (\d{2}:\d{2}) - (\d{2}:\d{2})$/', $line, $matches)) {
+                            if (! preg_match('/^([a-zA-Zéèêëàâäîïôöùûüç\s]+) (\d{2}:\d{2}) - (\d{2}:\d{2})$/', $line, $matches)) {
                                 $validFormat = false;
-                                $errors[] = "Ligne " . ($index + 1) . ": Format incorrect. Utilisez: 'jour HH:MM - HH:MM'";
+                                $errors[] = 'Ligne '.($index + 1).": Format incorrect. Utilisez: 'jour HH:MM - HH:MM'";
+
                                 continue;
                             }
 
-                            $jour = trim($matches[1]);
+                            $jour = mb_trim($matches[1]);
                             $startTime = $matches[2];
                             $endTime = $matches[3];
 
-                            if (!preg_match('/^(\d{2}):(\d{2})$/', $startTime, $timeStart) ||
-                                !preg_match('/^(\d{2}):(\d{2})$/', $endTime, $timeEnd)) {
+                            if (! preg_match('/^(\d{2}):(\d{2})$/', $startTime, $timeStart) ||
+                                ! preg_match('/^(\d{2}):(\d{2})$/', $endTime, $timeEnd)) {
                                 $validFormat = false;
-                                $errors[] = "Ligne " . ($index + 1) . ": Format d'heure incorrect";
+                                $errors[] = 'Ligne '.($index + 1).": Format d'heure incorrect";
+
                                 continue;
                             }
 
-                            $startHour = (int)$timeStart[1];
-                            $startMinute = (int)$timeStart[2];
-                            $endHour = (int)$timeEnd[1];
-                            $endMinute = (int)$timeEnd[2];
+                            $startHour = (int) $timeStart[1];
+                            $startMinute = (int) $timeStart[2];
+                            $endHour = (int) $timeEnd[1];
+                            $endMinute = (int) $timeEnd[2];
 
                             if ($startHour < 0 || $startHour > 23 || $endHour < 0 || $endHour > 23 ||
                                 $startMinute < 0 || $startMinute > 59 || $endMinute < 0 || $endMinute > 59) {
                                 $validFormat = false;
-                                $errors[] = "Ligne " . ($index + 1) . ": Heures invalides";
+                                $errors[] = 'Ligne '.($index + 1).': Heures invalides';
+
                                 continue;
                             }
 
@@ -104,17 +102,17 @@ class AnnonceController extends Controller
 
                             if ($endTotal <= $startTotal) {
                                 $validFormat = false;
-                                $errors[] = "Ligne " . ($index + 1) . ": L'heure de fin doit être après l'heure de début";
+                                $errors[] = 'Ligne '.($index + 1).": L'heure de fin doit être après l'heure de début";
                             }
                         }
                     }
 
-                    if (!$validFormat) {
-                        $fail('Erreurs dans les disponibilités: ' . implode(', ', $errors));
+                    if (! $validFormat) {
+                        $fail('Erreurs dans les disponibilités: '.implode(', ', $errors));
                     }
-                }
+                },
             ],
-            'format' => ['required', 'in:presentiel,en_ligne,hybrid']
+            'format' => ['required', 'in:presentiel,en_ligne,hybrid'],
         ]);
 
         $annonce = new Annonce();
@@ -144,7 +142,7 @@ class AnnonceController extends Controller
         $annonce = Annonce::with('subject')->findOrFail($id);
         $user = Auth::user();
 
-        abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
+        abort_if($annonce->student_id !== Auth::id(), 403, 'Accès non autorisé');
 
         if ($annonce->is_paid) {
             return to_route('annonces.show', $annonce->id)
@@ -162,7 +160,7 @@ class AnnonceController extends Controller
         $annonce = Annonce::findOrFail($id);
         $user = Auth::user();
 
-        if ($annonce->student_id != Auth::id()) {
+        if ($annonce->student_id !== Auth::id()) {
             return response()->json(['success' => false, 'message' => 'Accès non autorisé'], 403);
         }
 
@@ -173,7 +171,7 @@ class AnnonceController extends Controller
         try {
             // Créer la transaction FedaPay
             $transaction = Transaction::create([
-                'description' => 'Acompte pour annonce: ' . ($annonce->subject->nom ?? 'Formation'),
+                'description' => 'Acompte pour annonce: '.($annonce->subject->nom ?? 'Formation'),
                 'amount' => (int) $annonce->acompte,
                 'currency' => ['iso' => 'XOF'],
                 'callback_url' => route('annonces.payment.callback'),
@@ -183,9 +181,9 @@ class AnnonceController extends Controller
                     'email' => $user->email,
                     'phone_number' => [
                         'number' => $user->telephone ?? '00000000',
-                        'country' => 'bj'
-                    ]
-                ]
+                        'country' => 'bj',
+                    ],
+                ],
             ]);
 
             // Générer le token de paiement
@@ -204,16 +202,16 @@ class AnnonceController extends Controller
                 'transaction_id' => $transaction->id,
             ]);
 
-        } catch (\Exception $e) {
-            Log::error('Erreur init paiement FedaPay: ' . $e->getMessage(), [
+        } catch (Exception $exception) {
+            Log::error('Erreur init paiement FedaPay: '.$exception->getMessage(), [
                 'annonce_id' => $annonce->id,
                 'user_id' => $user->id,
-                'trace' => $e->getTraceAsString()
+                'trace' => $exception->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur: ' . $e->getMessage(),
+                'message' => 'Erreur: '.$exception->getMessage(),
             ], 500);
         }
     }
@@ -228,10 +226,10 @@ class AnnonceController extends Controller
         Log::info('Callback FedaPay reçu', [
             'transaction_id' => $transactionId,
             'annonce_id' => $annonceId,
-            'user_id' => $user->id ?? null
+            'user_id' => $user->id ?? null,
         ]);
 
-        if (!$transactionId || !$annonceId) {
+        if (! $transactionId || ! $annonceId) {
             return back()->with('error', 'Transaction invalide.');
         }
 
@@ -256,7 +254,7 @@ class AnnonceController extends Controller
             $annonce = Annonce::findOrFail($annonceId);
 
             // Vérifier que l'utilisateur est propriétaire de l'annonce
-            abort_if($annonce->student_id != $user->id, 403, 'Accès non autorisé');
+            abort_if($annonce->student_id !== $user->id, 403, 'Accès non autorisé');
 
             DB::beginTransaction();
 
@@ -277,7 +275,7 @@ class AnnonceController extends Controller
             $annonce->update([
                 'status' => 'publiée',
                 'is_paid' => true,
-                'published_at' => \Illuminate\Support\Facades\Date::now()
+                'published_at' => \Illuminate\Support\Facades\Date::now(),
             ]);
 
             DB::commit();
@@ -285,12 +283,12 @@ class AnnonceController extends Controller
             return to_route('annonces.show', $annonce->id)
                 ->with('success', 'Paiement effectué avec succès ! Votre annonce est maintenant publiée.');
 
-        } catch (\Exception $e) {
+        } catch (Exception $exception) {
             DB::rollBack();
-            Log::error('Erreur paiement FedaPay: ' . $e->getMessage(), [
+            Log::error('Erreur paiement FedaPay: '.$exception->getMessage(), [
                 'transaction_id' => $transactionId,
                 'annonce_id' => $annonceId,
-                'trace' => $e->getTraceAsString()
+                'trace' => $exception->getTraceAsString(),
             ]);
 
             return to_route('annonces.payment', $annonceId)
@@ -308,14 +306,15 @@ class AnnonceController extends Controller
             $transactionId = $payload['data']['id'] ?? null;
             $status = $payload['data']['status'] ?? null;
 
-            if (!$transactionId || $status !== 'approved') {
+            if (! $transactionId || $status !== 'approved') {
                 return response()->json(['status' => 'ignored']);
             }
 
             return response()->json(['status' => 'success']);
 
-        } catch (\Exception $e) {
-            Log::error('Erreur webhook FedaPay: ' . $e->getMessage());
+        } catch (Exception $exception) {
+            Log::error('Erreur webhook FedaPay: '.$exception->getMessage());
+
             return response()->json(['status' => 'error'], 500);
         }
     }
@@ -331,14 +330,14 @@ class AnnonceController extends Controller
             'config_array' => config('services.moneroo'),
         ]);
 
-        if (!config('services.moneroo.secret_key')) {
-            throw new \Exception('Config Moneroo: ' . json_encode(config('services.moneroo')));
+        if (! config('services.moneroo.secret_key')) {
+            throw new Exception('Config Moneroo: '.json_encode(config('services.moneroo')));
         }
 
         $annonce = Annonce::with('subject')->findOrFail($id);
         $user = Auth::user();
 
-        if ($annonce->student_id != Auth::id()) {
+        if ($annonce->student_id !== Auth::id()) {
             return response()->json(['success' => false, 'message' => 'Accès non autorisé'], 403);
         }
 
@@ -347,12 +346,12 @@ class AnnonceController extends Controller
         }
 
         try {
-            throw_unless(config('services.moneroo.secret_key'), \Exception::class, 'La clé secrète Moneroo n\'est pas configurée');
+            throw_unless(config('services.moneroo.secret_key'), Exception::class, 'La clé secrète Moneroo n\'est pas configurée');
 
             $paymentData = [
                 'amount' => (int) $annonce->acompte,
                 'currency' => 'XOF',
-                'description' => 'Acompte pour annonce: ' . ($annonce->subject->nom ?? 'Formation'),
+                'description' => 'Acompte pour annonce: '.($annonce->subject->nom ?? 'Formation'),
                 'return_url' => route('annonces.payment.callback.moneroo'),
                 'customer' => [
                     'email' => $user->email,
@@ -382,16 +381,16 @@ class AnnonceController extends Controller
                 'transaction_id' => $payment->id,
             ]);
 
-        } catch (\Exception $e) {
-            Log::error('Erreur init paiement Moneroo: ' . $e->getMessage(), [
+        } catch (Exception $exception) {
+            Log::error('Erreur init paiement Moneroo: '.$exception->getMessage(), [
                 'annonce_id' => $annonce->id,
                 'user_id' => $user->id ?? null,
-                'trace' => $e->getTraceAsString()
+                'trace' => $exception->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur: ' . $e->getMessage(),
+                'message' => 'Erreur: '.$exception->getMessage(),
             ], 500);
         }
     }
@@ -399,15 +398,15 @@ class AnnonceController extends Controller
     // Callback de paiement Moneroo
     public function handlePaymentMoneroo(Request $request)
     {
-        $user = Auth::user();
+        Auth::user();
         $transactionId = $request->query('paymentId');
 
         Log::info('Payment success callback Moneroo', [
             'transaction_id' => $transactionId,
-            'all_params' => $request->all()
+            'all_params' => $request->all(),
         ]);
 
-        if (!$transactionId) {
+        if (! $transactionId) {
             return to_route('annonces.index')
                 ->with('error', 'Transaction invalide.');
         }
@@ -439,37 +438,37 @@ class AnnonceController extends Controller
 
             $status = $payment->status ?? 'unknown';
 
-            if (strtolower($status) === 'success') {
+            if (mb_strtolower($status) === 'success') {
                 Log::info('Starting annonce payment processing');
 
                 $paymentData = json_decode(json_encode($payment), true);
                 $annonceId = $paymentData['metadata']['annonce_id'] ?? null;
 
-                throw_unless($annonceId, \Exception::class, 'Annonce ID non trouvé dans les métadonnées');
+                throw_unless($annonceId, Exception::class, 'Annonce ID non trouvé dans les métadonnées');
 
                 $this->processAnnoncePaymentMoneroo($payment, $transactionId, $annonceId);
 
                 try {
                     $monerooPayment->markAsProcessed($transactionId);
                     Log::info('Payment marked as processed');
-                } catch (\Exception $e) {
-                    Log::warning('Could not mark as processed: ' . $e->getMessage());
+                } catch (Exception $e) {
+                    Log::warning('Could not mark as processed: '.$e->getMessage());
                 }
 
                 return to_route('annonces.show', $annonceId)
                     ->with('success', 'Paiement effectué avec succès ! Votre annonce est maintenant publiée.');
-            } else {
-                Log::warning('Payment not successful', ['status' => $status]);
-
-                return to_route('annonces.payment', $annonceId ?? '')
-                    ->with('error', 'Le paiement n\'a pas été validé. Statut: ' . $status);
             }
 
-        } catch (\Exception $e) {
+            Log::warning('Payment not successful', ['status' => $status]);
+
+            return to_route('annonces.payment', $annonceId ?? '')
+                ->with('error', 'Le paiement n\'a pas été validé. Statut: '.$status);
+
+        } catch (Exception $exception) {
             Log::error('Erreur verification paiement', [
                 'transaction_id' => $transactionId,
-                'error_message' => $e->getMessage(),
-                'error_line' => $e->getLine(),
+                'error_message' => $exception->getMessage(),
+                'error_line' => $exception->getLine(),
             ]);
 
             return to_route('annonces.index')
@@ -477,25 +476,255 @@ class AnnonceController extends Controller
         }
     }
 
+    // Webhook Moneroo
+    public function webhookMoneroo(Request $request)
+    {
+        Log::info('Webhook Moneroo reçu', $request->all());
+
+        try {
+            $payload = $request->all();
+
+            $transactionId = $payload['data']['id'] ?? null;
+            $status = $payload['data']['status'] ?? null;
+            $metadata = $payload['data']['metadata'] ?? [];
+
+            if (! $transactionId || $status !== 'success') {
+                return response()->json(['status' => 'ignored']);
+            }
+
+            $annonceId = $metadata['annonce_id'] ?? null;
+
+            if (! $annonceId) {
+                Log::warning('Annonce ID non trouvé dans metadata');
+
+                return response()->json(['status' => 'ignored']);
+            }
+
+            $existingPayment = Payment::where('moneroo_payment_id', $transactionId)->first();
+
+            if ($existingPayment) {
+                return response()->json(['status' => 'already_processed']);
+            }
+
+            $payment = (object) $payload['data'];
+
+            $this->processAnnoncePaymentMoneroo($payment, $transactionId, $annonceId);
+
+            return response()->json(['status' => 'success']);
+
+        } catch (Exception $exception) {
+            Log::error('Erreur webhook Moneroo', [
+                'error' => $exception->getMessage(),
+                'payload' => $request->all(),
+            ]);
+
+            return response()->json(['status' => 'error', 'message' => $exception->getMessage()], 500);
+        }
+    }
+
+    // Vérifier le statut du paiement
+    public function checkPaymentStatus(Request $request, $id)
+    {
+        $annonce = Annonce::findOrFail($id);
+
+        return response()->json([
+            'is_paid' => $annonce->is_paid,
+            'status' => $annonce->status,
+        ]);
+    }
+
+    // Afficher les annonces de l'étudiant
+    public function index(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        abort_if(Auth::user()->role_id !== 2, 403, 'Accès réservé aux étudiants');
+
+        $user = Auth::user();
+        $annonces = Annonce::with('subject')
+            ->where('student_id', Auth::id())->latest()
+            ->get();
+
+        return view('annonces.index', ['annonces' => $annonces, 'user' => $user]);
+    }
+
+    // Afficher une annonce spécifique
+    public function show($id): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        $annonce = Annonce::with(['student', 'subject', 'payments'])->findOrFail($id);
+        $user = Auth::user();
+
+        abort_if($annonce->student_id !== Auth::id() && Auth::user()->role_id !== 1, 403, 'Accès non autorisé');
+
+        return view('annonces.show', ['annonce' => $annonce, 'user' => $user]);
+    }
+
+    // Afficher le formulaire d'édition
+    public function edit($id)
+    {
+        $annonce = Annonce::with('subject')->findOrFail($id);
+        $user = Auth::user();
+
+        abort_if($annonce->student_id !== Auth::id(), 403, 'Accès non autorisé');
+
+        if ($annonce->status !== 'en_attente') {
+            return to_route('annonces.show', $annonce->id)
+                ->with('error', 'Cette annonce ne peut plus être modifiée.');
+        }
+
+        $subjects = $this->getSubjects();
+
+        return view('annonces.edit', [
+            'annonce' => $annonce,
+            'user' => $user,
+            'subjects' => $subjects,
+        ]);
+    }
+
+    // Mettre à jour l'annonce
+    public function update(Request $request, $id)
+    {
+        $annonce = Annonce::findOrFail($id);
+
+        abort_if($annonce->student_id !== Auth::id(), 403, 'Accès non autorisé');
+
+        if ($annonce->status !== 'en_attente') {
+            return to_route('annonces.show', $annonce->id)
+                ->with('error', 'Cette annonce ne peut plus être modifiée.');
+        }
+
+        $request->validate([
+            'subject_id' => ['required', 'exists:subjects,id'],
+            'description' => ['required', 'string', 'min:10'],
+            'budget' => ['required', 'numeric', 'min:1000', 'max:1000000000'],
+            'disponibilite' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail): void {
+                    if (in_array(mb_trim($value), ['', '0'], true)) {
+                        $fail('Veuillez ajouter au moins un créneau de disponibilité.');
+
+                        return;
+                    }
+
+                    $lines = explode("\n", mb_trim($value));
+                    $validFormat = true;
+                    $errors = [];
+
+                    foreach ($lines as $index => $line) {
+                        $line = mb_trim($line);
+                        if ($line !== '' && $line !== '0') {
+                            if (! preg_match('/^([a-zA-Zéèêëàâäîïôöùûüç\s]+) (\d{2}:\d{2}) - (\d{2}:\d{2})$/', $line, $matches)) {
+                                $validFormat = false;
+                                $errors[] = 'Ligne '.($index + 1).": Format incorrect. Utilisez: 'jour HH:MM - HH:MM'";
+
+                                continue;
+                            }
+
+                            $jour = mb_trim($matches[1]);
+                            $startTime = $matches[2];
+                            $endTime = $matches[3];
+
+                            if (! preg_match('/^(\d{2}):(\d{2})$/', $startTime, $timeStart) ||
+                                ! preg_match('/^(\d{2}):(\d{2})$/', $endTime, $timeEnd)) {
+                                $validFormat = false;
+                                $errors[] = 'Ligne '.($index + 1).": Format d'heure incorrect";
+
+                                continue;
+                            }
+
+                            $startHour = (int) $timeStart[1];
+                            $startMinute = (int) $timeStart[2];
+                            $endHour = (int) $timeEnd[1];
+                            $endMinute = (int) $timeEnd[2];
+
+                            if ($startHour < 0 || $startHour > 23 || $endHour < 0 || $endHour > 23 ||
+                                $startMinute < 0 || $startMinute > 59 || $endMinute < 0 || $endMinute > 59) {
+                                $validFormat = false;
+                                $errors[] = 'Ligne '.($index + 1).': Heures invalides';
+
+                                continue;
+                            }
+
+                            $startTotal = $startHour * 60 + $startMinute;
+                            $endTotal = $endHour * 60 + $endMinute;
+
+                            if ($endTotal <= $startTotal) {
+                                $validFormat = false;
+                                $errors[] = 'Ligne '.($index + 1).": L'heure de fin doit être après l'heure de début";
+                            }
+                        }
+                    }
+
+                    if (! $validFormat) {
+                        $fail('Erreurs dans les disponibilités: '.implode(', ', $errors));
+                    }
+                },
+            ],
+            'format' => ['required', 'in:presentiel,en_ligne,hybrid'],
+        ]);
+
+        $annonce->subject_id = $request->subject_id;
+        $annonce->description = $request->description;
+        $annonce->budget = $request->budget;
+        $annonce->disponibilite = $request->disponibilite;
+        $annonce->format = $request->format;
+
+        // Recalculer l'acompte si le budget a changé (toujours 30%)
+        if ($annonce->isDirty('budget')) {
+            $annonce->acompte = $request->budget * 0.3;
+        }
+
+        $annonce->save();
+
+        return to_route('annonces.show', $annonce->id)
+            ->with('success', 'Annonce mise à jour avec succès.');
+    }
+
+    // Supprimer une annonce
+    public function destroy($id)
+    {
+        $annonce = Annonce::findOrFail($id);
+
+        abort_if($annonce->student_id !== Auth::id(), 403, 'Accès non autorisé');
+
+        if ($annonce->status === 'attribuee') {
+            return back()
+                ->with('error', 'Impossible de supprimer une annonce déjà attribuée.');
+        }
+
+        $annonce->delete();
+
+        return to_route('annonces.index')
+            ->with('success', 'Annonce supprimée avec succès.');
+    }
+
+    // Méthode pour récupérer les matières
+    private function getSubjects()
+    {
+        return Subject::where('is_active', true)
+            ->orderBy('nom')
+            ->get();
+    }
+
     // Traiter le paiement Moneroo
-    private function processAnnoncePaymentMoneroo($payment, $transactionId, $annonceId)
+    private function processAnnoncePaymentMoneroo($payment, $transactionId, $annonceId): void
     {
         try {
             Log::info('Processing annonce payment started', [
                 'transaction_id' => $transactionId,
-                'annonce_id' => $annonceId
+                'annonce_id' => $annonceId,
             ]);
 
             $existingPayment = Payment::where('moneroo_payment_id', $transactionId)->first();
 
             if ($existingPayment) {
                 Log::info('Payment already processed in database');
+
                 return;
             }
 
             $paymentData = json_decode(json_encode($payment), true);
 
-            throw_unless(is_array($paymentData), \Exception::class, 'Impossible de convertir les données de paiement');
+            throw_unless(is_array($paymentData), Exception::class, 'Impossible de convertir les données de paiement');
 
             DB::beginTransaction();
 
@@ -506,9 +735,9 @@ class AnnonceController extends Controller
                 $userId = $paymentData['metadata']['user_id'] ?? null;
             }
 
-            throw_unless($userId, \Exception::class, 'User ID manquant dans les metadata');
+            throw_unless($userId, Exception::class, 'User ID manquant dans les metadata');
 
-            throw_if($annonce->student_id != $userId, \Exception::class, 'L\'utilisateur n\'est pas propriétaire de l\'annonce');
+            throw_if($annonce->student_id !== $userId, Exception::class, 'L\'utilisateur n\'est pas propriétaire de l\'annonce');
 
             $amount = (float) ($paymentData['amount'] ?? $annonce->acompte);
 
@@ -570,7 +799,7 @@ class AnnonceController extends Controller
             $annonce->update([
                 'status' => 'publiée',
                 'is_paid' => true,
-                'published_at' => \Illuminate\Support\Facades\Date::now()
+                'published_at' => \Illuminate\Support\Facades\Date::now(),
             ]);
 
             Log::info('Annonce payment record created successfully', [
@@ -582,232 +811,16 @@ class AnnonceController extends Controller
 
             Log::info('Annonce payment processed successfully');
 
-        } catch (\Exception $e) {
+        } catch (Exception $exception) {
             DB::rollBack();
 
             Log::error('Error in processAnnoncePaymentMoneroo', [
-                'error' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
+                'error' => $exception->getMessage(),
+                'line' => $exception->getLine(),
+                'file' => $exception->getFile(),
             ]);
 
-            throw $e;
+            throw $exception;
         }
-    }
-
-    // Webhook Moneroo
-    public function webhookMoneroo(Request $request)
-    {
-        Log::info('Webhook Moneroo reçu', $request->all());
-
-        try {
-            $payload = $request->all();
-
-            $transactionId = $payload['data']['id'] ?? null;
-            $status = $payload['data']['status'] ?? null;
-            $metadata = $payload['data']['metadata'] ?? [];
-
-            if (!$transactionId || $status !== 'success') {
-                return response()->json(['status' => 'ignored']);
-            }
-
-            $annonceId = $metadata['annonce_id'] ?? null;
-
-            if (!$annonceId) {
-                Log::warning('Annonce ID non trouvé dans metadata');
-                return response()->json(['status' => 'ignored']);
-            }
-
-            $existingPayment = Payment::where('moneroo_payment_id', $transactionId)->first();
-
-            if ($existingPayment) {
-                return response()->json(['status' => 'already_processed']);
-            }
-
-            $payment = (object) $payload['data'];
-
-            $this->processAnnoncePaymentMoneroo($payment, $transactionId, $annonceId);
-
-            return response()->json(['status' => 'success']);
-
-        } catch (\Exception $e) {
-            Log::error('Erreur webhook Moneroo', [
-                'error' => $e->getMessage(),
-                'payload' => $request->all()
-            ]);
-
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
-
-    // Vérifier le statut du paiement
-    public function checkPaymentStatus(Request $request, $id)
-    {
-        $annonce = Annonce::findOrFail($id);
-
-        return response()->json([
-            'is_paid' => $annonce->is_paid,
-            'status' => $annonce->status,
-        ]);
-    }
-
-    // Afficher les annonces de l'étudiant
-    public function index()
-    {
-        abort_if(Auth::user()->role_id != 2, 403, 'Accès réservé aux étudiants');
-
-        $user = Auth::user();
-        $annonces = Annonce::with('subject')
-            ->where('student_id', Auth::id())->latest()
-            ->get();
-
-        return view('annonces.index', ['annonces' => $annonces, 'user' => $user]);
-    }
-
-    // Afficher une annonce spécifique
-    public function show($id)
-    {
-        $annonce = Annonce::with(['student', 'subject', 'payments'])->findOrFail($id);
-        $user = Auth::user();
-
-        abort_if($annonce->student_id != Auth::id() && Auth::user()->role_id != 1, 403, 'Accès non autorisé');
-
-        return view('annonces.show', ['annonce' => $annonce, 'user' => $user]);
-    }
-
-    // Afficher le formulaire d'édition
-    public function edit($id)
-    {
-        $annonce = Annonce::with('subject')->findOrFail($id);
-        $user = Auth::user();
-
-        abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
-
-        if ($annonce->status != 'en_attente') {
-            return to_route('annonces.show', $annonce->id)
-                ->with('error', 'Cette annonce ne peut plus être modifiée.');
-        }
-
-        $subjects = $this->getSubjects();
-
-        return view('annonces.edit', [
-            'annonce' => $annonce,
-            'user' => $user,
-            'subjects' => $subjects
-        ]);
-    }
-
-    // Mettre à jour l'annonce
-    public function update(Request $request, $id)
-    {
-        $annonce = Annonce::findOrFail($id);
-
-        abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
-
-        if ($annonce->status != 'en_attente') {
-            return to_route('annonces.show', $annonce->id)
-                ->with('error', 'Cette annonce ne peut plus être modifiée.');
-        }
-
-        $request->validate([
-            'subject_id' => ['required', 'exists:subjects,id'],
-            'description' => ['required', 'string', 'min:10'],
-            'budget' => ['required', 'numeric', 'min:1000', 'max:1000000000'],
-            'disponibilite' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if (in_array(trim($value), ['', '0'], true)) {
-                        $fail('Veuillez ajouter au moins un créneau de disponibilité.');
-                        return;
-                    }
-
-                    $lines = explode("\n", trim($value));
-                    $validFormat = true;
-                    $errors = [];
-
-                    foreach ($lines as $index => $line) {
-                        $line = trim($line);
-                        if ($line !== '' && $line !== '0') {
-                            if (!preg_match('/^([a-zA-Zéèêëàâäîïôöùûüç\s]+) (\d{2}:\d{2}) - (\d{2}:\d{2})$/', $line, $matches)) {
-                                $validFormat = false;
-                                $errors[] = "Ligne " . ($index + 1) . ": Format incorrect. Utilisez: 'jour HH:MM - HH:MM'";
-                                continue;
-                            }
-
-                            $jour = trim($matches[1]);
-                            $startTime = $matches[2];
-                            $endTime = $matches[3];
-
-                            if (!preg_match('/^(\d{2}):(\d{2})$/', $startTime, $timeStart) ||
-                                !preg_match('/^(\d{2}):(\d{2})$/', $endTime, $timeEnd)) {
-                                $validFormat = false;
-                                $errors[] = "Ligne " . ($index + 1) . ": Format d'heure incorrect";
-                                continue;
-                            }
-
-                            $startHour = (int)$timeStart[1];
-                            $startMinute = (int)$timeStart[2];
-                            $endHour = (int)$timeEnd[1];
-                            $endMinute = (int)$timeEnd[2];
-
-                            if ($startHour < 0 || $startHour > 23 || $endHour < 0 || $endHour > 23 ||
-                                $startMinute < 0 || $startMinute > 59 || $endMinute < 0 || $endMinute > 59) {
-                                $validFormat = false;
-                                $errors[] = "Ligne " . ($index + 1) . ": Heures invalides";
-                                continue;
-                            }
-
-                            $startTotal = $startHour * 60 + $startMinute;
-                            $endTotal = $endHour * 60 + $endMinute;
-
-                            if ($endTotal <= $startTotal) {
-                                $validFormat = false;
-                                $errors[] = "Ligne " . ($index + 1) . ": L'heure de fin doit être après l'heure de début";
-                            }
-                        }
-                    }
-
-                    if (!$validFormat) {
-                        $fail('Erreurs dans les disponibilités: ' . implode(', ', $errors));
-                    }
-                }
-            ],
-            'format' => ['required', 'in:presentiel,en_ligne,hybrid']
-        ]);
-
-        $annonce->subject_id = $request->subject_id;
-        $annonce->description = $request->description;
-        $annonce->budget = $request->budget;
-        $annonce->disponibilite = $request->disponibilite;
-        $annonce->format = $request->format;
-
-        // Recalculer l'acompte si le budget a changé (toujours 30%)
-        if ($annonce->isDirty('budget')) {
-            $annonce->acompte = $request->budget * 0.3;
-        }
-
-        $annonce->save();
-
-        return to_route('annonces.show', $annonce->id)
-            ->with('success', 'Annonce mise à jour avec succès.');
-    }
-
-    // Supprimer une annonce
-    public function destroy($id)
-    {
-        $annonce = Annonce::findOrFail($id);
-
-        abort_if($annonce->student_id != Auth::id(), 403, 'Accès non autorisé');
-
-        if ($annonce->status === 'attribuee') {
-            return back()
-                ->with('error', 'Impossible de supprimer une annonce déjà attribuée.');
-        }
-
-        $annonce->delete();
-
-        return to_route('annonces.index')
-            ->with('success', 'Annonce supprimée avec succès.');
     }
 }

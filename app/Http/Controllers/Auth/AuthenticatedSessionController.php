@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -9,43 +11,42 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class AuthenticatedSessionController extends Controller
+final class AuthenticatedSessionController extends Controller
 {
     /**
      * Display the login view.
      */
     public function create(): View
     {
-        return view('auth.login');
+        return view(\Illuminate\Auth\Events\Login::class);
     }
 
     /**
      * Handle an incoming authentication request.
      */
-   public function store(LoginRequest $request): RedirectResponse
-{
-    // Authentification
-    $request->authenticate();
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        // Authentification
+        $request->authenticate();
 
-    $user = Auth::user();
+        $user = Auth::user();
 
-    // Mise à jour de la date de dernière connexion
-    $user->update([
-        'last_login' => now()
-    ]);
+        // Mise à jour de la date de dernière connexion
+        $user->update([
+            'last_login' => now(),
+        ]);
 
-    // Sécurisation session
-    $request->session()->regenerate();
+        // Sécurisation session
+        $request->session()->regenerate();
 
-    // Redirection selon rôle
-    if ($user->role_id == 1) {
-        return to_route('admin.dashboard'); // Dashboard Admin
+        // Redirection selon rôle
+        if ($user->role_id === 1) {
+            return to_route('admin.dashboard'); // Dashboard Admin
+        }
+
+        // Tous les autres rôles → dashboard utilisateur  909594887475-obkctd5kn6r486b8tmhkld8658nskf2r.apps.googleusercontent.com
+        return to_route('dashboardUser');
     }
-
-    // Tous les autres rôles → dashboard utilisateur  909594887475-obkctd5kn6r486b8tmhkld8658nskf2r.apps.googleusercontent.com
-    return to_route('dashboardUser');
-}
-
 
     /**
      * Destroy an authenticated session.
