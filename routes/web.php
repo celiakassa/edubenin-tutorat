@@ -13,6 +13,19 @@ use App\Http\Controllers\RechercheController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserDashboard;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+
+// Routes d'authentification Google
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+
+// ===== ROUTE POUR LE CHOIX DU RÔLE APRÈS CONNEXION GOOGLE =====
+Route::middleware(['auth'])->group(function () {
+    Route::get('/choose-role', [GoogleController::class, 'showRoleChoice'])->name('choose.role');
+    Route::post('/choose-role', [GoogleController::class, 'storeRoleChoice'])->name('store.role');
+});
+
 
 // ==================== ROUTES PUBLIQUES ====================
 Route::get('/', [HomeController::class, 'index'])->name('home');
