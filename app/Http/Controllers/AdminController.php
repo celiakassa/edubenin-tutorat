@@ -43,10 +43,23 @@ final class AdminController extends Controller
             if ($field === 'subjects') {
                 $subjects = $user->subjects;
                 if (! empty($subjects)) {
-                    $decoded = json_decode($subjects, true);
-                    if (is_array($decoded) && $decoded !== []) {
-                        $filled++;
-                    } elseif (is_string($subjects) && mb_trim($subjects) !== '') {
+                    // Vérifier si c'est une collection Eloquent
+                    if ($subjects instanceof \Illuminate\Database\Eloquent\Collection) {
+                        if ($subjects->count() > 0) {
+                            $filled++;
+                        }
+                    }
+                    // Vérifier si c'est une chaîne JSON
+                    elseif (is_string($subjects)) {
+                        $decoded = json_decode($subjects, true);
+                        if (is_array($decoded) && $decoded !== []) {
+                            $filled++;
+                        } elseif (mb_trim($subjects) !== '') {
+                            $filled++;
+                        }
+                    }
+                    // Si c'est un tableau simple
+                    elseif (is_array($subjects) && !empty($subjects)) {
                         $filled++;
                     }
                 }
@@ -347,10 +360,23 @@ final class AdminController extends Controller
             if ($field === 'subjects') {
                 $subjects = $user->subjects;
                 if (! empty($subjects)) {
-                    $decoded = json_decode($subjects, true);
-                    if (is_array($decoded) && $decoded !== []) {
-                        $filled++;
-                    } elseif (is_string($subjects) && mb_trim($subjects) !== '') {
+                    // Vérifier si c'est une collection Eloquent
+                    if ($subjects instanceof \Illuminate\Database\Eloquent\Collection) {
+                        if ($subjects->count() > 0) {
+                            $filled++;
+                        }
+                    }
+                    // Vérifier si c'est une chaîne JSON
+                    elseif (is_string($subjects)) {
+                        $decoded = json_decode($subjects, true);
+                        if (is_array($decoded) && $decoded !== []) {
+                            $filled++;
+                        } elseif (mb_trim($subjects) !== '') {
+                            $filled++;
+                        }
+                    }
+                    // Si c'est un tableau simple
+                    elseif (is_array($subjects) && !empty($subjects)) {
                         $filled++;
                     }
                 }

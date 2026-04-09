@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Détails Professeur - Admin Kopiao</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+       <link rel="shortcut icon" href="{{ asset('images/image_1.webp') }}" type="image/x-icon">
     <style>
         * {
             margin: 0;
@@ -649,18 +650,11 @@
 
                 <div style="margin-top: 20px;">
                     <div class="info-label" style="margin-bottom: 10px;">Matières enseignées</div>
-                    @if($teacher->subjects)
+                    @if($teacher->subjects && $teacher->subjects->count() > 0)
                         <div class="subjects-list">
-                            @php
-                                $subjects = json_decode($teacher->subjects, true);
-                                if(is_array($subjects)) {
-                                    foreach($subjects as $subject) {
-                                        echo '<span class="subject-tag">' . $subject . '</span>';
-                                    }
-                                } else {
-                                    echo '<span class="subject-tag">' . $teacher->subjects . '</span>';
-                                }
-                            @endphp
+                            @foreach($teacher->subjects as $subject)
+                                <span class="subject-tag">{{ $subject->name }}</span>
+                            @endforeach
                         </div>
                     @else
                         <div class="info-value empty">Non renseignées</div>

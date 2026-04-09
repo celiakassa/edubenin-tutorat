@@ -8,6 +8,7 @@
     <title>Dashboard Admin - Kopiao</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+       <link rel="shortcut icon" href="{{ asset('images/image_1.webp') }}" type="image/x-icon">
     <style>
         * {
             margin: 0;
