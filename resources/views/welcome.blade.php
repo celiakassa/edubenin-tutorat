@@ -436,16 +436,7 @@
                             <div class="annonce-card-wrapper">
                                 <div class="annonce-card bg-white rounded-4 shadow-sm"
                                      style="border: 1px solid #e0e0e0;">
-                                    <div class="card-badge {{ $annonce->format }}"
-                                         style="background: #0000FF; color: white;">
-                                        @if($annonce->format == 'presentiel')
-                                            <i class="bi bi-person-workspace"></i> Présentiel
-                                        @elseif($annonce->format == 'en_ligne')
-                                            <i class="bi bi-laptop"></i> En ligne
-                                        @else
-                                            <i class="bi bi-arrow-left-right"></i> Hybride
-                                        @endif
-                                    </div>
+                                  
 
                                     <div class="card-header d-flex justify-content-between align-items-start mb-3">
                                         <h3 class="annonce-title fw-bold mb-0" style="color: #333;">{{ $annonce->domaine }}</h3>
