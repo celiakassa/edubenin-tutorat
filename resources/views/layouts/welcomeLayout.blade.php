@@ -24,7 +24,7 @@
         rel="stylesheet">
 
     <!-- Vendor CSS Files -->
-    <!-- Bootstrap 5 -->
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
@@ -53,19 +53,10 @@
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
-        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js"
-        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
-        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous">
-    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- SweetAlert2 pour les notifications -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @livewireStyles
     @stack('styles')
@@ -276,7 +267,6 @@
                 display: none !important;
             }
 
-            /* Le logo reste à gauche automatiquement avec flex */
             .logo {
                 order: 0;
             }
@@ -290,6 +280,28 @@
             .burger-menu {
                 display: none !important;
             }
+        }
+
+        /* Animation des liens footer */
+        .footer-links ul li a {
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .footer-links ul li a:hover {
+            color: #ffc107 !important;
+            transform: translateX(5px);
+        }
+
+        /* Animation réseaux sociaux */
+        .social-links a {
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .social-links a:hover {
+            transform: translateY(-3px);
+            color: #ffc107 !important;
         }
     </style>
 </head>
@@ -331,12 +343,20 @@
             </ul>
 
             @auth
-                <form method="POST" action="{{ route('logout') }}" class="m-0">
-                    @csrf
-                    <button type="submit" class="btn btn-danger fw-semibold px-4 py-2 rounded-pill">
-                        <i class="bi bi-box-arrow-right me-2"></i> Se déconnecter
-                    </button>
-                </form>
+                <div class="d-flex gap-2">
+                    <!-- Bouton Tableau de bord pour utilisateur connecté -->
+                    <a class="btn btn-success fw-semibold text-light px-4 py-2 rounded-pill text-decoration-none"
+                        href="{{ route('dashboardUser') }}">
+                        <i class="bi bi-speedometer2 me-1"></i> Tableau de bord
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}" class="m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-danger fw-semibold px-4 py-2 rounded-pill">
+                            <i class="bi bi-box-arrow-right me-2"></i> Se déconnecter
+                        </button>
+                    </form>
+                </div>
             @else
                 <a class="btn btn-warning bg-light fw-semibold text-dark px-4 py-2 rounded-pill" href="{{ route('login') }}">
                     Se connecter
@@ -359,6 +379,10 @@
     </div>
     <div class="sidebar-links">
         <br><br>
+        <a href="{{ url('/') }}" class="sidebar-link">
+            <i class="bi bi-house"></i>
+            <span>Accueil</span>
+        </a>
         <a href="{{ route('annoncesListe.liste') }}" class="sidebar-link">
             <i class="bi bi-megaphone"></i>
             <span>Annonces</span>
@@ -371,8 +395,18 @@
             <i class="bi bi-question-circle"></i>
             <span>FAQ</span>
         </a>
+        <a href="#" class="sidebar-link" id="contactLink">
+            <i class="bi bi-envelope"></i>
+            <span>Contact</span>
+        </a>
 
         @auth
+            <!-- Bouton Tableau de bord dans le sidebar -->
+            <a href="{{ route('dashboardUser') }}" class="sidebar-link" style="border-left-color: #ffc107; background: rgba(255,255,255,0.05);">
+                <i class="bi bi-speedometer2"></i>
+                <span>Tableau de bord</span>
+            </a>
+
             <form method="POST" action="{{ route('logout') }}" class="m-0">
                 @csrf
                 <button type="submit" class="sidebar-link logout-btn">
@@ -404,59 +438,88 @@
 
             <!-- Bloc logo et contact -->
             <div class="col-lg-4 col-md-6 footer-about">
-                <a href="index.html" class="logo d-flex align-items-center mb-3 text-white text-decoration-none">
+                <a href="{{ url('/') }}" class="logo d-flex align-items-center mb-3 text-white text-decoration-none">
                     <span class="sitename fw-bold fs-4 text-light">Kopiao</span>
                 </a>
+                <p class="text-white-50 mt-3">Votre plateforme de mise en relation pour les cours particuliers et le soutien scolaire.</p>
 
                 <div class="social-links d-flex mt-4">
-                    <a href="#" class="me-3 text-white fs-5"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="me-3 text-white fs-5"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="me-3 text-white fs-5"><i class="bi bi-linkedin"></i></a>
-                    <a href="#" class="text-white fs-5"><i class="bi bi-twitter-x"></i></a>
+                    <a href="https://www.facebook.com/share/1EEgM4RwCR/" target="_blank" class="me-3 text-white fs-4" title="Facebook">
+                        <i class="bi bi-facebook"></i>
+                    </a>
+                    <a href="https://www.instagram.com/kopiaoofficiel?igsh=MW1weGNhcW91ZzRzZg==" target="_blank" class="me-3 text-white fs-4" title="Instagram">
+                        <i class="bi bi-instagram"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/company/kopiao/" target="_blank" class="me-3 text-white fs-4" title="LinkedIn">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
+                    <a href="https://x.com/kopiaoofficiel?t=zD2MHk2cCpuwQ2m6fQl3Pg&s=09" target="_blank" class="text-white fs-4" title="Twitter">
+                        <i class="bi bi-twitter-x"></i>
+                    </a>
                 </div>
             </div>
 
-            <!-- Liens rapides -->
+            <!-- Liens rapides - Augmentés -->
             <div class="col-lg-2 col-md-3 footer-links">
                 <h4 class="text-warning fw-semibold mb-3">Liens utiles</h4>
                 <ul class="list-unstyled">
-                    <li><a href="#" class="text-white-50 text-decoration-none">Accueil</a></li>
+                    <li class="mb-2"><a href="{{ url('/') }}" class="text-white-50 text-decoration-none">
+                        <i class="bi bi-chevron-right me-1"></i> Accueil
+                    </a></li>
+                    <li class="mb-2"><a href="{{ route('annoncesListe.liste') }}" class="text-white-50 text-decoration-none">
+                        <i class="bi bi-chevron-right me-1"></i> Annonces
+                    </a></li>
+                    <li class="mb-2"><a href="{{ route('demandesliste.liste') }}" class="text-white-50 text-decoration-none">
+                        <i class="bi bi-chevron-right me-1"></i> Demandes
+                    </a></li>
+                    <li class="mb-2"><a href="#" id="contactFooterLink" class="text-white-50 text-decoration-none">
+                        <i class="bi bi-chevron-right me-1"></i> Contact
+                    </a></li>
+                    <li class="mb-2"><a href="{{ route('faq') }}" class="text-white-50 text-decoration-none">
+                        <i class="bi bi-chevron-right me-1"></i> FAQ
+                    </a></li>
+                    @auth
+                    <li class="mb-2"><a href="{{ route('dashboardUser') }}" class="text-white-50 text-decoration-none">
+                        <i class="bi bi-chevron-right me-1"></i> Tableau de bord
+                    </a></li>
+                    @endauth
                 </ul>
             </div>
 
             <!-- Nos Services -->
             <div class="col-lg-3 col-md-3 footer-links">
-                <h4 class="text-warning fw-semibold mb-3">Nos Offres</h4>
+                <h4 class="text-warning fw-semibold mb-3">Nos Services</h4>
                 <ul class="list-unstyled">
-                    <li><a href="#" class="text-white-50 text-decoration-none">Accompagnement</a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">
+                        <i class="bi bi-chevron-right me-1"></i> Cours particuliers
+                    </a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">
+                        <i class="bi bi-chevron-right me-1"></i> Soutien scolaire
+                    </a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">
+                        <i class="bi bi-chevron-right me-1"></i> Préparation examens
+                    </a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">
+                        <i class="bi bi-chevron-right me-1"></i> Cours en ligne
+                    </a></li>
                 </ul>
             </div>
 
-            <!-- Newsletter -->
+            <!-- Newsletter - Version mailto simple -->
             <div class="col-lg-3 col-md-6 footer-newsletter">
                 <h4 class="text-warning fw-semibold mb-3">Restez informé</h4>
                 <p class="text-white-50">Abonnez-vous pour recevoir nos dernières actualités et offres spéciales.</p>
-                <div class="d-flex mt-3">
-                    <input type="email" id="emailInput" class="form-control me-2 border-0 rounded-start"
-                        placeholder="Votre e-mail" style="background-color: #f8fbff;" required>
-                    <button onclick="sendMail()" class="btn btn-warning text-dark fw-semibold px-3 rounded-end">
-                        S'abonner
-                    </button>
-                </div>
 
-                <script>
-                    function sendMail() {
-                        const emailField = document.getElementById("emailInput");
-                        const email = emailField.value;
-
-                        if (!emailField.checkValidity()) {
-                            alert("Veuillez entrer une adresse e-mail valide.");
-                            return;
-                        }
-
-                        window.location.href = `mailto:${email}?subject=Abonnement&body=Je souhaite m'abonner.`;
-                    }
-                </script>
+                <form id="newsletterForm" class="mt-3">
+                    <div class="d-flex">
+                        <input type="email" id="newsletterEmail" name="email" class="form-control me-2 border-0 rounded-start"
+                            placeholder="Votre e-mail" style="background-color: #f8fbff;" required>
+                        <button type="submit" class="btn btn-warning text-white fw-semibold px-3 rounded-end">
+                            S'abonner
+                        </button>
+                    </div>
+                    <div id="newsletterMessage" class="mt-2 small"></div>
+                </form>
             </div>
         </div>
     </div>
@@ -464,16 +527,64 @@
     <!-- Bas du footer -->
     <div class="container text-center py-3">
         <p class="mb-1 text-white-50">© <strong>Kopiao</strong> — Tous droits réservés.</p>
+        <p class="mb-0 small text-white-50">
+            <a href="#" class="text-white-50 text-decoration-none">Mentions légales</a> |
+            <a href="#" class="text-white-50 text-decoration-none">Politique de confidentialité</a> |
+            <a href="#" class="text-white-50 text-decoration-none">CGU</a>
+        </p>
     </div>
 </footer>
 
+<!-- Modal Contact - Version corrigée -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #0B69F1; color: white;">
+                <h5 class="modal-title text-white" id="contactModalLabel">
+                    <i class="bi bi-envelope me-2"></i> Nous contacter
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contactForm">
+                    <div class="mb-3">
+                        <label for="contactName" class="form-label">Nom complet <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="contactName" placeholder="Votre nom et prénom" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactEmail" class="form-label">Votre email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="contactEmail" placeholder="exemple@email.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactMessage" class="form-label">Message <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="contactMessage" rows="4" placeholder="Votre message..." required></textarea>
+                    </div>
+                    <div id="contactFormMessage" class="mt-2"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Fermer
+                </button>
+                <button type="button" class="btn btn-primary" id="sendContactBtn" style="background: #0B69F1;">
+                    <i class="bi bi-send me-2"></i>Envoyer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS (nécessaire pour le modal) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
+    // Initialiser AOS
     AOS.init({
         duration: 800,
         once: false
     });
 
-    // Menu Burger JavaScript avec TOGGLE (ouvre et ferme avec le même bouton)
+    // Menu Burger JavaScript avec TOGGLE
     const burgerBtn = document.getElementById('burgerBtn');
     const sidebarMenu = document.getElementById('sidebarMenu');
     const closeMenuBtn = document.getElementById('closeMenuBtn');
@@ -493,14 +604,141 @@
         burgerBtn.classList.remove('active');
     }
 
-    // Un seul bouton pour ouvrir et fermer (toggle)
     burgerBtn.addEventListener('click', toggleMenu);
     closeMenuBtn.addEventListener('click', closeMenu);
     menuOverlay.addEventListener('click', closeMenu);
 
-    // Fermer le menu quand on clique sur un lien
     document.querySelectorAll('.sidebar-link').forEach(link => {
         link.addEventListener('click', closeMenu);
+    });
+
+    // Initialisation du Modal Bootstrap
+    let contactModal = null;
+
+    // Attendre que le DOM soit chargé
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialiser le modal
+        const modalElement = document.getElementById('contactModal');
+        if (modalElement) {
+            contactModal = new bootstrap.Modal(modalElement);
+        }
+    });
+
+    // Ouvrir le modal depuis le lien Contact
+    document.getElementById('contactLink')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (contactModal) {
+            contactModal.show();
+        } else {
+            // Fallback si le modal n'est pas initialisé
+            const modalElement = document.getElementById('contactModal');
+            if (modalElement) {
+                contactModal = new bootstrap.Modal(modalElement);
+                contactModal.show();
+            }
+        }
+    });
+
+    // Ouvrir le modal depuis le footer
+    document.getElementById('contactFooterLink')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (contactModal) {
+            contactModal.show();
+        } else {
+            const modalElement = document.getElementById('contactModal');
+            if (modalElement) {
+                contactModal = new bootstrap.Modal(modalElement);
+                contactModal.show();
+            }
+        }
+    });
+
+    // Bouton d'envoi du formulaire de contact
+    document.getElementById('sendContactBtn')?.addEventListener('click', function() {
+        const name = document.getElementById('contactName').value.trim();
+        const email = document.getElementById('contactEmail').value.trim();
+        const message = document.getElementById('contactMessage').value.trim();
+        const messageDiv = document.getElementById('contactFormMessage');
+
+        // Validation
+        if (!name) {
+            messageDiv.innerHTML = '<span class="text-danger">Veuillez entrer votre nom complet</span>';
+            setTimeout(() => { messageDiv.innerHTML = ''; }, 3000);
+            return;
+        }
+
+        if (!email) {
+            messageDiv.innerHTML = '<span class="text-danger">Veuillez entrer votre email</span>';
+            setTimeout(() => { messageDiv.innerHTML = ''; }, 3000);
+            return;
+        }
+
+        if (!email.includes('@') || !email.includes('.')) {
+            messageDiv.innerHTML = '<span class="text-danger">Veuillez entrer un email valide</span>';
+            setTimeout(() => { messageDiv.innerHTML = ''; }, 3000);
+            return;
+        }
+
+        if (!message) {
+            messageDiv.innerHTML = '<span class="text-danger">Veuillez écrire votre message</span>';
+            setTimeout(() => { messageDiv.innerHTML = ''; }, 3000);
+            return;
+        }
+
+        if (message.length < 10) {
+            messageDiv.innerHTML = '<span class="text-danger">Votre message est trop court (minimum 10 caractères)</span>';
+            setTimeout(() => { messageDiv.innerHTML = ''; }, 3000);
+            return;
+        }
+
+        // Ouvrir le client email par défaut
+        const subject = encodeURIComponent(`Message de contact - ${name}`);
+        const body = encodeURIComponent(`Nom : ${name}\nEmail : ${email}\n\nMessage :\n${message}\n\n---\nMessage envoyé depuis le site Kopiao`);
+        window.location.href = `mailto:contact@kopiao.com?subject=${subject}&body=${body}`;
+
+        // Afficher le message de succès
+        Swal.fire({
+            icon: 'success',
+            title: 'Message préparé !',
+            text: 'Votre client email va s\'ouvrir. Il ne vous reste plus qu\'à envoyer le message.',
+            timer: 3000,
+            showConfirmButton: false
+        });
+
+        // Réinitialiser le formulaire
+        document.getElementById('contactName').value = '';
+        document.getElementById('contactEmail').value = '';
+        document.getElementById('contactMessage').value = '';
+        messageDiv.innerHTML = '';
+
+        // Fermer le modal
+        if (contactModal) {
+            contactModal.hide();
+        }
+    });
+
+    // Newsletter simple avec mailto
+    document.getElementById('newsletterForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const email = document.getElementById('newsletterEmail').value;
+        const messageDiv = document.getElementById('newsletterMessage');
+
+        if (!email || !email.includes('@')) {
+            messageDiv.innerHTML = '<span class="text-danger">Veuillez entrer un email valide</span>';
+            setTimeout(() => { messageDiv.innerHTML = ''; }, 3000);
+            return;
+        }
+
+        // Ouvrir le client email par défaut
+        const subject = encodeURIComponent('Abonnement Newsletter - Kopiao');
+        const body = encodeURIComponent(`Bonjour,\n\nJe souhaite m'abonner à la newsletter Kopiao avec l'adresse email suivante :\n\n${email}\n\nMerci.`);
+        window.location.href = `mailto:contact@kopiao.com?subject=${subject}&body=${body}`;
+
+        messageDiv.innerHTML = '<span class="text-success">✓ Ouverture de votre messagerie !</span>';
+        document.getElementById('newsletterEmail').value = '';
+
+        setTimeout(() => { messageDiv.innerHTML = ''; }, 3000);
     });
 </script>
 
@@ -513,31 +751,12 @@
 <!-- Preloader -->
 <div id="preloader"></div>
 
-<!-- Vendor JS Files -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- PHP Email Form Validation (ce script est souvent local, pas sur CDN) -->
-<script src="assets/vendor/php-email-form/validate.js"></script>
-
-<!-- AOS (Animate On Scroll) -->
-<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-
-<!-- Swiper JS -->
+<!-- Autres scripts -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-
-<!-- PureCounter -->
 <script src="https://cdn.jsdelivr.net/npm/@srexi/purecounterjs/dist/purecounter_vanilla.js"></script>
-
-<!-- imagesLoaded -->
 <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
-
-<!-- Isotope Layout -->
 <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
-
-<!-- Glightbox -->
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
-
-<!-- Main JS File -->
 <script src="{{ asset('js/welcome.js') }}"></script>
 
 <style>
@@ -549,6 +768,37 @@
         body .main {
             padding-top: 100px;
         }
+    }
+
+    .footer-links ul li a i {
+        transition: transform 0.3s ease;
+    }
+
+    .footer-links ul li a:hover i {
+        transform: translateX(3px);
+    }
+
+    /* Style pour les champs requis */
+    .text-danger {
+        font-size: 0.9rem;
+    }
+
+    .form-control:focus {
+        border-color: #0B69F1;
+        box-shadow: 0 0 0 0.2rem rgba(11, 105, 241, 0.25);
+    }
+
+    /* Style pour le bouton tableau de bord */
+    .btn-success {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+    }
+
+    .btn-success:hover {
+        background-color: #218838 !important;
+        border-color: #1e7e34 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
     }
 </style>
 

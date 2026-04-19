@@ -411,15 +411,82 @@
             </div>
         </section>
 
-        <!-- Contact Support -->
+        <!-- Contact Support avec Modal -->
         <div class="support-cta text-center mt-5 p-5 bg-white rounded-4 shadow-sm" data-aos="fade-up">
             <i class="bi bi-headset" style="font-size: 3rem; color: #0B69F1;"></i>
             <h3 class="fw-bold mt-3 mb-3">Vous n'avez pas trouvé votre réponse ?</h3>
             <p class="text-muted mb-4">Notre équipe est là pour vous aider</p>
-            <a href="mailto:support@kopiao.com" class="btn btn-primary px-5 py-3 rounded-pill"
+            <button type="button" class="btn btn-primary px-5 py-3 rounded-pill" id="openSupportModalBtn"
                style="background: #0B69F1; border: none;">
                 <i class="bi bi-envelope me-2"></i>Contacter le support
-            </a>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Support - Formulaire de contact -->
+<div class="modal fade" id="supportModal" tabindex="-1" aria-labelledby="supportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #0B69F1; color: white;">
+                <h5 class="modal-title" id="supportModalLabel">
+                    <i class="bi bi-headset me-2"></i> Contacter le support
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted mb-4">Veuillez remplir ce formulaire. Votre client email s'ouvrira avec les informations pré-remplies.</p>
+
+                <form id="supportForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="supportName" class="form-label fw-semibold">
+                                <i class="bi bi-person me-1" style="color: #0B69F1;"></i> Nom complet <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="supportName" placeholder="Jean Dupont" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="supportEmail" class="form-label fw-semibold">
+                                <i class="bi bi-envelope me-1" style="color: #0B69F1;"></i> Votre email <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" class="form-control" id="supportEmail" placeholder="jean@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="supportSubject" class="form-label fw-semibold">
+                            <i class="bi bi-tag me-1" style="color: #0B69F1;"></i> Sujet <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="supportSubject" required>
+                            <option value="">Choisissez un sujet</option>
+                            <option value="Problème technique">Problème technique</option>
+                            <option value="Question sur une annonce">Question sur une annonce</option>
+                            <option value="Problème de paiement">Problème de paiement</option>
+                            <option value="Compte et connexion">Compte et connexion</option>
+                            <option value="Signalement d'un utilisateur">Signalement d'un utilisateur</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="supportMessage" class="form-label fw-semibold">
+                            <i class="bi bi-chat-dots me-1" style="color: #0B69F1;"></i> Votre message <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" id="supportMessage" rows="5" placeholder="Décrivez votre demande en détail..." required></textarea>
+                        <div class="form-text text-muted">Minimum 10 caractères. Soyez précis pour une réponse plus rapide.</div>
+                    </div>
+
+                    <div id="supportFormMessage" class="alert d-none"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-primary" id="sendSupportBtn" style="background: #0B69F1;">
+                    <i class="bi bi-envelope-paper me-2"></i> Envoyer la demande
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -494,6 +561,12 @@
     box-shadow: 0 10px 25px rgba(0,0,255,0.3) !important;
 }
 
+/* Style pour les champs de formulaire */
+.form-control:focus, .form-select:focus {
+    border-color: #0B69F1;
+    box-shadow: 0 0 0 0.2rem rgba(11, 105, 241, 0.25);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .faq-page {
@@ -507,6 +580,146 @@
     .support-cta {
         padding: 2rem !important;
     }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
 }
 </style>
+
+<!-- Bootstrap JS (si pas déjà inclus) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Initialisation du modal
+let supportModal = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const modalElement = document.getElementById('supportModal');
+    if (modalElement) {
+        supportModal = new bootstrap.Modal(modalElement);
+    }
+});
+
+// Ouvrir le modal
+document.getElementById('openSupportModalBtn')?.addEventListener('click', function() {
+    if (supportModal) {
+        supportModal.show();
+    } else {
+        const modalElement = document.getElementById('supportModal');
+        if (modalElement) {
+            supportModal = new bootstrap.Modal(modalElement);
+            supportModal.show();
+        }
+    }
+});
+
+// Envoi du formulaire de support
+document.getElementById('sendSupportBtn')?.addEventListener('click', function() {
+    const name = document.getElementById('supportName')?.value.trim();
+    const email = document.getElementById('supportEmail')?.value.trim();
+    const subject = document.getElementById('supportSubject')?.value;
+    const message = document.getElementById('supportMessage')?.value.trim();
+    const messageDiv = document.getElementById('supportFormMessage');
+
+    // Réinitialiser le message
+    messageDiv.classList.add('d-none');
+    messageDiv.innerHTML = '';
+
+    // Validation
+    if (!name) {
+        messageDiv.classList.remove('d-none');
+        messageDiv.classList.add('alert-danger');
+        messageDiv.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i> Veuillez entrer votre nom complet';
+        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        return;
+    }
+
+    if (!email) {
+        messageDiv.classList.remove('d-none');
+        messageDiv.classList.add('alert-danger');
+        messageDiv.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i> Veuillez entrer votre email';
+        return;
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
+        messageDiv.classList.remove('d-none');
+        messageDiv.classList.add('alert-danger');
+        messageDiv.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i> Veuillez entrer un email valide (exemple@domaine.com)';
+        return;
+    }
+
+    if (!subject) {
+        messageDiv.classList.remove('d-none');
+        messageDiv.classList.add('alert-danger');
+        messageDiv.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i> Veuillez sélectionner un sujet';
+        return;
+    }
+
+    if (!message) {
+        messageDiv.classList.remove('d-none');
+        messageDiv.classList.add('alert-danger');
+        messageDiv.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i> Veuillez écrire votre message';
+        return;
+    }
+
+    if (message.length < 10) {
+        messageDiv.classList.remove('d-none');
+        messageDiv.classList.add('alert-danger');
+        messageDiv.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i> Votre message est trop court (minimum 10 caractères)';
+        return;
+    }
+
+    // Construire le corps de l'email
+    const emailSubject = encodeURIComponent(`[Support Kopiao] ${subject} - ${name}`);
+    const emailBody = encodeURIComponent(
+        `Bonjour l'équipe Kopiao,\n\n` +
+        `--- INFORMATIONS CONTACT ---\n` +
+        `Nom complet : ${name}\n` +
+        `Email : ${email}\n` +
+        `Sujet : ${subject}\n\n` +
+        `--- MESSAGE ---\n` +
+        `${message}\n\n` +
+        `---\n` +
+        `Message envoyé depuis le formulaire d'aide de la page FAQ.\n` +
+        `Merci de me répondre à cette adresse : ${email}`
+    );
+
+    // Ouvrir le client email
+    window.location.href = `mailto:support@kopiao.com?subject=${emailSubject}&body=${emailBody}`;
+
+    // Afficher le message de succès
+    messageDiv.classList.remove('d-none', 'alert-danger');
+    messageDiv.classList.add('alert-success');
+    messageDiv.innerHTML = '<i class="bi bi-check-circle me-2"></i> Votre client email va s\'ouvrir. Il ne vous reste plus qu\'à envoyer le message.';
+
+    // Réinitialiser le formulaire après 1 seconde
+    setTimeout(() => {
+        document.getElementById('supportName').value = '';
+        document.getElementById('supportEmail').value = '';
+        document.getElementById('supportSubject').value = '';
+        document.getElementById('supportMessage').value = '';
+
+        // Fermer le modal après 2 secondes
+        setTimeout(() => {
+            if (supportModal) {
+                supportModal.hide();
+            }
+            messageDiv.classList.add('d-none');
+        }, 2000);
+    }, 1000);
+});
+
+// Réinitialiser le message d'erreur quand on modifie les champs
+const supportInputs = ['supportName', 'supportEmail', 'supportSubject', 'supportMessage'];
+supportInputs.forEach(id => {
+    document.getElementById(id)?.addEventListener('input', function() {
+        const messageDiv = document.getElementById('supportFormMessage');
+        messageDiv.classList.add('d-none');
+    });
+});
+</script>
+
+@stack('scripts')
+
 @endsection

@@ -2,22 +2,32 @@
 
 @section('content')
 <div class="annonces-liste-page">
-    <!-- Hero Section -->
-    <section class="hero-section py-5" style="background: linear-gradient(135deg, #0B69F1 0%, #0B69F1 100%);">
-        <div class="container">
+    <!-- Hero Section avec image de fond -->
+    <section class="hero-section py-5 position-relative" style="background: linear-gradient(135deg, rgba(35, 36, 36, 0.493) 0%, rgba(36, 36, 36, 0.568) 100%), url('{{ asset('images/1.webp') }}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        <div class="container position-relative" style="z-index: 2;">
             <div class="text-center text-white py-4">
                 <h1 class="display-4 fw-bold mb-3">Toutes les annonces</h1>
                 <p class="lead mb-4">Découvrez les {{ $stats['total'] }} missions disponibles et trouvez celle qui vous correspond</p>
 
-                <!-- Barre de recherche rapide -->
+                <!-- Barre de recherche rapide corrigée -->
                 <form action="{{ route('annoncesListe.liste') }}" method="GET" class="search-form mx-auto" style="max-width: 600px;">
-                    <div class="input-group">
-                        <input type="text" name="search" class="form-control form-control-lg border-0"
-                               placeholder="Rechercher par matière ou mot-clé..." value="{{ request('search') }}">
-                        <button class="btn btn-light btn-lg" type="submit">
-                            <i class="bi bi-search"></i>
+                    @csrf
+                    <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white">
+                        <input type="text" name="search" class="form-control form-control-lg border-0 py-3"
+                               placeholder="Rechercher par matière ou mot-clé..." value="{{ request('search') }}" style="outline: none; box-shadow: none;">
+                        <button class="btn btn-light btn-lg px-4" type="submit" style="background: white; border-left: 1px solid #e0e0e0;">
+                            <i class="bi bi-search" style="color: #0B69F1;"></i>
                         </button>
                     </div>
+                    <!-- Affichage du terme de recherche actif -->
+                    @if(request('search'))
+                        <div class="mt-2">
+                            <span class="badge bg-light text-dark">
+                                <i class="bi bi-search me-1"></i> Recherche : "{{ request('search') }}"
+                                <a href="{{ route('annoncesListe.liste') }}" class="text-decoration-none ms-2">&times;</a>
+                            </span>
+                        </div>
+                    @endif
                 </form>
             </div>
         </div>
@@ -53,7 +63,7 @@
                                 <i class="bi bi-coin me-1" style="color: #0B69F1;"></i> Budget min
                             </label>
                             <input type="number" name="budget_min" class="form-control"
-                                   placeholder="Min (FCFA)" value="{{ request('budget_min') }}">
+                                   placeholder="Min (FCFA)" value="{{ request('budget_min') }}" min="0">
                         </div>
 
                         <!-- Budget max -->
@@ -62,7 +72,7 @@
                                 <i class="bi bi-coin me-1" style="color: #0B69F1;"></i> Budget max
                             </label>
                             <input type="number" name="budget_max" class="form-control"
-                                   placeholder="Max (FCFA)" value="{{ request('budget_max') }}">
+                                   placeholder="Max (FCFA)" value="{{ request('budget_max') }}" min="0">
                         </div>
 
                         <!-- Format -->
@@ -120,7 +130,7 @@
                             </div>
                             <div>
                                 <span class="stat-value d-block fw-bold" style="color: #0B69F1; font-size: 1.5rem;">
-                                    {{ $stats['total'] }}
+                                    {{ $stats['total'] ?? 0 }}
                                 </span>
                                 <span class="stat-label text-muted">Annonces actives</span>
                             </div>
@@ -162,7 +172,7 @@
             </div>
 
             <!-- Grille des annonces -->
-            @if($annonces->count() > 0)
+            @if(isset($annonces) && $annonces->count() > 0)
                 <div class="annonces-grid">
                     @foreach($annonces as $annonce)
                         <div class="annonce-card bg-white rounded-4 shadow-sm overflow-hidden" data-aos="fade-up">
@@ -204,7 +214,6 @@
                                         @endif
                                     </div>
                                     <div>
-                                      
                                         <small class="text-muted">
                                             <i class="bi bi-clock"></i> {{ $annonce->created_at->diffForHumans() }}
                                         </small>
@@ -252,7 +261,6 @@
 .hero-section {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, #0B69F1 0%, #0B69F1 100%) !important;
 }
 
 .hero-section::before {
@@ -262,7 +270,7 @@
     right: -20%;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
     border-radius: 50%;
     animation: float 15s ease-in-out infinite;
 }
@@ -274,7 +282,7 @@
     left: -20%;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
     border-radius: 50%;
     animation: float 20s ease-in-out infinite reverse;
 }
@@ -286,26 +294,42 @@
 }
 
 .search-form .input-group {
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     border-radius: 50px;
     overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.search-form .input-group:focus-within {
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
 }
 
 .search-form input {
     padding: 15px 25px;
     font-size: 1.1rem;
+    border: none;
+}
+
+.search-form input:focus {
+    outline: none;
+    box-shadow: none;
 }
 
 .search-form button {
-    padding: 15px 30px;
     background: white;
-    color: #0B69F1;
     border: none;
+    transition: all 0.3s ease;
 }
 
 .search-form button:hover {
     background: #f8f9fa;
-    color: #0B69F1;
+}
+
+.search-form button:hover i {
+    transform: scale(1.1);
+}
+
+.search-form button i {
+    transition: transform 0.3s ease;
 }
 
 .filters-container {
@@ -317,12 +341,14 @@
     border: 2px solid #e0e0e0;
     border-radius: 10px;
     padding: 10px 12px;
+    transition: all 0.3s ease;
 }
 
 .filters-container .form-control:focus,
 .filters-container .form-select:focus {
     border-color: #0B69F1;
     box-shadow: 0 0 0 0.2rem rgba(11, 105, 241, 0.1);
+    outline: none;
 }
 
 .btn-primary {
@@ -331,12 +357,21 @@
     padding: 10px 25px;
     border-radius: 10px;
     font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
     background: #0855c4 !important;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(11, 105, 241, 0.3);
+}
+
+.btn-outline-secondary {
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    transform: translateY(-2px);
 }
 
 .annonces-grid {
@@ -376,6 +411,7 @@
 .stat-card {
     transition: all 0.3s ease;
     border: 1px solid rgba(0,0,0,0.05);
+    cursor: default;
 }
 
 .stat-card:hover {
@@ -428,6 +464,10 @@
 
     .hero-section h1 {
         font-size: 2rem;
+    }
+
+    .search-form {
+        padding: 0 15px;
     }
 }
 </style>

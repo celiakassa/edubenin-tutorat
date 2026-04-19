@@ -149,4 +149,6 @@ Route::post('/annonces/webhook/fedapay', [AnnonceController::class, 'webhook'])
     ->name('annonces.webhook.fedapay')
     ->withoutMiddleware([App\Http\Middleware\VerifyCsrfToken::class]);
 
+    
+
 require __DIR__.'/auth.php';
