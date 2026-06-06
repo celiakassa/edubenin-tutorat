@@ -1,39 +1,96 @@
 @extends('layouts.welcomeLayout')
 
 @section('content')
+<style>
+    /* ===== FAQ — style épuré (lignes + recherche) ===== */
+    .faq-page { background: var(--kp-surface); padding: 40px 0 56px !important; }
+    .faq-page > .container {
+        max-width: 800px; background: var(--kp-white);
+        border: 1px solid var(--kp-border); border-radius: var(--kp-radius);
+        box-shadow: var(--kp-shadow-sm); padding: 12px 34px 28px;
+    }
+
+    /* Hero */
+    .faqx-hero { text-align: center; padding: 22px 16px 20px; max-width: 720px; margin: 0 auto; }
+    .faqx-eyebrow {
+        display: inline-block; font-size: .74rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+        color: var(--kp-blue); background: var(--kp-blue-soft); padding: 5px 14px; border-radius: var(--kp-radius-pill); margin-bottom: 14px;
+    }
+    .faqx-title { font-family: var(--kp-font-title); font-weight: 800; font-size: clamp(1.7rem, 1.2rem + 2.4vw, 2.5rem); color: var(--kp-ink); margin: 0 0 10px; }
+    .faqx-sub { color: var(--kp-muted); font-size: 1.02rem; margin: 0 0 24px; }
+    .faqx-search {
+        display: flex; align-items: center; gap: 10px; max-width: 460px; margin: 0 auto;
+        background: var(--kp-white); border: 1px solid var(--kp-border); border-radius: var(--kp-radius-pill);
+        padding: 11px 20px; box-shadow: var(--kp-shadow-sm); transition: var(--kp-transition);
+    }
+    .faqx-search:focus-within { border-color: var(--kp-blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--kp-blue), transparent 85%); }
+    .faqx-search i { color: var(--kp-blue); }
+    .faqx-search input { flex: 1; border: none; outline: none; background: transparent; font-size: 1rem; color: var(--kp-text); }
+
+    /* Sections */
+    .faq-page section { margin-bottom: 34px !important; scroll-margin-top: 84px; }
+    .faq-page section > h2 {
+        font-family: var(--kp-font-title); font-size: 1.05rem !important; font-weight: 700; color: var(--kp-ink) !important;
+        border: none !important; padding: 0 !important; margin: 0 0 4px !important;
+        display: flex; align-items: center; gap: 9px;
+    }
+    .faq-page section > h2 i { color: var(--kp-blue); }
+
+    /* Sous-catégorie = petit libellé */
+    .faq-page .faq-category { margin-bottom: 4px !important; }
+    .faq-page .faq-category > h3 {
+        background: transparent !important; color: var(--kp-muted) !important; border: none !important; border-radius: 0 !important;
+        font-size: .74rem !important; font-weight: 700 !important; text-transform: uppercase; letter-spacing: .6px;
+        padding: 22px 0 2px !important; margin: 0 !important;
+    }
+
+    /* Accordéon = lignes minimalistes */
+    .faq-page .accordion {
+        --bs-accordion-bg: transparent;
+        --bs-accordion-active-color: var(--kp-blue);
+        --bs-accordion-active-bg: transparent;
+        --bs-accordion-btn-color: var(--kp-ink);
+        --bs-accordion-btn-bg: transparent;
+        --bs-accordion-btn-focus-box-shadow: none;
+        --bs-accordion-btn-icon-transform: none;
+        --bs-accordion-btn-icon-width: 20px;
+        --bs-accordion-btn-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%236b7280'%3e%3cpath d='M8 3.5a.5.5 0 0 1 .5.5v3.5H12a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0V8.5H4a.5.5 0 0 1 0-1h3.5V4a.5.5 0 0 1 .5-.5z'/%3e%3c/svg%3e");
+        --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230B69F1'%3e%3cpath d='M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z'/%3e%3c/svg%3e");
+    }
+    .faq-page .accordion-item {
+        background: transparent !important; border: none !important;
+        border-bottom: 1px solid var(--kp-border) !important; border-radius: 0 !important; margin: 0 !important; box-shadow: none !important;
+    }
+    .faq-page .accordion-button {
+        padding: 17px 0 !important; box-shadow: none !important;
+        background: transparent !important; border-radius: 0 !important;
+        font-family: var(--kp-font-title); font-weight: 600; font-size: 1rem; color: var(--kp-ink);
+    }
+    .faq-page .accordion-button:not(.collapsed) { background: transparent !important; color: var(--kp-blue) !important; box-shadow: none !important; }
+    .faq-page .accordion-button::after { margin-left: auto; flex-shrink: 0; }
+    .faq-page .accordion-body { padding: 0 0 18px !important; color: var(--kp-text); font-size: .94rem; line-height: 1.7; }
+    .faq-page .accordion-body ol, .faq-page .accordion-body ul { padding-left: 1.1rem; }
+
+    /* Recherche : masquage */
+    .faq-page .faq-hidden { display: none !important; }
+    .faq-noresult { display: none; text-align: center; color: var(--kp-muted); padding: 36px 0; }
+    .faq-noresult.show { display: block; }
+</style>
 <div class="faq-page py-5">
     <div class="container">
-        <!-- En-tête -->
-        <div class="text-center mb-5" data-aos="fade-up">
-            <h1 class="display-4 fw-bold" style="color: #0B69F1;">Foire Aux Questions</h1>
-            <p class="lead text-muted">Trouvez rapidement des réponses à vos questions</p>
-            <div class="divider mx-auto" style="width: 80px; height: 4px; background: #0B69F1; border-radius: 2px;"></div>
+        <!-- Hero -->
+        <div class="faqx-hero">
+            <h1 class="faqx-title">Foire aux questions</h1>
+            <p class="faqx-sub">Trouvez rapidement des réponses à vos questions</p>
+            <div class="faqx-search">
+                <i class="bi bi-search"></i>
+                <input type="text" id="faqSearch" placeholder="Rechercher une question…" autocomplete="off">
+            </div>
         </div>
 
-        <!-- Navigation des catégories -->
-        <div class="category-nav mb-5" data-aos="fade-up">
-            <div class="row justify-content-center g-3">
-                <div class="col-md-3 col-6">
-                    <a href="#etudiants" class="category-link text-decoration-none">
-                        <div class="category-card bg-white rounded-4 shadow-sm p-3 text-center">
-                            <div class="category-icon mb-2">
-                                <i class="bi bi-mortarboard" style="font-size: 2rem; color: #0B69F1;"></i>
-                            </div>
-                            <span class="fw-semibold" style="color: #333;">Apprenants</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-md-3 col-6">
-                    <a href="#tuteurs" class="category-link text-decoration-none">
-                        <div class="category-card bg-white rounded-4 shadow-sm p-3 text-center">
-                            <div class="category-icon mb-2">
-                                <i class="bi bi-person-workspace" style="font-size: 2rem; color: #00a36c;"></i>
-                            </div>
-                            <span class="fw-semibold" style="color: #333;">Tuteurs</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
+        <div class="faq-noresult" id="faqNoResult">
+            <i class="bi bi-search" style="font-size: 2rem; opacity: .4;"></i>
+            <p class="mt-2 mb-0">Aucune question ne correspond à votre recherche.</p>
         </div>
 
         <!-- Section Apprenants -->
@@ -245,7 +302,7 @@
 
         <!-- Section Tuteurs -->
         <section id="tuteurs" class="mb-5" data-aos="fade-up">
-            <h2 class="fw-bold mb-4 pb-2" style="color: #00a36c; border-bottom: 3px solid #00a36c;">
+            <h2 class="fw-bold mb-4 pb-2" style="color: var(--kp-blue); border-bottom: 3px solid var(--kp-blue);">
                 <i class="bi bi-person-workspace me-2"></i>Espace Tuteurs
             </h2>
 
@@ -718,6 +775,51 @@ supportInputs.forEach(id => {
         messageDiv.classList.add('d-none');
     });
 });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Clic en dehors d'une question → on la referme
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.faq-page .accordion-item')) return;
+            document.querySelectorAll('.faq-page .accordion-collapse.show').forEach(function (el) {
+                bootstrap.Collapse.getOrCreateInstance(el).hide();
+            });
+        });
+
+        const input = document.getElementById('faqSearch');
+        const noResult = document.getElementById('faqNoResult');
+        if (!input) return;
+
+        const items = Array.from(document.querySelectorAll('.faq-page .accordion-item'));
+        const cats = Array.from(document.querySelectorAll('.faq-page .faq-category'));
+        const sections = Array.from(document.querySelectorAll('.faq-page section'));
+
+        input.addEventListener('input', function () {
+            const q = this.value.trim().toLowerCase();
+            let any = false;
+
+            items.forEach(item => {
+                const btn = item.querySelector('.accordion-button');
+                const body = item.querySelector('.accordion-body');
+                const text = ((btn ? btn.textContent : '') + ' ' + (body ? body.textContent : '')).toLowerCase();
+                const match = q === '' || text.includes(q);
+                item.classList.toggle('faq-hidden', !match);
+                if (match) any = true;
+            });
+
+            cats.forEach(cat => {
+                const visible = cat.querySelectorAll('.accordion-item:not(.faq-hidden)').length;
+                cat.classList.toggle('faq-hidden', visible === 0);
+            });
+            sections.forEach(sec => {
+                const visible = sec.querySelectorAll('.accordion-item:not(.faq-hidden)').length;
+                sec.classList.toggle('faq-hidden', visible === 0);
+            });
+
+            noResult.classList.toggle('show', !any);
+        });
+    });
 </script>
 
 @stack('scripts')
