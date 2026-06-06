@@ -42,6 +42,9 @@
     <!-- Main CSS File -->
     <link href="{{ asset('css/welcome.css') }}" rel="stylesheet">
 
+    <!-- Kopiao Design System (Phase 0) — tokens & composants unifiés -->
+    <link href="{{ asset('css/kopiao-ui.css') }}" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <!-- AOS Animation Library -->
@@ -62,138 +65,266 @@
     @stack('styles')
 
     <style>
-        /* Menu Burger Styles */
-        .burger-menu {
-            display: none;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 10px;
-            z-index: 1001;
+        /* ===================================================================
+           NAVBAR KOPIAO — minimaliste, fond bleu plein, responsive.
+           Toutes les couleurs viennent des variables du design system
+           (kopiao-ui.css). Aucune valeur hex en dur ici.
+           =================================================================== */
+
+        /* Bandeau bleu plein, hauteur stable, sans barre grise interne */
+        .header {
+            background-color: var(--kp-blue);
+            padding: 0;
+            z-index: 997;
+            box-shadow: var(--kp-shadow-sm);
+            transition: none;
+        }
+        .header .header-container {
+            background: transparent;
+            border-radius: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-bottom: 0;
+            min-height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
         }
 
-        .burger-icon {
-            width: 30px;
-            height: 3px;
-            background-color: white;
+        /* Logo « Kopiao » en blanc, sans pastille */
+        .header .logo,
+        .logo {
+            background: transparent !important;
+            padding: 0;
+            border-radius: 0;
+            display: inline-flex;
+            align-items: center;
+            order: 0 !important;            /* neutralise l'inversion de welcome.css */
+        }
+        .header .logo:hover,
+        .logo:hover {
+            background: transparent !important;
+            transform: none;
+        }
+        .header .logo h1,
+        .logo h1 {
+            color: var(--kp-white);
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: .3px;
+        }
+
+        /* Liens de navigation (desktop) */
+        .desktop-menu {
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+            order: 1 !important;
+        }
+        .nav-link-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 16px;
+            color: rgba(255, 255, 255, .9);
+            font-size: 15px;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: var(--kp-radius-pill);
+            transition: var(--kp-transition);
+        }
+        .nav-link-item:hover {
+            color: var(--kp-white);
+            background: rgba(255, 255, 255, .14);
+        }
+        .nav-link-item.is-active {
+            color: var(--kp-white);
+            background: transparent;
             position: relative;
-            transition: all 0.3s ease;
         }
-
-        .burger-icon::before,
-        .burger-icon::after {
+        .nav-link-item.is-active::after {
             content: '';
             position: absolute;
-            width: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 4px;
+            width: 20px;
             height: 3px;
-            background-color: white;
-            transition: all 0.3s ease;
+            background: var(--kp-yellow);
+            border-radius: 3px;
         }
 
-        .burger-icon::before {
-            top: -8px;
-        }
-
-        .burger-icon::after {
-            bottom: -8px;
-        }
-
-        /* Animation du burger quand le menu est ouvert */
-        .burger-menu.active .burger-icon {
-            background-color: transparent;
-        }
-
-        .burger-menu.active .burger-icon::before {
-            transform: rotate(45deg);
-            top: 0;
-        }
-
-        .burger-menu.active .burger-icon::after {
-            transform: rotate(-45deg);
-            bottom: 0;
-        }
-
-        /* Sidebar Menu */
-        .sidebar-menu {
-            position: fixed;
-            top: 0;
-            left: -300px;
-            width: 280px;
-            height: 100%;
-            background: linear-gradient(135deg, #0B69F1, #004aad);
-            z-index: 1002;
-            transition: left 0.3s ease;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
-        }
-
-        .sidebar-menu.active {
-            left: 0;
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            display: flex;
-            justify-content: space-between;
+        /* Bouton « Se connecter » : blanc sur bleu */
+        .nav-login-btn {
+            display: inline-flex;
             align-items: center;
+            gap: 6px;
+            padding: 9px 20px;
+            margin-left: .35rem;
+            background: var(--kp-yellow);
+            color: #1a1a1a;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: var(--kp-radius-pill);
+            transition: var(--kp-transition);
+        }
+        .nav-login-btn:hover {
+            background: var(--kp-white);
+            color: var(--kp-blue);
         }
 
-        .sidebar-header h3 {
-            margin: 0;
-            color: white;
-            font-weight: bold;
-        }
-
-        .close-btn {
-            background: none;
+        /* Menu profil (utilisateur connecté) */
+        .nav-profile { position: relative; margin-left: .35rem; }
+        .nav-profile__btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 14px 5px 5px;
+            background: rgba(255, 255, 255, .14);
+            color: var(--kp-white);
             border: none;
-            color: white;
-            font-size: 28px;
+            border-radius: var(--kp-radius-pill);
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
+            transition: var(--kp-transition);
+        }
+        .nav-profile__btn:hover { background: rgba(255, 255, 255, .24); }
+        .nav-profile__avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--kp-white);
+            color: var(--kp-blue);
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            transition: background 0.3s;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
         }
-
-        .close-btn:hover {
-            background: rgba(255,255,255,0.2);
+        .nav-profile__btn .bi-chevron-down { font-size: 12px; transition: var(--kp-transition); }
+        .nav-profile.open .nav-profile__btn .bi-chevron-down { transform: rotate(180deg); }
+        .nav-profile__menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 12px);
+            min-width: 220px;
+            background: var(--kp-white);
+            border: 1px solid var(--kp-border);
+            border-radius: var(--kp-radius-sm);
+            box-shadow: var(--kp-shadow-lg);
+            padding: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: var(--kp-transition);
+            z-index: 1000;
         }
-
-        .sidebar-links {
-            padding: 20px 0;
+        .nav-profile.open .nav-profile__menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
+        .nav-profile__item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--kp-text);
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: left;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--kp-transition);
+        }
+        .nav-profile__item i { font-size: 1rem; width: 18px; color: var(--kp-muted); }
+        .nav-profile__item:hover { background: var(--kp-blue-soft); color: var(--kp-blue-dark); }
+        .nav-profile__item:hover i { color: var(--kp-blue); }
+        .nav-profile__sep { margin: 6px 4px; border: 0; border-top: 1px solid var(--kp-border); }
+        .nav-profile__item--danger { color: #dc3545; }
+        .nav-profile__item--danger i { color: #dc3545; }
+        .nav-profile__item--danger:hover { background: #fdecec; color: #b02a37; }
+        .nav-profile__item--danger:hover i { color: #b02a37; }
 
+        /* ===== Burger (mobile / tablette) — blanc sur bleu, soigné ===== */
+        .burger-menu {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            background: none;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 1001;
+            order: 1 !important;
+            transition: var(--kp-transition);
+        }
+        .burger-menu:hover { background: rgba(255, 255, 255, .14); }
+        .burger-icon,
+        .burger-icon::before,
+        .burger-icon::after {
+            width: 24px;
+            height: 2.5px;
+            background-color: var(--kp-white);
+            border-radius: 2px;
+            transition: all .3s ease;
+        }
+        .burger-icon { position: relative; display: block; }
+        .burger-icon::before,
+        .burger-icon::after { content: ''; position: absolute; left: 0; }
+        .burger-icon::before { top: -7px; }
+        .burger-icon::after { top: 7px; }
+        .burger-menu.active .burger-icon { background-color: transparent; }
+        .burger-menu.active .burger-icon::before { transform: rotate(45deg); top: 0; }
+        .burger-menu.active .burger-icon::after { transform: rotate(-45deg); top: 0; }
+
+        /* ===== Drawer mobile : glisse depuis la DROITE, sous la navbar ===== */
+        .sidebar-menu {
+            position: fixed;
+            top: 64px;
+            right: -340px;
+            width: 300px;
+            max-width: 86vw;
+            height: calc(100% - 64px);
+            background: var(--kp-blue);
+            z-index: 1002;
+            transition: right .32s ease;
+            box-shadow: -8px 0 28px rgba(0, 0, 0, .18);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .sidebar-menu.active { right: 0; }
+        .sidebar-header { display: none; }   /* le drawer démarre déjà sous la navbar */
+        .sidebar-links { padding: 14px; display: flex; flex-direction: column; gap: 4px; }
         .sidebar-link {
             display: flex;
             align-items: center;
-            padding: 15px 25px;
-            color: white;
+            gap: 12px;
+            padding: 14px 16px;
+            color: var(--kp-white);
             text-decoration: none;
-            transition: background 0.3s;
-            border-left: 3px solid transparent;
-        }
-
-        .sidebar-link:hover {
-            background: rgba(255,255,255,0.1);
-            border-left-color: #ffc107;
-        }
-
-        .sidebar-link i {
-            margin-right: 12px;
-            font-size: 1.2rem;
-            width: 24px;
-        }
-
-        .sidebar-link span {
-            font-size: 1rem;
+            border-radius: 12px;
             font-weight: 500;
+            border-left: none;
+            transition: var(--kp-transition);
         }
-
+        .sidebar-link i { font-size: 1.15rem; width: 22px; text-align: center; }
+        .sidebar-link span { font-size: 1rem; font-weight: 500; }
+        .sidebar-link:hover,
+        .sidebar-link.is-active { background: rgba(255, 255, 255, .14); }
         .logout-btn {
             background: none;
             width: 100%;
@@ -202,84 +333,31 @@
             cursor: pointer;
         }
 
-        /* Overlay */
+        /* Overlay : démarre aussi sous la navbar */
         .menu-overlay {
             position: fixed;
-            top: 0;
+            top: 64px;
             left: 0;
             width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
+            height: calc(100% - 64px);
+            background: rgba(0, 0, 0, .45);
             z-index: 1001;
             display: none;
         }
+        .menu-overlay.active { display: block; }
+        body.menu-open { overflow: hidden; }
 
-        .menu-overlay.active {
-            display: block;
-        }
-
-        body.menu-open {
-            overflow: hidden;
-        }
-
-        /* Style du logo Kopiao en bleu #0B69F1 */
-        .logo {
-            background-color: #0B69F1 !important;
-            padding: 8px 20px;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            display: inline-flex;
-        }
-
-        .logo:hover {
-            background-color: #0056b3 !important;
-            transform: scale(1.05);
-        }
-
-        .logo h1 {
-            color: white;
-            margin: 0;
-            font-size: 1.5rem;
-        }
-
-        /* Header container - logo à gauche, burger à droite */
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        /* Desktop menu - visible sur grand écran */
-        .desktop-menu {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        /* Styles pour mobile */
+        /* ===== Breakpoints ===== */
         @media (max-width: 991px) {
-            .burger-menu {
-                display: block;
-            }
-
-            .desktop-menu {
-                display: none !important;
-            }
-
-            .logo {
-                order: 0;
-            }
-
-            .burger-menu {
-                order: 1;
-            }
+            .header .header-container { min-height: 58px; }
+            .sidebar-menu { top: 58px; height: calc(100% - 58px); }
+            .menu-overlay { top: 58px; height: calc(100% - 58px); }
+            .burger-menu { display: inline-flex; }
+            .desktop-menu { display: none !important; }
         }
-
         @media (min-width: 992px) {
-            .burger-menu {
-                display: none !important;
-            }
+            .burger-menu { display: none !important; }
+            .desktop-menu { display: flex; }
         }
 
         /* Animation des liens footer */
@@ -287,98 +365,88 @@
             transition: all 0.3s ease;
             display: inline-block;
         }
-
         .footer-links ul li a:hover {
-            color: #ffc107 !important;
+            color: var(--kp-yellow) !important;
             transform: translateX(5px);
         }
 
         /* Animation réseaux sociaux */
-        .social-links a {
+        .footer .social-links a {
+            width: auto;
+            height: auto;
+            border: none;
+            border-radius: 0;
             transition: all 0.3s ease;
             display: inline-block;
         }
-
-        .social-links a:hover {
+        .footer .social-links a:hover {
             transform: translateY(-3px);
-            color: #ffc107 !important;
+            color: var(--kp-yellow) !important;
+            border-color: transparent;
         }
     </style>
 </head>
 
 <body>
 
-<header id="header" class="header d-flex align-items-center fixed-top" style="background-color: #0B69F1;">
-    <div class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between"
-        style="margin-bottom: 35px;">
+<header id="header" class="header fixed-top">
+    <div class="header-container container-fluid container-xl">
 
-        <!-- Logo à gauche avec couleur bleue #0B69F1 -->
-        <a href="{{ url('/') }}" class="logo d-flex align-items-center text-white text-decoration-none">
-            <h1 class="sitename fw-bold mb-0">Kopiao</h1>
+        <!-- Logo « Kopiao » en blanc, à gauche -->
+        <a href="{{ url('/') }}" class="logo text-decoration-none">
+            <h1 class="sitename mb-0">Kopiao</h1>
         </a>
 
-        <!-- Menu principal desktop -->
-        <nav class="desktop-menu d-flex align-items-center gap-2">
-            <ul class="d-flex list-unstyled mb-0 align-items-center gap-2">
-                <li>
-                    <a class="btn btn-primary fw-semibold text-light px-4 py-2 rounded-pill text-decoration-none"
-                        href="{{ route('annoncesListe.liste') }}">
-                        Annonces
-                    </a>
-                </li>
-
-                <li>
-                    <a class="btn btn-primary fw-semibold text-light px-4 py-2 rounded-pill text-decoration-none"
-                        href="{{ route('demandesliste.liste') }}">
-                        Demandes
-                    </a>
-                </li>
-
-                <li>
-                    <a class="btn btn-primary fw-semibold text-light px-4 py-2 rounded-pill text-decoration-none"
-                        href="{{ route('faq') }}">
-                        FAQ
-                    </a>
-                </li>
-            </ul>
+        <!-- Menu principal desktop : liens à droite -->
+        <nav class="desktop-menu">
+            <a class="nav-link-item {{ request()->routeIs('annoncesListe.*') ? 'is-active' : '' }}" href="{{ route('annoncesListe.liste') }}">Annonces</a>
+            <a class="nav-link-item {{ request()->routeIs('demandesliste.*') ? 'is-active' : '' }}" href="{{ route('demandesliste.liste') }}">Demandes</a>
+            <a class="nav-link-item {{ request()->routeIs('faq') ? 'is-active' : '' }}" href="{{ route('faq') }}" style="margin-right: 1.75rem;">FAQ</a>
 
             @auth
-                <div class="d-flex gap-2">
-                    <!-- Bouton Tableau de bord pour utilisateur connecté -->
-                    <a class="btn btn-success fw-semibold text-light px-4 py-2 rounded-pill text-decoration-none"
-                        href="{{ route('dashboardUser') }}">
-                        <i class="bi bi-speedometer2 me-1"></i> Tableau de bord
-                    </a>
-
-                    <form method="POST" action="{{ route('logout') }}" class="m-0">
-                        @csrf
-                        <button type="submit" class="btn btn-danger fw-semibold px-4 py-2 rounded-pill">
-                            <i class="bi bi-box-arrow-right me-2"></i> Se déconnecter
-                        </button>
-                    </form>
+                <div class="nav-profile" id="navProfile">
+                    <button type="button" class="nav-profile__btn" id="navProfileBtn" aria-haspopup="true" aria-expanded="false">
+                        <span class="nav-profile__avatar">{{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}</span>
+                        <span class="d-none d-xl-inline">{{ auth()->user()->name ?? 'Mon compte' }}</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                    <div class="nav-profile__menu">
+                        <a class="nav-profile__item" href="{{ route('dashboardUser') }}">
+                            <i class="bi bi-grid-1x2"></i> Tableau de bord
+                        </a>
+                        <a class="nav-profile__item" href="{{ route('profile.edit') }}">
+                            <i class="bi bi-person"></i> Mon profil
+                        </a>
+                        <hr class="nav-profile__sep">
+                        <form method="POST" action="{{ route('logout') }}" class="m-0">
+                            @csrf
+                            <button type="submit" class="nav-profile__item nav-profile__item--danger">
+                                <i class="bi bi-box-arrow-right"></i> Se déconnecter
+                            </button>
+                        </form>
+                    </div>
                 </div>
             @else
-                <a class="btn btn-warning bg-light fw-semibold text-dark px-4 py-2 rounded-pill" href="{{ route('login') }}">
+                <a class="nav-login-btn" href="{{ route('login') }}">
                     Se connecter
                 </a>
             @endauth
         </nav>
 
-        <!-- Burger Menu Button à droite -->
-        <button class="burger-menu" id="burgerBtn">
-            <div class="burger-icon"></div>
+        <!-- Burger (mobile / tablette) -->
+        <button class="burger-menu" id="burgerBtn" aria-label="Ouvrir le menu">
+            <span class="burger-icon"></span>
         </button>
     </div>
 </header>
 
-<!-- Sidebar Menu Mobile -->
+<!-- Drawer Mobile (glisse depuis la droite, sous la navbar) -->
 <div class="sidebar-menu" id="sidebarMenu">
     <div class="sidebar-header">
-        <h3>Kopiao</h3>
+        <h3>Menu</h3>
         <button class="close-btn" id="closeMenuBtn">×</button>
     </div>
     <div class="sidebar-links">
-        <br><br>
         <a href="{{ url('/') }}" class="sidebar-link">
             <i class="bi bi-house"></i>
             <span>Accueil</span>
@@ -401,10 +469,13 @@
         </a>
 
         @auth
-            <!-- Bouton Tableau de bord dans le sidebar -->
-            <a href="{{ route('dashboardUser') }}" class="sidebar-link" style="border-left-color: #ffc107; background: rgba(255,255,255,0.05);">
-                <i class="bi bi-speedometer2"></i>
+            <a href="{{ route('dashboardUser') }}" class="sidebar-link">
+                <i class="bi bi-grid-1x2"></i>
                 <span>Tableau de bord</span>
+            </a>
+            <a href="{{ route('profile.edit') }}" class="sidebar-link">
+                <i class="bi bi-person"></i>
+                <span>Mon profil</span>
             </a>
 
             <form method="POST" action="{{ route('logout') }}" class="m-0">
@@ -431,7 +502,7 @@
 </main>
 
 <footer id="footer" class="footer position-relative text-white"
-    style="background: linear-gradient(135deg, #0d6efd, #004aad); padding-top: 60px;">
+    style="background: linear-gradient(135deg, var(--kp-blue), var(--kp-blue-dark)); padding-top: 60px;">
 
     <div class="container footer-top pb-5 border-bottom border-light">
         <div class="row gy-4">
@@ -461,7 +532,7 @@
 
             <!-- Liens rapides - Augmentés -->
             <div class="col-lg-2 col-md-3 footer-links">
-                <h4 class="text-warning fw-semibold mb-3">Liens utiles</h4>
+                <h4 class="footer-title">Liens utiles</h4>
                 <ul class="list-unstyled">
                     <li class="mb-2"><a href="{{ url('/') }}" class="text-white-50 text-decoration-none">
                         <i class="bi bi-chevron-right me-1"></i> Accueil
@@ -488,7 +559,7 @@
 
             <!-- Nos Services -->
             <div class="col-lg-3 col-md-3 footer-links">
-                <h4 class="text-warning fw-semibold mb-3">Nos Services</h4>
+                <h4 class="footer-title">Nos Services</h4>
                 <ul class="list-unstyled">
                     <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">
                         <i class="bi bi-chevron-right me-1"></i> Cours particuliers
@@ -507,16 +578,14 @@
 
             <!-- Newsletter - Version mailto simple -->
             <div class="col-lg-3 col-md-6 footer-newsletter">
-                <h4 class="text-warning fw-semibold mb-3">Restez informé</h4>
+                <h4 class="footer-title">Restez informé</h4>
                 <p class="text-white-50">Abonnez-vous pour recevoir nos dernières actualités et offres spéciales.</p>
 
                 <form id="newsletterForm" class="mt-3">
-                    <div class="d-flex">
-                        <input type="email" id="newsletterEmail" name="email" class="form-control me-2 border-0 rounded-start"
-                            placeholder="Votre e-mail" style="background-color: #f8fbff;" required>
-                        <button type="submit" class="btn btn-warning text-white fw-semibold px-3 rounded-end">
-                            S'abonner
-                        </button>
+                    <div class="footer-newsletter-group">
+                        <input type="email" id="newsletterEmail" name="email" class="kp-field"
+                            placeholder="Votre e-mail" required>
+                        <button type="submit" class="kp-btn kp-btn--accent">S'abonner</button>
                     </div>
                     <div id="newsletterMessage" class="mt-2 small"></div>
                 </form>
@@ -525,13 +594,15 @@
     </div>
 
     <!-- Bas du footer -->
-    <div class="container text-center py-3">
-        <p class="mb-1 text-white-50">© <strong>Kopiao</strong> — Tous droits réservés.</p>
-        <p class="mb-0 small text-white-50">
-            <a href="#" class="text-white-50 text-decoration-none">Mentions légales</a> |
-            <a href="#" class="text-white-50 text-decoration-none">Politique de confidentialité</a> |
-            <a href="#" class="text-white-50 text-decoration-none">CGU</a>
-        </p>
+    <div class="container py-3">
+        <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-center gap-2 text-center text-md-start">
+            <p class="mb-0 text-white-50">© <strong>Kopiao</strong> — Tous droits réservés.</p>
+            <p class="mb-0 small text-white-50">
+                <a href="#" class="text-white-50 text-decoration-none">Mentions légales</a> |
+                <a href="#" class="text-white-50 text-decoration-none">Politique de confidentialité</a> |
+                <a href="#" class="text-white-50 text-decoration-none">CGU</a>
+            </p>
+        </div>
     </div>
 </footer>
 
@@ -611,6 +682,23 @@
     document.querySelectorAll('.sidebar-link').forEach(link => {
         link.addEventListener('click', closeMenu);
     });
+
+    // Menu profil (dropdown) — ouverture/fermeture
+    const navProfile = document.getElementById('navProfile');
+    const navProfileBtn = document.getElementById('navProfileBtn');
+    if (navProfile && navProfileBtn) {
+        navProfileBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const open = navProfile.classList.toggle('open');
+            navProfileBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        document.addEventListener('click', function (e) {
+            if (!navProfile.contains(e.target)) {
+                navProfile.classList.remove('open');
+                navProfileBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
 
     // Initialisation du Modal Bootstrap
     let contactModal = null;
@@ -761,12 +849,12 @@
 
 <style>
     body .main {
-        padding-top: 120px;
+        padding-top: 64px;   /* = hauteur navbar desktop → le contenu démarre pile sous la navbar */
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 991px) {
         body .main {
-            padding-top: 100px;
+            padding-top: 58px;   /* = hauteur navbar tablette/mobile */
         }
     }
 

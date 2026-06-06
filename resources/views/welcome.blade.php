@@ -2,184 +2,217 @@
 
 @section('content')
     <!-- Hero Section -->
-    <section id="hero" class="hero section">
+    <style>
+        /* Hero */
+        .kp-hero {
+            padding-top: 44px;   /* espace sous la navbar */
+            padding-bottom: 32px;   /* collé aux stats */
+            background: linear-gradient(180deg, var(--kp-blue-soft), #ffffff 55%);
+            overflow: hidden;
+        }
+        .kp-hero__grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+        }
+        .kp-hero__content { order: 0; }     /* texte d'abord */
+        .kp-hero__media   { order: 1; }
+        .kp-hero .kp-display { color: var(--kp-blue); }   /* titre « Kopiao » en bleu de marque */
+        .kp-hero__subtitle {
+            color: var(--kp-blue);
+            font-family: var(--kp-font-title);
+            font-weight: 600;
+            font-size: clamp(1.05rem, .98rem + .5vw, 1.25rem);
+            line-height: 1.4;
+            margin: 0 0 1.5rem;
+        }
+
+        /* Barre de recherche : pill propre, sans bordures internes */
+        .kp-search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--kp-white);
+            border: 2px solid var(--kp-yellow);
+            border-radius: var(--kp-radius-pill);
+            padding: 6px 6px 6px 18px;
+            box-shadow: var(--kp-shadow-sm);
+        }
+        .kp-search__icon { color: var(--kp-yellow); font-size: 1.1rem; flex: 0 0 auto; }
+        .kp-search__input {
+            flex: 1 1 auto;
+            min-width: 0;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 15px;
+            color: var(--kp-text);
+            padding: 10px 4px;
+        }
+        .kp-search__input::placeholder { color: var(--kp-muted); }
+        .kp-search__btn { flex: 0 0 auto; }
+
+        /* Image + badges */
+        .kp-hero__image-wrap { position: relative; }
+        .kp-hero__image {
+            width: 100%;
+            height: auto;
+            border-radius: var(--kp-radius);
+            box-shadow: var(--kp-shadow-lg);
+            display: block;
+        }
+        .kp-hero__badges {
+            position: absolute;
+            left: 16px;
+            bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .kp-hero__badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--kp-white);
+            border-radius: var(--kp-radius-pill);
+            padding: 8px 16px 8px 8px;
+            box-shadow: var(--kp-shadow);
+        }
+        .kp-hero__badge-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--kp-yellow);    /* cercle jaune */
+            color: #1a1a1a;                  /* icône foncée */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            flex: 0 0 auto;
+        }
+        .kp-hero__badge-text { display: flex; flex-direction: column; line-height: 1.15; white-space: nowrap; }
+        .kp-hero__badge-text strong { color: var(--kp-ink); font-size: .95rem; font-weight: 700; }
+        .kp-hero__badge-text small  { color: var(--kp-muted); font-size: .75rem; }
+
+        /* ===== STATS — juste après la hero, informatives, sans hover ===== */
+        .kp-stats { padding: 0 0 var(--kp-section-py); background: #fff; }   /* haut collé à la hero */
+        .kp-stats__grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .kp-stat {
+            background: var(--kp-surface);
+            border: 1px solid var(--kp-border);
+            border-radius: var(--kp-radius);
+            padding: 22px 16px;
+            text-align: center;
+        }
+        .kp-stat__number {
+            color: var(--kp-blue);
+            font-family: var(--kp-font-title);
+            font-weight: 700;
+            font-size: clamp(1.4rem, 1.1rem + 1vw, 1.875rem);
+            margin: 0 0 4px;
+            line-height: 1;
+        }
+        .kp-stat__label { color: var(--kp-muted); font-size: .875rem; margin: 0; }
+
+        /* ----- Tablette (≤991px) : une colonne, TEXTE avant image ----- */
+        @media (max-width: 991px) {
+            .kp-hero { padding-top: 32px; padding-bottom: 40px; }
+            .kp-hero__grid { grid-template-columns: 1fr; gap: 28px; }
+            .kp-hero__content { order: 0; text-align: center; }
+            .kp-hero__media   { order: 1; }
+            .kp-hero__search  { max-width: 560px; margin-inline: auto; }
+            .kp-hero__image   { max-width: 520px; margin: 0 auto; }
+        }
+
+        /* ----- Mobile (≤575px) : sous-titre (en titre) → image → recherche ; « Kopiao » masqué ----- */
+        @media (max-width: 575px) {
+            .kp-hero { padding-top: 44px; }
+            /* on aplatit les 2 colonnes pour ordonner librement les éléments */
+            .kp-hero__content,
+            .kp-hero__media { display: contents; }
+            .kp-hero .kp-display { display: none; }   /* « Kopiao » masqué en mobile */
+            .kp-hero__subtitle {
+                order: 0;
+                font-size: clamp(1.5rem, 1.1rem + 3vw, 1.9rem);   /* devient le titre */
+                font-weight: 700;
+                line-height: 1.25;
+                margin: 0;
+                text-align: center;
+            }
+            .kp-hero__image-wrap { order: 1; }
+            .kp-hero__search { order: 2; }
+            .kp-search { flex-wrap: wrap; border-radius: 18px; padding: 8px 8px 8px 16px; }
+            .kp-search__btn { width: 100%; }
+            /* badges chevauchant le bas de l'image */
+            .kp-hero__badges {
+                left: 50%;
+                bottom: -18px;
+                transform: translateX(-50%);
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+                max-width: 92%;
+            }
+            .kp-stats__grid { gap: 10px; }
+            .kp-stat { padding: 16px 8px; }
+        }
+    </style>
+
+    <section class="kp-hero">
         <div class="container">
-            <div class="row align-items-center">
-                <!-- Partie gauche avec la barre de recherche -->
-                <div class="col-lg-6">
-                    <h1 class="hero-title mb-4">Kopiao</h1>
+            <div class="kp-hero__grid">
+                <!-- Texte -->
+                <div class="kp-hero__content">
+                    <h1 class="kp-display">Kopiao</h1>
+                    <p class="kp-hero__subtitle">Trouvez le tuteur idéal pour réussir vos études</p>
 
-                    <p class="hero-subtitle mb-4" style="color: #0B69F1;">Trouvez le tuteur idéal pour réussir vos études</p>
-
-                    <!-- Barre de recherche principale -->
-                    <form action="{{ route('recherche.tuteur') }}" method="GET" class="search-main-form mb-4">
-                        <div class="search-wrapper">
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0">
-                                    <i class="bi bi-search text-primary"></i>
-                                </span>
-                                <input type="text" name="search"
-                                    class="form-control form-control-lg border-start-0 ps-0"
-                                    placeholder="Rechercher un tuteur, une matière, une ville..."
-                                    value="{{ $searchQuery }}">
-                                <button type="submit" class="btn btn-primary btn-lg px-4">
-                                    Rechercher
-                                </button>
-                            </div>
+                    <form action="{{ route('recherche.tuteur') }}" method="GET" class="kp-hero__search">
+                        <div class="kp-search">
+                            <i class="bi bi-search kp-search__icon"></i>
+                            <input type="text" name="search" class="kp-search__input"
+                                placeholder="Rechercher un tuteur, une matière, une ville..."
+                                value="{{ $searchQuery }}">
+                            <button type="submit" class="kp-btn kp-btn--accent kp-search__btn">
+                                <i class="bi bi-search"></i> Rechercher
+                            </button>
                         </div>
 
-                        <!-- Filtres rapides -->
-                        <div class="filters-wrapper mt-4">
-                            <div class="row g-2">
-                                <!-- Filtre par matière -->
-                                <div class="col-md-6">
-                                    <select name="subject" class="form-select filter-select">
-                                        <option value="">Toutes les matières</option>
-                                        @foreach ($allSubjects as $subject)
-                                            <option value="{{ $subject }}"
-                                                {{ $selectedSubject == $subject ? 'selected' : '' }}>
-                                                {{ $subject }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <!-- Filtre par ville (basé sur la base de données) -->
-                                <div class="col-md-6">
-                                    <select name="city" class="form-select filter-select">
-                                        <option value="">Toutes les villes</option>
-                                        @foreach ($allCities as $city)
-                                            <option value="{{ $city }}"
-                                                {{ $selectedCity == $city ? 'selected' : '' }}>
-                                                {{ $city }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Bouton pour effacer les filtres (visible si des filtres sont appliqués) -->
                         @if ($searchQuery || $selectedSubject || $selectedCity || $selectedPreference || $selectedPriceRange)
-                            <div class="mt-3 text-end">
-                                <a href="{{ route('home') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-x-circle"></i> Effacer tous les filtres
+                            <div class="mt-3 text-center text-lg-start">
+                                <a href="{{ route('home') }}" class="kp-btn kp-btn--ghost kp-btn--sm">
+                                    <i class="bi bi-x-circle"></i> Effacer les filtres
                                 </a>
                             </div>
                         @endif
                     </form>
-
-                    <!-- Statistiques -->
-                    <div class="stats-wrapper mt-4">
-                        <div class="row g-3">
-                            <div class="col-4">
-                                <div class="stat-item">
-                                    <h3 class="stat-number">{{ $totalTutors }}+</h3>
-                                    <p class="stat-label">Tuteurs certifiés</p>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="stat-item">
-                                    <h3 class="stat-number">{{ count($allCities) }}+</h3>
-                                    <p class="stat-label">Villes disponibles</p>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="stat-item">
-                                    <h3 class="stat-number">{{ count($allSubjects) }}+</h3>
-                                    <p class="stat-label">Matières enseignées</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Partie droite avec l'image -->
-                <div class="col-lg-6">
-                    <div class="hero-image-wrapper position-relative">
+                <!-- Image -->
+                <div class="kp-hero__media">
+                    <div class="kp-hero__image-wrap">
                         <img src="{{ asset('images/image_1.webp') }}" alt="Kopiao - Trouvez votre tuteur"
-                            class="img-fluid hero-image rounded-4 shadow-lg">
-
-                        <!-- Badges flottants -->
-                        <div class="floating-badges">
-
-                            <style>
-                                .floating-badges {
-                                    display: flex;
-                                    flex-direction: column;
-                                    gap: 10px;
-                                }
-
-                                .floating-badges .badge-item {
-                                    display: flex;
-                                    align-items: center;
-                                    gap: 10px;
-                                    padding: 10px 12px;
-                                    border-radius: 12px;
-                                    background: rgba(0, 0, 0, 0.4);
-                                    border: 1px solid #0B69F1 !important;
-                                }
-
-                                /* ✅ hover en blanc */
-                                .floating-badges .badge-item:hover {
-                                    border-color: #ffffff !important;
-                                }
-
-                                /* icône */
-                                .floating-badges .badge-icon {
-                                    width: 38px;
-                                    height: 38px;
-                                    border-radius: 10px;
-                                    background: rgba(255, 255, 255, 0.1);
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                }
-
-                                /* icône en blanc */
-                                .floating-badges .badge-icon i {
-                                    color: #ffffff;
-                                    font-size: 1.1rem;
-                                }
-
-                                /* contenu */
-                                .floating-badges .badge-content {
-                                    display: flex;
-                                    flex-direction: column;
-                                }
-
-                                .floating-badges .badge-number {
-                                    color: #ffffff;
-                                    font-weight: 700;
-                                    font-size: 0.95rem;
-                                }
-
-                                .floating-badges .badge-label {
-                                    color: rgba(255, 255, 255, 0.7);
-                                    font-size: 0.75rem;
-                                }
-                            </style>
-
-                            <div class="badge-item">
-                                <div class="badge-icon">
-                                    <i class="bi bi-person-check"></i>
-                                </div>
-                                <div class="badge-content">
-                                    <span class="badge-number">{{ $totalTutors }}+</span>
-                                    <span class="badge-label">Tuteurs actifs</span>
-                                </div>
+                            class="kp-hero__image">
+                        <div class="kp-hero__badges">
+                            <div class="kp-hero__badge">
+                                <span class="kp-hero__badge-icon"><i class="bi bi-person-check"></i></span>
+                                <span class="kp-hero__badge-text">
+                                    <strong>{{ $totalTutors }}+</strong>
+                                    <small>Tuteurs actifs</small>
+                                </span>
                             </div>
-
-                            <div class="badge-item">
-                                <div class="badge-icon">
-                                    <i class="bi bi-book"></i>
-                                </div>
-                                <div class="badge-content">
-                                    <span class="badge-number">{{ count($allSubjects) }}+</span>
-                                    <span class="badge-label">Matières</span>
-                                </div>
+                            <div class="kp-hero__badge">
+                                <span class="kp-hero__badge-icon"><i class="bi bi-book"></i></span>
+                                <span class="kp-hero__badge-text">
+                                    <strong>{{ count($allSubjects) }}+</strong>
+                                    <small>Matières</small>
+                                </span>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -187,75 +220,134 @@
         </div>
     </section>
 
-    <!-- Cartes d'inscription en débordement -->
-    <div class="row registration-row">
-        <div class="col-12">
-            <div class="registration-cards-container">
-                <!-- Carte Tuteur -->
-                <div class="registration-card tutor-card">
-                    <div class="card-content">
-                        <div class="card-icon-wrapper">
-                            <i class="bi bi-person-workspace"></i>
-                        </div>
-                        <h3>Devenir Tuteur</h3>
-                        <p class="card-description">
-                            Partagez votre expertise et enseignez à des apprenants du monde entier.
-                            Rejoignez notre communauté de tuteurs certifiés.
-                        </p>
-                        <a href="{{ route('register.tuteur') }}" class="btn-register tutor-register">
-                            S'inscrire comme Tuteur
-                        </a>
-                    </div>
+    <!-- Statistiques (déplacées juste après la hero — informatives, sans hover) -->
+    <section class="kp-stats">
+        <div class="container">
+            <div class="kp-stats__grid">
+                <div class="kp-stat">
+                    <p class="kp-stat__number">{{ $totalTutors }}+</p>
+                    <p class="kp-stat__label">Tuteurs certifiés</p>
                 </div>
-
-                <!-- Carte Consulter les Tuteurs -->
-                <div class="registration-card browse-card">
-                    <div class="card-content">
-                        <div class="card-icon-wrapper">
-                            <i class="bi bi-search-heart"></i>
-                        </div>
-                        <h3>Consulter les Tuteurs</h3>
-                        <p class="card-description">
-                            Parcourez notre liste de tuteurs qualifiés et trouvez celui qui correspond à vos besoins.
-                        </p>
-                        <a href="{{ route('recherche.tuteur') }}" class="btn-register browse-register">
-                            <i class="bi bi-eye me-2"></i>Voir tous les tuteurs
-                        </a>
-                    </div>
+                <div class="kp-stat">
+                    <p class="kp-stat__number">{{ count($allCities) }}+</p>
+                    <p class="kp-stat__label">Villes disponibles</p>
                 </div>
-
-                <!-- Carte Apprenant -->
-                <div class="registration-card student-card">
-                    <div class="card-content">
-                        <div class="card-icon-wrapper">
-                            <i class="bi bi-mortarboard"></i>
-                        </div>
-                        <h3>Devenir Apprenant</h3>
-                        <p class="card-description">
-                            Trouvez le tuteur idéal pour atteindre vos objectifs académiques.
-                            Apprenez à votre rythme avec des professionnels qualifiés.
-                        </p>
-                        <a href="{{ route('register') }}" class="btn-register student-register">
-                            S'inscrire comme Apprenant
-                        </a>
-                    </div>
+                <div class="kp-stat">
+                    <p class="kp-stat__number">{{ count($allSubjects) }}+</p>
+                    <p class="kp-stat__label">Matières enseignées</p>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <br><br><br>
+    <!-- Section Rejoindre (cartes d'inscription) -->
+    <style>
+        .kp-cards-section { padding: var(--kp-section-py) 0; background: var(--kp-blue); border-radius: 40px 40px 0 0; }
+        .kp-cards-section .kp-title { color: var(--kp-white); }
+        .kp-cards-section .kp-lead { color: rgba(255, 255, 255, .85); }
+        .kp-section-head { text-align: center; max-width: 640px; margin: 0 auto 36px; }
+        .kp-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            align-items: stretch;
+        }
+        .kp-rcard {
+            display: flex;
+            flex-direction: column;
+            background: var(--kp-white);
+            border: 1px solid var(--kp-border);
+            border-radius: var(--kp-radius);
+            padding: 32px 28px;
+            box-shadow: var(--kp-shadow-sm);
+            transition: var(--kp-transition);
+        }
+        /* hover UNIQUE et identique pour les 3 cartes */
+        .kp-rcard:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--kp-shadow-lg);
+            border-color: color-mix(in srgb, var(--kp-blue), transparent 70%);
+        }
+        .kp-rcard__icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: color-mix(in srgb, var(--kp-yellow), white 82%);
+            color: var(--kp-yellow);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7rem;
+            margin-bottom: 20px;
+        }
+        .kp-rcard .kp-subtitle { color: #1a1a1a; }
+        .kp-rcard p { flex: 1 1 auto; }          /* pousse le bouton en bas → boutons alignés */
+        .kp-rcard .kp-btn { margin-top: 18px; }
+
+        @media (max-width: 991px) {
+            .kp-cards-grid { grid-template-columns: 1fr; max-width: 460px; margin: 0 auto; }
+        }
+    </style>
+
+    <section class="kp-cards-section">
+        <div class="container">
+            <div class="kp-section-head">
+                <h2 class="kp-title">Rejoignez Kopiao</h2>
+                <p class="kp-lead kp-muted kp-mb-0">Tuteur ou apprenant, trouvez votre place en quelques clics.</p>
+            </div>
+
+            <div class="kp-cards-grid">
+                <!-- Carte Tuteur -->
+                <div class="kp-rcard">
+                    <div class="kp-rcard__icon"><i class="bi bi-person-workspace"></i></div>
+                    <h3 class="kp-subtitle">Devenir Tuteur</h3>
+                    <p class="kp-text kp-muted">
+                        Partagez votre expertise et enseignez à des apprenants du monde entier.
+                        Rejoignez notre communauté de tuteurs certifiés.
+                    </p>
+                    <a href="{{ route('register.tuteur') }}" class="kp-btn kp-btn--primary kp-btn--block">
+                        S'inscrire comme Tuteur
+                    </a>
+                </div>
+
+                <!-- Carte Consulter les Tuteurs -->
+                <div class="kp-rcard">
+                    <div class="kp-rcard__icon"><i class="bi bi-search-heart"></i></div>
+                    <h3 class="kp-subtitle">Consulter les Tuteurs</h3>
+                    <p class="kp-text kp-muted">
+                        Parcourez notre liste de tuteurs qualifiés et trouvez celui qui correspond à vos besoins.
+                    </p>
+                    <a href="{{ route('recherche.tuteur') }}" class="kp-btn kp-btn--secondary kp-btn--block">
+                        <i class="bi bi-eye"></i> Voir tous les tuteurs
+                    </a>
+                </div>
+
+                <!-- Carte Apprenant -->
+                <div class="kp-rcard">
+                    <div class="kp-rcard__icon"><i class="bi bi-mortarboard"></i></div>
+                    <h3 class="kp-subtitle">Devenir Apprenant</h3>
+                    <p class="kp-text kp-muted">
+                        Trouvez le tuteur idéal pour atteindre vos objectifs académiques.
+                        Apprenez à votre rythme avec des professionnels qualifiés.
+                    </p>
+                    <a href="{{ route('register') }}" class="kp-btn kp-btn--primary kp-btn--block">
+                        S'inscrire comme Apprenant
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Matières Section -->
     <section id="subjects" class="subjects-section py-5">
         <div class="container">
             <div class="section-header text-center mb-5">
-                <h2 class="display-5 fw-bold gradient-text">Explorez les matières</h2>
-                <p class="lead text-muted">Découvrez les {{ count($allSubjects) }} matières enseignées par nos tuteurs
-                    certifiés</p>
+                <h2 class="kp-title">Explorez les matières</h2>
+                <p class="kp-lead kp-muted">Découvrez les {{ count($allSubjects) }} matières enseignées par nos tuteurs certifiés</p>
                 <div class="divider mx-auto"></div>
             </div>
 
+            <div class="subjects-frame">
             <!-- Conteneur des matières avec navigation -->
             <div class="subjects-carousel-container position-relative">
                 <!-- Bouton précédent -->
@@ -369,180 +461,81 @@
                 </button>
             </div>
 
-            <!-- Indicateurs de page -->
-            <div class="pagination-indicators mt-5" id="paginationIndicators"></div>
-
             <!-- Lien voir toutes les matières -->
             @if (count($allSubjects) > 8)
-                <div class="text-center mt-5">
-                    <a href="{{ route('recherche.tuteur') }}" class="btn-view-all">
-                        <span>Explorer toutes les matières</span>
-                        <i class="bi bi-arrow-right-circle ms-2"></i>
+                <div class="text-center mt-3">
+                    <a href="{{ route('recherche.tuteur') }}" class="kp-btn kp-btn--cta">
+                        Explorer toutes les matières
                     </a>
                 </div>
             @endif
+            </div>
         </div>
     </section>
 
-    <!-- Annonces Section -->
+    <!-- Opportunités (visible s'il y a des annonces) -->
+    @if ($annonces->count() > 0)
     <section id="annonces" class="annonces-section py-5">
-        <div class="container-fluid px-4">
+        <div class="container">
             <div class="section-header text-center mb-5">
-                <h2 class="display-5 fw-bold" style="color: #0B69F1;">Opportunités d'enseignement</h2>
-                <p class="lead text-muted">Découvrez les {{ $annonces->count() }} annonces publiées par nos étudiants</p>
-                <div class="divider mx-auto" style="background: #0B69F1;"></div>
+                <h2 class="kp-title">Opportunités d'enseignement</h2>
+                <p class="kp-lead kp-muted">Découvrez les {{ $annonces->count() }} annonces publiées par nos étudiants</p>
+                <div class="divider mx-auto"></div>
             </div>
-
-            <!-- Filtres des annonces -->
-            <div class="filters-container mb-5 p-4 bg-white rounded-4 shadow-sm">
-                <form action="{{ route('home') }}#annonces" method="GET" class="filters-form">
-                    <div class="row g-3 align-items-end">
-                        <div class="col-lg-2 col-md-4">
-                            <div class="filter-group">
-                                <label class="filter-label text-primary mb-2 fw-semibold"
-                                    style="color: #0B69F1 !important;">
-                                    <i class="bi bi-book me-1" style="color: #0B69F1;"></i> Domaine
-                                </label>
-                                <input type="text" name="annonce_subject" class="form-control border-2"
-                                    style="border-color: #e0e0e0; color: #333; background: white;"
-                                    placeholder="Mathématiques, Français..." value="{{ $selectedAnnonceSubject }}"
-                                    list="annonceSubjects">
-                                <datalist id="annonceSubjects">
-                                    @foreach ($allSubjects as $subject)
-                                        <option value="{{ $subject }}">
-                                    @endforeach
-                                </datalist>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-2 col-md-4">
-                            <div class="filter-group">
-                                <label class="filter-label text-primary mb-2 fw-semibold"
-                                    style="color: #0000FF !important;">
-                                    <i class="bi bi-coin me-1" style="color: #0000FF;"></i> Budget min
-                                </label>
-                                <input type="number" name="annonce_budget_min" class="form-control border-2"
-                                    style="border-color: #e0e0e0; color: #333; background: white;"
-                                    placeholder="Min (FCFA)" value="{{ $selectedAnnonceBudgetMin }}">
-                            </div>
-                        </div>
-
-                        <div class="col-lg-2 col-md-4">
-                            <div class="filter-group">
-                                <label class="filter-label text-primary mb-2 fw-semibold"
-                                    style="color: #0000FF !important;">
-                                    <i class="bi bi-coin me-1" style="color: #0000FF;"></i> Budget max
-                                </label>
-                                <input type="number" name="annonce_budget_max" class="form-control border-2"
-                                    style="border-color: #e0e0e0; color: #333; background: white;"
-                                    placeholder="Max (FCFA)" value="{{ $selectedAnnonceBudgetMax }}">
-                            </div>
-                        </div>
-
-                        <div class="col-lg-2 col-md-4">
-                            <div class="filter-group">
-                                <label class="filter-label text-primary mb-2 fw-semibold"
-                                    style="color: #0000FF !important;">
-                                    <i class="bi bi-laptop me-1" style="color: #0000FF;"></i> Format
-                                </label>
-                                <select name="annonce_format" class="form-select border-2"
-                                    style="border-color: #e0e0e0; color: #333; background: white;">
-                                    <option value="">Tous</option>
-                                    <option value="presentiel"
-                                        {{ $selectedAnnonceFormat == 'presentiel' ? 'selected' : '' }}>Présentiel</option>
-                                    <option value="en_ligne" {{ $selectedAnnonceFormat == 'en_ligne' ? 'selected' : '' }}>
-                                        En ligne</option>
-                                    <option value="hybrid" {{ $selectedAnnonceFormat == 'hybrid' ? 'selected' : '' }}>
-                                        Hybride</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-2 col-md-4">
-                            <div class="filter-group">
-                                <label class="filter-label text-primary mb-2 fw-semibold"
-                                    style="color: #0000FF !important;">
-                                    <i class="bi bi-calendar me-1" style="color: #0000FF;"></i> Disponibilité
-                                </label>
-                                <input type="text" name="annonce_disponibilite" class="form-control border-2"
-                                    style="border-color: #e0e0e0; color: #333; background: white;"
-                                    placeholder="Lundi, Mardi..." value="{{ $selectedAnnonceDisponibilite }}">
-                            </div>
-                        </div>
-
-                        <div class="col-lg-2 col-md-4">
-                            <button type="submit" class="btn w-100 py-2"
-                                style="background: #0B69F1; color: white; border: none; border-radius: 8px; font-weight: 500;">
-                                <i class="bi bi-funnel me-2"></i>Rechercher
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+            {{-- filtres déplacés sur la page Opportunités --}}
 
             <!-- Carousel des annonces -->
             <div class="annonces-carousel-container position-relative">
                 <button class="carousel-nav-btn prev-btn" id="prevAnnonce" aria-label="Annonce précédente"
-                    style="background: white; color: #0000FF; border: 2px solid #0000FF;">
+                    style="background: white; color: var(--kp-blue); border: 2px solid var(--kp-blue);">
                     <i class="bi bi-chevron-left"></i>
                 </button>
 
                 <div class="annonces-carousel-wrapper overflow-hidden">
                     <div class="annonces-carousel" id="annoncesCarousel">
-                        @forelse($annonces as $annonce)
+                        @foreach ($annonces as $annonce)
                             <div class="annonce-card-wrapper">
-                                <div class="annonce-card bg-white rounded-4 shadow-sm" style="border: 1px solid #e0e0e0;">
-
-
-                                    <div class="card-header d-flex justify-content-between align-items-start mb-3">
-                                        <h3 class="annonce-title fw-bold mb-0" style="color: #333;">
-                                            {{ $annonce->domaine }}</h3>
-                                        <div class="annonce-budget text-end">
-                                            <span class="budget-amount d-block fw-bold"
-                                                style="color: #0000FF; font-size: 1.3rem;">
-                                                {{ number_format($annonce->budget, 0, ',', ' ') }}
-                                            </span>
-                                            <span class="budget-currency"
-                                                style="color: #666; font-size: 0.8rem;">FCFA</span>
+                                <div class="annonce-card">
+                                    <!-- En-tête : domaine + budget -->
+                                    <div class="annonce-head">
+                                        <h3 class="annonce-domaine">{{ $annonce->domaine }}</h3>
+                                        <div class="annonce-budget">
+                                            <span class="annonce-budget__amount">{{ number_format($annonce->budget, 0, ',', ' ') }}</span>
+                                            <span class="annonce-budget__cur">FCFA</span>
                                         </div>
                                     </div>
 
-                                    <div class="annonce-student d-flex align-items-center gap-3 mb-3 pb-2"
-                                        style="border-bottom: 1px solid #f0f0f0;">
-                                        <div class="student-avatar rounded-circle overflow-hidden d-flex align-items-center justify-content-center"
-                                            style="width: 45px; height: 45px; background: #f0f0f0;">
+                                    <!-- Étudiant -->
+                                    <div class="annonce-student">
+                                        <div class="annonce-avatar">
                                             @if ($annonce->student->photo_path)
                                                 <img src="{{ asset('storage/' . $annonce->student->photo_path) }}"
-                                                    alt="{{ $annonce->student->firstname }}"
-                                                    style="width: 100%; height: 100%; object-fit: cover;">
+                                                    alt="{{ $annonce->student->firstname }}">
                                             @else
-                                                <i class="bi bi-person-circle"
-                                                    style="font-size: 2rem; color: #0000FF;"></i>
+                                                <i class="bi bi-person-circle"></i>
                                             @endif
                                         </div>
-                                        <div class="student-info">
-
-                                            <span class="post-date" style="color: #666; font-size: 0.8rem;">
-                                                Publiée {{ $annonce->created_at->diffForHumans() }}
-                                            </span>
+                                        <div class="annonce-student__info">
+                                            <span class="annonce-student__name">{{ $annonce->student->firstname }}</span>
+                                            <span class="annonce-student__date">Publiée {{ $annonce->created_at->diffForHumans() }}</span>
                                         </div>
                                     </div>
 
-                                    <p class="annonce-description mb-3" style="color: #555; line-height: 1.5;">
-                                        {{ Str::limit($annonce->description, 120) }}
-                                    </p>
+                                    <!-- Description -->
+                                    <p class="annonce-desc">{{ Str::limit($annonce->description, 120) }}</p>
 
-                                    <div class="annonce-disponibilite d-flex align-items-center gap-2 p-2 rounded mb-3"
-                                        style="background: #f8f9fa;">
-                                        <i class="bi bi-calendar-check" style="color: #0000FF;"></i>
-                                        <span
-                                            style="color: #555; font-size: 0.9rem;">{{ Str::limit($annonce->disponibilite, 50) }}</span>
-                                    </div>
+                                    <!-- Disponibilité -->
+                                    @if ($annonce->disponibilite)
+                                        <div class="annonce-tag">
+                                            <i class="bi bi-calendar-check"></i>
+                                            <span>{{ Str::limit($annonce->disponibilite, 50) }}</span>
+                                        </div>
+                                    @endif
 
+                                    <!-- CTA -->
                                     <div class="card-footer mt-auto">
                                         <a href="{{ route('login') }}"
-                                            class="btn-postuler d-flex align-items-center justify-content-center gap-2 w-100 py-2 rounded"
-                                            style="background: #0000FF; color: white; text-decoration: none; font-weight: 500; border: none;"
+                                            class="kp-btn kp-btn--primary kp-btn--block"
                                             onclick="event.preventDefault(); showLoginMessage();">
                                             <i class="bi bi-send"></i>
                                             Postuler
@@ -550,203 +543,123 @@
                                     </div>
                                 </div>
                             </div>
-                        @empty
-                            <div class="no-annonces text-center py-5 w-100">
-                                <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                                <h4 class="mt-3" style="color: #333;">Aucune annonce pour le moment</h4>
-                                <p class="text-muted">Revenez plus tard</p>
-                            </div>
-                        @endforelse
+                        @endforeach
                     </div>
                 </div>
 
                 <button class="carousel-nav-btn next-btn" id="nextAnnonce" aria-label="Annonce suivante"
-                    style="background: white; color: #0000FF; border: 2px solid #0000FF;">
+                    style="background: white; color: var(--kp-blue); border: 2px solid var(--kp-blue);">
                     <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
 
-            <!-- Indicateurs de page -->
-            @if ($annonces->count() > 0)
-                <div class="carousel-indicators mt-4 d-flex justify-content-center gap-2" id="annonceIndicators"></div>
-            @endif
+            <div class="subjects-dots" id="annoncesDots"></div>
+
         </div>
     </section>
+    @endif
 
     <!-- Top Tutors Section -->
+    <!-- Tuteurs récents (visible s'il y en a) -->
+    @if ($recentTutors->count() > 0)
     <section id="tutors" class="tutors-gallery section">
-        <div class="container section-title">
-            <h2 style="color: #0B69F1;">Tuteurs récemment inscrits</h2>
-            <p>Découvrez les derniers professeurs à avoir rejoint Kopiao</p>
+        <div class="container section-header text-center mb-5">
+            <h2 class="kp-title">Tuteurs récemment inscrits</h2>
+            <p class="kp-lead kp-muted">Découvrez les derniers professeurs à avoir rejoint Kopiao</p>
+            <div class="divider mx-auto"></div>
         </div>
 
         <div class="container">
-            <!-- Première rangée (3 tuteurs) -->
-            <div class="row justify-content-center mb-4">
-                @foreach ($recentTutors->take(3) as $index => $tutor)
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="tutor-card" data-tutor-id="{{ $tutor->id }}">
-                            @if ($tutor->role_id == 3 && $tutor->is_valid == 1)
-                                <div class="mb-2" style="display:flex; justify-content:center;">
-                                    <span class="verified-badge">
-                                        <i class="fas fa-check-circle"></i>
-                                        Tuteur vérifié
-                                    </span>
-                                </div>
-                            @endif
-
-                            <div class="tutor-image-wrapper">
-                                <img src="{{ $tutor->photo_path ? asset('storage/' . $tutor->photo_path) : asset('images/profill_default.webp') }}"
-                                    alt="{{ $tutor->firstname }}" class="tutor-img">
-                                <div class="tutor-overlay">
-                                    <button class="btn-view-profile" data-bs-toggle="modal"
-                                        data-bs-target="#tutorModal{{ $tutor->id }}">
-                                        <i class="bi bi-eye"></i> Voir le profil
-                                    </button>
-                                </div>
+            <div class="row justify-content-center g-4">
+                @foreach ($recentTutors->take(6) as $tutor)
+                    <div class="col-lg-4 col-md-6">
+                        <div class="tutor-card">
+                            <div class="tutor-card__media">
+                                @if ($tutor->role_id == 3 && $tutor->is_valid == 1)
+                                    <span class="tutor-card__badge"><i class="bi bi-patch-check-fill"></i> Vérifié</span>
+                                @endif
+                                <span class="tutor-card__avatar">
+                                    <img src="{{ $tutor->photo_path ? asset('storage/' . $tutor->photo_path) : asset('images/profill_default.webp') }}"
+                                        alt="{{ $tutor->firstname }}">
+                                </span>
                             </div>
-                            <div class="tutor-info">
-                                <h4 class="tutor-name">{{ $tutor->firstname }} {{ $tutor->lastname }}</h4>
-
-                                @php
-                                    $subjects = $tutor->subjects->pluck('nom')->toArray();
-                                @endphp
-
-                                <p class="tutor-subjects">
+                            <div class="tutor-card__body">
+                                <h4 class="tutor-card__name">{{ $tutor->firstname }} {{ $tutor->lastname }}</h4>
+                                @php $subjects = $tutor->subjects->pluck('nom')->toArray(); @endphp
+                                <p class="tutor-card__subjects">
                                     @if (!empty($subjects))
-                                        {{ implode(', ', array_slice($subjects, 0, 2)) }}
-                                        @if (count($subjects) > 2)
-                                            <span class="more-subjects">+{{ count($subjects) - 2 }}</span>
-                                        @endif
+                                        {{ implode(', ', array_slice($subjects, 0, 2)) }}@if (count($subjects) > 2) <span class="tutor-card__more">+{{ count($subjects) - 2 }}</span>@endif
                                     @else
                                         Spécialité non précisée
                                     @endif
                                 </p>
-                                <p class="tutor-location">
-                                    <i class="bi bi-geo-alt"></i> {{ $tutor->city ?? 'Ville non précisée' }}
-                                </p>
+                                <p class="tutor-card__loc"><i class="bi bi-geo-alt"></i> {{ $tutor->city ?? 'Ville non précisée' }}</p>
+                                <button class="kp-btn kp-btn--on-blue kp-btn--sm kp-btn--block tutor-card__btn"
+                                    data-bs-toggle="modal" data-bs-target="#tutorModal{{ $tutor->id }}">
+                                    <i class="bi bi-eye"></i> Voir le profil
+                                </button>
                             </div>
                         </div>
                     </div>
                 @endforeach
             </div>
-
-            <!-- Deuxième rangée (3 tuteurs) -->
-            @if ($recentTutors->count() > 3)
-                <div class="row justify-content-center mt-5 g-4">
-                    @foreach ($recentTutors->slice(3, 3) as $tutor)
-                        <div class="col-lg-4 col-md-6">
-                            <div class="tutor-card" data-tutor-id="{{ $tutor->id }}">
-                                @if ($tutor->role_id == 3 && $tutor->is_valid == 1)
-                                    <div class="mb-2" style="display:flex; justify-content:center;">
-                                        <span class="verified-badge">
-                                            <i class="fas fa-check-circle"></i>
-                                            Tuteur vérifié
-                                        </span>
-                                    </div>
-                                @endif
-
-                                <div class="tutor-image-wrapper">
-                                    <img src="{{ $tutor->photo_path ? asset('storage/' . $tutor->photo_path) : asset('images/profill_default.webp') }}"
-                                        alt="{{ $tutor->firstname }}" class="tutor-img">
-                                    <div class="tutor-overlay">
-                                        <button class="btn-view-profile" data-bs-toggle="modal"
-                                            data-bs-target="#tutorModal{{ $tutor->id }}">
-                                            <i class="bi bi-eye"></i> Voir le profil
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="tutor-info">
-                                    <h4 class="tutor-name">{{ $tutor->firstname }} {{ $tutor->lastname }}</h4>
-
-                                    @php
-                                        $subjects = $tutor->subjects->pluck('nom')->toArray();
-                                    @endphp
-
-                                    <p class="tutor-subjects">
-                                        @if (!empty($subjects))
-                                            {{ implode(', ', array_slice($subjects, 0, 2)) }}
-                                            @if (count($subjects) > 2)
-                                                <span class="more-subjects">+{{ count($subjects) - 2 }}</span>
-                                            @endif
-                                        @else
-                                            Spécialité non précisée
-                                        @endif
-                                    </p>
-                                    <p class="tutor-location">
-                                        <i class="bi bi-geo-alt"></i> {{ $tutor->city ?? 'Ville non précisée' }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
         </div>
 
-        <!-- Bouton Voir plus -->
-        <div class="text-center mt-5">
-            <a href="{{ route('recherche.tuteur') }}" class="btn btn-primary btn-lg">
-                <i class="bi bi-arrow-right"></i> Voir tous les tuteurs
+        <!-- Voir plus -->
+        <div class="text-center mt-4">
+            <a href="{{ route('recherche.tuteur') }}" class="kp-btn kp-btn--cta">
+                Voir tous les tuteurs
             </a>
         </div>
     </section>
+    @endif
 
     <!-- Modals pour chaque tuteur -->
     @foreach ($recentTutors as $tutor)
-        <div class="modal fade" id="tutorModal{{ $tutor->id }}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal fade kp-modal" id="tutorModal{{ $tutor->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
-                    <div class="modal-header border-0 position-relative">
-                        <button type="button" class="btn-close close-modal" data-bs-dismiss="modal" aria-label="Close">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </div>
+                    <button type="button" class="kp-modal__close" data-bs-dismiss="modal" aria-label="Fermer">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                     <div class="modal-body p-0">
-                        <div class="tutor-modal-content">
-                            <div class="tutor-modal-image">
-                                <img src="{{ $tutor->photo_path ? asset('storage/' . $tutor->photo_path) : asset('images/profill_default.webp') }}"
-                                    alt="{{ $tutor->firstname }}">
-                            </div>
-                            <div class="tutor-modal-info">
-                                <div class="tutor-modal-header">
-                                    <h3>{{ $tutor->firstname }} {{ $tutor->lastname }}</h3>
-                                </div>
-
-                                <div class="tutor-modal-details">
-                                    <div class="detail-item">
-                                        <i class="bi bi-geo-alt"></i>
-                                        <span>{{ $tutor->city ?? 'Ville non précisée' }}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i class="bi bi-cash-coin"></i>
-                                        <span>{{ $tutor->rate_per_hour ? number_format($tutor->rate_per_hour, 0, ',', ' ') . ' FCFA / h' : 'Tarif non défini' }}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i class="bi bi-whatsapp"></i>
-                                        <span>{{ $tutor->telephone ?? 'Non disponible' }}</span>
-                                    </div>
-                                </div>
-
-                                <div class="tutor-modal-subjects">
-                                    <h6>Spécialités :</h6>
-                                    @php
-                                        $subjects = $tutor->subjects->pluck('nom')->toArray();
-                                    @endphp
-                                    <div class="subjects-list">
-                                        @foreach ($subjects as $subject)
-                                            <span class="subject-badge">{{ $subject }}</span>
-                                        @endforeach
-                                        @if (empty($subjects))
-                                            <span class="text-muted">Aucune spécialité renseignée</span>
+                        <div class="kp-tutor">
+                            <div class="kp-tutor__top">
+                                <span class="kp-tutor__avatar">
+                                    <img src="{{ $tutor->photo_path ? asset('storage/' . $tutor->photo_path) : asset('images/profill_default.webp') }}"
+                                        alt="{{ $tutor->firstname }}">
+                                </span>
+                                <div>
+                                    <h3 class="kp-tutor__name">
+                                        {{ $tutor->firstname }} {{ $tutor->lastname }}
+                                        @if ($tutor->role_id == 3 && $tutor->is_valid == 1)
+                                            <i class="bi bi-patch-check-fill kp-tutor__verified" title="Tuteur vérifié"></i>
                                         @endif
-                                    </div>
+                                    </h3>
+                                    <p class="kp-tutor__loc"><i class="bi bi-geo-alt"></i> {{ $tutor->city ?? 'Ville non précisée' }}</p>
                                 </div>
+                            </div>
 
-                                <div class="tutor-modal-bio">
-                                    <h6>À propos :</h6>
-                                    <p>{{ $tutor->bio ?? 'Pas encore de biographie disponible.' }}</p>
+                            <div class="kp-tutor__meta">
+                                <span class="kp-tutor__meta-item"><i class="bi bi-cash-coin"></i> {{ $tutor->rate_per_hour ? number_format($tutor->rate_per_hour, 0, ',', ' ') . ' FCFA / h' : 'Tarif non défini' }}</span>
+                                <span class="kp-tutor__meta-item"><i class="bi bi-whatsapp"></i> {{ $tutor->telephone ?? 'Non disponible' }}</span>
+                            </div>
+
+                            @php $subjects = $tutor->subjects->pluck('nom')->toArray(); @endphp
+                            <div class="kp-tutor__section">
+                                <h6>Spécialités</h6>
+                                <div class="kp-tutor__tags">
+                                    @forelse ($subjects as $subject)
+                                        <span class="kp-tag">{{ $subject }}</span>
+                                    @empty
+                                        <span class="kp-tutor__bio">Aucune spécialité renseignée</span>
+                                    @endforelse
                                 </div>
+                            </div>
+
+                            <div class="kp-tutor__section">
+                                <h6>À propos</h6>
+                                <p class="kp-tutor__bio">{{ $tutor->bio ?? 'Pas encore de biographie disponible.' }}</p>
                             </div>
                         </div>
                     </div>
@@ -759,56 +672,35 @@
     <section id="annonces-cta" class="annonces-cta-section py-5">
         <div class="container">
             <div class="section-header text-center mb-5">
-                <h2 class="display-5 fw-bold" style="color: #0B69F1;">Trouvez un tuteur ou proposez vos compétences</h2>
-                <p class="lead text-muted">Rejoignez notre communauté et donnez un coup d'accélérateur à votre
-                    apprentissage</p>
-                <div class="divider mx-auto"
-                    style="background: #0B69F1; width: 80px; height: 4px; border-radius: 2px; margin-top: 20px;"></div>
+                <h2 class="kp-title" style="color: #fff;">Trouvez un tuteur ou proposez vos compétences</h2>
+                <p class="kp-lead" style="color: rgba(255, 255, 255, .8);">Rejoignez notre communauté et donnez un coup d'accélérateur à votre apprentissage</p>
+                <div class="divider mx-auto"></div>
             </div>
 
             <div class="row g-4 justify-content-center">
                 <!-- Carte Publier une annonce -->
                 <div class="col-lg-6 col-md-6">
-                    <div
-                        class="cta-card publish-card bg-white rounded-4 shadow-lg p-4 h-100 d-flex flex-column align-items-center text-center">
-                        <div class="circular-image-wrapper mb-4">
-                            <div class="circular-image rounded-circle overflow-hidden border border-4"
-                                style="border-color: #0000FF !important; width: 180px; height: 180px; box-shadow: 0 10px 30px rgba(0,0,255,0.2);">
-                                <img src="{{ asset('images/image_5.webp') }}" alt="Étudiant"
-                                    style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
+                    <div class="rs-card rs-card--blue">
+                        <div class="rs-card__media">
+                            <img src="{{ asset('images/image_5.webp') }}" alt="Étudiant">
                         </div>
-
-                        <div class="icon-badge d-flex align-items-center justify-content-center rounded-circle bg-white shadow-sm position-relative"
-                            style="width: 50px; height: 50px; margin-top: -25px; margin-bottom: 15px; border: 2px solid #0000FF;">
-                            <i class="bi bi-megaphone" style="font-size: 1.5rem; color: #0000FF;"></i>
-                        </div>
-
-                        <h3 class="fw-bold mb-3" style="color: #000; font-size: 1.8rem;">Vous cherchez un tuteur ?</h3>
-
-                        <p class="mb-3 px-2" style="color: #333; font-size: 1rem; line-height: 1.6;">
+                        <h3 class="rs-card__title">Vous cherchez un tuteur ?</h3>
+                        <p class="rs-card__text">
                             Publiez une annonce gratuite et trouvez le tuteur idéal pour vos besoins spécifiques.
                         </p>
-
                         @auth
                             @if (Auth::user()->role_id == 2)
-                                <a href="{{ route('annonces.create') }}"
-                                    class="btn-cta btn-publish py-2 px-4 rounded-pill fw-bold mt-auto"
-                                    style="background: #0B69F1; color: white; border: none; transition: all 0.3s ease; text-decoration: none;">
-                                    <i class="bi bi-plus-circle me-2"></i>Publier une annonce
+                                <a href="{{ route('annonces.create') }}" class="kp-btn kp-btn--on-blue">
+                                    <i class="bi bi-plus-circle"></i> Publier une annonce
                                 </a>
                             @else
-                                <button onclick="showRoleMessage('publier')"
-                                    class="btn-cta btn-publish py-2 px-4 rounded-pill fw-bold mt-auto border-0"
-                                    style="background: #0000FF; color: white;">
-                                    <i class="bi bi-plus-circle me-2"></i>Publier une annonce
+                                <button onclick="showRoleMessage('publier')" class="kp-btn kp-btn--on-blue">
+                                    <i class="bi bi-plus-circle"></i> Publier une annonce
                                 </button>
                             @endif
                         @else
-                            <button onclick="showLoginMessage('publier')"
-                                class="btn-cta btn-publish py-2 px-4 rounded-pill fw-bold mt-auto border-0"
-                                style="background: #0000FF; color: white;">
-                                <i class="bi bi-plus-circle me-2"></i>Publier une annonce
+                            <button onclick="showLoginMessage('publier')" class="kp-btn kp-btn--on-blue">
+                                <i class="bi bi-plus-circle"></i> Publier une annonce
                             </button>
                         @endauth
                     </div>
@@ -816,47 +708,27 @@
 
                 <!-- Carte Consulter les annonces -->
                 <div class="col-lg-6 col-md-6">
-                    <div
-                        class="cta-card consult-card bg-white rounded-4 shadow-lg p-4 h-100 d-flex flex-column align-items-center text-center">
-                        <div class="circular-image-wrapper mb-4">
-                            <div class="circular-image rounded-circle overflow-hidden border border-4"
-                                style="border-color: #00a36c !important; width: 180px; height: 180px; box-shadow: 0 10px 30px rgba(0,163,108,0.2);">
-                                <img src="{{ asset('images/image_6.webp') }}" alt="Tuteur"
-                                    style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
+                    <div class="rs-card rs-card--white">
+                        <div class="rs-card__media">
+                            <img src="{{ asset('images/image_6.webp') }}" alt="Tuteur">
                         </div>
-
-                        <div class="icon-badge d-flex align-items-center justify-content-center rounded-circle bg-white shadow-sm position-relative"
-                            style="width: 50px; height: 50px; margin-top: -25px; margin-bottom: 15px; border: 2px solid #00a36c;">
-                            <i class="bi bi-search-heart" style="font-size: 1.5rem; color: #00a36c;"></i>
-                        </div>
-
-                        <h3 class="fw-bold mb-3" style="color: #000; font-size: 1.8rem;">Vous êtes tuteur ?</h3>
-
-                        <p class="mb-3 px-2" style="color: #333; font-size: 1rem; line-height: 1.6;">
-                            Consultez les annonces publiées par les apprenants et trouvez des missions qui correspondent à
-                            vos compétences.
+                        <h3 class="rs-card__title">Vous êtes tuteur ?</h3>
+                        <p class="rs-card__text">
+                            Consultez les annonces publiées par les apprenants et trouvez des missions qui correspondent à vos compétences.
                         </p>
-
                         @auth
                             @if (Auth::user()->role_id == 3)
-                                <a href="{{ route('annonces.index') }}#annonces"
-                                    class="btn-cta btn-consult py-2 px-4 rounded-pill fw-bold mt-auto"
-                                    style="background: #00a36c; color: white; border: none; text-decoration: none;">
-                                    <i class="bi bi-eye me-2"></i>Postuler à des annonces
+                                <a href="{{ route('annonces.index') }}#annonces" class="kp-btn kp-btn--primary">
+                                    <i class="bi bi-eye"></i> Postuler à des annonces
                                 </a>
                             @else
-                                <button onclick="showRoleMessage('consulter')"
-                                    class="btn-cta btn-consult py-2 px-4 rounded-pill fw-bold mt-auto border-0"
-                                    style="background: #00a36c; color: white;">
-                                    <i class="bi bi-eye me-2"></i>Postuler à des annonces
+                                <button onclick="showRoleMessage('consulter')" class="kp-btn kp-btn--primary">
+                                    <i class="bi bi-eye"></i> Postuler à des annonces
                                 </button>
                             @endif
                         @else
-                            <button onclick="showLoginMessage('consulter')"
-                                class="btn-cta btn-consult py-2 px-4 rounded-pill fw-bold mt-auto border-0"
-                                style="background: #00a36c; color: white;">
-                                <i class="bi bi-eye me-2"></i>Postuler à des annonces
+                            <button onclick="showLoginMessage('consulter')" class="kp-btn kp-btn--primary">
+                                <i class="bi bi-eye"></i> Postuler à des annonces
                             </button>
                         @endauth
                     </div>
@@ -871,8 +743,8 @@
             <div class="row align-items-center position-relative">
                 <!-- Image en arrière-plan -->
                 <div class="col-lg-12 position-absolute start-0 top-0 w-100 h-100 d-none d-lg-block" style="z-index: 1;">
-                    <div class="background-image-wrapper rounded-4 overflow-hidden">
-                        <img src="{{ asset('images/image_3.webp') }}" class="img-fluid w-100 h-100 object-fit-cover"
+                    <div class="background-image-wrapper overflow-hidden">
+                        <img src="{{ asset('images/tuteur.jpg') }}" class="img-fluid w-100 h-100 object-fit-cover"
                             alt="Devenir tuteur">
                     </div>
                 </div>
@@ -884,8 +756,8 @@
                         style="box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15); border: 1px solid rgba(0, 0, 0, 0.1);">
                         <!-- En-tête bleu -->
                         <div class="form-header text-white text-center py-4"
-                            style="background: linear-gradient(135deg, #0d6efd, #004aad);">
-                            <h2 class="fw-bold mb-2" style="font-size: 2.2rem; color:white;">Devenir Tuteur</h2>
+                            style="background: linear-gradient(135deg, var(--kp-blue), var(--kp-blue-dark));">
+                            <h2 class="fw-bold mb-2" style="font-size: clamp(1.5rem, 1.2rem + 2vw, 2.2rem); color:white;">Devenir Tuteur</h2>
                             <p style="font-size: 1.1rem; opacity: 0.9;">Rejoignez notre communauté d'enseignants</p>
                         </div>
 
@@ -898,32 +770,27 @@
 
                                 <!-- Email -->
                                 <div class="mb-4">
-                                    <label for="email" class="form-label fw-semibold" style="color: #333;">
-                                        <i class="bi bi-envelope me-1"></i>Email
-                                    </label>
-                                    <input type="email" name="email" id="email"
-                                        class="form-control rounded-pill border px-3 py-2"
-                                        style="border-color: #ddd; background: #f8f9fa;" placeholder="exemple@email.com"
-                                        required>
+                                    <label for="email" class="form-label fw-semibold" style="color: var(--kp-text);">Email</label>
+                                    <div class="kp-field-group">
+                                        <span class="kp-field-icon"><i class="bi bi-envelope"></i></span>
+                                        <input type="email" name="email" id="email" class="kp-field"
+                                            placeholder="exemple@email.com" required>
+                                    </div>
                                 </div>
 
-                                <!-- Bouton pour continuer -->
-                                <div class="d-grid mt-5">
-                                    <button type="submit" class="btn btn-primary btn-lg rounded-pill py-3 fw-bold"
-                                        style="background: linear-gradient(135deg, #0d6efd, #004aad);
-                                               border: none;
-                                               box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
-                                               font-size: 1.1rem;">
-                                        <i class="bi bi-check-circle me-2"></i>Continuer
+                                <!-- Bouton continuer -->
+                                <div class="d-grid mt-4">
+                                    <button type="submit" class="kp-btn kp-btn--accent kp-btn--lg kp-btn--block">
+                                        <i class="bi bi-check-circle"></i> Continuer
                                     </button>
                                 </div>
 
-                                <!-- Lien vers connexion -->
-                                <div class="text-center mt-4 pt-3" style="border-top: 1px solid #eee;">
+                                <!-- Lien connexion -->
+                                <div class="text-center mt-4 pt-3" style="border-top: 1px solid var(--kp-border);">
                                     <p class="text-muted mb-0" style="font-size: 0.95rem;">
                                         Déjà inscrit ?
-                                        <a href="{{ route('login') }}"
-                                            class="text-primary fw-semibold text-decoration-none">
+                                        <a href="{{ route('login') }}" class="fw-semibold text-decoration-none"
+                                            style="color: var(--kp-blue);">
                                             Se connecter
                                         </a>
                                     </p>
@@ -954,7 +821,7 @@
                     </div>
 
                     <!-- Titre -->
-                    <h3 class="fw-bold mb-3" style="color: #0d6efd;">Email enregistré avec succès !</h3>
+                    <h3 class="fw-bold mb-3" style="color: var(--kp-blue);">Email enregistré avec succès !</h3>
 
                     <!-- Message -->
                     <p class="text-muted mb-4" style="font-size: 1.1rem;">
@@ -970,7 +837,7 @@
                             <input type="hidden" name="email" id="finalEmail" value="">
                             <input type="hidden" name="role_id" value="3">
                             <button type="submit" class="btn btn-primary btn-lg px-4 py-2 fw-bold"
-                                style="background: linear-gradient(135deg, #0d6efd, #004aad);
+                                style="background: linear-gradient(135deg, var(--kp-blue), var(--kp-blue-dark));
                                        border: none;
                                        border-radius: 50px;">
                                 <i class="bi bi-person-plus me-2"></i>Finaliser l'inscription
@@ -991,7 +858,7 @@
                 </div>
                 <div class="modal-body text-center p-4">
                     <div class="modal-icon mb-4 mx-auto d-flex align-items-center justify-content-center rounded-circle"
-                        style="width: 80px; height: 80px; background: #0000FF;">
+                        style="width: 80px; height: 80px; background: var(--kp-blue);">
                         <i class="bi bi-person-lock" style="font-size: 2.5rem; color: white;"></i>
                     </div>
                     <h4 class="fw-bold mb-3" style="color: #333;">Connexion requise</h4>
@@ -1001,11 +868,11 @@
                     </p>
                     <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
                         <a href="{{ route('login') }}" class="btn px-4 py-2"
-                            style="background: #0000FF; color: white; border-radius: 8px; text-decoration: none;">
+                            style="background: var(--kp-blue); color: white; border-radius: 8px; text-decoration: none;">
                             <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
                         </a>
                         <a href="{{ route('register.tuteur') }}" class="btn px-4 py-2"
-                            style="background: white; color: #0000FF; border: 2px solid #0000FF; border-radius: 8px; text-decoration: none;">
+                            style="background: white; color: var(--kp-blue); border: 2px solid var(--kp-blue); border-radius: 8px; text-decoration: none;">
                             <i class="bi bi-person-plus me-2"></i>Devenir tuteur
                         </a>
                     </div>
@@ -1014,35 +881,24 @@
         </div>
     </div>
 
-    <!-- Modals pour login/role -->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <!-- Modal : connexion requise (ouvert par « Postuler ») -->
+    <div class="modal fade kp-modal" id="loginModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 20px; border: none;">
-                <div class="modal-header border-0">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center p-4">
-                    <div class="modal-icon mb-4 mx-auto d-flex align-items-center justify-content-center rounded-circle"
-                        style="width: 90px; height: 90px; background: #0000FF;">
-                        <i class="bi bi-person-lock" style="font-size: 3rem; color: white;"></i>
+                <div class="modal-body text-center px-4 pb-4 pt-0">
+                    <div class="kp-modal__icon"><i class="bi bi-person-lock"></i></div>
+                    <h3 class="kp-modal__title">Connexion requise</h3>
+                    <p class="kp-modal__text" id="modalMessage"></p>
+                    <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+                        <a href="{{ route('login') }}" class="kp-btn kp-btn--primary">Se connecter</a>
+                        <a href="{{ route('register') }}" class="kp-btn kp-btn--secondary">S'inscrire</a>
                     </div>
-                    <h3 class="fw-bold mb-3" style="color: #333;">Connexion requise</h3>
-                    <p class="text-muted mb-4" id="modalMessage"></p>
-                    <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
-                        <a href="{{ route('login') }}" class="btn px-4 py-2"
-                            style="background: #0000FF; color: white; border-radius: 10px; text-decoration: none; font-weight: 500;">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
-                        </a>
-                        <a href="{{ route('register') }}" class="btn px-4 py-2"
-                            style="background: white; color: #0000FF; border: 2px solid #0000FF; border-radius: 10px; text-decoration: none; font-weight: 500;">
-                            <i class="bi bi-person-plus me-2"></i>S'inscrire
-                        </a>
-                    </div>
-                    <div class="mt-4 pt-3 border-top">
-                        <p class="mb-2 text-muted">Vous êtes tuteur ?</p>
-                        <a href="{{ route('register.tuteur') }}" class="text-decoration-none" style="color: #0000FF;">
-                            <i class="bi bi-arrow-right"></i> Créer un compte tuteur
-                        </a>
+                    <div class="kp-modal__foot">
+                        Vous êtes tuteur ?
+                        <a href="{{ route('register.tuteur') }}">Créer un compte tuteur</a>
                     </div>
                 </div>
             </div>
@@ -1077,7 +933,7 @@
                             </p>
                         @endauth
                         <a href="{{ route('home') }}" class="btn px-4 py-2"
-                            style="background: #0000FF; color: white; border-radius: 10px; text-decoration: none; font-weight: 500;">
+                            style="background: var(--kp-blue); color: white; border-radius: 10px; text-decoration: none; font-weight: 500;">
                             <i class="bi bi-house me-2"></i>Retour à l'accueil
                         </a>
                     </div>
@@ -1092,8 +948,8 @@
     <style>
         /* ===== VARIABLES ===== */
         :root {
-            --primary: #0B69F1;
-            --primary-dark: #004aad;
+            --primary: var(--kp-blue);
+            --primary-dark: var(--kp-blue-dark);
             --secondary: #00a36c;
             --text-dark: #2c3e50;
             --text-muted: #6c757d;
@@ -1112,7 +968,7 @@
         .hero-title {
             font-size: 3.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            background: linear-gradient(135deg, var(--kp-blue), #0a58ca);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 1rem;
@@ -1151,7 +1007,7 @@
 
         .input-group-text i {
             font-size: 1.3rem;
-            color: #0d6efd;
+            color: var(--kp-blue);
         }
 
         .form-control {
@@ -1167,7 +1023,7 @@
         .btn-primary {
             border-radius: 50px;
             padding: 12px 30px;
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            background: linear-gradient(135deg, var(--kp-blue), #0a58ca);
             border: none;
             font-weight: 600;
             transition: all 0.3s ease;
@@ -1190,12 +1046,12 @@
         }
 
         .filter-select:hover {
-            border-color: #0d6efd;
+            border-color: var(--kp-blue);
             background: #f8f9fa;
         }
 
         .filter-select:focus {
-            border-color: #0d6efd;
+            border-color: var(--kp-blue);
             box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
         }
 
@@ -1218,7 +1074,7 @@
         .stat-number {
             font-size: 1.8rem;
             font-weight: 800;
-            color: #0d6efd;
+            color: var(--kp-blue);
             margin-bottom: 5px;
             line-height: 1.2;
         }
@@ -1299,7 +1155,7 @@
         .badge-icon {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            background: linear-gradient(135deg, var(--kp-blue), #0a58ca);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -1329,162 +1185,13 @@
             color: #6c757d;
         }
 
-        /* ===== CARTES D'INSCRIPTION ===== */
-        .registration-row {
-            margin-top: 50px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .registration-cards-container {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-
-        .registration-card {
-            flex: 0 1 350px;
-            background: white;
-            border-radius: 30px;
-            padding: 35px 30px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            transform: translateY(50px);
-            margin-bottom: -20px;
-        }
-
-        .registration-card:hover {
-            transform: translateY(40px) scale(1.02);
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.2);
-        }
-
-        .registration-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, #0d6efd, #0a58ca);
-            border-radius: 30px 30px 0 0;
-        }
-
-        .student-card::before {
-            background: linear-gradient(90deg, #20c997, #0dcaf0);
-        }
-
-        .browse-card::before {
-            background: linear-gradient(90deg, #6f42c1, #d63384);
-        }
-
-        .card-icon-wrapper {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #e6f0ff, #cce0ff);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-
-        .student-card .card-icon-wrapper {
-            background: linear-gradient(135deg, #e6faf5, #cff2e9);
-        }
-
-        .browse-card .card-icon-wrapper {
-            background: linear-gradient(135deg, #f3e8ff, #e6d9ff);
-        }
-
-        .card-icon-wrapper i {
-            font-size: 2.8rem;
-            color: #0d6efd;
-        }
-
-        .student-card .card-icon-wrapper i {
-            color: #20c997;
-        }
-
-        .browse-card .card-icon-wrapper i {
-            color: #6f42c1;
-        }
-
-        .registration-card h3 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-
-        .card-description {
-            color: #6c757d;
-            line-height: 1.6;
-            margin-bottom: 25px;
-            font-size: 1rem;
-        }
-
-        .btn-register {
-            width: 100%;
-            padding: 15px 25px;
-            border-radius: 15px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: none;
-            text-decoration: none;
-        }
-
-        .tutor-register {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
-            color: white;
-            box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
-        }
-
-        .tutor-register:hover {
-            background: linear-gradient(135deg, #0a58ca, #084298);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(13, 110, 253, 0.3);
-        }
-
-        .student-register {
-            background: linear-gradient(135deg, #20c997, #0dcaf0);
-            color: white;
-            box-shadow: 0 10px 20px rgba(32, 201, 151, 0.2);
-        }
-
-        .student-register:hover {
-            background: linear-gradient(135deg, #1ba87e, #0bb5d0);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(32, 201, 151, 0.3);
-        }
-
-        .browse-register {
-            background: linear-gradient(135deg, #6f42c1, #d63384);
-            color: white;
-            box-shadow: 0 10px 20px rgba(111, 66, 193, 0.2);
-        }
-
-        .browse-register:hover {
-            background: linear-gradient(135deg, #5a32a3, #b82b6f);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(111, 66, 193, 0.3);
-        }
+        /* ===== CARTES D'INSCRIPTION : voir .kp-cards-section / .kp-rcard
+                 (ancien CSS hors-charte supprimé) ===== */
 
         /* ===== MATIÈRES SECTION ===== */
         .subjects-section {
             background: linear-gradient(135deg, #fafbfc 0%, #f5f7fa 100%);
-            padding: 100px 0;
+            padding: var(--kp-section-py) 0;
             position: relative;
             overflow: hidden;
         }
@@ -1516,11 +1223,7 @@
         }
 
         .gradient-text {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca, #6f42c1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-size: 200% 200%;
-            animation: gradientShift 8s ease infinite;
+            color: var(--kp-ink);
         }
 
         @keyframes gradientShift {
@@ -1536,12 +1239,11 @@
         }
 
         .divider {
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(90deg, #0d6efd, #6f42c1);
-            border-radius: 2px;
-            margin-top: 20px;
-            animation: dividerPulse 2s ease-in-out infinite;
+            width: 64px;
+            height: 3px;
+            background: var(--kp-yellow);
+            border-radius: 3px;
+            margin-top: 16px;
         }
 
         @keyframes dividerPulse {
@@ -1560,8 +1262,56 @@
 
         .subjects-carousel-container {
             position: relative;
-            padding: 20px 60px;
             z-index: 1;
+        }
+        /* chevrons retirés — on navigue au glissement (drag/swipe) */
+        .subjects-carousel-container .carousel-nav-btn { display: none; }
+
+        /* Cadre englobant le carousel + le bouton « Explorer » */
+        .subjects-frame {
+            position: relative;
+            padding: 24px 20px;
+        }
+        .subjects-frame::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1.5px solid #1a1a1a;   /* les traits (noir) */
+            pointer-events: none;
+        }
+        /* 4 petits carrés jaunes aux coins */
+        .subjects-frame::after {
+            content: "";
+            position: absolute;
+            inset: -5px;
+            pointer-events: none;
+            background:
+                linear-gradient(#1a1a1a, #1a1a1a) left top / 10px 10px no-repeat,
+                linear-gradient(#1a1a1a, #1a1a1a) right top / 10px 10px no-repeat,
+                linear-gradient(#1a1a1a, #1a1a1a) left bottom / 10px 10px no-repeat,
+                linear-gradient(#1a1a1a, #1a1a1a) right bottom / 10px 10px no-repeat;
+        }
+
+        /* Indicateurs (petits traits) du carousel matières */
+        .subjects-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 22px;
+        }
+        .subjects-dots button {
+            width: 26px;
+            height: 5px;
+            padding: 0;
+            border: none;
+            border-radius: 3px;
+            background: var(--kp-border);
+            cursor: pointer;
+            transition: var(--kp-transition);
+        }
+        .subjects-dots button.active {
+            background: var(--kp-yellow);
+            width: 40px;
         }
 
         .subjects-grid-wrapper {
@@ -1571,10 +1321,31 @@
         }
 
         .subjects-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 30px;
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scroll-snap-type: x mandatory;
+            cursor: grab;
+            padding-bottom: 4px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;          /* cacher la barre de la bande (Firefox) */
+        }
+        .subjects-grid::-webkit-scrollbar { display: none; }   /* Chrome/Safari/Edge */
+        .subjects-grid.dragging {
+            cursor: grabbing;
+            scroll-behavior: auto;
+            scroll-snap-type: none;
+        }
+        .subject-card-wrapper {
+            flex: 0 0 calc((100% - 48px) / 3);   /* 3 cartes visibles (2 gaps de 24px) */
+            scroll-snap-align: start;
+        }
+        @media (max-width: 991px) {
+            .subject-card-wrapper { flex: 0 0 calc((100% - 24px) / 2); }   /* 2 visibles */
+        }
+        @media (max-width: 600px) {
+            .subject-card-wrapper { flex: 0 0 86%; }                       /* ~1 visible */
         }
 
         .subject-card-wrapper {
@@ -1582,57 +1353,43 @@
         }
 
         .subject-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 30px 20px 35px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(13, 110, 253, 0.05);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: var(--kp-white);
+            border-radius: var(--kp-radius);
+            padding: 30px 22px;
+            box-shadow: var(--kp-shadow-sm);
+            transition: var(--kp-transition);
             position: relative;
             height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--kp-border);
         }
 
         .subject-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 30px 60px rgba(13, 110, 253, 0.15), 0 0 0 2px rgba(13, 110, 253, 0.1);
-            background: white;
+            transform: translateY(-6px);
+            box-shadow: var(--kp-shadow-lg);
+            border-color: color-mix(in srgb, var(--kp-blue), transparent 70%);
         }
 
         .subject-icon {
-            width: 90px;
-            height: 90px;
-            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            width: 84px;
+            height: 84px;
+            background: color-mix(in srgb, var(--kp-yellow), white 82%);   /* jaune doux, même opacité */
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.4s ease;
-            border: 2px solid rgba(13, 110, 253, 0.1);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-            margin-bottom: 25px;
-        }
-
-        .subject-card:hover .subject-icon {
-            transform: rotate(5deg) scale(1.1);
-            border-color: #0d6efd;
-            box-shadow: 0 15px 30px rgba(13, 110, 253, 0.2);
+            margin: 0 auto 22px;          /* cercle parfaitement centré */
+            border: none;
         }
 
         .subject-icon i {
-            font-size: 3rem;
-            color: #0d6efd;
-            transition: all 0.4s ease;
+            font-size: 2.4rem;
+            color: var(--kp-yellow);       /* icône en jaune */
         }
-
-        .subject-card:hover .subject-icon i {
-            transform: scale(1.1);
-            color: #0a58ca;
-        }
+        /* pas de hover sur l'icône */
 
         .subject-title {
             font-size: 1.4rem;
@@ -1652,69 +1409,51 @@
             transform: translateX(-50%);
             width: 40px;
             height: 2px;
-            background: linear-gradient(90deg, #0d6efd, transparent);
+            background: linear-gradient(90deg, var(--kp-blue), transparent);
             transition: all 0.3s ease;
         }
 
         .subject-card:hover .subject-title::after {
             width: 60px;
-            background: linear-gradient(90deg, #0d6efd, #6f42c1);
+            background: var(--kp-blue);
         }
 
+        /* texte simple, pas un bouton */
         .subject-stats {
-            background: linear-gradient(135deg, rgba(13, 110, 253, 0.05), rgba(111, 66, 193, 0.05));
-            padding: 12px 20px;
-            border-radius: 50px;
-            margin-bottom: 25px;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(13, 110, 253, 0.1);
-            backdrop-filter: blur(5px);
-        }
-
-        .subject-card:hover .subject-stats {
-            background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(111, 66, 193, 0.1));
-            border-color: rgba(13, 110, 253, 0.2);
-            transform: scale(1.05);
+            margin-bottom: 20px;
         }
 
         .tutor-count {
-            font-size: 1.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #0d6efd, #6f42c1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-right: 5px;
+            color: var(--kp-blue);
+            margin-right: 4px;
         }
 
         .tutor-label {
-            font-size: 0.95rem;
-            color: #495057;
+            font-size: 0.9rem;
+            color: var(--kp-muted);
             font-weight: 500;
         }
 
         .subject-link {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            color: #0d6efd;
+            gap: 8px;
+            color: var(--kp-blue);
             text-decoration: none;
-            font-weight: 500;
-            padding: 12px 25px;
-            border-radius: 50px;
-            background: white;
-            border: 2px solid rgba(13, 110, 253, 0.1);
-            transition: all 0.4s ease;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px 22px;
+            border-radius: var(--kp-radius-pill);
+            background: var(--kp-white);
+            border: 1.5px solid var(--kp-blue);
+            transition: var(--kp-transition);
             margin-top: auto;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.02);
         }
 
         .subject-link:hover {
-            background: linear-gradient(135deg, #0d6efd, #6f42c1);
-            color: white;
-            gap: 15px;
-            padding: 12px 30px;
-            border-color: transparent;
-            box-shadow: 0 10px 25px rgba(13, 110, 253, 0.3);
+            background: var(--kp-blue);
+            color: var(--kp-white);
         }
 
         .subject-link i {
@@ -1730,37 +1469,39 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            width: 55px;
-            height: 55px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: white;
-            border: none;
-            color: #0d6efd;
-            font-size: 1.8rem;
+            background: var(--kp-white);
+            color: var(--kp-blue);
+            font-size: 1.4rem;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: var(--kp-transition);
             z-index: 10;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border: 2px solid rgba(13, 110, 253, 0.1);
+            box-shadow: var(--kp-shadow);
+            border: 1.5px solid var(--kp-blue);
         }
 
         .carousel-nav-btn:hover {
-            background: linear-gradient(135deg, #0d6efd, #6f42c1);
-            color: white;
-            transform: translateY(-50%) scale(1.1);
-            box-shadow: 0 15px 35px rgba(13, 110, 253, 0.3);
-            border-color: transparent;
+            background: var(--kp-blue);
+            color: var(--kp-white);
+            border-color: var(--kp-blue);
         }
 
         .carousel-nav-btn.prev-btn {
-            left: -15px;
+            left: -56px;        /* chevrons dans la marge, hors des cartes */
         }
 
         .carousel-nav-btn.next-btn {
-            right: -15px;
+            right: -56px;
+        }
+
+        /* En tablette/mobile : pas de place pour les chevrons → on glisse (drag/swipe) */
+        @media (max-width: 991px) {
+            .carousel-nav-btn { display: none !important; }
         }
 
         /* Indicateurs de page */
@@ -1789,7 +1530,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #0d6efd, #6f42c1);
+            background: var(--kp-blue);
             transform: translateX(-100%);
             transition: transform 0.4s ease;
         }
@@ -1806,23 +1547,23 @@
         .btn-view-all {
             display: inline-flex;
             align-items: center;
-            padding: 18px 45px;
-            background: linear-gradient(135deg, #0d6efd, #6f42c1);
-            color: white;
+            gap: 8px;
+            padding: 14px 32px;
+            background: var(--kp-blue);
+            color: var(--kp-white);
             text-decoration: none;
             font-weight: 600;
-            font-size: 1.2rem;
-            border-radius: 60px;
-            box-shadow: 0 15px 30px rgba(13, 110, 253, 0.2);
-            transition: all 0.4s ease;
+            font-size: 15px;
+            border-radius: var(--kp-radius-pill);
+            box-shadow: var(--kp-shadow-sm);
+            transition: var(--kp-transition);
             border: none;
-            position: relative;
-            overflow: hidden;
         }
 
         .btn-view-all:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(13, 110, 253, 0.3);
+            background: var(--kp-blue-dark);
+            color: var(--kp-white);          /* texte blanc au hover */
+            transform: translateY(-2px);
         }
 
         .btn-view-all i {
@@ -1836,7 +1577,7 @@
         /* ===== ANNONCES SECTION ===== */
         .annonces-section {
             background: white;
-            padding: 80px 0;
+            padding: var(--kp-section-py) 0;
             position: relative;
         }
 
@@ -1847,7 +1588,7 @@
         }
 
         .filter-label {
-            color: #0000FF !important;
+            color: var(--kp-blue) !important;
             font-size: 0.9rem;
         }
 
@@ -1862,15 +1603,16 @@
 
         .form-control:focus,
         .form-select:focus {
-            border-color: #0000FF;
+            border-color: var(--kp-blue);
             box-shadow: 0 0 0 0.2rem rgba(0, 0, 255, 0.1);
             outline: none;
         }
 
         .annonces-carousel-container {
-            padding: 20px 60px;
+            padding: 8px 0;        /* cartes pleine largeur */
             position: relative;
         }
+        .annonces-carousel-container .carousel-nav-btn { display: none; }
 
         .annonces-carousel-wrapper {
             overflow: hidden;
@@ -1879,30 +1621,114 @@
 
         .annonces-carousel {
             display: flex;
-            gap: 25px;
-            transition: transform 0.5s ease;
+            gap: 24px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scroll-snap-type: x mandatory;
+            cursor: grab;
+            padding-bottom: 4px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
+        .annonces-carousel::-webkit-scrollbar { display: none; }
+        .annonces-carousel.dragging { cursor: grabbing; scroll-behavior: auto; scroll-snap-type: none; }
 
         .annonce-card-wrapper {
-            flex: 0 0 calc(33.333% - 17px);
-            min-width: 300px;
+            flex: 0 0 calc((100% - 48px) / 3);   /* 3 visibles (2 gaps de 24px) */
+            scroll-snap-align: start;
         }
 
         .annonce-card {
-            padding: 25px;
+            padding: 24px;
             height: 100%;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
-            border: 1px solid #e0e0e0;
+            transition: var(--kp-transition);
+            border: 1px solid var(--kp-border);
+            border-radius: var(--kp-radius);
+            background: var(--kp-white);
             position: relative;
         }
 
+        /* hover identique aux autres cartes */
         .annonce-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 255, 0.1) !important;
-            border-color: #0000FF;
+            transform: translateY(-6px);
+            box-shadow: var(--kp-shadow-lg);
+            border-color: color-mix(in srgb, var(--kp-blue), transparent 70%);
         }
+
+        /* ----- Contenu de la carte annonce (présentation soignée) ----- */
+        .annonce-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .annonce-domaine {
+            font-family: var(--kp-font-title);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--kp-ink);
+            margin: 0;
+            line-height: 1.3;
+        }
+        .annonce-budget { text-align: right; white-space: nowrap; }
+        .annonce-budget__amount {
+            display: block;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--kp-blue);
+            line-height: 1;
+        }
+        .annonce-budget__cur { font-size: .72rem; color: var(--kp-muted); font-weight: 600; }
+
+        .annonce-student {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid var(--kp-border);
+        }
+        .annonce-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex: 0 0 auto;
+            background: var(--kp-blue-soft);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .annonce-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .annonce-avatar i { font-size: 1.5rem; color: var(--kp-blue); }
+        .annonce-student__info { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+        .annonce-student__name { font-weight: 600; font-size: .9rem; color: var(--kp-text); }
+        .annonce-student__date { font-size: .78rem; color: var(--kp-muted); }
+
+        .annonce-desc {
+            color: var(--kp-text);
+            font-size: .92rem;
+            line-height: 1.55;
+            margin: 0 0 16px;
+            flex: 1 1 auto;
+        }
+
+        .annonce-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            align-self: flex-start;
+            background: var(--kp-surface);
+            border: 1px solid var(--kp-border);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-bottom: 16px;
+        }
+        .annonce-tag i { color: var(--kp-blue); font-size: .95rem; }
+        .annonce-tag span { font-size: .85rem; color: var(--kp-muted); }
 
         .card-badge {
             position: absolute;
@@ -1912,7 +1738,7 @@
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 500;
-            background: #0000FF;
+            background: var(--kp-blue);
             color: white;
         }
 
@@ -1934,31 +1760,75 @@
         }
 
         .carousel-indicator.active {
-            background: #0000FF;
+            background: var(--kp-blue);
             width: 60px;
         }
 
         /* ===== TUTEURS SECTION ===== */
         .tutors-gallery {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 80px 0;
+            padding: var(--kp-section-py) 0;
         }
 
         .tutor-card {
-            background: white;
-            border-radius: 20px;
+            background: var(--kp-white);
+            border: 1px solid var(--kp-border);
+            border-radius: var(--kp-radius);
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
+            box-shadow: var(--kp-shadow-sm);
+            transition: var(--kp-transition);
             height: 100%;
+            display: flex;
+            flex-direction: column;
         }
-
         .tutor-card:hover {
-            transform: translateY(-15px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            z-index: 50;
+            transform: translateY(-6px);
+            box-shadow: var(--kp-shadow-lg);
+            border-color: color-mix(in srgb, var(--kp-blue), transparent 70%);
         }
+        .tutor-card__media { position: relative; height: 88px; background: linear-gradient(135deg, var(--kp-blue-soft), #d8e7ff); }
+        .tutor-card__avatar {
+            position: absolute;
+            left: 50%;
+            bottom: -40px;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--kp-white);
+            background: var(--kp-white);
+            box-shadow: var(--kp-shadow-sm);
+        }
+        .tutor-card__avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1.4);
+            transform-origin: center 28%;
+        }
+        .tutor-card__badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--kp-blue);
+            color: var(--kp-white);
+            font-size: .78rem;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: var(--kp-radius-pill);
+            box-shadow: var(--kp-shadow-sm);
+        }
+        .tutor-card__body { padding: 50px 16px 18px; display: flex; flex-direction: column; flex: 1 1 auto; background: var(--kp-blue); text-align: center; }
+        .tutor-card__name { font-family: var(--kp-font-title); font-size: 1.05rem; font-weight: 700; color: var(--kp-white); margin: 0 0 4px; }
+        .tutor-card__subjects { color: rgba(255, 255, 255, .85); font-size: .9rem; margin: 0 0 8px; line-height: 1.4; }
+        .tutor-card__more { background: rgba(255, 255, 255, .22); color: var(--kp-white); padding: 1px 7px; border-radius: 10px; font-size: .75rem; font-weight: 600; }
+        .tutor-card__loc { color: rgba(255, 255, 255, .8); font-size: .85rem; display: flex; align-items: center; justify-content: center; gap: 5px; margin: 0 0 16px; }
+        .tutor-card__loc i { color: var(--kp-white); }
+        .tutor-card__btn { margin-top: auto; }
 
         .tutor-image-wrapper {
             position: relative;
@@ -2001,7 +1871,7 @@
             border: none;
             padding: 12px 24px;
             border-radius: 50px;
-            color: #0d6efd;
+            color: var(--kp-blue);
             font-weight: 600;
             display: flex;
             align-items: center;
@@ -2138,7 +2008,7 @@
         }
 
         .detail-item i {
-            color: #0d6efd;
+            color: var(--kp-blue);
             font-size: 1.2rem;
         }
 
@@ -2150,7 +2020,7 @@
         }
 
         .subject-badge {
-            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            background: linear-gradient(135deg, var(--kp-blue) 0%, #0a58ca 100%);
             color: white;
             padding: 8px 16px;
             border-radius: 50px;
@@ -2160,11 +2030,59 @@
 
         /* ===== CTA SECTION ===== */
         .annonces-cta-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 80px 0;
+            background: #14161c;   /* fond noir */
+            padding: var(--kp-section-py) 0;
             position: relative;
             overflow: hidden;
         }
+
+        /* Grille de carrés blancs en fond, qui s'efface vers les bords */
+        .annonces-cta-section::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(to right, rgba(255, 255, 255, .06) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, .06) 1px, transparent 1px);
+            background-size: 46px 46px;
+            -webkit-mask-image: radial-gradient(ellipse 75% 75% at 50% 45%, #000 25%, transparent 78%);
+            mask-image: radial-gradient(ellipse 75% 75% at 50% 45%, #000 25%, transparent 78%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .annonces-cta-section > .container { position: relative; z-index: 1; }
+
+        /* Cartes « recherches » : une bleue, une jaune */
+        .rs-card {
+            border-radius: var(--kp-radius);
+            padding: 32px 28px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: var(--kp-transition);
+        }
+        .rs-card:hover { transform: translateY(-6px); box-shadow: var(--kp-shadow-lg); }
+        .rs-card--blue { background: var(--kp-blue); }
+        .rs-card--white { background: var(--kp-white); }
+        .rs-card__media {
+            width: 128px;
+            height: 128px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 4px solid rgba(255, 255, 255, .6);
+        }
+        .rs-card--white .rs-card__media { border-color: rgba(0, 0, 0, .12); }
+        .rs-card__media img { width: 100%; height: 100%; object-fit: cover; }
+        .rs-card__title { font-family: var(--kp-font-title); font-size: 1.3rem; font-weight: 700; margin: 0 0 10px; }
+        .rs-card--blue .rs-card__title { color: var(--kp-white); }
+        .rs-card--white .rs-card__title { color: #1a1a1a; }
+        .rs-card__text { font-size: .95rem; line-height: 1.55; margin: 0 0 22px; max-width: 360px; }
+        .rs-card--blue .rs-card__text { color: rgba(255, 255, 255, .9); }
+        .rs-card--white .rs-card__text { color: var(--kp-muted); }
+        .rs-card .kp-btn { margin-top: auto; }
 
         .cta-card {
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -2181,7 +2099,7 @@
         }
 
         .cta-card:hover .circular-image {
-            border-color: #0000FF !important;
+            border-color: var(--kp-blue) !important;
         }
 
         .icon-badge {
@@ -2217,10 +2135,12 @@
         /* ===== INSCRIPTION SECTION ===== */
         .inscription-section {
             position: relative;
-            padding: 5rem 0;
+            padding: var(--kp-section-py) 0 0;   /* pas de padding bas : image collée au footer */
             overflow: hidden;
             background: #f8fafc;
         }
+
+        .background-image-wrapper { height: 100%; border-radius: 20px 20px 0 0; }   /* bas droit (collé au footer) */
 
         .inscription-form {
             transition: all 0.3s ease;
@@ -2410,7 +2330,7 @@
             }
 
             .inscription-section {
-                padding: 3rem 0;
+                padding: var(--kp-section-py) 0;
             }
 
             .col-lg-6.offset-lg-6 {
@@ -2514,78 +2434,86 @@
             const nextBtn = document.getElementById('nextSubjects');
             const indicators = document.getElementById('paginationIndicators');
 
-            if (grid && prevBtn && nextBtn) {
-                const cards = document.querySelectorAll('.subject-card-wrapper');
-                const cardsPerPage = 8;
-                const totalCards = cards.length;
-                const totalPages = Math.ceil(totalCards / cardsPerPage);
-                let currentPage = 0;
+            // ===== Carousel infini réutilisable (drag + molette + indicateurs + auto-défilement SANS retour) =====
+            function initInfiniteCarousel(track, dotsBox, cardSel, perView, interval) {
+                if (!track) return;
+                const base = track.querySelectorAll(cardSel).length;
+                if (!base) return;
 
-                function updateDisplay() {
-                    const start = currentPage * cardsPerPage;
-                    const end = start + cardsPerPage;
+                function unit() {
+                    const c = track.querySelector(cardSel);
+                    if (!c) return 0;
+                    const gap = parseFloat(getComputedStyle(track).columnGap || '24') || 24;
+                    return c.offsetWidth + gap;
+                }
+                function step() { return unit() * perView || track.clientWidth; }
+                function pages() { return Math.max(1, Math.ceil(base / perView)); }
+                function baseWidth() { return unit() * base; }
 
-                    cards.forEach((card, index) => {
-                        if (index >= start && index < end) {
-                            card.style.display = 'block';
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
-
-                    updateIndicators();
-
-                    prevBtn.disabled = currentPage === 0;
-                    nextBtn.disabled = currentPage >= totalPages - 1;
+                // Clone des cartes → la boucle continue vers l'avant (jamais de retour en arrière)
+                const looping = pages() > 1;
+                if (looping) {
+                    Array.from(track.querySelectorAll(cardSel)).forEach(c => track.appendChild(c.cloneNode(true)));
                 }
 
-                function createIndicators() {
-                    if (!indicators) return;
-                    indicators.innerHTML = '';
-                    for (let i = 0; i < totalPages; i++) {
-                        const indicator = document.createElement('button');
-                        indicator.className = 'page-indicator' + (i === currentPage ? ' active' : '');
-                        indicator.setAttribute('data-page', i);
-                        indicator.addEventListener('click', () => {
-                            currentPage = i;
-                            updateDisplay();
-                        });
-                        indicators.appendChild(indicator);
+                function curPage() {
+                    const s = step();
+                    return s ? ((Math.round(track.scrollLeft / s) % pages()) + pages()) % pages() : 0;
+                }
+                function buildDots() {
+                    if (!dotsBox) return;
+                    dotsBox.innerHTML = '';
+                    for (let i = 0; i < pages(); i++) {
+                        const b = document.createElement('button');
+                        b.type = 'button';
+                        b.setAttribute('aria-label', 'Page ' + (i + 1));
+                        b.addEventListener('click', () => track.scrollTo({ left: step() * i, behavior: 'smooth' }));
+                        dotsBox.appendChild(b);
                     }
+                    syncDots();
+                }
+                function syncDots() {
+                    if (!dotsBox) return;
+                    const c = curPage();
+                    Array.from(dotsBox.children).forEach((b, i) => b.classList.toggle('active', i === c));
+                }
+                track.addEventListener('scroll', syncDots, { passive: true });
+
+                track.addEventListener('wheel', (e) => {
+                    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { track.scrollLeft += e.deltaY; e.preventDefault(); }
+                }, { passive: false });
+
+                let down = false, sx = 0, ss = 0, moved = 0;
+                track.addEventListener('pointerdown', (e) => { down = true; moved = 0; sx = e.clientX; ss = track.scrollLeft; track.classList.add('dragging'); });
+                track.addEventListener('pointermove', (e) => { if (!down) return; const dx = e.clientX - sx; moved = Math.max(moved, Math.abs(dx)); track.scrollLeft = ss - dx; });
+                function up() { if (!down) return; down = false; track.classList.remove('dragging'); normalize(); }
+                track.addEventListener('pointerup', up);
+                track.addEventListener('pointercancel', up);
+                track.addEventListener('click', (e) => { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
+
+                function normalize() {
+                    if (!looping) return;
+                    const w = baseWidth();
+                    if (track.scrollLeft >= w) track.scrollLeft -= w;
+                    else if (track.scrollLeft < 0) track.scrollLeft += w;
                 }
 
-                function updateIndicators() {
-                    document.querySelectorAll('.page-indicator').forEach((btn, index) => {
-                        if (index === currentPage) btn.classList.add('active');
-                        else btn.classList.remove('active');
-                    });
+                let timer = null;
+                function next() {
+                    if (looping && track.scrollLeft >= baseWidth()) track.scrollLeft -= baseWidth();   // reset invisible (contenu identique)
+                    track.scrollBy({ left: step(), behavior: 'smooth' });
                 }
+                function start() { if (looping) { stop(); timer = setInterval(next, interval); } }
+                function stop() { if (timer) { clearInterval(timer); timer = null; } }
+                track.addEventListener('pointerenter', stop);
+                track.addEventListener('pointerleave', () => { up(); start(); });
 
-                prevBtn.addEventListener('click', () => {
-                    if (currentPage > 0) {
-                        currentPage--;
-                        updateDisplay();
-                    }
-                });
-
-                nextBtn.addEventListener('click', () => {
-                    if (currentPage < totalPages - 1) {
-                        currentPage++;
-                        updateDisplay();
-                    }
-                });
-
-                if (totalPages > 1) {
-                    createIndicators();
-                    updateDisplay();
-                } else {
-                    cards.forEach(card => {
-                        card.style.display = 'block';
-                    });
-                    prevBtn.style.display = 'none';
-                    nextBtn.style.display = 'none';
-                }
+                buildDots();
+                start();
+                window.addEventListener('resize', buildDots);
             }
+
+            initInfiniteCarousel(grid, document.getElementById('subjectsDots'), '.subject-card-wrapper', 3, 3500);
 
             // ===== CAROUSEL DES ANNONCES =====
             const annonceCarousel = document.getElementById('annoncesCarousel');
@@ -2593,62 +2521,7 @@
             const nextAnnonce = document.getElementById('nextAnnonce');
             const annonceIndicators = document.getElementById('annonceIndicators');
 
-            if (annonceCarousel && prevAnnonce && nextAnnonce) {
-                const annonceCards = document.querySelectorAll('.annonce-card-wrapper');
-                const visibleCards = window.innerWidth > 1200 ? 3 : (window.innerWidth > 768 ? 2 : 1);
-                const totalAnnonces = annonceCards.length;
-                const totalAnnoncePages = Math.ceil(totalAnnonces / visibleCards);
-                let currentAnnoncePage = 0;
-
-                function updateAnnonceCarousel() {
-                    const translateX = -(currentAnnoncePage * 100) + '%';
-                    annonceCarousel.style.transform = `translateX(${translateX})`;
-                    updateAnnonceIndicators();
-                }
-
-                function createAnnonceIndicators() {
-                    if (!annonceIndicators) return;
-                    annonceIndicators.innerHTML = '';
-                    for (let i = 0; i < totalAnnoncePages; i++) {
-                        const indicator = document.createElement('button');
-                        indicator.className = 'carousel-indicator' + (i === currentAnnoncePage ? ' active' : '');
-                        indicator.setAttribute('data-page', i);
-                        indicator.addEventListener('click', () => {
-                            currentAnnoncePage = i;
-                            updateAnnonceCarousel();
-                        });
-                        annonceIndicators.appendChild(indicator);
-                    }
-                }
-
-                function updateAnnonceIndicators() {
-                    document.querySelectorAll('.carousel-indicator').forEach((btn, index) => {
-                        if (index === currentAnnoncePage) btn.classList.add('active');
-                        else btn.classList.remove('active');
-                    });
-                }
-
-                prevAnnonce.addEventListener('click', () => {
-                    if (currentAnnoncePage > 0) {
-                        currentAnnoncePage--;
-                        updateAnnonceCarousel();
-                    }
-                });
-
-                nextAnnonce.addEventListener('click', () => {
-                    if (currentAnnoncePage < totalAnnoncePages - 1) {
-                        currentAnnoncePage++;
-                        updateAnnonceCarousel();
-                    }
-                });
-
-                if (totalAnnoncePages > 1) {
-                    createAnnonceIndicators();
-                } else {
-                    prevAnnonce.style.display = 'none';
-                    nextAnnonce.style.display = 'none';
-                }
-            }
+            initInfiniteCarousel(annonceCarousel, document.getElementById('annoncesDots'), '.annonce-card-wrapper', 3, 3500);
 
             // ===== FORMULAIRE D'INSCRIPTION =====
             const formStep1 = document.getElementById('inscriptionFormStep1');

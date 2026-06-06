@@ -1,0 +1,604 @@
+/* ============================================================================
+   KOPIAO — DESIGN SYSTEM (Phase 0)
+   Source unique de vérité pour les couleurs, boutons, champs et cartes.
+   Objectif : cohérence visuelle stricte sur tout le site.
+   Chargé APRÈS welcome.css et Bootstrap afin de pouvoir les harmoniser.
+   ----------------------------------------------------------------------------
+   Convention de nommage : préfixe « kp- » pour éviter toute collision avec
+   Bootstrap / welcome.css. On migre progressivement les composants vers ces
+   classes (boutons, champs, cartes).
+   ========================================================================== */
+
+:root {
+  /* --- Couleurs de marque ------------------------------------------------ */
+  --kp-blue:         #0B69F1;   /* Bleu principal (nav, structure, CTA)      */
+  --kp-blue-dark:    #004aad;   /* Dégradés, états hover                     */
+  --kp-blue-darker:  #003a8c;   /* Hover appuyé / focus ring                 */
+  --kp-blue-hover:   #0a57cc;   /* Hover des boutons : même teinte, plus foncé */
+  --kp-blue-soft:    #e7f0ff;   /* Fonds doux, surbrillances légères         */
+
+  /* Accent — utilisé avec parcimonie (~10 %), JAMAIS en texte de paragraphe */
+  --kp-yellow:       #ffc107;   /* Accent (CTA clés, badges, détails)        */
+  --kp-yellow-dark:  #e0a800;   /* Hover de l'accent                         */
+
+  /* --- Neutres ----------------------------------------------------------- */
+  --kp-ink:          #1b1535;   /* Titres                                    */
+  --kp-text:         #2a2541;   /* Texte courant                             */
+  --kp-muted:        #6b7280;   /* Texte secondaire / placeholders           */
+  --kp-bg:           #ffffff;   /* Fond global                               */
+  --kp-surface:      #f7f8fa;   /* Fond des cartes / zones                   */
+  --kp-border:       #e5e7eb;   /* Bordures champs / cartes                  */
+  --kp-white:        #ffffff;
+
+  /* --- Rayons ------------------------------------------------------------ */
+  --kp-radius-pill:  50px;      /* Boutons & champs « pills »                */
+  --kp-radius:       14px;      /* Cartes / conteneurs                       */
+  --kp-radius-sm:    10px;
+
+  /* --- Ombres ------------------------------------------------------------ */
+  --kp-shadow-sm:    0 1px 3px rgba(16, 24, 40, .08);
+  --kp-shadow:       0 6px 18px rgba(16, 24, 40, .10);
+  --kp-shadow-lg:    0 14px 34px rgba(16, 24, 40, .14);
+
+  /* --- Transitions ------------------------------------------------------- */
+  --kp-transition:   all .2s ease;
+
+  /* --- Gabarits ---------------------------------------------------------- */
+  --kp-control-h:    48px;      /* Hauteur commune boutons + champs          */
+  --kp-control-px:   24px;      /* Padding horizontal commun                 */
+  --kp-font:         15px;      /* Taille de texte des contrôles             */
+
+  /* --- Typographie ------------------------------------------------------- */
+  --kp-font-title:   "Rubik", system-ui, sans-serif;   /* titres            */
+  --kp-font-body:    "Roboto", system-ui, sans-serif;  /* texte courant     */
+  --kp-leading-tight: 1.2;
+  --kp-leading:       1.6;
+
+  /* --- Espacement vertical standard des sections (rythme uniforme) -------- */
+  --kp-section-py:    clamp(40px, 4.5vw, 64px);   /* ~40px mobile → 64px desktop */
+}
+
+/* ============================================================================
+   0bis. TYPOGRAPHIE — échelle sobre & minimaliste (fluide via clamp()).
+   Tailles volontairement modestes : hiérarchie claire, sans gros titres.
+   Titres = Rubik, texte = Roboto. À appliquer sur les sections en Phase 2.
+   ----------------------------------------------------------------------------
+   .kp-display  ~28→40px  | plus grand titre (hero)
+   .kp-title    ~22→30px  | titre de section (H2)
+   .kp-subtitle ~17→19px  | sous-titre / titre de carte
+   .kp-lead     ~17→18px  | paragraphe d'introduction
+   .kp-text       16px    | paragraphe courant
+   .kp-text-sm    14px    | texte secondaire / légende
+   ========================================================================== */
+
+.kp-display {
+  font-family: var(--kp-font-title);
+  font-size: clamp(1.75rem, 1.15rem + 2.4vw, 2.5rem);   /* 28px → 40px */
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--kp-ink);
+  margin: 0 0 .5rem;
+}
+.kp-title {
+  font-family: var(--kp-font-title);
+  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 1.875rem);   /* 22px → 30px */
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -.005em;
+  color: var(--kp-ink);
+  margin: 0 0 .5rem;
+}
+.kp-subtitle {
+  font-family: var(--kp-font-title);
+  font-size: clamp(1.05rem, .98rem + .35vw, 1.2rem);    /* 17px → 19px */
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--kp-ink);
+  margin: 0 0 .35rem;
+}
+.kp-lead {
+  font-family: var(--kp-font-body);
+  font-size: clamp(1.0625rem, 1rem + .2vw, 1.125rem);   /* 17px → 18px */
+  line-height: var(--kp-leading);
+  font-weight: 400;
+  color: var(--kp-text);
+  margin: 0 0 1rem;
+}
+.kp-text {
+  font-family: var(--kp-font-body);
+  font-size: 1rem;                                       /* 16px */
+  line-height: var(--kp-leading);
+  font-weight: 400;
+  color: var(--kp-text);
+  margin: 0 0 1rem;
+}
+.kp-text-sm {
+  font-family: var(--kp-font-body);
+  font-size: .875rem;                                    /* 14px */
+  line-height: 1.5;
+  color: var(--kp-muted);
+}
+.kp-eyebrow {
+  font-family: var(--kp-font-body);
+  font-size: .8125rem;                                   /* 13px */
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--kp-blue);
+  margin: 0 0 .5rem;
+}
+
+/* Modificateurs utiles */
+.kp-muted  { color: var(--kp-muted); }
+.kp-center { text-align: center; }
+.kp-mb-0   { margin-bottom: 0 !important; }
+
+/* ============================================================================
+   BASE — empêche le défilement horizontal indésirable.
+   Certaines sections (pas encore retravaillées) ont des éléments décoratifs
+   en position absolue qui dépassent à droite (left/right négatifs) → ce garde-
+   fou les recadre. On retirera ce filet quand chaque section sera nettoyée.
+   ========================================================================== */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Réserve en permanence l'espace de la scrollbar → pas de saut horizontal
+   quand un modal Bootstrap s'ouvre (il retire la scrollbar et ajoute un
+   padding-right pour compenser, ce qui décale la page). */
+html { scrollbar-gutter: stable; }
+body.modal-open { padding-right: 0 !important; }
+.modal-open .fixed-top { padding-right: 0 !important; }
+
+/* Aligne les boutons Bootstrap restants sur notre bleu (bg, hover, focus) */
+.btn-primary {
+  --bs-btn-bg: var(--kp-blue);
+  --bs-btn-border-color: var(--kp-blue);
+  --bs-btn-hover-bg: var(--kp-blue-hover);
+  --bs-btn-hover-border-color: var(--kp-blue-hover);
+  --bs-btn-active-bg: var(--kp-blue-hover);
+  --bs-btn-active-border-color: var(--kp-blue-hover);
+  --bs-btn-focus-shadow-rgb: 11, 105, 241;
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--kp-blue);
+  --bs-btn-border-color: var(--kp-blue);
+  --bs-btn-hover-bg: var(--kp-blue);
+  --bs-btn-hover-border-color: var(--kp-blue);
+  --bs-btn-active-bg: var(--kp-blue);
+  --bs-btn-active-border-color: var(--kp-blue);
+  --bs-btn-focus-shadow-rgb: 11, 105, 241;
+}
+
+/* ============================================================================
+   SCROLLBAR — fine & discrète sur desktop (plus étroite que celle par défaut).
+   ========================================================================== */
+@media (min-width: 992px) {
+  * {
+    scrollbar-width: thin;                                                   /* Firefox */
+    scrollbar-color: color-mix(in srgb, var(--kp-blue), transparent 25%) transparent;
+  }
+  ::-webkit-scrollbar { width: 1px; height: 1px; }                          /* Chrome/Edge/Safari */
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--kp-blue), transparent 35%);
+    border-radius: 1px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--kp-blue); }
+}
+
+/* ============================================================================
+   1. BOUTONS  —  un seul style : « pill ».
+   Tous les boutons partagent hauteur, rayon, typo et alignement.
+   Icône + texte parfaitement centrés via inline-flex + gap.
+   ========================================================================== */
+
+.kp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;                               /* espace icône/texte cohérent      */
+  min-height: var(--kp-control-h);
+  padding: 0 var(--kp-control-px);
+  border: 2px solid transparent;
+  border-radius: var(--kp-radius-pill);   /* PILL partout                     */
+  font-family: var(--default-font, system-ui);
+  font-size: var(--kp-font);
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--kp-transition);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.kp-btn:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--kp-blue), transparent 65%);
+  outline-offset: 2px;
+}
+/* État enfoncé (pendant le clic) — petit retour tactile */
+.kp-btn:active { transform: translateY(1px) scale(.99); }
+.kp-btn i,
+.kp-btn svg { font-size: 1.05em; line-height: 0; }  /* icônes alignées       */
+
+/* Icône à droite (boutons directionnels : « Voir plus », « Continuer ») */
+.kp-btn--icon-end { flex-direction: row-reverse; }
+
+/* -- Variantes --------------------------------------------------------- */
+
+/* Primaire : bleu plein */
+.kp-btn--primary {
+  background: var(--kp-blue);
+  border-color: var(--kp-blue);
+  color: var(--kp-white);
+}
+.kp-btn--primary:hover {
+  background: transparent;
+  border-color: var(--kp-blue);
+  color: var(--kp-blue);
+}
+
+/* Secondaire : contour bleu */
+.kp-btn--secondary {
+  background: transparent;
+  border-color: var(--kp-blue);
+  color: var(--kp-blue);
+}
+.kp-btn--secondary:hover {
+  background: var(--kp-blue);
+  color: var(--kp-white);            /* texte blanc au hover (cohérence)     */
+}
+
+/* Accent : jaune — réservé aux CTA stratégiques (~10 % des boutons) */
+.kp-btn--accent {
+  background: var(--kp-yellow);
+  border-color: var(--kp-yellow);
+  color: var(--kp-ink);              /* texte sombre = contraste sur jaune   */
+}
+.kp-btn--accent:hover {
+  background: var(--kp-blue);
+  border-color: var(--kp-blue);
+  color: var(--kp-white);
+}
+
+/* CTA « voir tout » en fin de section : bleu au repos, jaune au survol */
+.kp-btn--cta {
+  background: var(--kp-blue);
+  border-color: var(--kp-blue);
+  color: var(--kp-white);
+}
+.kp-btn--cta:hover {
+  background: var(--kp-yellow);
+  border-color: var(--kp-yellow);
+  color: #1a1a1a;
+}
+
+/* Sur fond bleu : bouton blanc (ex. retour-haut, CTA dans une bande bleue) */
+.kp-btn--on-blue {
+  background: var(--kp-white);
+  border-color: var(--kp-white);
+  color: var(--kp-blue);
+  box-shadow: var(--kp-shadow-sm);
+}
+.kp-btn--on-blue:hover {
+  background: var(--kp-blue-soft);
+  border-color: var(--kp-blue-soft);
+  color: var(--kp-blue-dark);
+}
+
+/* Fantôme : action discrète */
+.kp-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--kp-blue);
+}
+.kp-btn--ghost:hover { background: var(--kp-blue-soft); color: var(--kp-blue-dark); }
+
+/* -- Tailles ----------------------------------------------------------- */
+.kp-btn--sm  { min-height: 38px; padding: 0 16px; font-size: 14px; }
+.kp-btn--lg  { min-height: 56px; padding: 0 32px; font-size: 16px; }
+.kp-btn--block { display: flex; width: 100%; }
+
+.kp-btn:disabled,
+.kp-btn.is-disabled { opacity: .55; cursor: not-allowed; pointer-events: none; }
+
+/* ============================================================================
+   2. CHAMPS DE FORMULAIRE  —  hauteur, bordure, rayon, typo uniformes.
+   ========================================================================== */
+
+.kp-field,
+.kp-select {
+  display: block;
+  width: 100%;
+  min-height: var(--kp-control-h);
+  padding: 0 16px;
+  border: 1px solid var(--kp-border);
+  border-radius: var(--kp-radius-pill);
+  background: var(--kp-white);
+  color: var(--kp-text);
+  font-size: var(--kp-font);
+  line-height: 1.4;
+  transition: var(--kp-transition);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.kp-field::placeholder { color: var(--kp-muted); }
+.kp-field:focus,
+.kp-select:focus {
+  outline: none;
+  border-color: var(--kp-blue);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--kp-blue), transparent 80%);
+}
+
+/* Select : flèche claire indiquant le caractère déroulant */
+.kp-select {
+  padding-right: 42px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+}
+
+/* Champ avec icône à l'intérieur : <div class="kp-field-group"> */
+.kp-field-group { position: relative; display: flex; align-items: center; }
+.kp-field-group .kp-field { padding-left: 44px; }
+.kp-field-group > .kp-field-icon {
+  position: absolute;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--kp-muted);
+  pointer-events: none;
+  line-height: 0;
+}
+
+/* ============================================================================
+   3. CARTES  —  hover standardisé.
+   .kp-card             → carte informative : AUCUN effet (pas cliquable).
+   .kp-card--interactive→ carte cliquable : un seul comportement hover commun.
+   ========================================================================== */
+
+.kp-card {
+  background: var(--kp-surface);
+  border: 1px solid var(--kp-border);
+  border-radius: var(--kp-radius);
+  box-shadow: var(--kp-shadow-sm);
+}
+
+.kp-card--interactive {
+  cursor: pointer;
+  transition: var(--kp-transition);
+}
+.kp-card--interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--kp-shadow-lg);
+  border-color: color-mix(in srgb, var(--kp-blue), transparent 70%);
+}
+
+/* Pastille d'icône ronde (matières, services…) : fond bleu, icône blanche */
+.kp-icon-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--kp-blue);
+  color: var(--kp-white);
+  font-size: 26px;
+  line-height: 0;
+}
+.kp-icon-circle--accent { background: var(--kp-yellow); color: var(--kp-ink); }
+
+/* ============================================================================
+   4. UTILITAIRES
+   ========================================================================== */
+.kp-text-accent { color: var(--kp-yellow); }
+.kp-text-blue   { color: var(--kp-blue); }
+.kp-bg-blue     { background: var(--kp-blue); }
+
+/* Texte purement informatif (ex. « 0 tuteur disponible ») : pas un bouton */
+.kp-meta {
+  color: var(--kp-muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ============================================================================
+   5. FOOTER
+   ========================================================================== */
+
+/* Titres de colonnes : blancs, un peu plus grands, petit accent jaune discret */
+.footer-title {
+  color: var(--kp-white);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-bottom: .55rem;
+  position: relative;
+}
+.footer-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 32px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--kp-yellow);   /* accent ~10 % */
+}
+
+/* Newsletter : champ + bouton alignés et harmonisés (pills) */
+.footer-newsletter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.footer-newsletter-group .kp-btn { width: 100%; }
+
+/* Bouton « retour en haut » : blanc, bordure bleue, ombre — visible sur tout fond */
+.scroll-top {
+  background-color: var(--kp-white);
+  border: 2px solid var(--kp-blue);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  box-shadow: var(--kp-shadow);
+}
+.scroll-top i { color: var(--kp-blue); }
+.scroll-top:hover {
+  background-color: var(--kp-blue);
+  border-color: var(--kp-blue);
+}
+.scroll-top:hover i { color: var(--kp-white); }
+
+/* ============================================================================
+   6. MODALS — minimalistes (réutilisable : ajouter la classe .kp-modal)
+   ========================================================================== */
+.kp-modal .modal-content {
+  border: none;
+  border-radius: var(--kp-radius);
+  box-shadow: var(--kp-shadow-lg);
+}
+.kp-modal__icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--kp-yellow), white 82%);
+  color: var(--kp-yellow);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+}
+.kp-modal__title {
+  font-family: var(--kp-font-title);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--kp-ink);
+  margin: 0 0 .5rem;
+}
+.kp-modal__text {
+  color: var(--kp-muted);
+  font-size: .95rem;
+  line-height: 1.55;
+  margin: 0 auto 1.25rem;
+  max-width: 380px;
+}
+.kp-modal__foot {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--kp-border);
+  color: var(--kp-muted);
+  font-size: .9rem;
+}
+.kp-modal__foot a {
+  color: var(--kp-blue);
+  text-decoration: none;
+  font-weight: 600;
+}
+.kp-modal__foot a:hover { text-decoration: underline; }
+
+/* Bouton fermer (rond, discret) */
+.kp-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--kp-surface);
+  border: 1px solid var(--kp-border);
+  color: var(--kp-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: var(--kp-transition);
+}
+.kp-modal__close:hover { background: var(--kp-blue-soft); color: var(--kp-blue); }
+
+/* Profil tuteur (contenu du modal) */
+.kp-tutor { padding: 30px 26px 26px; }
+.kp-tutor__top { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.kp-tutor__avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex: 0 0 auto;
+  border: 3px solid var(--kp-blue-soft);
+  background: var(--kp-blue-soft);
+}
+.kp-tutor__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.4);
+  transform-origin: center 28%;
+}
+.kp-tutor__name {
+  font-family: var(--kp-font-title);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--kp-ink);
+  margin: 0 0 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.kp-tutor__verified { color: var(--kp-blue); font-size: 1rem; }
+.kp-tutor__loc { color: var(--kp-muted); font-size: .9rem; margin: 0; display: flex; align-items: center; gap: 5px; }
+.kp-tutor__loc i { color: var(--kp-blue); }
+.kp-tutor__meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+.kp-tutor__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--kp-surface);
+  border: 1px solid var(--kp-border);
+  border-radius: 10px;
+  padding: 9px 13px;
+  font-size: .88rem;
+  color: var(--kp-text);
+}
+.kp-tutor__meta-item i { color: var(--kp-blue); }
+.kp-tutor__section { margin-bottom: 18px; }
+.kp-tutor__section:last-child { margin-bottom: 0; }
+.kp-tutor__section h6 {
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--kp-muted);
+  margin: 0 0 10px;
+}
+.kp-tutor__tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.kp-tag {
+  background: var(--kp-yellow);
+  color: #1a1a1a;
+  font-size: .82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--kp-radius-pill);
+}
+.kp-tutor__bio { color: var(--kp-text); font-size: .92rem; line-height: 1.6; margin: 0; }
+
+/* ============================================================================
+   PRELOADER — spinner fin & minimaliste (bleu de marque)
+   ========================================================================== */
+#preloader::before {
+  top: calc(50% - 24px);
+  left: calc(50% - 24px);
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--kp-blue-soft);   /* piste claire */
+  border-top-color: var(--kp-blue);        /* partie qui tourne, en bleu */
+  border-radius: 50%;
+}
