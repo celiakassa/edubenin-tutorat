@@ -44,11 +44,20 @@
             @endif
 
             @if (auth()->user()->isAdmin())
+                <a class="dash-nav__item {{ request()->routeIs('admin.teachers') || request()->routeIs('admin.teacher.*') ? 'active' : '' }}" href="{{ route('admin.teachers') }}">
+                    <i class="bi bi-person-workspace"></i> <span>Tuteurs</span>
+                </a>
                 <a class="dash-nav__item {{ request()->routeIs('apprenants.*') ? 'active' : '' }}" href="{{ route('apprenants.index') }}">
                     <i class="bi bi-mortarboard"></i> <span>Apprenants</span>
                 </a>
-                <a class="dash-nav__item {{ request()->routeIs('admin.teacher.*') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
-                    <i class="bi bi-person-workspace"></i> <span>Tuteurs</span>
+                <a class="dash-nav__item {{ request()->routeIs('admin.annonces') ? 'active' : '' }}" href="{{ route('admin.annonces') }}">
+                    <i class="bi bi-megaphone"></i> <span>Annonces</span>
+                </a>
+                <a class="dash-nav__item {{ request()->routeIs('admin.finances') ? 'active' : '' }}" href="{{ route('admin.finances') }}">
+                    <i class="bi bi-cash-coin"></i> <span>Finances</span>
+                </a>
+                <a class="dash-nav__item {{ request()->routeIs('admin.subjects') ? 'active' : '' }}" href="{{ route('admin.subjects') }}">
+                    <i class="bi bi-journal-bookmark"></i> <span>Matières</span>
                 </a>
             @endif
         @endauth

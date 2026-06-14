@@ -68,6 +68,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/teachers/{id}/identity-document', [AdminController::class, 'viewIdentityDocument'])->name('viewIdentityDocument');
         Route::post('/teachers/{id}/deactivate', [AdminController::class, 'deactivateAccount'])->name('teachers.deactivate');
         Route::post('/teachers/{id}/reactivate', [AdminController::class, 'reactivateAccount'])->name('teachers.reactivate');
+
+        // Modules SaaS
+        Route::get('/tuteurs', [AdminController::class, 'teachers'])->name('teachers');
+        Route::get('/finances', [AdminController::class, 'finances'])->name('finances');
+        Route::get('/annonces', [AdminController::class, 'annonces'])->name('annonces');
+        Route::delete('/annonces/{id}', [AdminController::class, 'destroyAnnonce'])->name('annonces.destroy');
+        Route::get('/matieres', [AdminController::class, 'subjects'])->name('subjects');
+        Route::post('/matieres', [AdminController::class, 'storeSubject'])->name('subjects.store');
+        Route::put('/matieres/{id}', [AdminController::class, 'updateSubject'])->name('subjects.update');
+        Route::delete('/matieres/{id}', [AdminController::class, 'destroySubject'])->name('subjects.destroy');
     });
 
     // ===== ROUTES TUTEUR (ABONNEMENT) =====
@@ -93,7 +103,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profil/show', [CompleterProfilUser::class, 'show'])->name('CompleterProfilUser.show');
 
         // Routes pour la gestion des apprenants
-        Route::resource('apprenants', ApprenantController::class);
+        Route::resource('apprenants', ApprenantController::class)->except(['create', 'store', 'edit', 'update']);
 
         // Routes supplémentaires pour les actions spécifiques
         Route::put('/apprenants/{id}/validate', [ApprenantController::class, 'validateApprenant'])->name('apprenants.validate');
