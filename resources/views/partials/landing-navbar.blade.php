@@ -78,6 +78,13 @@
             <span>Contact</span>
         </a>
 
+        @guest
+            <a href="{{ route('register.tuteur') }}" class="sidebar-link sidebar-link--cta">
+                <i class="bi bi-mortarboard"></i>
+                <span>Devenir tuteur</span>
+            </a>
+        @endguest
+
         @auth
             <a href="{{ route('dashboardUser') }}" class="sidebar-link">
                 <i class="bi bi-grid-1x2"></i>

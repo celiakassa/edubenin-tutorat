@@ -257,7 +257,15 @@
         .sidebar-link i { font-size: 1.15rem; width: 22px; text-align: center; }
         .sidebar-link span { font-size: 1rem; font-weight: 500; }
         .sidebar-link:hover,
-        .sidebar-link.is-active { background: rgba(255, 255, 255, .14); }
+        .sidebar-link:focus,
+        .sidebar-link.is-active { background: rgba(255, 255, 255, .14); color: var(--kp-white); }
+        .sidebar-link:hover i, .sidebar-link:hover span { color: var(--kp-white); }
+        /* CTA « Devenir tuteur » : accent jaune */
+        .sidebar-link--cta { background: var(--kp-yellow); color: var(--kp-blue-dark); font-weight: 700; margin-top: 8px; }
+        .sidebar-link--cta i, .sidebar-link--cta span { color: var(--kp-blue-dark); font-weight: 700; }
+        .sidebar-link--cta:hover,
+        .sidebar-link--cta:focus { background: var(--kp-yellow); color: var(--kp-blue-dark); filter: brightness(.95); }
+        .sidebar-link--cta:hover i, .sidebar-link--cta:hover span { color: var(--kp-blue-dark); }
         .logout-btn {
             background: none;
             width: 100%;
