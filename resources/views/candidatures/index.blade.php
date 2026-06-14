@@ -1,881 +1,325 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Candidatures - {{ $annonce->domaine }} | Kopiao</title>
-    <link href="{{ asset('images/image_1.webp') }}" rel="icon">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@extends('layouts.dashboard')
+
+@section('title', 'Candidatures - Kopiao')
+@section('page-title', 'Candidatures')
+
+@push('styles')
     <style>
-        :root {
-            --primary-color: #0351BC;
-            --primary-light: #4a7fd4;
-            --primary-dark: #023a8a;
-            --white: #ffffff;
-            --light-gray: #f8fafc;
-            --medium-gray: #e2e8f0;
-            --dark-gray: #64748b;
-            --text-dark: #1e293b;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
-        }
+        .cd-page { max-width: 900px; margin: 0 auto; }
+        .cd-back { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--kp-border); background: #fff; color: var(--kp-ink); text-decoration: none; margin-bottom: 16px; transition: all .2s; }
+        .cd-back:hover { background: var(--kp-blue); color: #fff; border-color: var(--kp-blue); }
+        .cd-head { margin-bottom: 20px; }
+        .cd-head h1 { font-family: var(--kp-font-title); font-size: var(--kp-fs-2xl); font-weight: 700; color: var(--kp-ink); margin: 0 0 8px; display: flex; align-items: center; gap: 10px; }
+        .cd-head h1 i { color: var(--kp-blue); }
+        .cd-meta { display: flex; gap: 16px; flex-wrap: wrap; }
+        .cd-meta span { display: inline-flex; align-items: center; gap: 6px; color: var(--kp-muted); font-size: var(--kp-fs-sm); }
+        .cd-meta i { color: var(--kp-blue); }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
+        .alert-message { padding: 12px 16px; border-radius: 11px; margin-bottom: 16px; font-weight: 500; font-size: var(--kp-fs-base); display: flex; align-items: center; gap: 9px; }
+        .alert-success { background: #e7f6ee; color: #1d7a48; }
+        .alert-error { background: #fee2e2; color: #991b1b; }
 
-        body {
-            background: linear-gradient(135deg, #2a819b 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            padding: 0;
-            position: relative;
-            overflow-x: hidden;
-        }
+        .cd-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: #fff; border: 1px solid var(--kp-border); border-radius: 12px; padding: 13px 15px; display: flex; align-items: center; gap: 11px; transition: border-color .2s, transform .2s; }
+        .stat-card:hover { border-color: var(--kp-blue); transform: translateY(-1px); }
+        .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: var(--kp-fs-md); color: #fff; flex-shrink: 0; }
+        .stat-icon.total { background: var(--kp-blue); }
+        .stat-icon.en-attente { background: #f59e0b; }
+        .stat-icon.acceptee { background: #10b981; }
+        .stat-icon.refusee { background: #e02c18; }
+        .stat-info { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+        .stat-info h3 { font-size: var(--kp-fs-xl); font-weight: 700; color: var(--kp-ink); margin: 0; }
+        .stat-info p { font-size: var(--kp-fs-xs); color: var(--kp-muted); margin: 0; }
 
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('{{ asset('images/image_4.webp') }}');
-            background-size: cover;
-            opacity: 0.1;
-        }
+        .charts-section { background: #fff; border: 1px solid var(--kp-border); border-radius: 14px; padding: 18px; margin-bottom: 20px; }
+        .chart-container { position: relative; height: 210px; max-width: 340px; margin: 0 auto; }
 
-    /* Navigation Styles */
-        .sidebar {
-            width: 280px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            border-right: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
+        .cd-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .cd-toolbar h2 { font-family: var(--kp-font-title); font-size: var(--kp-fs-lg); font-weight: 700; color: var(--kp-ink); margin: 0; display: flex; align-items: center; gap: 8px; }
+        .filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-btn { padding: 7px 14px; border: 1px solid var(--kp-border); border-radius: 20px; background: #fff; color: var(--kp-text); font-size: var(--kp-fs-sm); font-weight: 600; cursor: pointer; transition: all .2s; }
+        .filter-btn:hover { border-color: var(--kp-blue); }
+        .filter-btn.active { background: var(--kp-blue); color: #fff; border-color: var(--kp-blue); }
 
-        .sidebar-header {
-            padding: 30px 25px;
-            border-bottom: 1px solid var(--medium-gray);
-            text-align: center;
-        }
-
-        .platform-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--primary-color);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--white);
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .platform-name {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .platform-tagline {
-            font-size: 12px;
-            color: var(--dark-gray);
-            margin-bottom: 20px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 15px;
-            background: var(--light-gray);
-            border-radius: 12px;
-            margin-top: 15px;
-        }
-
-        .user-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: var(--white);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .user-details h4 {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .user-details p {
-            font-size: 12px;
-            color: var(--dark-gray);
-        }
-
-        .sidebar-stats {
-            padding: 20px 25px;
-            border-bottom: 1px solid var(--medium-gray);
-        }
-
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .stat-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: var(--dark-gray);
-        }
-
-        .stat-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .sidebar-menu {
-            padding: 20px 0;
-        }
-
-        .menu-item {
-            padding: 15px 25px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: var(--dark-gray);
-            text-decoration: none;
-        }
-
-        .menu-item:hover,
-        .menu-item.active {
-            background: var(--primary-light);
-            color: var(--white);
-            border-right: 3px solid var(--primary-color);
-        }
-
-        .menu-item i {
-            width: 20px;
-            text-align: center;
-            font-size: 16px;
-        }
-
-        .menu-text {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            padding: 30px;
-            min-height: 100vh;
-        }
-
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-            color: var(--white);
-            padding: 30px 40px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .header-info h1 {
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-
-        .annonce-info {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .info-badge {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-back {
-            background: var(--white);
-            color: var(--primary-color);
-            padding: 10px 20px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-back:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
-        }
-
-        /* Stats Cards */
-        .stats-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 25px 40px;
-            background: var(--light-gray);
-            border-bottom: 1px solid var(--medium-gray);
-        }
-
-        .stat-card {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: var(--white);
-        }
-
-        .stat-icon.en-attente { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); }
-        .stat-icon.acceptee { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
-        .stat-icon.refusee { background: linear-gradient(135deg, #ef4444 0%, #f87171 100%); }
-        .stat-icon.total { background: linear-gradient(135deg, #0351BC 0%, #4a7fd4 100%); }
-
-        .stat-info h3 {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 5px;
-        }
-
-        .stat-info p {
-            font-size: 14px;
-            color: var(--dark-gray);
-        }
-
-        /* Charts Section */
-        .charts-section {
-            padding: 30px 40px;
-            background: var(--white);
-            border-bottom: 1px solid var(--medium-gray);
-        }
-
-        .chart-container {
-            max-width: 600px;
-            margin: 0 auto;
-            position: relative;
-            height: 300px;
-        }
-
-        /* Candidatures List */
-        .candidatures-section {
-            padding: 30px 40px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--light-gray);
-        }
-
-        .section-title {
-            font-size: 20px;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .filter-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .filter-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 2px solid var(--medium-gray);
-            background: var(--white);
-            color: var(--dark-gray);
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn.active,
-        .filter-btn:hover {
-            background: var(--primary-color);
-            color: var(--white);
-            border-color: var(--primary-color);
-        }
-
-        .candidatures-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
-        }
-
-        .candidature-card {
-            background: var(--white);
-            border-radius: 16px;
-            padding: 25px;
-            border: 1px solid var(--medium-gray);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .candidature-card:hover {
-            border-color: var(--primary-light);
-            box-shadow: 0 6px 20px rgba(3, 81, 188, 0.1);
-            transform: translateY(-3px);
-        }
-
-        .candidature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 6px;
-            height: 100%;
-        }
-
-        .candidature-card.en-attente::before { background: var(--warning); }
-        .candidature-card.acceptee::before { background: var(--success); }
-        .candidature-card.refusee::before { background: var(--danger); }
-
-        .candidature-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .tuteur-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-            color: var(--white);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
-        .tuteur-info h3 {
-            font-size: 18px;
-            color: var(--text-dark);
-            margin-bottom: 5px;
-        }
-
-        .tuteur-matiere {
-            color: var(--primary-color);
-            font-weight: 500;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .candidature-status {
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
+        .candidature-status { padding: 3px 12px; border-radius: 20px; font-size: var(--kp-fs-2xs); font-weight: 600; display: inline-block; white-space: nowrap; }
         .status-en_attente { background: #fef3c7; color: #92400e; }
         .status-acceptee { background: #d1fae5; color: #065f46; }
         .status-refusee { background: #fee2e2; color: #991b1b; }
 
-        .candidature-details {
-            display: grid;
-            gap: 15px;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--light-gray);
+        /* Tableau des candidats */
+        .cand-table-wrap { background: #fff; border: 1px solid var(--kp-border); border-radius: 14px; overflow: auto; }
+        .cand-table { width: 100%; border-collapse: collapse; font-size: var(--kp-fs-base); }
+        .cand-table thead th { text-align: left; padding: 12px 16px; font-size: var(--kp-fs-2xs); text-transform: uppercase; letter-spacing: .5px; color: var(--kp-muted); font-weight: 700; border-bottom: 1px solid var(--kp-border); background: var(--kp-surface); white-space: nowrap; }
+        .cand-table tbody td { padding: 11px 16px; border-bottom: 1px solid var(--kp-border); color: var(--kp-ink); vertical-align: middle; white-space: nowrap; }
+        .cand-table tbody tr:last-child td { border-bottom: none; }
+        .candidature-card:hover { background: var(--kp-surface); }
+        .cand-tuteur { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+        .cand-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--kp-blue-soft); color: var(--kp-blue); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--kp-fs-xs); flex-shrink: 0; }
+        .cand-matiere { color: var(--kp-muted); }
+        .cand-rate { font-weight: 700; color: var(--kp-blue); }
+        .cand-actions { display: flex; gap: 6px; }
+        .cand-btn { width: 32px; height: 32px; border-radius: 8px; border: none; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: var(--kp-fs-sm); transition: all .2s; text-decoration: none; }
+        .cand-btn.accept { background: #d1fae5; color: #10b981; }
+        .cand-btn.accept:hover { background: #10b981; color: #fff; }
+        .cand-btn.reject { background: #fee2e2; color: #e02c18; }
+        .cand-btn.reject:hover { background: #e02c18; color: #fff; }
+        .cand-btn:disabled { opacity: .5; cursor: default; }
+        @media (max-width: 640px) { .col-hide-sm { display: none; } }
+        .candidature-card { cursor: pointer; }
+
+        /* Panneau candidat (droite) */
+        .cdrawer { position: fixed; inset: 0; z-index: 3200; display: none; }
+        .cdrawer.open { display: block; }
+        .cdrawer__overlay { position: fixed; inset: 0; background: rgba(11,18,32,.45); opacity: 0; transition: opacity .25s; }
+        .cdrawer.open .cdrawer__overlay { opacity: 1; }
+        .cdrawer__panel { position: absolute; top: 0; right: 0; bottom: 0; width: 420px; max-width: 92vw; background: #fff; box-shadow: -14px 0 50px rgba(0,0,0,.22); transform: translateX(100%); transition: transform .3s ease; display: flex; flex-direction: column; }
+        .cdrawer.open .cdrawer__panel { transform: translateX(0); }
+        .cdrawer__head { display: flex; justify-content: flex-end; padding: 14px 18px 0; }
+        .cdrawer__close { width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--kp-surface); color: var(--kp-ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .cdrawer__close:hover { background: var(--kp-blue); color: #fff; }
+        .cdrawer__body { flex: 1; overflow-y: auto; padding: 0; }
+        /* En-tête identité (centré, anneau jaune) */
+        .cdd-header { text-align: center; padding: 6px 22px 20px; background: linear-gradient(180deg, var(--kp-blue-soft), #fff); border-bottom: 1px solid var(--kp-border); }
+        .cdd-avatar { width: 84px; height: 84px; border-radius: 50%; background: #fff; color: var(--kp-blue); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--kp-fs-2xl); margin-bottom: 12px; border: 3px solid var(--kp-yellow); box-shadow: var(--kp-shadow-sm); }
+        .cdd-name { font-family: var(--kp-font-title); font-size: var(--kp-fs-xl); font-weight: 700; color: var(--kp-ink); margin: 0 0 4px; }
+        .cdd-subjects { color: var(--kp-muted); font-size: var(--kp-fs-sm); margin-bottom: 12px; }
+        /* Corps */
+        .cdd-content { padding: 18px 22px; }
+        /* Bandeau taux horaire (accent jaune) */
+        .cdd-rate-band { background: var(--kp-yellow); border-radius: 14px; padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+        .cdd-rate-band .lbl { font-size: var(--kp-fs-2xs); font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #1a1a1a; display: inline-flex; align-items: center; gap: 6px; }
+        .cdd-rate-band .val { font-family: var(--kp-font-title); font-size: var(--kp-fs-lg); font-weight: 800; color: #1a1a1a; white-space: nowrap; }
+        /* Grille détails */
+        .cdd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .cdd-item { background: var(--kp-surface); border-radius: 11px; padding: 10px 13px; }
+        .cdd-item--full { grid-column: 1 / -1; }
+        .cdd-item .lbl { display: flex; align-items: center; gap: 6px; font-size: var(--kp-fs-2xs); color: var(--kp-muted); font-weight: 700; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 3px; }
+        .cdd-item .lbl i { color: var(--kp-blue); }
+        .cdd-item .val { font-size: var(--kp-fs-base); font-weight: 700; color: var(--kp-ink); }
+        .cdd-bio { margin-top: 16px; }
+        .cdd-bio .lbl { font-size: var(--kp-fs-2xs); color: var(--kp-muted); font-weight: 700; text-transform: uppercase; letter-spacing: .3px; display: block; margin-bottom: 6px; }
+        .cdd-bio p { color: var(--kp-text); font-size: var(--kp-fs-sm); line-height: 1.65; margin: 0; background: var(--kp-surface); border-radius: 11px; padding: 12px 14px; }
+        .cdrawer__foot { padding: 14px 22px; border-top: 1px solid var(--kp-border); display: flex; gap: 10px; }
+        .cdrawer__foot .kp-btn { flex: 1; justify-content: center; }
+        .cdd-btn-accept { background: #10b981; color: #fff; }
+        .cdd-btn-accept:hover { background: #0ea271; color: #fff; }
+        .cdd-btn-reject { background: #e02c18; color: #fff; }
+        .cdd-btn-reject:hover { background: #c62411; color: #fff; }
+
+        .empty-state { text-align: center; padding: 50px 20px; }
+        .empty-icon { font-size: 54px; color: var(--kp-border); margin-bottom: 14px; }
+        .empty-state h3 { color: var(--kp-ink); font-size: var(--kp-fs-xl); margin-bottom: 8px; }
+        .empty-state p { color: var(--kp-muted); max-width: 440px; margin: 0 auto; }
+
+        /* Modale de confirmation */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(11,18,32,.5); z-index: 3500; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal-container { background: #fff; border-radius: 18px; padding: 28px; max-width: 420px; width: 100%; text-align: center; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
+        .modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 24px; color: var(--kp-muted); cursor: pointer; line-height: 1; }
+        .modal-icon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 16px; }
+        .modal-icon.success { background: #d1fae5; color: #10b981; }
+        .modal-icon.danger { background: #fee2e2; color: #e02c18; }
+        .modal-title { font-family: var(--kp-font-title); font-size: var(--kp-fs-xl); font-weight: 700; color: var(--kp-ink); margin: 0 0 10px; }
+        .modal-message { color: var(--kp-text); font-size: var(--kp-fs-base); line-height: 1.55; margin: 0 0 22px; }
+        .modal-buttons { display: flex; gap: 10px; }
+        .modal-btn { flex: 1; padding: 11px; border-radius: 10px; font-weight: 600; font-size: var(--kp-fs-base); cursor: pointer; border: none; }
+        .modal-btn.cancel { background: var(--kp-surface); color: var(--kp-ink); }
+        .modal-btn.confirm-success { background: #10b981; color: #fff; }
+        .modal-btn.confirm-danger { background: #e02c18; color: #fff; }
+
+        @media (max-width: 600px) { .candidatures-grid { grid-template-columns: 1fr; } }
+
+        /* ===== Mobile : tableau candidats → cartes ===== */
+        @media (max-width: 640px) {
+            .cd-head h1 { font-size: var(--kp-fs-xl); }
+            .cd-toolbar { flex-direction: column; align-items: stretch; gap: 12px; }
+            .filter-buttons { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+            .filter-btn { flex-shrink: 0; }
+
+            .cand-table-wrap { background: transparent; border: none; border-radius: 0; overflow: visible; }
+            .cand-table thead { display: none; }
+            .cand-table, .cand-table tbody, .cand-table tr, .cand-table td { display: block; }
+            /* Masquer Ville + Date (sinon td{display:block} les réaffiche) */
+            .cand-table td.col-hide-sm { display: none !important; }
+            /* Carte en flex : nom + badge sur la 1re ligne, le reste en dessous */
+            .cand-table tr.candidature-card { display: flex; flex-wrap: wrap; align-items: center; background: #fff; border: 1px solid var(--kp-border); border-radius: 14px; margin-bottom: 10px; padding: 15px 14px; }
+            .cand-table tbody td { border: none !important; padding: 0; white-space: normal; }
+            .cand-tuteur { order: 1; flex: 1 1 0%; width: auto; min-width: 0; gap: 11px; align-items: center; font-size: var(--kp-fs-md); font-weight: 700; color: var(--kp-ink); }
+            .cand-avatar { width: 42px; height: 42px; font-size: var(--kp-fs-sm); }
+            /* Statut : à droite du nom, même ligne (plus de chevauchement) */
+            .cand-col-status { order: 2; flex: 0 0 auto; width: auto; margin-left: 8px; }
+            /* Matière, taux et actions : chacun sur sa ligne, alignés sous le nom */
+            .cand-matiere { order: 3; flex: 0 0 100%; padding-left: 53px; margin-top: 9px; color: var(--kp-muted); font-size: var(--kp-fs-sm); }
+            .cand-rate { order: 4; flex: 0 0 100%; padding-left: 53px; margin-top: 3px; color: var(--kp-blue); font-weight: 700; font-size: var(--kp-fs-sm); }
+            .cand-rate::before { content: 'Taux : '; color: var(--kp-muted); font-weight: 400; }
+            .cand-col-actions { order: 5; flex: 0 0 100%; padding-left: 53px; margin-top: 12px; }
+            .cand-actions { justify-content: flex-start; gap: 8px; }
+            .cand-btn { width: 40px; height: 40px; font-size: var(--kp-fs-base); }
         }
 
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .detail-label {
-            color: var(--dark-gray);
-            font-size: 14px;
-        }
-
-        .detail-value {
-            color: var(--text-dark);
-            font-weight: 500;
-        }
-
-        .candidature-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn-action {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            border: none;
-            flex: 1;
-            justify-content: center;
-            min-width: 100px;
-        }
-
-        .btn-profil {
-            background: var(--info);
-            color: var(--white);
-        }
-
-        .btn-accepter {
-            background: var(--success);
-            color: var(--white);
-        }
-
-        .btn-refuser {
-            background: var(--danger);
-            color: var(--white);
-        }
-
-        .btn-action:hover {
-            transform: translateY(-2px);
-            opacity: 0.9;
-        }
-
-        .btn-action:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Styles pour les modales de confirmation */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-container {
-            background: var(--white);
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            padding: 30px;
-            position: relative;
-            transform: scale(0.9);
-            transition: all 0.3s ease;
-            animation: modalPop 0.3s ease forwards;
-        }
-
-        @keyframes modalPop {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .modal-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-        }
-
-        .modal-icon.warning {
-            background: #fef3c7;
-            color: var(--warning);
-        }
-
-        .modal-icon.success {
-            background: #d1fae5;
-            color: var(--success);
-        }
-
-        .modal-icon.danger {
-            background: #fee2e2;
-            color: var(--danger);
-        }
-
-        .modal-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-dark);
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .modal-message {
-            font-size: 16px;
-            color: var(--dark-gray);
-            text-align: center;
-            margin-bottom: 25px;
-            line-height: 1.6;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-        }
-
-        .modal-btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 16px;
-            min-width: 120px;
-        }
-
-        .modal-btn.cancel {
-            background: var(--light-gray);
-            color: var(--dark-gray);
-        }
-
-        .modal-btn.cancel:hover {
-            background: var(--medium-gray);
-            transform: translateY(-2px);
-        }
-
-        .modal-btn.confirm-warning {
-            background: var(--warning);
-            color: var(--white);
-        }
-
-        .modal-btn.confirm-warning:hover {
-            background: #e68a00;
-            transform: translateY(-2px);
-        }
-
-        .modal-btn.confirm-success {
-            background: var(--success);
-            color: var(--white);
-        }
-
-        .modal-btn.confirm-success:hover {
-            background: #0d9488;
-            transform: translateY(-2px);
-        }
-
-        .modal-btn.confirm-danger {
-            background: var(--danger);
-            color: var(--white);
-        }
-
-        .modal-btn.confirm-danger:hover {
-            background: #dc2626;
-            transform: translateY(-2px);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: var(--dark-gray);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .modal-close:hover {
-            color: var(--danger);
-            transform: rotate(90deg);
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            grid-column: 1 / -1;
-        }
-
-        .empty-icon {
-            font-size: 80px;
-            color: var(--medium-gray);
-            margin-bottom: 25px;
-        }
-
-        .empty-state h3 {
-            color: var(--text-dark);
-            font-size: 22px;
-            margin-bottom: 10px;
-        }
-
-        .empty-state p {
-            color: var(--dark-gray);
-            margin-bottom: 30px;
-            max-width: 500px;
-            margin: 0 auto 30px;
-        }
-
-        /* Messages */
-        .alert-message {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin: 0 40px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 500;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border-left: 4px solid #10b981;
-        }
-
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border-left: 4px solid #ef4444;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 20px;
-            }
-
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .stats-section,
-            .charts-section,
-            .candidatures-section {
-                padding: 20px;
-            }
-
-            .candidatures-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .section-header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            .candidature-actions {
-                flex-direction: column;
-            }
-
-            .btn-action {
-                width: 100%;
-            }
-
-            .modal-buttons {
-                flex-direction: column;
-            }
-
-            .modal-btn {
-                width: 100%;
-            }
+        /* ===== Mobile : panneau candidat → bottom sheet ===== */
+        @media (max-width: 575px) {
+            .cdrawer__panel { top: auto; left: 0; right: 0; bottom: 0; width: 100%; max-width: 100%; max-height: 90vh; border-radius: 20px 20px 0 0; transform: translateY(100%); box-shadow: 0 -14px 40px rgba(0, 0, 0, .25); }
+            .cdrawer.open .cdrawer__panel { transform: translateY(0); }
+            .cdrawer__panel::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 42px; height: 4px; border-radius: 4px; background: #d5dae2; z-index: 2; }
+            .modal-container { padding: 24px 18px; }
         }
     </style>
-</head>
-<body>
-    <!-- Navigation Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <a href="{{ route('dashboardUser') }}" style="text-decoration: none;">
-                <div class="platform-logo" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <div class="logo-icon"
-                        style="background-color: #3948c9; color: white; padding: 10px; border-radius: 6px; font-weight: bold;">
-                        KP
-                    </div>
-                    <div class="platform-name" style="font-size: 1.2em; font-weight: bold; color: #333;">
-                        Kopiao
-                    </div>
-                </div>
-            </a>
+@endpush
 
-            <div class="platform-tagline">Votre plateforme éducative</div>
+@section('content')
+    <div class="cd-page">
+        <a href="{{ route('candidatures.mes') }}" class="cd-back" title="Retour"><i class="fas fa-arrow-left"></i></a>
 
-            <div class="user-info">
-                <div class="user-avatar">
-                    {{ strtoupper(substr(Auth::user()->firstname, 0, 1) . substr(Auth::user()->lastname, 0, 1)) }}
-                </div>
-                <div class="user-details">
-                    <h4>{{ Auth::user()->firstname }} {{ Auth::user()->lastname }}</h4>
-                    <p>
-                        @if (Auth::user()->role_id == 3)
-                            Tuteur
-                        @elseif(Auth::user()->role_id == 2)
-                            Apprenant
-                        @else
-                            Administrateur
-                        @endif
-                    </p>
-                </div>
+        <div class="cd-head">
+            <h1><i class="fas fa-users"></i> Candidatures — {{ $annonce->subject->nom ?? 'Matière' }}</h1>
+            <div class="cd-meta">
+                <span><i class="fas fa-calendar"></i> {{ $annonce->created_at->format('d/m/Y') }}</span>
+                <span><i class="fas fa-money-bill-wave"></i> {{ number_format($annonce->budget, 0, ',', ' ') }} FCFA</span>
+                <span><i class="fas fa-laptop"></i> {{ ucfirst(str_replace('_', ' ', $annonce->format)) }}</span>
             </div>
         </div>
 
-        <div class="sidebar-menu">
-            <a href="{{ route('dashboardUser') }}" class="menu-item">
-                <i class="fas fa-home"></i>
-                <span class="menu-text">Tableau de bord</span>
-            </a>
-            <a href="{{ route('CompleterProfilUser.show') }}" class="menu-item">
-                <i class="fas fa-user-edit"></i>
-                <span class="menu-text">Mon profil</span>
-            </a>
-            <a href="{{ route('annonces.index') }}" class="menu-item">
-                <i class="fas fa-bullhorn"></i>
-                <span class="menu-text">Mes annonces</span>
-            </a>
-            <a href="{{ route('annonces.create') }}" class="menu-item">
-                <i class="fas fa-plus-circle"></i>
-                <span class="menu-text">Nouvelle annonce</span>
-            </a>
-            @if(Auth::user()->role_id == 1)
-                <a href="{{ route('admin.dashboard') }}" class="menu-item">
-                    <i class="fas fa-cog"></i>
-                    <span class="menu-text">Administration</span>
-                </a>
-            @endif
+
+        {{-- Stats --}}
+        <div class="cd-stats">
+            <div class="stat-card">
+                <div class="stat-icon total"><i class="fas fa-users"></i></div>
+                <div class="stat-info"><h3>{{ $stats['total'] }}</h3><p>Total</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon en-attente"><i class="fas fa-clock"></i></div>
+                <div class="stat-info"><h3>{{ $stats['en_attente'] }}</h3><p>En attente</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon acceptee"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info"><h3>{{ $stats['acceptees'] }}</h3><p>Acceptées</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon refusee"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-info"><h3>{{ $stats['refusees'] }}</h3><p>Refusées</p></div>
+            </div>
         </div>
+
+        <div class="cd-toolbar">
+            <h2><i class="fas fa-list"></i> Tuteurs candidats</h2>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">Tous ({{ $stats['total'] }})</button>
+                <button class="filter-btn" data-filter="en_attente">En attente ({{ $stats['en_attente'] }})</button>
+                <button class="filter-btn" data-filter="acceptee">Acceptées ({{ $stats['acceptees'] }})</button>
+                <button class="filter-btn" data-filter="refusee">Refusées ({{ $stats['refusees'] }})</button>
+            </div>
+        </div>
+
+        @if ($stats['total'] > 0)
+            <div class="cand-table-wrap">
+                <table class="cand-table">
+                    <thead>
+                        <tr>
+                            <th>Tuteur</th>
+                            <th>Matière</th>
+                            <th>Taux/h</th>
+                            <th class="col-hide-sm">Ville</th>
+                            <th>Statut</th>
+                            <th class="col-hide-sm">Postulé le</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="candidaturesGrid">
+                        @foreach ($candidaturesParStatut as $statut => $candidatures)
+                            @foreach ($candidatures as $candidature)
+                                @php
+                                    $cdName = $candidature->tuteur->firstname . ' ' . $candidature->tuteur->lastname;
+                                    $cdInit = strtoupper(substr($candidature->tuteur->firstname, 0, 1) . substr($candidature->tuteur->lastname, 0, 1));
+                                    $cdSubjects = $candidature->tuteur->subjects && $candidature->tuteur->subjects->count() > 0 ? $candidature->tuteur->subjects->pluck('nom')->implode(', ') : 'Non spécifiée';
+                                    $cdNote = $candidature->tuteur->satisfaction_score ? $candidature->tuteur->satisfaction_score . '/5' : 'Nouveau tuteur';
+                                @endphp
+                                <tr class="candidature-card" onclick="openCandidat(this)"
+                                    data-statut="{{ $candidature->statut }}"
+                                    data-id="{{ $candidature->id }}"
+                                    data-editable="{{ $candidature->estEnAttente() ? '1' : '' }}"
+                                    data-initials="{{ $cdInit }}"
+                                    data-name="{{ $cdName }}"
+                                    data-subjects="{{ $cdSubjects }}"
+                                    data-rate="{{ number_format($candidature->tuteur->rate_per_hour, 0, ',', ' ') }}"
+                                    data-city="{{ $candidature->tuteur->city ?? '—' }}"
+                                    data-note="{{ $cdNote }}"
+                                    data-bio="{{ $candidature->tuteur->bio ?? '' }}"
+                                    data-date="{{ $candidature->created_at->format('d/m/Y') }}">
+                                    <td>
+                                        <div class="cand-tuteur">
+                                            <div class="cand-avatar">{{ $cdInit }}</div>
+                                            {{ $cdName }}
+                                        </div>
+                                    </td>
+                                    <td class="cand-matiere">{{ $cdSubjects }}</td>
+                                    <td class="cand-rate">{{ number_format($candidature->tuteur->rate_per_hour, 0, ',', ' ') }} F</td>
+                                    <td class="col-hide-sm">{{ $candidature->tuteur->city ?? '—' }}</td>
+                                    <td class="cand-col-status"><span class="candidature-status status-{{ $candidature->statut }}">{{ $candidature->statut }}</span></td>
+                                    <td class="col-hide-sm">{{ $candidature->created_at->format('d/m/Y') }}</td>
+                                    <td class="cand-col-actions" onclick="event.stopPropagation();">
+                                        <div class="cand-actions">
+                                            @if ($candidature->estEnAttente())
+                                                <button type="button" class="cand-btn accept" title="Accepter" onclick="showAcceptModal({{ $candidature->id }}, '{{ addslashes($cdName) }}')"><i class="fas fa-check"></i></button>
+                                                <button type="button" class="cand-btn reject" title="Refuser" onclick="showRejectModal({{ $candidature->id }}, '{{ addslashes($cdName) }}')"><i class="fas fa-times"></i></button>
+                                            @else
+                                                <span style="color: var(--kp-muted); font-size: var(--kp-fs-sm);">—</span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-user-friends"></i></div>
+                <h3>Aucune candidature reçue</h3>
+                <p>Votre annonce n'a pas encore reçu de candidatures. Partagez-la pour attirer des tuteurs qualifiés.</p>
+            </div>
+        @endif
     </div>
 
-    <!-- Modales de confirmation -->
+    {{-- Panneau détails candidat (droite) --}}
+    <div class="cdrawer" id="candidatDrawer">
+        <div class="cdrawer__overlay" onclick="closeCandidat()"></div>
+        <aside class="cdrawer__panel">
+            <div class="cdrawer__head">
+                <button type="button" class="cdrawer__close" onclick="closeCandidat()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="cdrawer__body">
+                <div class="cdd-header">
+                    <div class="cdd-avatar" id="cdd-avatar"></div>
+                    <h2 class="cdd-name" id="cdd-name"></h2>
+                    <div class="cdd-subjects" id="cdd-subjects"></div>
+                    <span class="candidature-status" id="cdd-status"></span>
+                </div>
+                <div class="cdd-content">
+                    <div class="cdd-rate-band">
+                        <span class="lbl"><i class="fas fa-coins"></i> Taux horaire</span>
+                        <span class="val" id="cdd-rate"></span>
+                    </div>
+                    <div class="cdd-grid">
+                        <div class="cdd-item"><span class="lbl"><i class="fas fa-map-marker-alt"></i> Ville</span><span class="val" id="cdd-city"></span></div>
+                        <div class="cdd-item"><span class="lbl"><i class="fas fa-star"></i> Évaluation</span><span class="val" id="cdd-note"></span></div>
+                        <div class="cdd-item cdd-item--full"><span class="lbl"><i class="far fa-calendar"></i> Postulé le</span><span class="val" id="cdd-date"></span></div>
+                    </div>
+                    <div class="cdd-bio">
+                        <span class="lbl">À propos</span>
+                        <p id="cdd-bio"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="cdrawer__foot" id="cdd-foot">
+                <button type="button" class="kp-btn cdd-btn-accept" id="cdd-accept"><i class="fas fa-check"></i> Accepter</button>
+                <button type="button" class="kp-btn cdd-btn-reject" id="cdd-reject"><i class="fas fa-times"></i> Refuser</button>
+            </div>
+        </aside>
+    </div>
+
+    {{-- Modale de confirmation --}}
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-container" id="modalContainer">
             <button class="modal-close" id="modalClose">&times;</button>
@@ -889,421 +333,110 @@
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="container">
-            <!-- Header -->
-            <div class="header">
-                <div class="header-content">
-                    <div class="header-info">
-                        <h1>
-                            <i class="fas fa-users"></i>
-                            Candidatures - {{ $annonce->domaine }}
-                        </h1>
-                        <div class="annonce-info">
-                            <span class="info-badge">
-                                <i class="fas fa-calendar"></i>
-                                {{ $annonce->created_at->format('d/m/Y') }}
-                            </span>
-                            <span class="info-badge">
-                                <i class="fas fa-money-bill-wave"></i>
-                                {{ number_format($annonce->budget, 0, ',', ' ') }} FCFA
-                            </span>
-                            <span class="info-badge">
-                                <i class="fas fa-map-marker-alt"></i>
-                                {{ $annonce->format }}
-                            </span>
-                        </div>
-                    </div>
-                    <a href="{{ route('annonces.show', $annonce->id) }}" class="btn-back">
-                        <i class="fas fa-arrow-left"></i>
-                        Retour à l'annonce
-                    </a>
-                </div>
-            </div>
-<br>
-            <!-- Messages -->
-            @if(session('success'))
-                <div class="alert-message alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    {{ session('success') }}
-                </div>
-            @endif
+    <form id="actionForm" method="POST" style="display: none;">@csrf</form>
+@endsection
 
-            @if(session('error'))
-                <div class="alert-message alert-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            <!-- Stats Cards -->
-            <div class="stats-section">
-                <div class="stat-card">
-                    <div class="stat-icon total">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ $stats['total'] }}</h3>
-                        <p>Total candidatures</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon en-attente">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ $stats['en_attente'] }}</h3>
-                        <p>En attente</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon acceptee">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ $stats['acceptees'] }}</h3>
-                        <p>Acceptées</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon refusee">
-                        <i class="fas fa-times-circle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ $stats['refusees'] }}</h3>
-                        <p>Refusées</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Charts Section -->
-            @if($stats['total'] > 0)
-            <div class="charts-section">
-                <div class="chart-container">
-                    <canvas id="candidaturesChart"></canvas>
-                </div>
-            </div>
-            @endif
-
-            <!-- Candidatures List -->
-            <div class="candidatures-section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <i class="fas fa-list"></i>
-                        Tous les tuteurs candidats
-                    </h2>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="all">Tous ({{ $stats['total'] }})</button>
-                        <button class="filter-btn" data-filter="en_attente">En attente ({{ $stats['en_attente'] }})</button>
-                        <button class="filter-btn" data-filter="acceptee">Acceptées ({{ $stats['acceptees'] }})</button>
-                        <button class="filter-btn" data-filter="refusee">Refusées ({{ $stats['refusees'] }})</button>
-                    </div>
-                </div>
-
-                @if($stats['total'] > 0)
-                <div class="candidatures-grid" id="candidaturesGrid">
-                    @foreach($candidaturesParStatut as $statut => $candidatures)
-                        @foreach($candidatures as $candidature)
-                        <div class="candidature-card {{ str_replace('_', '-', $statut) }}" data-statut="{{ $statut }}">
-                            <div class="candidature-header">
-                                <div class="tuteur-avatar">
-                                    {{ strtoupper(substr($candidature->tuteur->firstname, 0, 1) . substr($candidature->tuteur->lastname, 0, 1)) }}
-                                </div>
-                                <div class="tuteur-info">
-                                    <h3>{{ $candidature->tuteur->firstname }} {{ $candidature->tuteur->lastname }}</h3>
-                                    <div class="tuteur-matiere">
-                                        <i class="fas fa-book"></i>
-                                        @if($candidature->tuteur->subjects && $candidature->tuteur->subjects->count() > 0)
-                                            {{ $candidature->tuteur->subjects->pluck('nom')->implode(', ') }}
-                                        @else
-                                            Non spécifié
-                                        @endif
-                                    </div>
-                                    <span class="candidature-status status-{{ $candidature->statut }}">
-                                        {{ $candidature->statut }}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="candidature-details">
-                                <div class="detail-row">
-                                    <span class="detail-label">Taux horaire:</span>
-                                    <span class="detail-value">{{ number_format($candidature->tuteur->rate_per_hour, 0, ',', ' ') }} FCFA/h</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Ville:</span>
-                                    <span class="detail-value">{{ $candidature->tuteur->city ?? 'Non spécifiée' }}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Postulé le:</span>
-                                    <span class="detail-value">{{ $candidature->created_at->format('d/m/Y H:i') }}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Expérience:</span>
-                                    <span class="detail-value">
-                                        @if($candidature->tuteur->satisfaction_score)
-                                            Note: {{ $candidature->tuteur->satisfaction_score }}/5
-                                        @else
-                                            Nouveau tuteur
-                                        @endif
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="candidature-actions">
-                                <a href="{{ route('annonces.candidatures.profil', $candidature->id) }}" class="btn-action btn-profil">
-                                    <i class="fas fa-user"></i> Voir profil
-                                </a>
-
-                                @if($candidature->estEnAttente())
-                                <button type="button" class="btn-action btn-accepter"
-                                        onclick="showAcceptModal({{ $candidature->id }}, '{{ $candidature->tuteur->firstname }} {{ $candidature->tuteur->lastname }}')">
-                                    <i class="fas fa-check"></i> Accepter
-                                </button>
-
-                                <button type="button" class="btn-action btn-refuser"
-                                        onclick="showRejectModal({{ $candidature->id }}, '{{ $candidature->tuteur->firstname }} {{ $candidature->tuteur->lastname }}')">
-                                    <i class="fas fa-times"></i> Refuser
-                                </button>
-                                @endif
-
-                                @if($candidature->estAcceptee())
-                                <button class="btn-action btn-accepter" disabled>
-                                    <i class="fas fa-check"></i> Accepté
-                                </button>
-                                @endif
-
-                                @if($candidature->estRefusee())
-                                <button class="btn-action btn-refuser" disabled>
-                                    <i class="fas fa-times"></i> Refusé
-                                </button>
-                                @endif
-                            </div>
-                        </div>
-                        @endforeach
-                    @endforeach
-                </div>
-                @else
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-user-friends"></i>
-                    </div>
-                    <h3>Aucune candidature reçue</h3>
-                    <p>Votre annonce n'a pas encore reçu de candidatures. Partagez-la davantage pour attirer des tuteurs qualifiés.</p>
-                </div>
-                @endif
-            </div>
-        </div>
-    </div>
-
-    <!-- Formulaire caché pour soumettre les actions -->
-    <form id="actionForm" method="POST" style="display: none;">
-        @csrf
-    </form>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Chart des candidatures
-        @if($stats['total'] > 0)
-        const ctx = document.getElementById('candidaturesChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['En attente', 'Acceptées', 'Refusées'],
-                datasets: [{
-                    data: [
-                        {{ $stats['en_attente'] }},
-                        {{ $stats['acceptees'] }},
-                        {{ $stats['refusees'] }}
-                    ],
-                    backgroundColor: [
-                        'rgba(245, 158, 11, 0.8)',
-                        'rgba(16, 185, 129, 0.8)',
-                        'rgba(239, 68, 68, 0.8)'
-                    ],
-                    borderColor: [
-                        '#f59e0b',
-                        '#10b981',
-                        '#ef4444'
-                    ],
-                    borderWidth: 2,
-                    hoverOffset: 15
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true,
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = Math.round((value / total) * 100);
-                                return `${label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        @endif
-
-        // Filtrage des candidatures
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        const candidatureCards = document.querySelectorAll('.candidature-card');
-
-        filterButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-
-                const filter = this.dataset.filter;
-
-                candidatureCards.forEach(card => {
-                    if (filter === 'all' || card.dataset.statut === filter) {
-                        card.style.display = 'block';
-                        setTimeout(() => {
-                            card.style.opacity = '1';
-                            card.style.transform = 'translateY(0)';
-                        }, 10);
-                    } else {
-                        card.style.opacity = '0';
-                        card.style.transform = 'translateY(20px)';
-                        setTimeout(() => {
-                            card.style.display = 'none';
-                        }, 300);
-                    }
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Filtres
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const candidatureCards = document.querySelectorAll('.candidature-card');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    const filter = this.dataset.filter;
+                    candidatureCards.forEach(card => {
+                        card.style.display = (filter === 'all' || card.dataset.statut === filter) ? '' : 'none';
+                    });
                 });
             });
+
         });
 
-        // Animation des cartes
-        const cards = document.querySelectorAll('.candidature-card');
-        cards.forEach((card, index) => {
-            card.style.animationDelay = `${index * 0.1}s`;
+        // Panneau détails candidat (droite)
+        let currentCandidat = null;
+        function openCandidat(row) {
+            const d = row.dataset;
+            currentCandidat = d;
+            document.getElementById('cdd-avatar').textContent = d.initials;
+            document.getElementById('cdd-name').textContent = d.name;
+            document.getElementById('cdd-subjects').textContent = d.subjects;
+            const st = document.getElementById('cdd-status');
+            st.textContent = d.statut;
+            st.className = 'candidature-status status-' + d.statut;
+            document.getElementById('cdd-rate').textContent = d.rate + ' FCFA/h';
+            document.getElementById('cdd-city').textContent = d.city;
+            document.getElementById('cdd-note').textContent = d.note;
+            document.getElementById('cdd-date').textContent = d.date;
+            document.getElementById('cdd-bio').textContent = (d.bio && d.bio.trim()) ? d.bio : 'Aucune description fournie.';
+            document.getElementById('cdd-foot').style.display = (d.editable === '1') ? 'flex' : 'none';
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+            document.getElementById('candidatDrawer').classList.add('open');
+            const b = document.querySelector('.cdrawer__body'); if (b) b.scrollTop = 0;
+        }
+        function closeCandidat() {
+            document.getElementById('candidatDrawer').classList.remove('open');
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+        }
+        document.getElementById('cdd-accept').addEventListener('click', function () {
+            if (currentCandidat) { const c = currentCandidat; closeCandidat(); showAcceptModal(c.id, c.name); }
         });
+        document.getElementById('cdd-reject').addEventListener('click', function () {
+            if (currentCandidat) { const c = currentCandidat; closeCandidat(); showRejectModal(c.id, c.name); }
+        });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeCandidat(); });
 
-        // Rafraîchir les stats toutes les 30 secondes
-        setInterval(function() {
-            fetch('{{ route("annonces.candidatures.stats", $annonce->id) }}')
-                .then(response => response.json())
-                .then(data => {
-                    if (chart) {
-                        chart.data.datasets[0].data = data.data;
-                        chart.update();
-                    }
-                });
-        }, 30000);
-    });
+        // Modale
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalIcon = document.getElementById('modalIcon');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalConfirm = document.getElementById('modalConfirm');
+        const modalClose = document.getElementById('modalClose');
+        const actionForm = document.getElementById('actionForm');
+        let currentAction = null, currentCandidatureId = null;
 
-    // Variables pour la modale
-    const modalOverlay = document.getElementById('modalOverlay');
-    const modalContainer = document.getElementById('modalContainer');
-    const modalIcon = document.getElementById('modalIcon');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalMessage = document.getElementById('modalMessage');
-    const modalCancel = document.getElementById('modalCancel');
-    const modalConfirm = document.getElementById('modalConfirm');
-    const modalClose = document.getElementById('modalClose');
-    const actionForm = document.getElementById('actionForm');
+        function closeModal() { modalOverlay.classList.remove('active'); }
 
-    let currentAction = null;
-    let currentCandidatureId = null;
+        function showAcceptModal(candidatureId, tuteurName) {
+            currentAction = 'accept'; currentCandidatureId = candidatureId;
+            modalIcon.className = 'modal-icon success';
+            modalIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+            modalTitle.textContent = 'Accepter ce tuteur ?';
+            modalMessage.innerHTML = `Accepter <strong>${tuteurName}</strong> ?<br><span style="color:#856404;font-size: var(--kp-fs-base);">Cela refusera automatiquement les autres candidatures.</span>`;
+            modalConfirm.className = 'modal-btn confirm-success';
+            modalConfirm.textContent = 'Oui, accepter';
+            modalOverlay.classList.add('active');
+        }
 
-    // Fonction pour fermer la modale
-    function closeModal() {
-        modalOverlay.classList.remove('active');
-    }
+        function showRejectModal(candidatureId, tuteurName) {
+            currentAction = 'reject'; currentCandidatureId = candidatureId;
+            modalIcon.className = 'modal-icon danger';
+            modalIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
+            modalTitle.textContent = 'Refuser ce tuteur ?';
+            modalMessage.innerHTML = `Refuser <strong>${tuteurName}</strong> ?<br><span style="color:var(--kp-muted);font-size: var(--kp-fs-base);">Cette action est irréversible.</span>`;
+            modalConfirm.className = 'modal-btn confirm-danger';
+            modalConfirm.textContent = 'Oui, refuser';
+            modalOverlay.classList.add('active');
+        }
 
-    // Fonction pour ouvrir la modale d'acceptation
-    function showAcceptModal(candidatureId, tuteurName) {
-        currentAction = 'accept';
-        currentCandidatureId = candidatureId;
-
-        modalIcon.className = 'modal-icon success';
-        modalIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
-        modalTitle.textContent = 'Accepter ce tuteur ?';
-        modalMessage.innerHTML = `Êtes-vous sûr de vouloir accepter <strong>${tuteurName}</strong> ?<br><br>
-                                <span style="color: var(--warning); font-weight: 500;">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                Cela refusera automatiquement toutes les autres candidatures.
-                                </span>`;
-
-        modalConfirm.className = 'modal-btn confirm-success';
-        modalConfirm.textContent = 'Oui, accepter';
-
-        modalOverlay.classList.add('active');
-    }
-
-    // Fonction pour ouvrir la modale de refus
-    function showRejectModal(candidatureId, tuteurName) {
-        currentAction = 'reject';
-        currentCandidatureId = candidatureId;
-
-        modalIcon.className = 'modal-icon danger';
-        modalIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
-        modalTitle.textContent = 'Refuser ce tuteur ?';
-        modalMessage.innerHTML = `Êtes-vous sûr de vouloir refuser <strong>${tuteurName}</strong> ?<br><br>
-                                <span style="color: var(--dark-gray); font-size: 14px;">
-                                Cette action est irréversible.
-                                </span>`;
-
-        modalConfirm.className = 'modal-btn confirm-danger';
-        modalConfirm.textContent = 'Oui, refuser';
-
-        modalOverlay.classList.add('active');
-    }
-
-    // Gestionnaire pour le bouton de confirmation
-    modalConfirm.addEventListener('click', function() {
-        if (currentAction && currentCandidatureId) {
-            let baseUrl = '';
-
-            // Construire l'URL manuellement sans utiliser route() dans le JavaScript
-            if (currentAction === 'accept') {
-                baseUrl = '/annonces/candidatures/' + currentCandidatureId + '/accepter';
-            } else if (currentAction === 'reject') {
-                baseUrl = '/annonces/candidatures/' + currentCandidatureId + '/refuser';
+        modalConfirm.addEventListener('click', function () {
+            if (currentAction && currentCandidatureId) {
+                actionForm.action = currentAction === 'accept'
+                    ? '/annonces/candidatures/' + currentCandidatureId + '/accepter'
+                    : '/annonces/candidatures/' + currentCandidatureId + '/refuser';
+                actionForm.submit();
             }
-
-            actionForm.action = baseUrl;
-            actionForm.submit();
-        }
-        closeModal();
-    });
-
-    // Gestionnaires pour fermer la modale
-    modalCancel.addEventListener('click', closeModal);
-    modalClose.addEventListener('click', closeModal);
-
-    modalOverlay.addEventListener('click', function(e) {
-        if (e.target === modalOverlay) {
             closeModal();
-        }
-    });
-
-    // Fermer avec la touche Echap
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
-            closeModal();
-        }
-    });
-</script>
-</body>
-</html>
+        });
+        modalCancel.addEventListener('click', closeModal);
+        modalClose.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    </script>
+@endpush

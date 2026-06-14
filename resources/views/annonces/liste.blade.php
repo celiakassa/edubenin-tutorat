@@ -121,11 +121,17 @@
                 <h1>Toutes les annonces</h1>
                 <p>Découvrez les {{ $stats['total'] }} missions disponibles et trouvez celle qui vous correspond</p>
 
-                <form action="{{ route('annoncesListe.liste') }}" method="GET">
+                <form action="{{ route('annoncesListe.liste') }}" method="GET" id="annoncesSearchForm">
                     <div class="annonces-search">
-                        <input type="text" name="search" placeholder="Rechercher par matière ou mot-clé…" value="{{ request('search') }}">
+                        <input type="text" name="search" id="annoncesLiveSearch" placeholder="Rechercher par matière ou mot-clé…" value="{{ request('search') }}" autocomplete="off">
                         <button type="submit" class="kp-btn kp-btn--accent"><i class="bi bi-search"></i></button>
                     </div>
+                    {{-- Préserver les filtres actifs pendant la recherche --}}
+                    <input type="hidden" name="domaine" value="{{ request('domaine') }}">
+                    <input type="hidden" name="budget_min" value="{{ request('budget_min') }}">
+                    <input type="hidden" name="budget_max" value="{{ request('budget_max') }}">
+                    <input type="hidden" name="format" value="{{ request('format') }}">
+                    <input type="hidden" name="jour" value="{{ request('jour') }}">
                     @if (request('search'))
                         <div class="annonces-search__active">
                             Recherche : « {{ request('search') }} »
@@ -133,6 +139,17 @@
                         </div>
                     @endif
                 </form>
+                <script>
+                    (function () {
+                        const form = document.getElementById('annoncesSearchForm');
+                        const input = document.getElementById('annoncesLiveSearch');
+                        if (form && input) {
+                            let t;
+                            input.addEventListener('input', function () { clearTimeout(t); t = setTimeout(function () { form.submit(); }, 450); });
+                            if (input.value) { input.focus(); const v = input.value; input.setSelectionRange(v.length, v.length); }
+                        }
+                    })();
+                </script>
             </div>
         </section>
 
@@ -158,6 +175,7 @@
                 <!-- Filtres -->
                 <div class="filters-card">
                     <form action="{{ route('annoncesListe.liste') }}" method="GET">
+                        <input type="hidden" name="search" value="{{ request('search') }}">
                         <div class="row g-3">
                             <div class="col-lg-3 col-md-6">
                                 <label><i class="bi bi-book"></i> Matière</label>

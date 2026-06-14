@@ -1,13 +1,5 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier l'annonce - Kopiao</title>
-    <link href="{{ asset('images/image_1.webp') }}" rel="icon">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+﻿{{-- Formulaire de creation d'annonce (reutilisable : page + modal). Necessite $subjects. --}}
+<style>
         :root {
             --primary-color: #0351BC;
             --primary-light: #4a7fd4;
@@ -24,35 +16,7 @@
             --danger-dark: #991b1b;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #2a819b 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            padding: 0;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('{{ asset('images/image_4.webp') }}');
-            background-size: cover;
-            opacity: 0.1;
-        }
-
-        /* Navigation Sidebar */
+        /* Navigation Styles */
         .sidebar {
             width: 280px;
             background: rgba(255, 255, 255, 0.95);
@@ -90,17 +54,17 @@
             justify-content: center;
             color: var(--white);
             font-weight: bold;
-            font-size: 18px;
+            font-size: var(--kp-fs-xl);
         }
 
         .platform-name {
-            font-size: 22px;
+            font-size: var(--kp-fs-2xl);
             font-weight: 700;
             color: var(--primary-color);
         }
 
         .platform-tagline {
-            font-size: 12px;
+            font-size: var(--kp-fs-xs);
             color: var(--dark-gray);
             margin-bottom: 20px;
         }
@@ -125,17 +89,17 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 16px;
+            font-size: var(--kp-fs-md);
         }
 
         .user-details h4 {
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
             font-weight: 600;
             color: var(--text-dark);
         }
 
         .user-details p {
-            font-size: 12px;
+            font-size: var(--kp-fs-xs);
             color: var(--dark-gray);
         }
 
@@ -149,6 +113,21 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
+        }
+
+        .stat-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .stat-label {
+            font-size: var(--kp-fs-sm);
+            color: var(--dark-gray);
+        }
+
+        .stat-value {
+            font-size: var(--kp-fs-base);
+            font-weight: 600;
+            color: var(--primary-color);
         }
 
         .sidebar-menu {
@@ -176,11 +155,11 @@
         .menu-item i {
             width: 20px;
             text-align: center;
-            font-size: 16px;
+            font-size: var(--kp-fs-md);
         }
 
         .menu-text {
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
             font-weight: 500;
         }
 
@@ -190,23 +169,21 @@
             margin-left: 280px;
             padding: 30px;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        .edit-container {
+        .create-annonce-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 800px;
+            margin: 0 auto;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .edit-header {
+        .annonce-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
             color: var(--white);
             padding: 30px 40px;
@@ -215,7 +192,7 @@
             overflow: hidden;
         }
 
-        .edit-header::before {
+        .annonce-header::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -225,8 +202,9 @@
             background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
         }
 
-        .edit-header h1 {
+        .annonce-header h1 {
             font-size: 28px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -235,16 +213,39 @@
             z-index: 1;
         }
 
-        .edit-header p {
-            font-size: 14px;
+        .annonce-header p {
+            font-size: var(--kp-fs-base);
             opacity: 0.9;
             position: relative;
             z-index: 1;
         }
 
+        /* Info Banner */
+        .info-banner {
+            background: var(--light-gray);
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            margin: 25px 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .info-banner i {
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+
+        .info-banner p {
+            color: var(--text-dark);
+            font-size: var(--kp-fs-base);
+            line-height: 1.5;
+        }
+
         /* Form Styles */
-        .edit-form {
-            padding: 30px 40px;
+        .annonce-form {
+            padding: 0 40px 40px;
         }
 
         .form-section {
@@ -265,11 +266,16 @@
         .form-section h2 {
             color: var(--primary-color);
             margin-bottom: 20px;
-            font-size: 18px;
+            font-size: var(--kp-fs-xl);
             display: flex;
             align-items: center;
             gap: 8px;
             font-weight: 600;
+        }
+
+        .form-section h2 i {
+            font-size: var(--kp-fs-xl);
+            width: 24px;
         }
 
         .form-group {
@@ -281,10 +287,10 @@
             margin-bottom: 8px;
             font-weight: 500;
             color: var(--text-dark);
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
         }
 
-        /* Style pour le select personnalisé */
+        /* Style amélioré pour le select avec recherche */
         .custom-select-wrapper {
             position: relative;
             width: 100%;
@@ -295,7 +301,7 @@
             padding: 12px 16px;
             border: 2px solid var(--medium-gray);
             border-radius: 10px;
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
             transition: all 0.3s ease;
             background: var(--white);
             cursor: pointer;
@@ -357,7 +363,7 @@
             padding: 10px;
             background: var(--light-gray);
             border-radius: 8px;
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -379,7 +385,7 @@
             padding: 12px 16px;
             border: 2px solid var(--medium-gray);
             border-radius: 10px;
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
             transition: all 0.3s ease;
             background: var(--white);
         }
@@ -439,13 +445,13 @@
         }
 
         .radio-icon {
-            font-size: 20px;
+            font-size: var(--kp-fs-xl);
             margin-bottom: 8px;
         }
 
         .radio-text {
             font-weight: 500;
-            font-size: 13px;
+            font-size: var(--kp-fs-sm);
         }
 
         /* Disponibilités Styles */
@@ -476,7 +482,7 @@
         .disponibilite-title {
             font-weight: 600;
             color: var(--primary-color);
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -512,8 +518,14 @@
             padding: 10px 12px;
             border: 2px solid var(--medium-gray);
             border-radius: 8px;
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
             background: var(--white);
+        }
+
+        .disponibilite-fields select:focus,
+        .disponibilite-fields input:focus {
+            outline: none;
+            border-color: var(--primary-color);
         }
 
         .add-disponibilite-btn {
@@ -527,7 +539,7 @@
             align-items: center;
             gap: 8px;
             font-weight: 500;
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
             transition: all 0.3s ease;
             margin-top: 10px;
         }
@@ -547,7 +559,7 @@
 
         .disponibilite-preview h4 {
             color: var(--primary-color);
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
             margin-bottom: 10px;
             font-weight: 600;
         }
@@ -562,7 +574,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 13px;
+            font-size: var(--kp-fs-sm);
         }
 
         .disponibilite-list li:last-child {
@@ -579,44 +591,51 @@
             color: var(--dark-gray);
         }
 
-        /* Budget Info */
-        .budget-info {
-            background: var(--light-gray);
+        /* Budget Preview */
+        .budget-preview {
+            background: linear-gradient(135deg, var(--light-gray) 0%, #e6efff 100%);
             border-radius: 12px;
             padding: 20px;
             margin: 20px 0;
             text-align: center;
         }
 
-        .budget-info h3 {
+        .budget-preview h3 {
             color: var(--primary-color);
             margin-bottom: 15px;
-            font-size: 16px;
+            font-size: var(--kp-fs-md);
         }
 
-        .budget-details {
+        .budget-amounts {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
         }
 
-        .budget-item {
+        .amount-item {
             padding: 15px;
             background: var(--white);
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .budget-label {
-            font-size: 12px;
+        .amount-label {
+            font-size: var(--kp-fs-xs);
             color: var(--dark-gray);
             margin-bottom: 5px;
         }
 
-        .budget-value {
-            font-size: 18px;
+        .amount-value {
+            font-size: var(--kp-fs-xl);
             font-weight: 700;
             color: var(--primary-color);
+        }
+
+        .amount-note {
+            font-size: var(--kp-fs-2xs);
+            color: var(--dark-gray);
+            font-style: italic;
+            margin-top: 3px;
         }
 
         /* Form Actions */
@@ -629,13 +648,13 @@
             border-top: 1px solid var(--medium-gray);
         }
 
-        .btn-save {
+        .btn-submit {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
             color: var(--white);
             padding: 14px 32px;
             border: none;
             border-radius: 10px;
-            font-size: 15px;
+            font-size: var(--kp-fs-base);
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -645,7 +664,7 @@
             box-shadow: 0 4px 15px rgba(3, 81, 188, 0.3);
         }
 
-        .btn-save:hover {
+        .btn-submit:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(3, 81, 188, 0.4);
         }
@@ -662,7 +681,7 @@
             align-items: center;
             gap: 8px;
             transition: all 0.3s ease;
-            font-size: 15px;
+            font-size: var(--kp-fs-base);
         }
 
         .btn-cancel:hover {
@@ -673,7 +692,7 @@
 
         .error {
             color: var(--danger);
-            font-size: 12px;
+            font-size: var(--kp-fs-xs);
             margin-top: 6px;
             display: block;
             font-weight: 500;
@@ -687,7 +706,7 @@
             margin: 20px 40px;
             text-align: center;
             font-weight: 500;
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
         }
 
         /* Error Modal */
@@ -741,7 +760,7 @@
         }
 
         .error-modal-title {
-            font-size: 20px;
+            font-size: var(--kp-fs-xl);
             font-weight: 600;
             color: var(--text-dark);
             text-align: center;
@@ -752,7 +771,7 @@
             color: var(--dark-gray);
             text-align: center;
             margin-bottom: 20px;
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
             line-height: 1.6;
         }
 
@@ -778,12 +797,12 @@
 
         .error-modal-detail-icon {
             color: var(--danger);
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
             margin-top: 3px;
         }
 
         .error-modal-detail-text {
-            font-size: 13px;
+            font-size: var(--kp-fs-sm);
             color: var(--text-dark);
             flex: 1;
         }
@@ -794,7 +813,7 @@
             border: none;
             padding: 12px 24px;
             border-radius: 10px;
-            font-size: 14px;
+            font-size: var(--kp-fs-base);
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -810,9 +829,15 @@
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
             }
 
             .main-content {
@@ -820,12 +845,12 @@
                 padding: 20px;
             }
 
-            .edit-header,
-            .edit-form {
+            .annonce-header,
+            .annonce-form {
                 padding: 20px;
             }
 
-            .budget-details {
+            .budget-amounts {
                 grid-template-columns: 1fr;
             }
 
@@ -841,93 +866,23 @@
                 flex-direction: column;
             }
         }
-    </style>
-</head>
-<body>
-    <!-- Navigation Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <a href="{{ route('dashboardUser') }}" style="text-decoration: none;">
-                <div class="platform-logo">
-                    <div class="logo-icon">KP</div>
-                    <div class="platform-name">Kopiao</div>
-                </div>
-            </a>
+</style>
 
-            <div class="platform-tagline">Votre plateforme éducative</div>
-
-            <div class="user-info">
-                <div class="user-avatar">
-                    {{ strtoupper(substr($user->firstname, 0, 1) . substr($user->lastname, 0, 1)) }}
-                </div>
-                <div class="user-details">
-                    <h4>{{ $user->firstname }} {{ $user->lastname }}</h4>
-                    <p>
-                        @if ($user->role_id == 3)
-                            Tuteur
-                        @elseif($user->role_id == 2)
-                            Apprenant
-                        @else
-                            Administrateur
-                        @endif
-                    </p>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="sidebar-menu">
-            <a href="{{ route('dashboardUser') }}" class="menu-item">
-                <i class="fas fa-home"></i>
-                <span class="menu-text">Tableau de bord</span>
-            </a>
-            <a href="{{ route('CompleterProfilUser.show') }}" class="menu-item">
-                <i class="fas fa-user-edit"></i>
-                <span class="menu-text">Mon profil</span>
-            </a>
-            <a href="{{ route('annonces.index') }}" class="menu-item">
-                <i class="fas fa-bullhorn"></i>
-                <span class="menu-text">Mes annonces</span>
-            </a>
-            <a href="{{ route('annonces.create') }}" class="menu-item">
-                <i class="fas fa-plus-circle"></i>
-                <span class="menu-text">Nouvelle annonce</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- Error Modal -->
-    <div class="error-modal-overlay" id="errorModal">
-        <div class="error-modal">
-            <div class="error-modal-icon">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <h3 class="error-modal-title" id="errorModalTitle">Erreur de validation</h3>
-            <div class="error-modal-message" id="errorModalMessage"></div>
-            <div class="error-modal-details" id="errorModalDetails"></div>
-            <button class="error-modal-close" onclick="closeErrorModal()">
-                <i class="fas fa-times"></i> Compris
-            </button>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="edit-container">
-            <div class="edit-header">
-                <h1><i class="fas fa-edit"></i> Modifier l'annonce</h1>
-                <p>Mettez à jour les informations de votre annonce</p>
+        <div class="create-annonce-container">
+            <div class="annonce-header">
+                <h1 id="annonceModalTitle"><i class="fas fa-plus-circle"></i> Créer une nouvelle annonce</h1>
+                <p>Trouvez le tuteur parfait pour vos besoins d'apprentissage</p>
             </div>
 
-            @if(session('success'))
-                <div class="success-message">
-                    <i class="fas fa-check-circle"></i> {{ session('success') }}
-                </div>
-            @endif
+            <div class="info-banner">
+                <i class="fas fa-info-circle"></i>
+                <p>Un acompte fixe de <strong>30%</strong> du budget sera requis pour valider votre annonce.</p>
+            </div>
 
-            <form method="POST" action="{{ route('annonces.update', $annonce->id) }}" class="edit-form" id="editForm">
+            <form method="POST" action="{{ route('annonces.store') }}" class="annonce-form" id="annonceForm">
                 @csrf
-                @method('PUT')
+                <input type="hidden" name="_method" id="annonceFormMethod" value="">
+
 
                 <div class="form-section">
                     <h2><i class="fas fa-book"></i> Informations sur la formation</h2>
@@ -940,25 +895,25 @@
                                    class="custom-select-search"
                                    placeholder="Rechercher une matière..."
                                    autocomplete="off"
-                                   value="{{ $annonce->subject->nom ?? '' }}">
-                            <input type="hidden" id="subject_id" name="subject_id" value="{{ old('subject_id', $annonce->subject_id) }}">
+                                   value="{{ old('subject_id') ? $subjects->find(old('subject_id'))?->nom : '' }}">
+                            <input type="hidden" id="subject_id" name="subject_id" value="{{ old('subject_id') }}">
 
                             <div class="custom-select-dropdown" id="subjects-dropdown">
                                 @foreach($subjects as $subject)
                                     <div class="custom-select-option" data-value="{{ $subject->id }}" data-name="{{ $subject->nom }}">
                                         {{ $subject->nom }}
                                         @if($subject->description)
-                                            <small style="display: block; font-size: 11px; color: #666;">{{ Str::limit($subject->description, 50) }}</small>
+                                            <small style="display: block; font-size: var(--kp-fs-2xs); color: #666;">{{ Str::limit($subject->description, 50) }}</small>
                                         @endif
                                     </div>
                                 @endforeach
                             </div>
                         </div>
 
-                        <div class="selected-subject" id="selected-subject" style="{{ $annonce->subject_id ? '' : 'display: none;' }}">
+                        <div class="selected-subject" id="selected-subject" style="{{ old('subject_id') ? '' : 'display: none;' }}">
                             <i class="fas fa-check-circle"></i>
                             <span>Matière sélectionnée :</span>
-                            <span id="selected-subject-name">{{ $annonce->subject->nom ?? '' }}</span>
+                            <span id="selected-subject-name">{{ old('subject_id') ? $subjects->find(old('subject_id'))?->nom : '' }}</span>
                         </div>
 
                         @error('subject_id')
@@ -970,7 +925,7 @@
                         <label for="description">Description détaillée de votre besoin *</label>
                         <textarea id="description" name="description"
                                   placeholder="Décrivez précisément ce que vous souhaitez apprendre, votre niveau actuel, vos objectifs..."
-                                  required>{{ old('description', $annonce->description) }}</textarea>
+                                  required>{{ old('description') }}</textarea>
                         @error('description')
                             <span class="error">{{ $message }}</span>
                         @enderror
@@ -981,7 +936,7 @@
                         <div class="radio-group">
                             <div class="radio-option">
                                 <input type="radio" id="format_presentiel" name="format" value="presentiel"
-                                       {{ old('format', $annonce->format) == 'presentiel' ? 'checked' : '' }} required>
+                                       {{ old('format') == 'presentiel' ? 'checked' : 'checked' }} required>
                                 <label for="format_presentiel" class="radio-label">
                                     <i class="fas fa-user-friends radio-icon"></i>
                                     <span class="radio-text">Présentiel</span>
@@ -989,7 +944,7 @@
                             </div>
                             <div class="radio-option">
                                 <input type="radio" id="format_en_ligne" name="format" value="en_ligne"
-                                       {{ old('format', $annonce->format) == 'en_ligne' ? 'checked' : '' }} required>
+                                       {{ old('format') == 'en_ligne' ? 'checked' : '' }} required>
                                 <label for="format_en_ligne" class="radio-label">
                                     <i class="fas fa-laptop radio-icon"></i>
                                     <span class="radio-text">En ligne</span>
@@ -997,7 +952,7 @@
                             </div>
                             <div class="radio-option">
                                 <input type="radio" id="format_hybrid" name="format" value="hybrid"
-                                       {{ old('format', $annonce->format) == 'hybrid' ? 'checked' : '' }} required>
+                                       {{ old('format') == 'hybrid' ? 'checked' : '' }} required>
                                 <label for="format_hybrid" class="radio-label">
                                     <i class="fas fa-blender-phone radio-icon"></i>
                                     <span class="radio-text">Hybride</span>
@@ -1015,12 +970,17 @@
                             Ajoutez vos créneaux de disponibilité en sélectionnant le jour et les heures
                         </small>
 
-                        <div id="disponibilite-container"></div>
+                        <!-- Container pour les créneaux -->
+                        <div id="disponibilite-container">
+                            <!-- Les créneaux seront ajoutés ici dynamiquement -->
+                        </div>
 
+                        <!-- Bouton pour ajouter un créneau -->
                         <button type="button" id="add-disponibilite" class="add-disponibilite-btn">
                             <i class="fas fa-plus"></i> Ajouter un créneau
                         </button>
 
+                        <!-- Prévisualisation -->
                         <div class="disponibilite-preview" id="disponibilite-preview">
                             <h4><i class="fas fa-eye"></i> Prévisualisation</h4>
                             <ul class="disponibilite-list" id="preview-list">
@@ -1028,7 +988,8 @@
                             </ul>
                         </div>
 
-                        <input type="hidden" name="disponibilite" id="disponibilite-input" value="{{ old('disponibilite', $annonce->disponibilite) }}">
+                        <!-- Champ caché pour stocker les disponibilités formatées -->
+                        <input type="hidden" name="disponibilite" id="disponibilite-input" value="{{ old('disponibilite') }}">
 
                         @error('disponibilite')
                             <span class="error">{{ $message }}</span>
@@ -1037,55 +998,75 @@
                 </div>
 
                 <div class="form-section">
-                    <h2><i class="fas fa-money-bill-wave"></i> Budget</h2>
+                    <h2><i class="fas fa-money-bill-wave"></i> Mon Budget</h2>
 
                     <div class="form-group">
                         <label for="budget">Budget total (en FCFA) *</label>
-                        <input type="number" id="budget" name="budget"
-                               value="{{ old('budget', $annonce->budget) }}"
-                               placeholder="Ex: 50000" required>
-                        <small style="color: var(--dark-gray); font-size: 12px; display: block; margin-top: 5px;">
-                            Ce budget couvrira l'ensemble de la formation.
-                        </small>
-                        @error('budget')
-                            <span class="error">{{ $message }}</span>
-                        @enderror
-                    </div>
+                        <div class="form-group">
+                            <input type="number" id="budget" name="budget"
+                                   value="{{ old('budget') }}"
+                                   placeholder="Ex: 50000" required>
+                            <small style="color: var(--dark-gray); font-size: var(--kp-fs-xs); display: block; margin-top: 5px;">
+                                Ce budget couvrira l'ensemble de la formation.
+                            </small>
+                            @error('budget')
+                                <span class="error">{{ $message }}</span>
+                            @enderror
+                        </div>
 
-                    <div class="budget-info">
-                        <h3><i class="fas fa-info-circle"></i> Information sur l'acompte</h3>
-                        <div class="budget-details">
-                            <div class="budget-item">
-                                <div class="budget-label">Ancien acompte</div>
-                                <div class="budget-value">{{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA</div>
-                            </div>
-                            <div class="budget-item">
-                                <div class="budget-label">Nouvel acompte (30%)</div>
-                                <div class="budget-value" id="newDeposit">{{ number_format($annonce->budget * 0.3, 0, ',', ' ') }} FCFA</div>
+                        <!-- Budget Preview -->
+                        <div class="budget-preview" id="budgetPreview">
+                            <h3><i class="fas fa-calculator"></i> Aperçu du coût</h3>
+                            <div class="budget-amounts">
+                                <div class="amount-item">
+                                    <div class="amount-label">Budget total</div>
+                                    <div class="amount-value" id="totalBudget">0 FCFA</div>
+                                </div>
+                                <div class="amount-item">
+                                    <div class="amount-label">Acompte (30%)</div>
+                                    <div class="amount-value" id="depositAmount">0 FCFA</div>
+                                    <div class="amount-note">À payer maintenant</div>
+                                </div>
+                                <div class="amount-item">
+                                    <div class="amount-label">Solde restant</div>
+                                    <div class="amount-value" id="remainingAmount">0 FCFA</div>
+                                    <div class="amount-note">À payer plus tard</div>
+                                </div>
                             </div>
                         </div>
-                        <p style="font-size: 12px; color: var(--dark-gray); margin-top: 10px;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            L'acompte est fixé à <strong>30%</strong> du budget total.
-                        </p>
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-save"></i>
-                        Enregistrer les modifications
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-check-circle"></i>
+                        Créer l'annonce
                     </button>
-                    <a href="{{ route('annonces.show', $annonce->id) }}" class="btn-cancel">
+                    <a href="{{ route('annonces.index') }}" class="btn-cancel">
                         <i class="fas fa-times"></i>
                         Annuler
                     </a>
                 </div>
             </form>
         </div>
+
+    <!-- Error Modal -->
+    <div class="error-modal-overlay" id="errorModal">
+        <div class="error-modal">
+            <div class="error-modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="error-modal-title" id="errorModalTitle">Erreur de validation</h3>
+            <div class="error-modal-message" id="errorModalMessage"></div>
+            <div class="error-modal-details" id="errorModalDetails"></div>
+            <button class="error-modal-close" onclick="closeErrorModal()">
+                <i class="fas fa-times"></i> Compris
+            </button>
+        </div>
     </div>
 
     <script>
+    (function () {
         // Variables globales
         let disponibiliteCounter = 0;
         const disponibiliteContainer = document.getElementById('disponibilite-container');
@@ -1167,9 +1148,9 @@
             });
         });
 
-        // Gérer la sélection par défaut (si old value existe ou valeur de l'annonce)
-        @if(old('subject_id', $annonce->subject_id))
-            const defaultOption = Array.from(options).find(opt => opt.dataset.value === "{{ old('subject_id', $annonce->subject_id) }}");
+        // Gérer la sélection par défaut (si old value existe)
+        @if(old('subject_id'))
+            const defaultOption = Array.from(options).find(opt => opt.dataset.value === "{{ old('subject_id') }}");
             if (defaultOption) {
                 const name = defaultOption.dataset.name;
                 searchInput.value = name;
@@ -1305,7 +1286,7 @@
             }
         }
 
-        function validateAndUpdate(itemId) {
+        window.validateAndUpdate = function (itemId) {
             const item = document.getElementById(itemId);
             if (!item) return;
 
@@ -1368,6 +1349,16 @@
             disponibiliteInput.value = textDisponibilites;
         }
 
+        function updateBudgetPreview(budget) {
+            const totalBudget = parseFloat(budget) || 0;
+            const depositAmount = totalBudget * 0.3;
+            const remainingAmount = totalBudget - depositAmount;
+
+            document.getElementById('totalBudget').textContent = formatCurrency(totalBudget) + ' FCFA';
+            document.getElementById('depositAmount').textContent = formatCurrency(depositAmount) + ' FCFA';
+            document.getElementById('remainingAmount').textContent = formatCurrency(remainingAmount) + ' FCFA';
+        }
+
         document.getElementById('add-disponibilite').addEventListener('click', function() {
             const items = disponibiliteContainer.querySelectorAll('.disponibilite-item');
 
@@ -1392,7 +1383,7 @@
             updatePreview();
         });
 
-        document.getElementById('editForm').addEventListener('submit', function(e) {
+        document.getElementById('annonceForm').addEventListener('submit', function(e) {
             const items = disponibiliteContainer.querySelectorAll('.disponibilite-item');
             let isValid = true;
             let errors = [];
@@ -1431,6 +1422,12 @@
                 errors.push('Le budget minimum est de 1000 FCFA');
             }
 
+            // Vérifier qu'une matière a été sélectionnée
+            if (!hiddenInput.value) {
+                isValid = false;
+                errors.push('Veuillez sélectionner une matière');
+            }
+
             if (!isValid) {
                 e.preventDefault();
                 showErrorModal(
@@ -1445,19 +1442,15 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            const existingDisponibilite = @json($annonce->disponibilite);
+            const oldDisponibilite = "{{ old('disponibilite') }}";
 
-            if (existingDisponibilite && existingDisponibilite.trim()) {
-                const lines = existingDisponibilite.split('\n');
+            if (oldDisponibilite && oldDisponibilite.trim()) {
+                const lines = oldDisponibilite.trim().split('\n');
                 let seenSlots = new Set();
 
-                disponibiliteContainer.innerHTML = '';
-                disponibiliteCounter = 0;
-
                 lines.forEach(line => {
-                    const trimmedLine = line.trim();
-                    if (trimmedLine) {
-                        const match = trimmedLine.match(/^(\w+)\s+(\d{2}:\d{2})\s+-\s+(\d{2}:\d{2})$/);
+                    if (line.trim()) {
+                        const match = line.trim().match(/^(\w+)\s+(\d{2}:\d{2})\s+-\s+(\d{2}:\d{2})$/);
                         if (match) {
                             const [, jour, debut, fin] = match;
                             const slotKey = `${jour.toLowerCase()}-${debut}-${fin}`;
@@ -1470,24 +1463,84 @@
                         }
                     }
                 });
-
                 updatePreview();
-
-                if (disponibiliteContainer.children.length === 0) {
-                    const addButton = document.getElementById('add-disponibilite');
-                    if (addButton) addButton.click();
-                }
             } else {
                 const addButton = document.getElementById('add-disponibilite');
-                if (addButton) addButton.click();
+                if (addButton) {
+                    addButton.click();
+                }
             }
 
             const budgetInput = document.getElementById('budget');
+            if (budgetInput.value) {
+                updateBudgetPreview(budgetInput.value);
+            } else {
+                updateBudgetPreview(0);
+            }
+
             budgetInput.addEventListener('input', function() {
-                const budget = parseFloat(this.value) || 0;
-                document.getElementById('newDeposit').textContent = formatCurrency(budget * 0.3) + ' FCFA';
+                updateBudgetPreview(this.value);
             });
         });
+
+        // ===== Réutilisation du modal pour la modification =====
+        const _annonceForm = document.getElementById('annonceForm');
+        const _formMethod = document.getElementById('annonceFormMethod');
+        const _storeAction = _annonceForm.getAttribute('action');
+        const _modalTitle = document.getElementById('annonceModalTitle');
+
+        function _loadDispo(str) {
+            disponibiliteContainer.innerHTML = '';
+            disponibiliteCounter = 0;
+            if (str && str.trim()) {
+                const seen = new Set();
+                str.trim().split('\n').forEach(line => {
+                    const m = line.trim().match(/^(\w+)\s+(\d{2}:\d{2})\s+-\s+(\d{2}:\d{2})$/);
+                    if (m) {
+                        const key = m[1].toLowerCase() + '-' + m[2] + '-' + m[3];
+                        if (!seen.has(key)) { seen.add(key); disponibiliteContainer.appendChild(createDisponibiliteItem(m[1].toLowerCase(), m[2], m[3])); }
+                    }
+                });
+            }
+            if (!disponibiliteContainer.querySelector('.disponibilite-item')) {
+                disponibiliteContainer.appendChild(createDisponibiliteItem());
+            }
+            updatePreview();
+        }
+
+        window.kpAnnonceFormToCreate = function () {
+            _annonceForm.setAttribute('action', _storeAction);
+            if (_formMethod) _formMethod.value = '';
+            if (_modalTitle) _modalTitle.innerHTML = '<i class="fas fa-plus-circle"></i> Créer une nouvelle annonce';
+            searchInput.value = ''; hiddenInput.value = '';
+            selectedSubjectDiv.style.display = 'none';
+            options.forEach(o => o.classList.remove('selected'));
+            document.getElementById('description').value = '';
+            const fmtDef = document.getElementById('format_presentiel'); if (fmtDef) fmtDef.checked = true;
+            document.getElementById('budget').value = '';
+            _loadDispo('');
+            updateBudgetPreview(0);
+        };
+
+        window.kpAnnonceFormToEdit = function (data) {
+            _annonceForm.setAttribute('action', data.action);
+            if (_formMethod) _formMethod.value = 'PUT';
+            if (_modalTitle) _modalTitle.innerHTML = '<i class="fas fa-pencil-alt"></i> Modifier l\'annonce';
+            searchInput.value = data.subjectNom || '';
+            hiddenInput.value = data.subjectId || '';
+            if (data.subjectId) {
+                selectedSubjectName.textContent = data.subjectNom || '';
+                selectedSubjectDiv.style.display = 'flex';
+                options.forEach(o => o.classList.toggle('selected', o.dataset.value === String(data.subjectId)));
+            } else {
+                selectedSubjectDiv.style.display = 'none';
+            }
+            document.getElementById('description').value = data.description || '';
+            const fmt = document.querySelector('input[name="format"][value="' + data.format + '"]');
+            if (fmt) fmt.checked = true;
+            document.getElementById('budget').value = data.budget || '';
+            _loadDispo(data.disponibilite || '');
+            updateBudgetPreview(data.budget || 0);
+        };
+    })();
     </script>
-</body>
-</html>

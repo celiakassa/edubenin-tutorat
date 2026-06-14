@@ -8,24 +8,34 @@ use App\Mail\StudentDeactivatedMail;
 use App\Mail\StudentReactivatedMail;
 use App\Mail\StudentValidatedMail;
 use App\Models\User;
-use DB;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Log;
 
 final class ApprenantController extends Controller
 {
     /**
      * Afficher la liste des apprenants avec statistiques
      */
-    public function index(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function index(Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        $apprenants = User::where('role_id', 2)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $q = $request->query('q');
+
+        $query = User::where('role_id', 2);
+
+        if ($q) {
+            $query->where(function ($x) use ($q): void {
+                $x->where('firstname', 'like', "%{$q}%")
+                    ->orWhere('lastname', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%")
+                    ->orWhere('city', 'like', "%{$q}%");
+            });
+        }
+
+        $apprenants = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
         // Statistiques pour les diagrammes
         $stats = $this->getApprenantsStats();
@@ -37,13 +47,13 @@ final class ApprenantController extends Controller
             return $apprenant;
         });
 
-        return view('apprenants.index', ['apprenants' => $apprenants, 'stats' => $stats]);
+        return view('apprenants.index', ['apprenants' => $apprenants, 'stats' => $stats, 'q' => $q]);
     }
 
     /**
      * Afficher les détails d'un apprenant
      */
-    public function show($id): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function show(string $id): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $apprenant = User::where('id', $id)
             ->where('role_id', 2)
@@ -56,79 +66,9 @@ final class ApprenantController extends Controller
     }
 
     /**
-     * Afficher le formulaire de modification
-     */
-    public function edit($id): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
-    {
-        $apprenant = User::where('id', $id)
-            ->where('role_id', 2)
-            ->firstOrFail();
-
-        return view('apprenants.edit', ['apprenant' => $apprenant]);
-    }
-
-    /**
-     * Mettre à jour un apprenant
-     */
-    public function update(Request $request, string $id)
-    {
-        $apprenant = User::where('id', $id)
-            ->where('role_id', 2)
-            ->firstOrFail();
-
-        $validated = $request->validate([
-            'firstname' => ['required', 'string', 'max:255'],
-            'lastname' => ['required', 'string', 'max:255'],
-            'email' => 'required|email|unique:users,email,'.$id,
-            'telephone' => ['nullable', 'string', 'max:20'],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'city' => ['required', 'string', 'max:255'],
-            'bio' => ['nullable', 'string'],
-            'learning_preference' => ['nullable', 'in:online,in_person,hybrid'],
-            'learning_history' => ['nullable', 'string'],
-            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
-            'is_active' => ['boolean'],
-            'is_valid' => ['boolean'],
-        ]);
-
-        // Mise à jour des données
-        $apprenant->firstname = $validated['firstname'];
-        $apprenant->lastname = $validated['lastname'];
-        $apprenant->email = $validated['email'];
-        $apprenant->telephone = $validated['telephone'] ?? null;
-        $apprenant->city = $validated['city'];
-        $apprenant->bio = $validated['bio'] ?? null;
-        $apprenant->learning_preference = $validated['learning_preference'] ?? 'online';
-        $apprenant->learning_history = $validated['learning_history'] ?? null;
-        $apprenant->is_active = $validated['is_active'] ?? true;
-        $apprenant->is_valid = $validated['is_valid'] ?? false;
-
-        // Mise à jour du mot de passe si fourni
-        if (! empty($validated['password'])) {
-            $apprenant->password = Hash::make($validated['password']);
-        }
-
-        // Gestion de la photo de profil
-        if ($request->hasFile('photo')) {
-            // Supprimer l'ancienne photo si elle existe
-            if ($apprenant->photo_path && Storage::disk('public')->exists($apprenant->photo_path)) {
-                Storage::disk('public')->delete($apprenant->photo_path);
-            }
-
-            $photoPath = $request->file('photo')->store('profile-photos', 'public');
-            $apprenant->photo_path = $photoPath;
-        }
-
-        $apprenant->save();
-
-        return to_route('apprenants.index')
-            ->with('success', 'Apprenant mis à jour avec succès!');
-    }
-
-    /**
      * Supprimer un apprenant
      */
-    public function destroy($id)
+    public function destroy(string $id)
     {
         $apprenant = User::where('id', $id)
             ->where('role_id', 2)
@@ -148,7 +88,7 @@ final class ApprenantController extends Controller
     /**
      * Valider un apprenant (avec email)
      */
-    public function validateApprenant(Request $request, $id)
+    public function validateApprenant(Request $request, string $id)
     {
         $request->validate([
             'validation_reason' => ['nullable', 'string', 'max:500'],
@@ -180,7 +120,7 @@ final class ApprenantController extends Controller
     /**
      * Désactiver un compte étudiant (avec email)
      */
-    public function deactivateAccount(Request $request, $id)
+    public function deactivateAccount(Request $request, string $id)
     {
         $request->validate([
             'deactivation_reason' => ['required', 'string', 'max:500'],
@@ -214,7 +154,7 @@ final class ApprenantController extends Controller
     /**
      * Réactiver un compte étudiant (avec email)
      */
-    public function reactivateAccount(Request $request, $id)
+    public function reactivateAccount(Request $request, string $id)
     {
         $request->validate([
             'reactivation_reason' => ['nullable', 'string', 'max:500'],
@@ -248,7 +188,7 @@ final class ApprenantController extends Controller
     /**
      * Activer/désactiver un apprenant (version simple sans email)
      */
-    public function toggleStatus($id)
+    public function toggleStatus(string $id)
     {
         $apprenant = User::where('id', $id)
             ->where('role_id', 2)
@@ -330,7 +270,7 @@ final class ApprenantController extends Controller
     /**
      * Calculer le pourcentage de complétion du profil
      */
-    private function calculateProfileCompletion($user): float|int
+    private function calculateProfileCompletion(User $user): float|int
     {
         $fields = [
             'firstname',

@@ -8,6 +8,10 @@ use App\Mail\AccountDeactivatedMail;
 use App\Mail\AccountReactivatedMail;
 use App\Mail\TeacherApprovedMail;
 use App\Mail\TeacherRejectedMail;
+use App\Models\Annonce;
+use App\Models\Payment;
+use App\Models\Subject;
+use App\Models\Subscription;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -85,12 +89,10 @@ final class AdminController extends Controller
 
         // Statistiques pour les graphiques
         $verifiedTeachersCount = User::where('role_id', 3)->where('identity_verified', 1)->count();
-        $rejectedTeachersCount = User::where('role_id', 3)->where('identity_verified', 0)->whereNotNull('identity_document_path')->count();
+        $rejectedTeachersCount = User::where('role_id', 3)->where('identity_rejected', true)->count();
         $pendingTeachersCount = User::where('role_id', 3)
-            ->where(function ($query): void {
-                $query->where('identity_verified', 0)
-                    ->orWhereNull('identity_verified');
-            })
+            ->where('identity_rejected', false)
+            ->where('identity_verified', 0)
             ->where(function ($query): void {
                 $query->whereNotNull('identity_document_path')
                     ->where('identity_document_path', '!=', '');
@@ -99,12 +101,10 @@ final class AdminController extends Controller
 
         $inactiveTeachersCount = User::where('role_id', 3)->where('is_active', 0)->count();
 
-        // Professeurs avec pièce d'identité non vérifiée (en attente)
+        // Professeurs avec pièce d'identité non vérifiée (en attente, hors rejetés)
         $pendingTeachers = User::where('role_id', 3)
-            ->where(function ($query): void {
-                $query->where('identity_verified', 0)
-                    ->orWhereNull('identity_verified');
-            })
+            ->where('identity_rejected', false)
+            ->where('identity_verified', 0)
             ->where(function ($query): void {
                 $query->whereNotNull('identity_document_path')
                     ->where('identity_document_path', '!=', '');
@@ -165,6 +165,7 @@ final class AdminController extends Controller
             $teacher->update([
                 'is_valid' => 1,
                 'identity_verified' => 1,
+                'identity_rejected' => false,
                 'is_active' => 1,
             ]);
 
@@ -181,17 +182,11 @@ final class AdminController extends Controller
                 }
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Professeur approuvé avec succès.',
-            ]);
+            return back()->with('success', 'Tuteur approuvé avec succès.');
         } catch (Exception $exception) {
             Log::error('Erreur approbation professeur: '.$exception->getMessage());
 
-            return response()->json([
-                'success' => false,
-                'message' => "Erreur lors de l'approbation: ".$exception->getMessage(),
-            ], 500);
+            return back()->with('error', "Erreur lors de l'approbation du tuteur.");
         }
     }
 
@@ -208,6 +203,7 @@ final class AdminController extends Controller
             $teacher->update([
                 'is_valid' => 0,
                 'identity_verified' => 0,
+                'identity_rejected' => true,
             ]);
 
             // Envoyer un email au professeur
@@ -223,17 +219,11 @@ final class AdminController extends Controller
                 }
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Professeur rejeté.',
-            ]);
+            return back()->with('success', 'Tuteur rejeté.');
         } catch (Exception $exception) {
             Log::error('Erreur rejet professeur: '.$exception->getMessage());
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors du rejet: '.$exception->getMessage(),
-            ], 500);
+            return back()->with('error', 'Erreur lors du rejet du tuteur.');
         }
     }
 
@@ -264,17 +254,11 @@ final class AdminController extends Controller
                 }
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Compte désactivé avec succès.',
-            ]);
+            return back()->with('success', 'Compte désactivé avec succès.');
         } catch (Exception $exception) {
             Log::error('Erreur désactivation compte: '.$exception->getMessage());
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la désactivation: '.$exception->getMessage(),
-            ], 500);
+            return back()->with('error', 'Erreur lors de la désactivation.');
         }
     }
 
@@ -305,17 +289,11 @@ final class AdminController extends Controller
                 }
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Compte réactivé avec succès.',
-            ]);
+            return back()->with('success', 'Compte réactivé avec succès.');
         } catch (Exception $exception) {
             Log::error('Erreur réactivation compte: '.$exception->getMessage());
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la réactivation: '.$exception->getMessage(),
-            ], 500);
+            return back()->with('error', 'Erreur lors de la réactivation.');
         }
     }
 
@@ -331,6 +309,131 @@ final class AdminController extends Controller
         abort_unless(file_exists($filePath), 404, 'Fichier non trouvé');
 
         return response()->file($filePath);
+    }
+
+    // ==================== MODULES SAAS ====================
+
+    /** Liste paginée + recherche + filtres des tuteurs */
+    public function teachers(Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        $q = $request->query('q');
+        $filter = $request->query('filter', 'all');
+
+        $query = User::where('role_id', 3);
+
+        if ($filter === 'pending') {
+            $query->where('identity_rejected', false)->where('identity_verified', 0)->whereNotNull('identity_document_path')->where('identity_document_path', '!=', '');
+        } elseif ($filter === 'rejected') {
+            $query->where('identity_rejected', true);
+        } elseif ($filter === 'verified') {
+            $query->where('identity_verified', 1);
+        } elseif ($filter === 'nodoc') {
+            $query->where(function ($x): void { $x->whereNull('identity_document_path')->orWhere('identity_document_path', ''); });
+        } elseif ($filter === 'inactive') {
+            $query->where('is_active', 0);
+        }
+
+        if ($q) {
+            $query->where(function ($x) use ($q): void {
+                $x->where('firstname', 'like', "%{$q}%")->orWhere('lastname', 'like', "%{$q}%")->orWhere('email', 'like', "%{$q}%");
+            });
+        }
+
+        $teachers = $query->orderByDesc('created_at')->paginate(12)->withQueryString();
+        foreach ($teachers as $t) {
+            $t->profile_completion = $this->calculateProfileCompletion($t);
+        }
+
+        return view('admin.teachers', ['teachers' => $teachers, 'filter' => $filter, 'q' => $q]);
+    }
+
+    /** Modération des annonces */
+    public function annonces(Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        $status = $request->query('status');
+        $q = $request->query('q');
+
+        $query = Annonce::with(['subject', 'student']);
+        if ($status) {
+            $query->where('status', $status);
+        }
+        if ($q) {
+            $query->where(function ($x) use ($q): void {
+                $x->where('description', 'like', "%{$q}%")
+                    ->orWhereHas('subject', function ($s) use ($q): void { $s->where('nom', 'like', "%{$q}%"); })
+                    ->orWhereHas('student', function ($st) use ($q): void {
+                        $st->where('firstname', 'like', "%{$q}%")->orWhere('lastname', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        $annonces = $query->orderByDesc('created_at')->paginate(12)->withQueryString();
+
+        $stats = [
+            'total' => Annonce::count(),
+            'publiees' => Annonce::where('status', 'publiée')->count(),
+            'attente' => Annonce::where('status', 'en_attente')->count(),
+            'budget' => Annonce::where('is_paid', true)->sum('acompte'),
+        ];
+
+        return view('admin.annonces', ['annonces' => $annonces, 'stats' => $stats, 'status' => $status, 'q' => $q]);
+    }
+
+    public function destroyAnnonce($id)
+    {
+        Annonce::findOrFail($id)->delete();
+
+        return back()->with('success', 'Annonce supprimée avec succès.');
+    }
+
+    /** Finances : revenus, paiements, abonnements */
+    public function finances(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        $revenuAcomptes = (float) Payment::where('status', 'completed')->whereNotNull('annonce_id')->sum('amount');
+        $revenuAbos = (float) Payment::where('status', 'completed')->whereNotNull('subscription_id')->sum('amount');
+
+        $stats = [
+            'total' => $revenuAcomptes + $revenuAbos,
+            'acomptes' => $revenuAcomptes,
+            'abonnements' => $revenuAbos,
+            'abosActifs' => Subscription::where('statut', 'active')->where('date_fin', '>', now())->count(),
+        ];
+
+        $payments = Payment::with(['user', 'annonce', 'subscription'])->orderByDesc('created_at')->paginate(12);
+        $subscriptions = Subscription::with('user')->orderByDesc('created_at')->paginate(12, ['*'], 'subs');
+
+        return view('admin.finances', ['stats' => $stats, 'payments' => $payments, 'subscriptions' => $subscriptions]);
+    }
+
+    /** Gestion des matières */
+    public function subjects(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        $subjects = Subject::withCount(['users', 'annonces'])->orderBy('nom')->get();
+
+        return view('admin.subjects', ['subjects' => $subjects]);
+    }
+
+    public function storeSubject(Request $request)
+    {
+        $data = $request->validate(['nom' => ['required', 'string', 'max:255', 'unique:subjects,nom']]);
+        Subject::create(['nom' => $data['nom'], 'is_active' => true]);
+
+        return back()->with('success', 'Matière ajoutée avec succès.');
+    }
+
+    public function updateSubject(Request $request, $id)
+    {
+        $data = $request->validate(['nom' => ['required', 'string', 'max:255', 'unique:subjects,nom,'.$id]]);
+        Subject::findOrFail($id)->update(['nom' => $data['nom']]);
+
+        return back()->with('success', 'Matière mise à jour.');
+    }
+
+    public function destroySubject($id)
+    {
+        Subject::findOrFail($id)->delete();
+
+        return back()->with('success', 'Matière supprimée.');
     }
 
     // Calcul du pourcentage de complétion du profil
