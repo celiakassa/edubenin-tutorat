@@ -13,70 +13,10 @@ use Log;
 
 final class CompleterProfilUser extends Controller
 {
-    public function edit(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function edit()
     {
-        $user = Auth::user();
-
-        $allSubjects = Subject::where('is_active', true)->orderBy('nom')->get();
-
-        $qualificationsList = [
-            'BAC' => 'BAC (Baccalauréat)',
-            'BAC+1' => 'BAC +1',
-            'BAC+2' => 'BAC +2 (BTS, DUT, DEUG)',
-            'BAC+3' => 'BAC +3 (Licence)',
-            'BAC+4' => 'BAC +4 (Maîtrise)',
-            'BAC+5' => 'BAC +5 (Master, Ingénieur)',
-            'BAC+6' => 'BAC +6 (Master spécialisé)',
-            'BAC+7' => 'BAC +7 (Master recherche)',
-            'BAC+8' => 'BAC +8 (Doctorat)',
-            'DOCTORAT' => 'Doctorat (PhD)',
-            'CAPES' => 'CAPES',
-            'AGREGATION' => 'Agrégation',
-            'CERTIFICATION' => 'Certification professionnelle',
-        ];
-
-        // Champs selon rôle
-        if ($user->role_id === 3) { // Tuteur
-            $fields = [
-                'firstname', 'lastname', 'email', 'telephone',
-                'photo_path', 'bio', 'qualifications', 'rate_per_hour',
-                'identity_document_path', 'city', 'learning_preference',
-            ];
-            $hasSubjects = $user->subjects()->count() > 0;
-        } elseif ($user->role_id === 2) { // Étudiant
-            $fields = [
-                'firstname', 'lastname', 'email', 'telephone',
-                'photo_path', 'bio', 'learning_preference', 'city',
-            ];
-        } else {
-            $fields = ['firstname', 'lastname', 'email', 'telephone', 'photo_path', 'bio', 'city'];
-        }
-
-        $filled = 0;
-        foreach ($fields as $field) {
-            if (! empty($user->$field)) {
-                $filled++;
-            }
-        }
-
-        if ($user->role_id === 3) {
-            if ($hasSubjects) {
-                $filled++;
-            }
-
-            $total = count($fields) + 1;
-        } else {
-            $total = count($fields);
-        }
-
-        $profileCompletion = $total > 0 ? round(($filled / $total) * 100) : 0;
-
-        return view('CompleterProfilUser', [
-            'user' => $user,
-            'profileCompletion' => $profileCompletion,
-            'allSubjects' => $allSubjects,
-            'qualificationsList' => $qualificationsList,
-        ]);
+        // Tout est centralisé sur la page profil → on y redirige
+        return to_route('CompleterProfilUser.show');
     }
 
     public function update(Request $request)
@@ -173,7 +113,7 @@ final class CompleterProfilUser extends Controller
             ]);
         }
 
-        return to_route('CompleterProfilUser.edit')
+        return to_route('CompleterProfilUser.show')
             ->with('success', 'Profil mis à jour avec succès !');
     }
 
@@ -182,7 +122,57 @@ final class CompleterProfilUser extends Controller
         $user = Auth::user();
         $user->load('subjects');
 
-        return view('CompleterProfilUserShow', ['user' => $user]);
+        $allSubjects = Subject::where('is_active', true)->orderBy('nom')->get();
+
+        $qualificationsList = [
+            'BAC' => 'BAC (Baccalauréat)',
+            'BAC+1' => 'BAC +1',
+            'BAC+2' => 'BAC +2 (BTS, DUT, DEUG)',
+            'BAC+3' => 'BAC +3 (Licence)',
+            'BAC+4' => 'BAC +4 (Maîtrise)',
+            'BAC+5' => 'BAC +5 (Master, Ingénieur)',
+            'BAC+6' => 'BAC +6 (Master spécialisé)',
+            'BAC+7' => 'BAC +7 (Master recherche)',
+            'BAC+8' => 'BAC +8 (Doctorat)',
+            'DOCTORAT' => 'Doctorat (PhD)',
+            'CAPES' => 'CAPES',
+            'AGREGATION' => 'Agrégation',
+            'CERTIFICATION' => 'Certification professionnelle',
+        ];
+
+        if ($user->role_id === 3) {
+            $fields = ['firstname', 'lastname', 'email', 'telephone', 'photo_path', 'bio', 'qualifications', 'rate_per_hour', 'identity_document_path', 'city', 'learning_preference'];
+            $hasSubjects = $user->subjects()->count() > 0;
+        } elseif ($user->role_id === 2) {
+            $fields = ['firstname', 'lastname', 'email', 'telephone', 'photo_path', 'bio', 'learning_preference', 'city'];
+        } else {
+            $fields = ['firstname', 'lastname', 'email', 'telephone', 'photo_path', 'bio', 'city'];
+        }
+
+        $filled = 0;
+        foreach ($fields as $field) {
+            if (! empty($user->$field)) {
+                $filled++;
+            }
+        }
+
+        if ($user->role_id === 3) {
+            if ($hasSubjects) {
+                $filled++;
+            }
+            $total = count($fields) + 1;
+        } else {
+            $total = count($fields);
+        }
+
+        $profileCompletion = $total > 0 ? round(($filled / $total) * 100) : 0;
+
+        return view('CompleterProfilUserShow', [
+            'user' => $user,
+            'profileCompletion' => $profileCompletion,
+            'allSubjects' => $allSubjects,
+            'qualificationsList' => $qualificationsList,
+        ]);
     }
 
     public function showIdentityDocument()

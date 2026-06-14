@@ -4,6 +4,9 @@
     <style>
         /* ===== Page Recherche de tuteurs ===== */
         .search-page { background: var(--kp-surface); padding: var(--kp-section-py) 0; }
+        .search-back { display: inline-flex; align-items: center; gap: 8px; color: var(--kp-muted); text-decoration: none; font-weight: 600; font-size: .9rem; margin-bottom: 16px; transition: var(--kp-transition); }
+        .search-back:hover { color: var(--kp-blue); }
+        .search-back i { font-size: 1.05rem; }
         .search-head { text-align: center; max-width: 640px; margin: 0 auto 18px; }
 
         .search-form {
@@ -138,6 +141,8 @@
 
     <div class="search-page">
         <div class="container">
+
+            <a href="{{ url()->previous() }}" class="search-back"><i class="bi bi-arrow-left"></i> Retour</a>
 
             <div class="search-head">
                 <h1 class="kp-title">Nos tuteurs</h1>

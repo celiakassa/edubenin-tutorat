@@ -1,13 +1,13 @@
 @extends('layouts.auth')
 
 @section('title', 'Connexion')
-@section('brand_text', 'Content de vous revoir ! Connectez-vous pour accéder à votre espace Kopiao.')
+@section('brand_text', 'La plateforme qui connecte les apprenants aux meilleurs tuteurs du Bénin. Trouvez un tuteur, publiez une annonce et progressez à votre rythme, en ligne comme en présentiel.')
 
 @section('content')
     <style>
         .auth-form__title { font-family: var(--kp-font-title); font-weight: 800; font-size: 1.6rem; color: var(--kp-ink); margin: 0 0 4px; }
-        .auth-form__sub { color: var(--kp-muted); margin: 0 0 24px; }
-        .auth-group { margin-bottom: 16px; }
+        .auth-form__sub { color: var(--kp-muted); margin: 0 0 18px; }
+        .auth-group { margin-bottom: 13px; }
         .auth-group label { display: block; font-size: .85rem; font-weight: 600; color: var(--kp-text); margin-bottom: 6px; }
         .auth-field-wrap { position: relative; }
         .auth-field-ico { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--kp-muted); font-size: 1rem; pointer-events: none; }
@@ -18,12 +18,12 @@
         .auth-alert { padding: 12px 14px; border-radius: var(--kp-radius-sm); margin-bottom: 18px; font-size: .9rem; }
         .auth-alert--ok { background: #e7f6ee; color: #1d7a48; }
         .auth-alert--err { background: #fdecea; color: #c0392b; }
-        .auth-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+        .auth-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
         .auth-check { display: inline-flex; align-items: center; gap: 7px; font-size: .88rem; color: var(--kp-text); cursor: pointer; }
         .auth-check input { accent-color: var(--kp-blue); width: 15px; height: 15px; }
         .auth-link { color: var(--kp-blue); font-size: .88rem; text-decoration: none; }
         .auth-link:hover { text-decoration: underline; }
-        .auth-sep { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--kp-muted); font-size: .85rem; }
+        .auth-sep { display: flex; align-items: center; gap: 12px; margin: 14px 0; color: var(--kp-muted); font-size: .85rem; }
         .auth-sep::before, .auth-sep::after { content: ''; flex: 1; height: 1px; background: var(--kp-border); }
         .google-btn {
             display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
@@ -35,6 +35,13 @@
         .auth-foot { text-align: center; margin-top: 18px; font-size: .9rem; color: var(--kp-muted); }
         .auth-foot a { color: var(--kp-blue); font-weight: 600; text-decoration: none; }
         .auth-foot a:hover { text-decoration: underline; }
+
+        @media (max-width: 991px) {
+            .auth-form__title, .auth-form__sub { text-align: center; }
+            .auth-group { margin-bottom: 9px; }
+            .auth-row { margin-bottom: 10px; }
+            .auth-sep { margin: 12px 0; }
+        }
     </style>
 
     <h1 class="auth-form__title">Connexion</h1>

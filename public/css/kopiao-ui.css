@@ -54,6 +54,17 @@
   --kp-leading-tight: 1.2;
   --kp-leading:       1.6;
 
+  /* --- Échelle typographique (RÉFÉRENCE = page Profil) -------------------- */
+  /* Source unique de vérité : modifier ici se répercute sur tout le dashboard */
+  --kp-fs-2xs:   0.72rem;   /* micro-badges, statuts, captions minuscules     */
+  --kp-fs-xs:    0.78rem;   /* libellés, pills, métadonnées                   */
+  --kp-fs-sm:    0.82rem;   /* texte secondaire / descriptions                */
+  --kp-fs-base:  0.88rem;   /* texte courant, champs, défaut                  */
+  --kp-fs-md:    0.92rem;   /* titres de cartes / lignes (h3)                 */
+  --kp-fs-lg:    1.05rem;   /* petits accents / icônes                        */
+  --kp-fs-xl:    1.15rem;   /* titres de section / page                       */
+  --kp-fs-2xl:   1.5rem;    /* grands nombres / icônes héro                   */
+
   /* --- Espacement vertical standard des sections (rythme uniforme) -------- */
   --kp-section-py:    clamp(40px, 4.5vw, 64px);   /* ~40px mobile → 64px desktop */
 }

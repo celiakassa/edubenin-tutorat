@@ -3,315 +3,210 @@
 @section('title', 'Kopiao - Dashboard Tuteur')
 @section('page-title', 'Tableau de bord')
 
+@push('styles')
+    <style>
+        /* ===== Tableau de bord tuteur — aligné design system ===== */
+        .td-greet { margin-bottom: 22px; }
+        .td-greet__title { font-family: var(--kp-font-title); font-size: var(--kp-fs-2xl); font-weight: 700; color: var(--kp-ink); margin: 0 0 4px; }
+        .td-greet__sub { color: var(--kp-muted); font-size: var(--kp-fs-base); margin: 0; }
+
+        .td-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 8px 0 24px; }
+        .td-stat { background: #fff; border: 1px solid var(--kp-border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; transition: border-color .2s, transform .2s; }
+        .td-stat:hover { border-color: var(--kp-blue); transform: translateY(-1px); }
+        .td-stat__icon { width: 44px; height: 44px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(26, 26, 26, .06); color: #1a1a1a; font-size: var(--kp-fs-md); flex-shrink: 0; }
+        .td-stat__info { display: flex; align-items: baseline; gap: 7px; min-width: 0; flex-wrap: wrap; }
+        .td-stat__val { font-size: var(--kp-fs-xl); font-weight: 700; color: #1a1a1a; margin: 0; }
+        .td-stat__lbl { font-size: var(--kp-fs-xs); color: var(--kp-muted); margin: 0; }
+
+        .td-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .td-card { background: #fff; border: 1px solid var(--kp-border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+        .td-card__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px 18px; border-bottom: 1px solid var(--kp-border); }
+        .td-card__head h2 { font-family: var(--kp-font-title); font-size: var(--kp-fs-md); font-weight: 700; color: var(--kp-ink); margin: 0; display: flex; align-items: center; gap: 8px; }
+        .td-card__head h2 i { color: var(--kp-blue); }
+        .td-count { background: var(--kp-blue-soft); color: var(--kp-blue); font-size: var(--kp-fs-2xs); font-weight: 700; padding: 3px 11px; border-radius: 20px; white-space: nowrap; }
+        .td-list { flex: 1; }
+        .td-item { padding: 14px 18px; border-bottom: 1px solid var(--kp-border); }
+        .td-item:last-child { border-bottom: none; }
+        .td-item__head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 5px; }
+        .td-item__title { font-weight: 700; color: var(--kp-ink); font-size: var(--kp-fs-base); margin: 0; }
+        .td-item__desc { color: var(--kp-muted); font-size: var(--kp-fs-sm); margin: 0 0 9px; line-height: 1.45; }
+        .td-item__foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .td-item__meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; color: var(--kp-muted); font-size: var(--kp-fs-xs); }
+        .td-item__meta i { color: var(--kp-blue); margin-right: 3px; }
+        .td-price { font-weight: 800; color: var(--kp-blue); font-size: var(--kp-fs-base); }
+        .td-badge { font-size: var(--kp-fs-2xs); font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+        .td-badge--success { background: #d1fae5; color: #065f46; }
+        .td-badge--warning { background: #fef3c7; color: #92400e; }
+        .td-badge--danger { background: #fee2e2; color: #991b1b; }
+        .td-badge--soft { background: var(--kp-surface); color: var(--kp-ink); }
+        .td-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 15px; border-radius: 20px; background: var(--kp-blue); color: #fff; text-decoration: none; font-size: var(--kp-fs-xs); font-weight: 600; transition: background .2s; white-space: nowrap; }
+        .td-btn:hover { background: #1a1a1a; color: #fff; }
+        .td-btn--ghost { background: #fff; border: 1.5px solid var(--kp-border); color: var(--kp-ink); }
+        .td-btn--ghost:hover { background: var(--kp-blue); color: #fff; border-color: var(--kp-blue); }
+        .td-card__foot { padding: 12px; text-align: center; border-top: 1px solid var(--kp-border); }
+        .td-card__foot a { color: var(--kp-blue); font-weight: 600; font-size: var(--kp-fs-sm); text-decoration: none; }
+        .td-card__foot a:hover { text-decoration: underline; }
+        .td-empty { text-align: center; padding: 42px 20px; }
+        .td-empty i { font-size: 46px; color: var(--kp-border); margin-bottom: 12px; display: block; }
+        .td-empty strong { display: block; color: var(--kp-ink); font-size: var(--kp-fs-base); margin-bottom: 4px; }
+        .td-empty p { color: var(--kp-muted); margin: 0; font-size: var(--kp-fs-sm); }
+
+        .td-expertise { background: #fff; border: 1px solid var(--kp-border); border-radius: 16px; padding: 18px; margin-top: 18px; }
+        .td-expertise h2 { font-family: var(--kp-font-title); font-size: var(--kp-fs-md); font-weight: 700; color: var(--kp-ink); margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+        .td-expertise h2 i { color: var(--kp-blue); }
+        .td-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .td-tag { background: var(--kp-blue-soft); color: var(--kp-blue); padding: 6px 14px; border-radius: 20px; font-size: var(--kp-fs-sm); font-weight: 600; }
+
+        @media (max-width: 860px) { .td-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 640px) { .td-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+        @media (max-width: 360px) { .td-stats { grid-template-columns: 1fr; } }
+    </style>
+@endpush
+
 @section('content')
-    <!-- Profile Completion Banner -->
+    @php $heure = (int) now()->format('H'); $salut = $heure < 18 ? 'Bonjour' : 'Bonsoir'; @endphp
+    <div class="td-greet">
+        <h1 class="td-greet__title">{{ $salut }}, {{ auth()->user()->firstname }} 👋</h1>
+        <p class="td-greet__sub">Voici un aperçu de votre activité de tuteur.</p>
+    </div>
+
+    {{-- Bandeau « Complétez votre profil » --}}
     @include('dashboard.partials.profile-banner')
 
-    <!-- Statistics Cards -->
-    <div class="row g-4 mb-4">
-        <!-- Annonces dans mon domaine -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100 hover-shadow">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="flex-grow-1">
-                            <p class="text-muted mb-1 small">Annonces disponibles</p>
-                            <h2 class="mb-0 fw-bold text-primary">{{ $stats['annoncesInDomain'] }}</h2>
-                        </div>
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary bg-opacity-10 rounded-circle p-3">
-                                <i class="bi bi-file-earmark-text text-primary fs-4"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-muted mb-0 small">Dans votre domaine</p>
-                </div>
-                <div class="card-footer bg-primary bg-opacity-10 border-0">
-                    <a href="{{ route('annonces') }}" class="text-primary text-decoration-none small fw-semibold">
-                        Voir les annonces <i class="bi bi-arrow-right ms-1"></i>
-                    </a>
-                </div>
+    {{-- Statistiques --}}
+    <div class="td-stats">
+        <div class="td-stat">
+            <div class="td-stat__icon"><i class="bi bi-file-earmark-text"></i></div>
+            <div class="td-stat__info">
+                <h3 class="td-stat__val">{{ $stats['annoncesInDomain'] }}</h3>
+                <p class="td-stat__lbl">Annonces dispo</p>
             </div>
         </div>
-
-        <!-- Candidatures validées -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100 hover-shadow">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="flex-grow-1">
-                            <p class="text-muted mb-1 small">Candidatures validées</p>
-                            <h2 class="mb-0 fw-bold text-success">{{ $stats['candidaturesValidees'] }}</h2>
-                        </div>
-                        <div class="flex-shrink-0">
-                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
-                                <i class="bi bi-check-circle text-success fs-4"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-muted mb-0 small">
-                        Sur {{ $stats['totalCandidatures'] }} candidature{{ $stats['totalCandidatures'] > 1 ? 's' : '' }}
-                    </p>
-                </div>
-{{--                <div class="card-footer bg-success bg-opacity-10 border-0">--}}
-{{--                    <a href="#" class="text-success text-decoration-none small fw-semibold">--}}
-{{--                        Mes candidatures <i class="bi bi-arrow-right ms-1"></i>--}}
-{{--                    </a>--}}
-{{--                </div>--}}
+        <div class="td-stat">
+            <div class="td-stat__icon"><i class="bi bi-check-circle"></i></div>
+            <div class="td-stat__info">
+                <h3 class="td-stat__val">{{ $stats['candidaturesValidees'] }}</h3>
+                <p class="td-stat__lbl">Validées</p>
             </div>
         </div>
-
-        <!-- Candidatures en attente -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100 hover-shadow">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="flex-grow-1">
-                            <p class="text-muted mb-1 small">En attente</p>
-                            <h2 class="mb-0 fw-bold text-warning">{{ $stats['candidaturesEnAttente'] }}</h2>
-                        </div>
-                        <div class="flex-shrink-0">
-                            <div class="bg-warning bg-opacity-10 rounded-circle p-3">
-                                <i class="bi bi-clock-history text-warning fs-4"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-muted mb-0 small">Réponse en attente</p>
-                </div>
-
+        <div class="td-stat">
+            <div class="td-stat__icon"><i class="bi bi-clock-history"></i></div>
+            <div class="td-stat__info">
+                <h3 class="td-stat__val">{{ $stats['candidaturesEnAttente'] }}</h3>
+                <p class="td-stat__lbl">En attente</p>
             </div>
         </div>
-
-        <!-- Acompte total -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100 hover-shadow">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="flex-grow-1">
-                            <p class="text-muted mb-1 small">Acompte total</p>
-                            <h2 class="mb-0 fw-bold text-info">{{ number_format($stats['acompteTotal'], 0, ',', ' ') }} <small class="fs-6">FCFA</small></h2>
-                        </div>
-                        <div class="flex-shrink-0">
-                            <div class="bg-info bg-opacity-10 rounded-circle p-3">
-                                <i class="bi bi-cash-coin text-info fs-4"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-muted mb-0 small">Missions acceptées</p>
-                </div>
-{{--                <div class="card-footer bg-info bg-opacity-10 border-0">--}}
-{{--                    <a href="#" class="text-info text-decoration-none small fw-semibold">--}}
-{{--                        Historique <i class="bi bi-arrow-right ms-1"></i>--}}
-{{--                    </a>--}}
-{{--                </div>--}}
+        <div class="td-stat">
+            <div class="td-stat__icon"><i class="bi bi-cash-coin"></i></div>
+            <div class="td-stat__info">
+                <h3 class="td-stat__val">{{ number_format($stats['acompteTotal'], 0, ',', ' ') }}</h3>
+                <p class="td-stat__lbl">FCFA d'acomptes</p>
             </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <!-- Annonces récentes dans mon domaine -->
-        <div class="col-12 col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-bottom">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0 fw-semibold">
-                            <i class="bi bi-megaphone text-primary me-2"></i>
-                            Annonces récentes pour vous
-                        </h5>
-                        <span class="badge bg-primary rounded-pill">
-                            {{ count($stats['recentAnnonces']) }} disponible{{ count($stats['recentAnnonces']) > 1 ? 's' : '' }}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="card-body p-0">
-                    @forelse($stats['recentAnnonces'] as $annonce)
-                        <div class="border-bottom p-3 hover-bg-light">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1 fw-semibold">{{ $annonce->domaine }}</h6>
-                                    <p class="text-muted small mb-2">{{ Str::limit($annonce->description, 100) }}</p>
-                                </div>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                                <div class="d-flex align-items-center gap-3 small text-muted">
-                                    <span>
-                                        <i class="bi bi-person me-1"></i>
-                                        {{ $annonce->student->firstname }}
-                                    </span>
-                                    <span>
-                                        <i class="bi bi-geo-alt me-1"></i>
-                                        {{ $annonce->student->city ?? 'Non spécifié' }}
-                                    </span>
-                                </div>
-
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="fw-bold text-primary">{{ number_format($annonce->budget, 0, ',', ' ') }} FCFA</span>
-                                    <a href="{{ route('annonces.dashboard.detail', $annonce->hashid) }}"
-                                       class="btn btn-sm btn-primary">
-                                        Voir <i class="bi bi-arrow-right ms-1"></i>
-                                    </a>
-                                </div>
-                            </div>
-
-                            @if($annonce->format)
-                                <div class="mt-2">
-                                    @if($annonce->format == 'online')
-                                        <span class="badge bg-purple-subtle text-purple">
-                                            <i class="bi bi-globe me-1"></i>En ligne
-                                        </span>
-                                    @elseif($annonce->format == 'in_person')
-                                        <span class="badge bg-success-subtle text-success">
-                                            <i class="bi bi-people me-1"></i>Présentiel
-                                        </span>
-                                    @else
-                                        <span class="badge bg-info-subtle text-info">
-                                            <i class="bi bi-arrows-collapse me-1"></i>Hybride
-                                        </span>
-                                    @endif
-                                </div>
+    <div class="td-grid">
+        {{-- Annonces récentes pour vous --}}
+        <div class="td-card">
+            <div class="td-card__head">
+                <h2><i class="bi bi-megaphone"></i> Annonces récentes pour vous</h2>
+                <span class="td-count">{{ count($stats['recentAnnonces']) }} dispo</span>
+            </div>
+            <div class="td-list">
+                @forelse(collect($stats['recentAnnonces'])->take(2) as $annonce)
+                    <div class="td-item">
+                        <div class="td-item__head">
+                            <h3 class="td-item__title">{{ $annonce->domaine }}</h3>
+                            @if($annonce->format == 'online')
+                                <span class="td-badge td-badge--soft"><i class="bi bi-globe"></i> En ligne</span>
+                            @elseif($annonce->format == 'in_person')
+                                <span class="td-badge td-badge--soft"><i class="bi bi-people"></i> Présentiel</span>
+                            @elseif($annonce->format)
+                                <span class="td-badge td-badge--soft"><i class="bi bi-arrows-collapse"></i> Hybride</span>
                             @endif
                         </div>
-                    @empty
-                        <div class="text-center py-5">
-                            <i class="bi bi-file-earmark-x text-muted" style="font-size: 4rem;"></i>
-                            <p class="text-muted fw-semibold mt-3 mb-2">Aucune annonce disponible</p>
-                            <p class="text-muted small">Les nouvelles annonces dans votre domaine apparaîtront ici</p>
+                        <p class="td-item__desc">{{ Str::limit($annonce->description, 90) }}</p>
+                        <div class="td-item__foot">
+                            <div class="td-item__meta">
+                                <span><i class="bi bi-person"></i>{{ $annonce->student->firstname }}</span>
+                                <span><i class="bi bi-geo-alt"></i>{{ $annonce->student->city ?? 'Non spécifié' }}</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="td-price">{{ number_format($annonce->budget, 0, ',', ' ') }} FCFA</span>
+                                <a href="{{ route('annonces.dashboard.detail', $annonce->hashid) }}" class="td-btn">Voir <i class="bi bi-arrow-right"></i></a>
+                            </div>
                         </div>
-                    @endforelse
-                </div>
-
-                @if(count($stats['recentAnnonces']) > 0)
-                    <div class="card-footer bg-light border-top">
-                        <a href="{{ route('annonces') }}" class="btn btn-link text-primary text-decoration-none d-block text-center small fw-semibold">
-                            Voir toutes les annonces <i class="bi bi-arrow-right ms-1"></i>
-                        </a>
                     </div>
-                @endif
+                @empty
+                    <div class="td-empty">
+                        <i class="bi bi-file-earmark-x"></i>
+                        <strong>Aucune annonce disponible</strong>
+                        <p>Les nouvelles annonces dans votre domaine apparaîtront ici.</p>
+                    </div>
+                @endforelse
             </div>
+            @if(count($stats['recentAnnonces']) > 2)
+                <div class="td-card__foot">
+                    <a href="{{ route('annonces') }}">Voir plus <i class="bi bi-arrow-right"></i></a>
+                </div>
+            @endif
         </div>
 
-        <!-- Mes candidatures récentes -->
-        <div class="col-12 col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-bottom">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0 fw-semibold">
-                            <i class="bi bi-clipboard-check text-primary me-2"></i>
-                            Mes candidatures récentes
-                        </h5>
-                        <span class="badge bg-primary rounded-pill">
-                            {{ count($stats['dernieresCandidatures']) }}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="card-body p-0">
-                    @forelse($stats['dernieresCandidatures'] as $candidature)
-                        <div class="border-bottom p-3 hover-bg-light">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex align-items-center mb-1 flex-wrap gap-2">
-                                        <h6 class="mb-0 fw-semibold">{{ $candidature->annonce->domaine }}</h6>
-                                        @if($candidature->statut == 'acceptee')
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle me-1"></i>Acceptée
-                                            </span>
-                                        @elseif($candidature->statut == 'en_attente')
-                                            <span class="badge bg-warning text-dark">
-                                                <i class="bi bi-clock me-1"></i>En attente
-                                            </span>
-                                        @else
-                                            <span class="badge bg-danger">
-                                                <i class="bi bi-x-circle me-1"></i>Refusée
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <p class="text-muted small mb-0">
-                                        Candidature envoyée le {{ $candidature->created_at->format('d/m/Y à H:i') }}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                                <div class="d-flex align-items-center gap-3 small">
-                                    <span class="text-muted">
-                                        <i class="bi bi-person me-1"></i>
-                                        {{ $candidature->annonce->student->firstname }}
-                                    </span>
-                                    @if($candidature->statut == 'acceptee')
-                                        <span class="text-success fw-semibold">
-                                            <i class="bi bi-cash-coin me-1"></i>
-                                            {{ number_format($candidature->annonce->acompte, 0, ',', ' ') }} FCFA
-                                        </span>
-                                    @endif
-                                </div>
-
-                                <a href="{{ route('annonces.dashboard.detail', $candidature->annonce->hashid) }}"
-                                   class="btn btn-sm btn-outline-secondary">
-                                    Détails <i class="bi bi-arrow-right ms-1"></i>
-                                </a>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="text-center py-5">
-                            <i class="bi bi-clipboard-x text-muted" style="font-size: 4rem;"></i>
-                            <p class="text-muted fw-semibold mt-3 mb-2">Aucune candidature</p>
-                            <p class="text-muted small">Commencez à postuler aux annonces qui vous intéressent</p>
-                        </div>
-                    @endforelse
-                </div>
+        {{-- Mes candidatures récentes --}}
+        <div class="td-card">
+            <div class="td-card__head">
+                <h2><i class="bi bi-clipboard-check"></i> Mes candidatures récentes</h2>
+                <span class="td-count">{{ count($stats['dernieresCandidatures']) }}</span>
             </div>
+            <div class="td-list">
+                @forelse(collect($stats['dernieresCandidatures'])->take(2) as $candidature)
+                    <div class="td-item">
+                        <div class="td-item__head">
+                            <h3 class="td-item__title">{{ $candidature->annonce->domaine }}</h3>
+                            @if($candidature->statut == 'acceptee')
+                                <span class="td-badge td-badge--success"><i class="bi bi-check-circle"></i> Acceptée</span>
+                            @elseif($candidature->statut == 'en_attente')
+                                <span class="td-badge td-badge--warning"><i class="bi bi-clock"></i> En attente</span>
+                            @else
+                                <span class="td-badge td-badge--danger"><i class="bi bi-x-circle"></i> Refusée</span>
+                            @endif
+                        </div>
+                        <p class="td-item__desc">Envoyée le {{ $candidature->created_at->format('d/m/Y à H:i') }}</p>
+                        <div class="td-item__foot">
+                            <div class="td-item__meta">
+                                <span><i class="bi bi-person"></i>{{ $candidature->annonce->student->firstname }}</span>
+                                @if($candidature->statut == 'acceptee')
+                                    <span style="color: #065f46; font-weight: 700;"><i class="bi bi-cash-coin" style="color:#065f46;"></i>{{ number_format($candidature->annonce->acompte, 0, ',', ' ') }} FCFA</span>
+                                @endif
+                            </div>
+                            <a href="{{ route('annonces.dashboard.detail', $candidature->annonce->hashid) }}" class="td-btn td-btn--ghost">Détails <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                @empty
+                    <div class="td-empty">
+                        <i class="bi bi-clipboard-x"></i>
+                        <strong>Aucune candidature</strong>
+                        <p>Commencez à postuler aux annonces qui vous intéressent.</p>
+                    </div>
+                @endforelse
+            </div>
+            @if(count($stats['dernieresCandidatures']) > 2)
+                <div class="td-card__foot">
+                    <a href="{{ route('candidatures.tuteur') }}">Voir plus <i class="bi bi-arrow-right"></i></a>
+                </div>
+            @endif
         </div>
     </div>
 
-    <!-- Domaines d'expertise -->
+    {{-- Domaines d'expertise --}}
     @if(!empty($stats['tutorSubjects']) && count($stats['tutorSubjects']) > 0)
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="mb-3 fw-semibold">
-                            <i class="bi bi-book text-primary me-2"></i>
-                            Vos domaines d'expertise
-                        </h5>
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach($stats['tutorSubjects'] as $subject)
-                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 fs-6 fw-semibold">
-                                    {{ $subject }}
-                                </span>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
+        <div class="td-expertise">
+            <h2><i class="bi bi-book"></i> Vos domaines d'expertise</h2>
+            <div class="td-tags">
+                @foreach($stats['tutorSubjects'] as $subject)
+                    <span class="td-tag">{{ $subject }}</span>
+                @endforeach
             </div>
         </div>
     @endif
-
-    <style>
-        .hover-shadow {
-            transition: all 0.3s ease;
-        }
-        .hover-shadow:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-            transform: translateY(-2px);
-        }
-        .hover-bg-light:hover {
-            background-color: #f8f9fa;
-            cursor: pointer;
-        }
-        .bg-purple-subtle {
-            background-color: rgba(111, 66, 193, 0.1);
-        }
-        .text-purple {
-            color: #6f42c1;
-        }
-        .bg-success-subtle {
-            background-color: rgba(25, 135, 84, 0.1);
-        }
-        .bg-info-subtle {
-            background-color: rgba(13, 202, 240, 0.1);
-        }
-    </style>
 @endsection

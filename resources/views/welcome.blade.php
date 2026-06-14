@@ -22,9 +22,9 @@
         .kp-hero__subtitle {
             color: var(--kp-blue);
             font-family: var(--kp-font-title);
-            font-weight: 600;
-            font-size: clamp(1.05rem, .98rem + .5vw, 1.25rem);
-            line-height: 1.4;
+            font-weight: 700;
+            font-size: clamp(2rem, 1.4rem + 2.8vw, 3.2rem);
+            line-height: 1.1;
             margin: 0 0 1.5rem;
         }
 
@@ -138,9 +138,9 @@
             .kp-hero .kp-display { display: none; }   /* « Kopiao » masqué en mobile */
             .kp-hero__subtitle {
                 order: 0;
-                font-size: clamp(1.5rem, 1.1rem + 3vw, 1.9rem);   /* devient le titre */
-                font-weight: 700;
-                line-height: 1.25;
+                font-size: clamp(1.8rem, 1.3rem + 3.5vw, 2.4rem);   /* devient le titre */
+                font-weight: 500;
+                line-height: 1.1;
                 margin: 0;
                 text-align: center;
             }
@@ -169,8 +169,7 @@
             <div class="kp-hero__grid">
                 <!-- Texte -->
                 <div class="kp-hero__content">
-                    <h1 class="kp-display">Kopiao</h1>
-                    <p class="kp-hero__subtitle">Trouvez le tuteur idéal pour réussir vos études</p>
+                    <h1 class="kp-hero__subtitle">Trouvez le tuteur idéal pour réussir vos études</h1>
 
                     <form action="{{ route('recherche.tuteur') }}" method="GET" class="kp-hero__search">
                         <div class="kp-search">
@@ -317,7 +316,7 @@
                     <p class="kp-text kp-muted">
                         Parcourez notre liste de tuteurs qualifiés et trouvez celui qui correspond à vos besoins.
                     </p>
-                    <a href="{{ route('recherche.tuteur') }}" class="kp-btn kp-btn--secondary kp-btn--block">
+                    <a href="{{ route('recherche.tuteur') }}" class="kp-btn kp-btn--primary kp-btn--block">
                         <i class="bi bi-eye"></i> Voir tous les tuteurs
                     </a>
                 </div>

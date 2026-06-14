@@ -73,6 +73,7 @@ Route::middleware(['auth'])->group(function () {
     // ===== ROUTES TUTEUR (ABONNEMENT) =====
     Route::get('/subscription-user', [TeacherController::class, 'showSubscription'])->name('subscription.user');
     Route::get('/abonnements-historique', [TeacherController::class, 'showSubscriptionHistory'])->name('abonnements.user');
+    Route::get('/mes-candidatures-tuteur', [TeacherController::class, 'mesCandidatures'])->name('candidatures.tuteur');
     Route::get('/paiement/success', [TeacherController::class, 'paymentSuccess'])->name('paiement.success');
 
     // ===== ROUTES DASHBOARD UTILISATEUR =====
@@ -116,9 +117,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [AnnonceController::class, 'edit'])->name('edit');
         Route::put('/{id}', [AnnonceController::class, 'update'])->name('update');
         Route::delete('/{id}', [AnnonceController::class, 'destroy'])->name('destroy');
+        Route::post('/bulk-destroy', [AnnonceController::class, 'bulkDestroy'])->name('bulkDestroy');
 
         // Routes de paiement FedaPay
-        Route::get('/{id}/payment', [AnnonceController::class, 'payment'])->name('payment');
         Route::post('/{id}/init-payment', [AnnonceController::class, 'initPayment'])->name('init-payment');
         Route::get('/{id}/check-payment', [AnnonceController::class, 'checkPaymentStatus'])->name('check-payment');
 
@@ -131,9 +132,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{annonce}/candidatures', [CandidatureController::class, 'store'])->name('candidatures.store');
         Route::post('/candidatures/{candidature}/accepter', [CandidatureController::class, 'accepter'])->name('candidatures.accepter');
         Route::post('/candidatures/{candidature}/refuser', [CandidatureController::class, 'refuser'])->name('candidatures.refuser');
-        Route::get('/candidatures/{candidature}/profil', [CandidatureController::class, 'voirProfilTuteur'])->name('candidatures.profil');
         Route::get('/{annonce}/candidatures/stats', [CandidatureController::class, 'stats'])->name('candidatures.stats');
     });
+
+    // Candidatures globales (apprenant)
+    Route::get('/mes-candidatures', [CandidatureController::class, 'mesCandidatures'])->name('candidatures.mes');
 });
 
 // ==================== ROUTES PUBLIC POUR CALLBACKS ET WEBHOOKS (SANS CSRF) ====================

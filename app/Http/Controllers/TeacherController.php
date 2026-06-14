@@ -12,6 +12,7 @@ use App\Models\Subscription;
 use App\Traits\HasHashid;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Moneroo\Laravel\Payment as MonerooPayment;
@@ -30,7 +31,8 @@ final class TeacherController extends Controller
 
     public function initSubscriptionPayment(Request $request)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         try {
             $paymentData = [
@@ -157,7 +159,8 @@ final class TeacherController extends Controller
      */
     public function ShowAnnonces(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        $tuteur = auth()->user();
+        /** @var \App\Models\User|null $tuteur */
+        $tuteur = Auth::user();
 
         abort_if(! $tuteur || ! $tuteur->isTuteur(), 403, 'Accès interdit');
 
@@ -182,11 +185,30 @@ final class TeacherController extends Controller
     }
 
     /**
+     * Afficher les candidatures du tuteur connecté
+     */
+    public function mesCandidatures(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        abort_unless($user->isTuteur(), 403, 'Accès interdit. Cette page est réservée aux tuteurs.');
+
+        $candidatures = Candidature::where('user_id', $user->id)
+            ->with(['annonce.subject', 'annonce.student'])
+            ->orderByDesc('created_at')
+            ->paginate(15);
+
+        return view('teachers.mes-candidatures', compact('candidatures'));
+    }
+
+    /**
      * Afficher l'historique des abonnements du tuteur
      */
     public function showSubscriptionHistory(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         // Vérifier que l'utilisateur est un tuteur
         abort_unless($user->isTuteur(), 403, 'Accès interdit. Cette page est réservée aux tuteurs.');
@@ -219,28 +241,31 @@ final class TeacherController extends Controller
     /**
      * Afficher le détail d'une annonce
      */
-    public function showAnnonceDetail($hash): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function showAnnonceDetail(string $hash): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $annonce = Annonce::findByHashidOrFail($hash);
 
         // On récupère l'étudiant qui a créé l'annonce (en supposant que la relation s'appelle 'user')
         $student = $annonce->student;
 
+        /** @var \App\Models\User|null $currentUser */
+        $currentUser = Auth::user();
+
         $hasApplied = false;
-        if (auth()->check() && auth()->user()->isTuteur()) {
+        if ($currentUser && $currentUser->isTuteur()) {
             $hasApplied = Candidature::where('annonce_id', $annonce->id)
-                ->where('user_id', auth()->id())
+                ->where('user_id', $currentUser->id)
                 ->exists();
         }
 
         $candidature = Candidature::where('annonce_id', $annonce->id)
-            ->where('user_id', auth()->id())
+            ->where('user_id', Auth::id())
             ->first();
 
         // On vérifie si la candidature est validée
         $teacher_validate = Candidature::where([
             ['annonce_id', '=', $annonce->id],
-            ['user_id', '=', auth()->id()],
+            ['user_id', '=', Auth::id()],
             ['statut', '=', StatutCandidat::VALIDE],
         ])->exists(); // Utiliser exists() est plus simple ici pour un booléen
 
@@ -256,9 +281,10 @@ final class TeacherController extends Controller
     /**
      * Postuler à une annonce
      */
-    public function postuler($id)
+    public function postuler(string $id)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         $existing = Candidature::where('annonce_id', $id)
             ->where('user_id', $user->id)
@@ -280,7 +306,7 @@ final class TeacherController extends Controller
     /**
      * Traiter l'abonnement après paiement réussi
      */
-    private function processSubscription($payment, $transactionId): void
+    private function processSubscription($payment, string $transactionId): void
     {
         try {
             Log::info('Processing subscription started');

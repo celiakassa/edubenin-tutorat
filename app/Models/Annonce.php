@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property float|string|null $budget
+ * @property float|string|null $acompte
+ */
 final class Annonce extends Model
 {
     use HasFactory;
