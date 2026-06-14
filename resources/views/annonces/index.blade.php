@@ -1,1201 +1,419 @@
-<!DOCTYPE html>
-<html lang="fr">
+@extends('layouts.dashboard')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mes Annonces - Kopiao</title>
-    <link href="{{ asset('images/image_1.webp') }}" rel="icon">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@section('title', 'Mes Annonces - Kopiao')
+@section('page-title', 'Mes annonces')
+
+@push('styles')
     <style>
         :root {
             --primary-color: #0351BC;
-            --primary-light: #4a7fd4;
-            --primary-dark: #023a8a;
-            --white: #ffffff;
-            --light-gray: #f8fafc;
-            --medium-gray: #e2e8f0;
             --dark-gray: #64748b;
+            --medium-gray: #e2e8f0;
             --text-dark: #1e293b;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #2a819b 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            padding: 0;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('{{ asset('images/image_4.webp') }}');
-            background-size: cover;
-            opacity: 0.1;
-        }
-
-        /* Navigation Styles */
-        .sidebar {
-            width: 280px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            border-right: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-
-        .sidebar-header {
-            padding: 30px 25px;
-            border-bottom: 1px solid var(--medium-gray);
-            text-align: center;
-        }
-
-        .platform-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--primary-color);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--white);
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .platform-name {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .platform-tagline {
-            font-size: 12px;
-            color: var(--dark-gray);
-            margin-bottom: 20px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 15px;
-            background: var(--light-gray);
-            border-radius: 12px;
-            margin-top: 15px;
-        }
-
-        .user-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: var(--white);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .user-details h4 {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .user-details p {
-            font-size: 12px;
-            color: var(--dark-gray);
-        }
-
-        .sidebar-stats {
-            padding: 20px 25px;
-            border-bottom: 1px solid var(--medium-gray);
-        }
-
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .sidebar-menu {
-            padding: 20px 0;
-        }
-
-        .menu-item {
-            padding: 15px 25px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: var(--dark-gray);
-            text-decoration: none;
-        }
-
-        .menu-item:hover,
-        .menu-item.active {
-            background: var(--primary-light);
-            color: var(--white);
-            border-right: 3px solid var(--primary-color);
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            padding: 30px;
-            min-height: 100vh;
-        }
-
-        /* Header */
-        .page-header {
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .page-title {
-            color: var(--white);
-            font-size: 32px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        /* Container */
-        .annonces-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .annonces-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-            color: var(--white);
-            padding: 30px 40px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .annonces-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-content h1 {
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .btn-create {
-            background: var(--white);
-            color: var(--primary-color);
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
-        }
-
-        .btn-create:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
-        }
-
-        /* Charts Section */
-        .charts-section {
-            padding: 30px 40px;
-            background: var(--light-gray);
-            border-bottom: 1px solid var(--medium-gray);
-        }
-
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .chart-card {
-            background: var(--white);
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-        }
-
-        .chart-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .chart-header h3 {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 250px;
-            width: 100%;
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 25px 40px;
-            background: var(--light-gray);
-        }
-
-        .stat-card {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: var(--white);
-        }
-
-        .stat-icon.total {
-            background: linear-gradient(135deg, #0351BC 0%, #4a7fd4 100%);
-        }
-
-        .stat-icon.pending {
-            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
-        }
-
-        .stat-icon.published {
-            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-        }
-
-        .stat-info h3 {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 5px;
-        }
-
-        .stat-info p {
-            font-size: 14px;
-            color: var(--dark-gray);
-        }
-
-        /* Search Bar */
-        .search-container {
-            padding: 25px 40px;
-            border-bottom: 1px solid var(--medium-gray);
-        }
-
-        .search-box {
-            position: relative;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 14px 20px 14px 50px;
-            border: 2px solid var(--medium-gray);
-            border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background: var(--white);
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(3, 81, 188, 0.1);
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--dark-gray);
-            font-size: 18px;
-        }
-
-        /* Annonces List */
-        .annonces-list {
-            padding: 30px 40px;
-        }
-
-        .annonce-card {
-            background: var(--white);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border: 1px solid var(--medium-gray);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .annonce-card:hover {
-            border-color: var(--primary-light);
-            box-shadow: 0 6px 20px rgba(3, 81, 188, 0.1);
-            transform: translateY(-3px);
-        }
-
-        .annonce-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 6px;
-            height: 100%;
-            background: var(--primary-color);
-        }
-
-        .annonce-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-
-        .annonce-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-        }
-
-        .annonce-domain {
-            color: var(--primary-color);
-            font-weight: 500;
-            font-size: 16px;
-        }
-
-        .annonce-status {
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .status-en_attente {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-en_paiement {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .status-publiee {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-attribuee {
-            background: #ede9fe;
-            color: #5b21b6;
-        }
-
-        .annonce-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .detail-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .detail-icon {
-            width: 36px;
-            height: 36px;
-            background: var(--light-gray);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-            font-size: 14px;
-        }
-
-        .detail-content h4 {
-            font-size: 12px;
-            color: var(--dark-gray);
-            margin-bottom: 4px;
-        }
-
-        .detail-content p {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .annonce-description {
-            color: var(--dark-gray);
-            line-height: 1.6;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .annonce-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-
-        .btn-action {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            border: none;
-        }
-
-        .btn-view {
-            background: var(--light-gray);
-            color: var(--text-dark);
-        }
-
-        .btn-pay {
-            background: var(--success);
-            color: var(--white);
-        }
-
-        .btn-edit {
-            background: #3b82f6;
-            color: var(--white);
-        }
-
-        .btn-delete {
-            background: var(--danger);
-            color: var(--white);
-        }
-
-        .btn-action:hover {
-            transform: translateY(-2px);
-            opacity: 0.9;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .empty-icon {
-            font-size: 80px;
-            color: var(--medium-gray);
-            margin-bottom: 25px;
-        }
-
-        .empty-state h3 {
-            color: var(--text-dark);
-            font-size: 22px;
-            margin-bottom: 10px;
-        }
-
-        .empty-state p {
-            color: var(--dark-gray);
-            margin-bottom: 30px;
-            max-width: 500px;
-            margin: 0 auto 30px;
-        }
-
-        /* Messages */
-        .alert-message {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin: 0 40px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 500;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border-left: 4px solid #10b981;
-        }
-
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border-left: 4px solid #ef4444;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 20px;
-            }
-
-            .annonces-container {
-                max-width: 100%;
-            }
-
-            .annonces-header,
-            .charts-section,
-            .stats-grid,
-            .search-container,
-            .annonces-list {
-                padding: 20px;
-            }
-
-            .header-content {
-                flex-direction: column;
-                gap: 20px;
-                text-align: center;
-            }
-
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .chart-container {
-                height: 200px;
-            }
-
-            .annonce-header {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .annonce-actions {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .btn-action {
-                flex: 1;
-                min-width: 120px;
-                justify-content: center;
-            }
+        .an-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+        .an-header__sub { color: var(--kp-muted); font-size: var(--kp-fs-base); margin: 2px 0 0; }
+        .btn-create { background: var(--kp-blue); color: #fff; height: 46px; padding: 0 22px; border: none; border-radius: var(--kp-radius-pill); font-size: var(--kp-fs-base); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.25s ease; text-decoration: none; white-space: nowrap; }
+        .btn-create:hover { background: #1a1a1a; color: #fff; transform: translateY(-1px); }
+
+        .alert-message { padding: 13px 16px; border-radius: 10px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: var(--kp-fs-base); }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        .alert-error { background: #fee2e2; color: #991b1b; }
+
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: #fff; border: 1px solid var(--kp-border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; transition: border-color .2s, transform .2s; }
+        .stat-card:hover { border-color: var(--kp-blue); transform: translateY(-1px); }
+        .stat-icon { width: 44px; height: 44px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: var(--kp-fs-md); color: #fff; flex-shrink: 0; }
+        .stat-icon.total { background: var(--kp-blue); color: #fff; }
+        .stat-icon.published { background: var(--kp-yellow); color: #1a1a1a; }
+        .stat-icon.budget { background: #1a1a1a; color: #fff; }
+        .stat-info { display: flex; align-items: baseline; gap: 7px; white-space: nowrap; min-width: 0; }
+        .stat-info h3 { font-size: var(--kp-fs-xl); font-weight: 700; color: var(--text-dark); margin: 0; }
+        .stat-info p { font-size: var(--kp-fs-xs); color: var(--dark-gray); margin: 0; }
+
+        /* Barre d'outils */
+        .an-toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch; margin-bottom: 14px; }
+        .search-box { position: relative; flex: 1; min-width: 150px; }
+        .search-box input { width: 100%; height: 46px; padding: 0 16px 0 44px; border: 1.5px solid var(--kp-border); border-radius: 12px; font-size: var(--kp-fs-base); background: #fff; }
+        .search-box input:focus { outline: none; border-color: var(--kp-blue); box-shadow: 0 0 0 3px var(--kp-blue-soft); }
+        .search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--dark-gray); font-size: var(--kp-fs-base); }
+        .filter-box { position: relative; flex-shrink: 0; }
+        .filter-box select { height: 46px; padding: 0 36px 0 38px; border: 1.5px solid var(--kp-border); border-radius: 12px; font-size: var(--kp-fs-base); background: #fff; color: var(--text-dark); cursor: pointer; appearance: none; min-width: 160px; }
+        .filter-box select:focus { outline: none; border-color: var(--kp-blue); }
+        .filter-box > i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--dark-gray); font-size: var(--kp-fs-sm); }
+        .filter-box::after { content: '⌄'; position: absolute; right: 14px; top: 42%; transform: translateY(-50%); color: var(--dark-gray); }
+        .btn-bulk-del { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 46px; padding: 0 22px; border: none; border-radius: var(--kp-radius-pill); background: #e02c18; color: #fff; font-weight: 600; font-size: var(--kp-fs-base); cursor: pointer; flex-shrink: 0; transition: all .2s; }
+        .btn-bulk-del:not(:disabled):hover { background: #c62411; }
+        .btn-bulk-del:disabled { background: var(--kp-border); color: var(--kp-muted); cursor: not-allowed; }
+
+        /* Tableau */
+        .an-table-wrap { background: #fff; border: 1px solid var(--kp-border); border-radius: 14px; overflow: hidden; }
+        .an-table { width: 100%; border-collapse: collapse; font-size: var(--kp-fs-base); }
+        .an-table thead th { text-align: left; padding: 12px 16px; font-size: var(--kp-fs-2xs); text-transform: uppercase; letter-spacing: .5px; color: var(--kp-muted); font-weight: 700; border-bottom: 1px solid var(--kp-border); background: var(--kp-surface); white-space: nowrap; }
+        .an-table tbody td { padding: 13px 16px; border-bottom: 1px solid var(--kp-border); color: var(--kp-ink); vertical-align: middle; }
+        .an-table tbody tr:last-child td { border-bottom: none; }
+        .an-row { cursor: pointer; transition: background .15s; }
+        .an-row:hover { background: var(--kp-surface); }
+        .an-row.is-selected { background: var(--kp-blue-soft); }
+        .col-check { width: 46px; text-align: center; }
+        .col-check input { width: 16px; height: 16px; accent-color: var(--kp-blue); cursor: pointer; }
+        .col-subject { font-weight: 600; }
+        .col-budget { font-weight: 700; color: var(--kp-blue); white-space: nowrap; }
+        .col-date { color: var(--kp-muted); white-space: nowrap; }
+        .col-arrow { width: 40px; text-align: center; color: var(--kp-muted); }
+        .annonce-status { padding: 4px 12px; border-radius: 20px; font-size: var(--kp-fs-2xs); font-weight: 600; display: inline-block; white-space: nowrap; }
+        .status-en_attente { background: #fef3c7; color: #92400e; }
+        .status-en_paiement { background: #dbeafe; color: #1e40af; }
+        .status-publiee { background: #d1fae5; color: #065f46; }
+        .status-attribuee { background: #ede9fe; color: #5b21b6; }
+        .status-refusee { background: #fee2e2; color: #991b1b; }
+        .an-empty-row td { text-align: center; padding: 40px; color: var(--kp-muted); }
+
+        /* État vide */
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-icon { font-size: 60px; color: var(--medium-gray); margin-bottom: 18px; }
+        .empty-state h3 { color: var(--text-dark); font-size: var(--kp-fs-xl); margin-bottom: 8px; }
+        .empty-state p { color: var(--dark-gray); max-width: 460px; margin: 0 auto 22px; }
+
+        /* ===== Panneau latéral (drawer droite) ===== */
+        .adrawer { position: fixed; inset: 0; z-index: 3000; display: none; }
+        .adrawer.open { display: block; }
+        .adrawer__overlay { position: absolute; inset: 0; background: rgba(11, 18, 32, .45); opacity: 0; transition: opacity .25s; }
+        .adrawer.open .adrawer__overlay { opacity: 1; }
+        .adrawer__panel { position: absolute; top: 0; right: 0; bottom: 0; width: 440px; max-width: 92vw; background: #fff; box-shadow: -12px 0 44px rgba(0, 0, 0, .22); transform: translateX(100%); transition: transform .3s ease; display: flex; flex-direction: column; }
+        .adrawer.open .adrawer__panel { transform: translateX(0); }
+        .adrawer__head { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--kp-border); }
+        .adrawer__badge { background: #0B69F1; color: #fff; padding: 5px 14px; border-radius: 25px; font-size: var(--kp-fs-2xs); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+        .adrawer__close { margin-left: auto; width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--kp-surface); color: var(--kp-ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .adrawer__close:hover { background: var(--kp-blue); color: #fff; }
+        .adrawer__body { flex: 1; overflow-y: auto; padding: 20px; }
+        .ad-meta { display: flex; gap: 16px; color: var(--kp-muted); font-size: var(--kp-fs-sm); margin-bottom: 14px; flex-wrap: wrap; }
+        .ad-meta i { margin-right: 4px; color: var(--kp-blue); }
+        .ad-budget { background: var(--kp-yellow); border-radius: 13px; padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+        .ad-budget .lbl { color: #1a1a1a; font-size: var(--kp-fs-2xs); font-weight: 700; text-transform: uppercase; }
+        .ad-budget .amt { color: #1a1a1a; font-size: var(--kp-fs-xl); font-weight: 800; }
+        .ad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .ad-item { background: #f6f8fb; border-radius: 11px; padding: 10px 13px; display: flex; flex-direction: column; gap: 2px; }
+        .ad-item--full { grid-column: 1 / -1; }
+        .ad-item .lbl { font-size: var(--kp-fs-2xs); color: #8a93a3; font-weight: 700; text-transform: uppercase; }
+        .ad-item .val { font-size: var(--kp-fs-base); font-weight: 600; color: #1a1a1a; }
+        .ad-desc .lbl { font-size: var(--kp-fs-2xs); color: #8a93a3; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px; }
+        .ad-desc p { color: #475569; font-size: var(--kp-fs-base); line-height: 1.6; margin: 0; }
+        .adrawer__foot { padding: 14px 20px; border-top: 1px solid var(--kp-border); display: flex; gap: 10px; flex-wrap: wrap; }
+        .adrawer__foot .kp-btn { flex: 1; justify-content: center; }
+
+        @media (max-width: 640px) {
+            /* En-tête : bouton pleine largeur */
+            .an-header { flex-direction: column; align-items: stretch; }
+            .btn-create { width: 100%; justify-content: center; }
+
+            /* Barre d'outils empilée */
+            .an-toolbar { flex-direction: column; }
+            .search-box, .filter-box, .filter-box select, .btn-bulk-del { width: 100%; }
+            .filter-box select { min-width: 0; }
+
+            /* Tableau → cartes côte à côte (2 colonnes) */
+            .an-table-wrap { background: transparent; border: none; border-radius: 0; overflow: visible; }
+            .an-table thead { display: none; }
+            .an-table, .an-table tr, .an-table td { display: block; width: 100%; }
+            .an-table tbody { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .an-table tr.an-row { position: relative; background: #fff; border: 1px solid var(--kp-border); border-radius: 12px; margin: 0; padding: 13px 14px; }
+            .an-table tr.an-row.is-selected { background: var(--kp-blue-soft); border-color: var(--kp-blue); }
+            .an-table tbody td { border: none !important; padding: 0; }
+            .an-table .col-check { position: absolute; top: 10px; right: 10px; left: auto; width: auto; padding: 0; }
+            .an-table .col-subject { font-weight: 700; font-size: var(--kp-fs-base); color: var(--kp-ink); padding-right: 22px; margin-bottom: 8px; line-height: 1.3; }
+            .an-table td:nth-child(3) { margin-bottom: 8px; }
+            .an-table .col-budget { display: block; color: var(--kp-blue); font-weight: 700; margin-bottom: 2px; }
+            .an-table .col-date { display: block; color: var(--kp-muted); font-size: var(--kp-fs-2xs); }
+            .an-table .col-arrow { display: none; }
+            .an-empty-row { grid-column: 1 / -1; }
+            .an-empty-row td { padding: 30px 10px !important; text-align: center; }
+        }
+
+        /* Mobile : le panneau de détails monte du bas (bottom sheet) */
+        @media (max-width: 575px) {
+            .adrawer__panel { top: auto; left: 0; right: 0; bottom: 0; width: 100%; max-width: 100%; max-height: 90vh; border-radius: 20px 20px 0 0; transform: translateY(100%); box-shadow: 0 -14px 40px rgba(0, 0, 0, .25); }
+            .adrawer.open .adrawer__panel { transform: translateY(0); }
+            .adrawer__panel::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 42px; height: 4px; border-radius: 4px; background: #d5dae2; z-index: 2; }
+            .adrawer__foot { flex-direction: column; }
+            .adrawer__foot .kp-btn { width: 100%; }
         }
     </style>
-</head>
+@endpush
 
-<body>
-    <!-- Navigation Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <a href="{{ route('dashboardUser') }}" style="text-decoration: none;">
-                <div class="platform-logo">
-                    <div class="logo-icon">
-                        KP
-                    </div>
-                    <div class="platform-name">Kopiao</div>
-                </div>
-            </a>
+@section('content')
+    <div class="an-header">
+        <div>
+            <p class="an-header__sub">Gérez et suivez toutes vos annonces.</p>
+        </div>
+        <a href="{{ route('annonces.create') }}" class="btn-create"
+           onclick="if(window.openCreateAnnonceModal && document.getElementById('createAnnonceModal')){if(window.kpAnnonceFormToCreate)window.kpAnnonceFormToCreate();openCreateAnnonceModal();return false;}">
+            <i class="fas fa-plus"></i> Nouvelle annonce
+        </a>
+    </div>
 
-            <div class="platform-tagline">Votre plateforme éducative</div>
-
-            <div class="user-info">
-                <div class="user-avatar">
-                    {{ strtoupper(substr($user->firstname, 0, 1) . substr($user->lastname, 0, 1)) }}
-                </div>
-                <div class="user-details">
-                    <h4>{{ $user->firstname }} {{ $user->lastname }}</h4>
-                    <p>
-                        @if ($user->role_id == 3)
-                            Tuteur
-                        @elseif($user->role_id == 2)
-                            Apprenant
-                        @else
-                            Administrateur
-                        @endif
-                    </p>
-                </div>
+    @if ($annonces->count() > 0)
+        {{-- Stats --}}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon total"><i class="fas fa-list"></i></div>
+                <div class="stat-info"><h3>{{ $annonces->count() }}</h3><p>Total annonces</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon published"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info"><h3>{{ $annonces->where('status', 'publiée')->count() }}</h3><p>Publiées</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon budget"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="stat-info"><h3>{{ number_format($annonces->sum('budget'), 0, ',', ' ') }} F</h3><p>Budget total</p></div>
             </div>
         </div>
 
+        <form id="bulkForm" action="{{ route('annonces.bulkDestroy') }}" method="POST"
+              onsubmit="return kpConfirmDelete(event, this, {title: 'Supprimer la sélection', text: 'Les annonces sélectionnées seront supprimées définitivement.'});">
+            @csrf
 
-        <div class="sidebar-menu">
-            <a href="{{ route('dashboardUser') }}" class="menu-item">
-                <i class="fas fa-home"></i>
-                <span>Tableau de bord</span>
-            </a>
-            <a href="{{ route('CompleterProfilUser.show') }}" class="menu-item">
-                <i class="fas fa-user-edit"></i>
-                <span>Mon profil</span>
-            </a>
-            <a href="{{ route('annonces.index') }}" class="menu-item active">
-                <i class="fas fa-bullhorn"></i>
-                <span>Mes annonces</span>
-            </a>
-            <a href="{{ route('annonces.create') }}" class="menu-item">
-                <i class="fas fa-plus-circle"></i>
-                <span>Nouvelle annonce</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="annonces-container">
-            <!-- Header -->
-            <div class="annonces-header">
-                <div class="header-content">
-                    <h1>
-                        <i class="fas fa-bullhorn"></i>
-                        Mes Annonces
-                    </h1>
-                    <a href="{{ route('annonces.create') }}" class="btn-create">
-                        <i class="fas fa-plus"></i>
-                        Nouvelle annonce
-                    </a>
+            {{-- Barre d'outils --}}
+            <div class="an-toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Rechercher une annonce...">
                 </div>
+                <div class="filter-box">
+                    <i class="fas fa-filter"></i>
+                    <select id="statusFilter">
+                        <option value="">Tous les statuts</option>
+                        <option value="publiée">Publiées</option>
+                        <option value="en_attente">En attente</option>
+                        <option value="en_paiement">En paiement</option>
+                        <option value="attribuée">Attribuées</option>
+                        <option value="refusée">Refusées</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-bulk-del" id="bulkDeleteBtn" disabled>
+                    <i class="fas fa-trash"></i> Supprimer (<span id="selCount">0</span>)
+                </button>
             </div>
 
-            <!-- Messages -->
-            @if (session('success'))
-                <div class="alert-message alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert-message alert-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            <!-- Charts Section -->
-            @if ($annonces->count() > 0)
-                <div class="charts-section">
-                    <div class="charts-grid">
-                        <!-- Chart 1: Répartition par statut -->
-                        <div class="chart-card">
-                            <div class="chart-header">
-                                <h3><i class="fas fa-chart-pie"></i> Répartition par statut</h3>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="statusChart"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- Chart 2: Évolution des montants -->
-                        <div class="chart-card">
-                            <div class="chart-header">
-                                <h3><i class="fas fa-chart-line"></i> Budget total par annonce</h3>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="budgetChart"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- Chart 3: Répartition par domaine -->
-                        <div class="chart-card">
-                            <div class="chart-header">
-                                <h3><i class="fas fa-chart-bar"></i> Répartition par domaine</h3>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="domainChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon total">
-                                <i class="fas fa-list"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>{{ $annonces->count() }}</h3>
-                                <p>Total annonces</p>
-                            </div>
-                        </div>
-
-                        <div class="stat-card">
-                            <div class="stat-icon published">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>{{ $annonces->where('status', 'publiée')->count() }}</h3>
-                                <p>Publiées</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"
-                                style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);">
-                                <i class="fas fa-money-bill-wave"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>{{ number_format($annonces->sum('budget'), 0, ',', ' ') }} F</h3>
-                                <p>Budget total</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            @if ($annonces->count() > 0)
-                <!-- Search -->
-                <div class="search-container">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput"
-                            placeholder="Rechercher une annonce par matière, description...">
-                    </div>
-                </div>
-
-                <!-- Annonces List -->
-                <div class="annonces-list" id="annoncesList">
-                    @foreach ($annonces as $annonce)
-                        <div class="annonce-card"
-                            data-search="{{ strtolower(($annonce->subject->nom ?? '') . ' ' . $annonce->description) }}">
-                            <div class="annonce-header">
-                                <div>
-                                    <div>
-                                        <style>
-                                            .matiere-badge {
-                                                display: inline-block;
-                                                padding: 8px 18px;
-                                                font-size: 14px;
-                                                font-weight: 600;
-                                                border-radius: 25px;
-                                                background: linear-gradient(135deg, #4e73df, #224abe);
-                                                color: white;
-                                                text-transform: uppercase;
-                                                letter-spacing: 0.5px;
-                                                box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-                                                transition: all 0.3s ease;
-                                            }
-
-                                            .matiere-badge:hover {
-                                                transform: translateY(-2px);
-                                                box-shadow: 0 6px 14px rgba(0,0,0,0.2);
-                                            }
-                                        </style>
-
-                                        <span class="matiere-badge">
-                                            {{ $annonce->subject->nom ?? 'Matière non spécifiée' }}
-                                        </span>
-                                    </div>
-                                    <br>
-                                    <span class="annonce-status status-{{ str_replace('é', 'e', $annonce->status) }}">
-                                        {{ $annonce->status }}
-                                    </span>
-                                </div>
-                                <div class="annonce-date">
-                                    <i class="far fa-calendar"></i>
-                                    {{ $annonce->created_at->format('d/m/Y') }}
-                                </div>
-                            </div>
-
-                            <div class="annonce-details">
-                                <div class="detail-item">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-money-bill-wave"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <h4>Budget total</h4>
-                                        <p>{{ number_format($annonce->budget, 0, ',', ' ') }} FCFA</p>
-                                    </div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-credit-card"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <h4>Acompte</h4>
-                                        <p>{{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA</p>
-                                    </div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-icon">
-                                        <i class="far fa-clock"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <h4>Mes disponibilités</h4>
-                                        <p>{{ Str::limit($annonce->disponibilite, 50) }}</p>
-                                    </div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-laptop"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <h4>Format</h4>
-                                        <p>
-                                            @if ($annonce->format == 'presentiel')
-                                                Présentiel
-                                            @elseif($annonce->format == 'en_ligne')
-                                                En ligne
-                                            @else
-                                                Hybride
-                                            @endif
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="annonce-description">
-                                {{ Str::limit($annonce->description, 200) }}
-                            </div>
-
-                            <div class="annonce-actions">
-                                <a href="{{ route('annonces.show', $annonce->id) }}" class="btn-action btn-view">
-                                    <i class="fas fa-eye"></i> Voir
-                                </a>
-
-                                @if (!$annonce->is_paid && $annonce->status == 'en_attente')
-                                    <a href="{{ route('annonces.payment', $annonce->id) }}"
-                                        class="btn-action btn-pay">
-                                        <i class="fas fa-credit-card"></i> Payer
-                                    </a>
-                                @endif
-
-                                @if ($annonce->status == 'en_attente')
-                                    <a href="{{ route('annonces.edit', $annonce->id) }}" class="btn-action btn-edit">
-                                        <i class="fas fa-edit"></i> Modifier
-                                    </a>
-                                @endif
-
-                                @if ($annonce->status != 'attribuee')
-                                    <form action="{{ route('annonces.destroy', $annonce->id) }}" method="POST"
-                                        onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-action btn-delete">
-                                            <i class="fas fa-trash"></i> Supprimer
-                                        </button>
-                                    </form>
-                                @endif
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <!-- Empty State -->
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-bullhorn"></i>
-                    </div>
-                    <h3>Aucune annonce créée</h3>
-                    <p>Commencez par créer votre première annonce pour trouver le tuteur idéal pour vos besoins
-                        d'apprentissage.</p>
-                    <a href="{{ route('annonces.create') }}" class="btn-create" style="margin-top: 10px;">
-                        <i class="fas fa-plus"></i>
-                        Créer ma première annonce
-                    </a>
-                </div>
-            @endif
+            {{-- Tableau --}}
+            <div class="an-table-wrap">
+                <table class="an-table">
+                    <thead>
+                        <tr>
+                            <th class="col-check"><input type="checkbox" id="selectAll" title="Tout sélectionner"></th>
+                            <th>Matière</th>
+                            <th>Statut</th>
+                            <th>Budget</th>
+                            <th>Date</th>
+                            <th class="col-arrow"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="annoncesBody">
+                        @foreach ($annonces as $annonce)
+                            <tr class="an-row"
+                                data-search="{{ strtolower(($annonce->subject->nom ?? '') . ' ' . $annonce->description) }}"
+                                data-id="{{ $annonce->id }}"
+                                data-note="{{ $annonce->budget ? round(($annonce->acompte / $annonce->budget) * 100) . '% du budget total' : '' }}"
+                                data-status="{{ $annonce->status }}"
+                                data-matiere="{{ $annonce->subject->nom ?? 'Matière non spécifiée' }}"
+                                data-statuslabel="{{ $annonce->status }}"
+                                data-budget="{{ number_format($annonce->budget, 0, ',', ' ') }} FCFA"
+                                data-acompte="{{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA"
+                                data-format="{{ $annonce->format }}"
+                                data-dispo="{{ $annonce->disponibilite }}"
+                                data-description="{{ $annonce->description }}"
+                                data-date="{{ $annonce->created_at->format('d/m/Y') }}"
+                                data-paid="{{ $annonce->is_paid ? 'Payée' : 'Non payée' }}"
+                                data-published="{{ $annonce->published_at ? \Carbon\Carbon::parse($annonce->published_at)->format('d/m/Y') : '—' }}"
+                                data-candidatures="{{ $annonce->candidatures()->count() }}"
+                                data-editable="{{ $annonce->status == 'en_attente' ? '1' : '' }}"
+                                data-subjectid="{{ $annonce->subject_id }}"
+                                data-budgetraw="{{ $annonce->budget }}"
+                                data-updateurl="{{ route('annonces.update', $annonce->id) }}"
+                                data-showurl="{{ route('annonces.show', $annonce->id) }}"
+                                data-payurl="{{ !$annonce->is_paid && $annonce->status == 'en_attente' ? '1' : '' }}"
+                                onclick="openDrawer(this)">
+                                <td class="col-check" onclick="event.stopPropagation();">
+                                    <input type="checkbox" name="ids[]" value="{{ $annonce->id }}" class="rowCheck" onchange="updateSelection()">
+                                </td>
+                                <td class="col-subject">{{ $annonce->subject->nom ?? 'Matière non spécifiée' }}</td>
+                                <td><span class="annonce-status status-{{ str_replace('é', 'e', $annonce->status) }}">{{ $annonce->status }}</span></td>
+                                <td class="col-budget">{{ number_format($annonce->budget, 0, ',', ' ') }} FCFA</td>
+                                <td class="col-date">{{ $annonce->created_at->format('d/m/Y') }}</td>
+                                <td class="col-arrow"><i class="fas fa-chevron-right"></i></td>
+                            </tr>
+                        @endforeach
+                        <tr class="an-empty-row" id="noResultsRow" style="display:none;">
+                            <td colspan="6">Aucune annonce ne correspond à votre recherche.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    @else
+        <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-bullhorn"></i></div>
+            <h3>Aucune annonce créée</h3>
+            <p>Commencez par publier votre première annonce pour trouver le tuteur idéal.</p>
+            <a href="{{ route('annonces.create') }}" class="btn-create"
+               onclick="if(window.openCreateAnnonceModal && document.getElementById('createAnnonceModal')){if(window.kpAnnonceFormToCreate)window.kpAnnonceFormToCreate();openCreateAnnonceModal();return false;}">
+                <i class="fas fa-plus"></i> Créer ma première annonce
+            </a>
         </div>
-    </div>
+    @endif
 
+    {{-- Panneau de détails (glisse depuis la droite) --}}
+    <div class="adrawer" id="annonceDrawer">
+        <div class="adrawer__overlay" onclick="closeDrawer()"></div>
+        <aside class="adrawer__panel">
+            <div class="adrawer__head">
+                <span class="adrawer__badge" id="ad-matiere"></span>
+                <span class="annonce-status" id="ad-status"></span>
+                <button type="button" class="adrawer__close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="adrawer__body">
+                <div class="ad-meta">
+                    <span><i class="far fa-calendar"></i><span id="ad-date"></span></span>
+                    <span><i class="fas fa-users"></i><span id="ad-candidatures"></span> candidature(s)</span>
+                </div>
+                <div class="ad-budget">
+                    <span class="lbl">Budget total</span>
+                    <span class="amt" id="ad-budget"></span>
+                </div>
+                <div class="ad-grid">
+                    <div class="ad-item"><span class="lbl">Acompte</span><span class="val" id="ad-acompte"></span></div>
+                    <div class="ad-item"><span class="lbl">Format</span><span class="val" id="ad-format"></span></div>
+                    <div class="ad-item"><span class="lbl">Paiement</span><span class="val" id="ad-paid"></span></div>
+                    <div class="ad-item"><span class="lbl">Publiée le</span><span class="val" id="ad-published"></span></div>
+                    <div class="ad-item ad-item--full"><span class="lbl">Disponibilités</span><span class="val" id="ad-dispo"></span></div>
+                </div>
+                <div class="ad-desc">
+                    <span class="lbl">Description</span>
+                    <p id="ad-description"></p>
+                </div>
+            </div>
+            <div class="adrawer__foot" id="ad-foot">
+                <a href="#" id="ad-open" class="kp-btn kp-btn--primary" style="flex: 1 1 100%;"><i class="fas fa-external-link-alt"></i> Ouvrir la page complète</a>
+                <button type="button" id="ad-edit" class="kp-btn kp-btn--secondary" style="display:none;" onclick="editCurrentAnnonce()"><i class="fas fa-edit"></i> Modifier</button>
+                <button type="button" id="ad-pay" class="kp-btn kp-btn--secondary" style="display:none;" onclick="payCurrentAnnonce()"><i class="fas fa-credit-card"></i> Payer l'acompte</button>
+            </div>
+        </aside>
+    </div>
+@endsection
+
+@push('scripts')
     <script>
-        // Données pour les graphiques avec chargement de la relation subject
-        const annoncesData = @json($annonces->load('subject'));
-
-        // Préparation des données pour les graphiques
-        const statusData = {
-            labels: ['En attente', 'En paiement', 'Publiée', 'Attribuée'],
-            datasets: [{
-                data: [
-                    annoncesData.filter(a => a.status === 'en_attente').length,
-                    annoncesData.filter(a => a.status === 'en_paiement').length,
-                    annoncesData.filter(a => a.status === 'publiée').length,
-                    annoncesData.filter(a => a.status === 'attribuee').length
-                ],
-                backgroundColor: [
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(16, 185, 129, 0.8)',
-                    'rgba(139, 92, 246, 0.8)'
-                ],
-                borderColor: [
-                    '#f59e0b',
-                    '#3b82f6',
-                    '#10b981',
-                    '#8b5cf6'
-                ],
-                borderWidth: 2
-            }]
-        };
-
-        // Données pour le graphique de budget
-        const budgetData = {
-            labels: annoncesData.map((a, index) => `Annonce ${index + 1}`),
-            datasets: [{
-                label: 'Budget (FCFA)',
-                data: annoncesData.map(a => a.budget),
-                backgroundColor: 'rgba(3, 81, 188, 0.2)',
-                borderColor: 'rgba(3, 81, 188, 1)',
-                borderWidth: 2,
-                tension: 0.4,
-                fill: true
-            }]
-        };
-
-        // Données pour le graphique de domaines (utilise le nom de la matière)
-        const domainCounts = {};
-        annoncesData.forEach(a => {
-            const domain = a.subject ? a.subject.nom : 'Non spécifié';
-            domainCounts[domain] = (domainCounts[domain] || 0) + 1;
-        });
-
-        const domainData = {
-            labels: Object.keys(domainCounts),
-            datasets: [{
-                label: 'Nombre d\'annonces',
-                data: Object.values(domainCounts),
-                backgroundColor: [
-                    'rgba(3, 81, 188, 0.8)',
-                    'rgba(16, 185, 129, 0.8)',
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(139, 92, 246, 0.8)',
-                    'rgba(239, 68, 68, 0.8)',
-                    'rgba(6, 182, 212, 0.8)'
-                ],
-                borderWidth: 1
-            }]
-        };
-
-        // Initialisation des graphiques
-        document.addEventListener('DOMContentLoaded', function() {
-            // Chart 1: Répartition par statut (Camembert)
-            const statusChartCtx = document.getElementById('statusChart').getContext('2d');
-            new Chart(statusChartCtx, {
-                type: 'pie',
-                data: statusData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
+        // ===== Sélection (cases à cocher) =====
+        const selectAll = document.getElementById('selectAll');
+        const bulkBtn = document.getElementById('bulkDeleteBtn');
+        function rowChecks() { return Array.from(document.querySelectorAll('.rowCheck')); }
+        function updateSelection() {
+            const checks = rowChecks().filter(c => c.closest('tr').style.display !== 'none');
+            const selected = rowChecks().filter(c => c.checked);
+            document.getElementById('selCount').textContent = selected.length;
+            bulkBtn.disabled = selected.length === 0;
+            rowChecks().forEach(c => c.closest('tr').classList.toggle('is-selected', c.checked));
+            if (selectAll) selectAll.checked = checks.length > 0 && checks.every(c => c.checked);
+        }
+        if (selectAll) {
+            selectAll.addEventListener('change', function () {
+                rowChecks().forEach(c => { if (c.closest('tr').style.display !== 'none') c.checked = this.checked; });
+                updateSelection();
             });
+        }
 
-            // Chart 2: Évolution des montants (Ligne)
-            const budgetChartCtx = document.getElementById('budgetChart').getContext('2d');
-            new Chart(budgetChartCtx, {
-                type: 'line',
-                data: budgetData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString('fr-FR') + ' FCFA';
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `Budget: ${context.raw.toLocaleString('fr-FR')} FCFA`;
-                                }
-                            }
-                        }
-                    }
-                }
+        // ===== Recherche + filtre =====
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        function filterRows() {
+            const v = (searchInput ? searchInput.value : '').toLowerCase();
+            const s = statusFilter ? statusFilter.value : '';
+            let visible = 0;
+            document.querySelectorAll('.an-row').forEach(row => {
+                const ok = row.getAttribute('data-search').includes(v) && (!s || row.getAttribute('data-status') === s);
+                row.style.display = ok ? '' : 'none';
+                if (ok) visible++;
             });
+            document.getElementById('noResultsRow').style.display = visible === 0 ? '' : 'none';
+            updateSelection();
+        }
+        if (searchInput) searchInput.addEventListener('keyup', filterRows);
+        if (statusFilter) statusFilter.addEventListener('change', filterRows);
 
-            // Chart 3: Répartition par domaine (Barres)
-            const domainChartCtx = document.getElementById('domainChart').getContext('2d');
-            new Chart(domainChartCtx, {
-                type: 'bar',
-                data: domainData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                title: function(context) {
-                                    return context[0].label;
-                                },
-                                label: function(context) {
-                                    return `Nombre d'annonces: ${context.raw}`;
-                                }
-                            }
-                        }
-                    }
-                }
+        // ===== Panneau de détails =====
+        let currentDrawerData = null;
+        function openDrawer(row) {
+            const d = row.dataset;
+            currentDrawerData = d;
+            const fmt = d.format === 'presentiel' ? 'Présentiel' : (d.format === 'en_ligne' ? 'En ligne' : 'Hybride');
+            document.getElementById('ad-matiere').textContent = d.matiere;
+            const st = document.getElementById('ad-status');
+            st.textContent = d.statuslabel;
+            st.className = 'annonce-status status-' + d.statuslabel.replace('é', 'e');
+            document.getElementById('ad-date').textContent = ' ' + d.date;
+            document.getElementById('ad-candidatures').textContent = ' ' + d.candidatures + ' ';
+            document.getElementById('ad-budget').textContent = d.budget;
+            document.getElementById('ad-acompte').textContent = d.acompte;
+            document.getElementById('ad-format').textContent = fmt;
+            document.getElementById('ad-paid').textContent = d.paid;
+            document.getElementById('ad-published').textContent = d.published;
+            document.getElementById('ad-dispo').textContent = d.dispo || '—';
+            document.getElementById('ad-description').textContent = d.description || 'Aucune description.';
+
+            document.getElementById('ad-open').href = d.showurl;
+            const edit = document.getElementById('ad-edit');
+            const pay = document.getElementById('ad-pay');
+            edit.style.display = d.editable ? '' : 'none';
+            pay.style.display = d.payurl ? '' : 'none';
+
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+            const dr = document.getElementById('annonceDrawer');
+            dr.classList.add('open');
+            const body = dr.querySelector('.adrawer__body');
+            if (body) body.scrollTop = 0;
+        }
+        function closeDrawer() {
+            document.getElementById('annonceDrawer').classList.remove('open');
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+        // Payer → ouvre le drawer de paiement à droite
+        function payCurrentAnnonce() {
+            const d = currentDrawerData;
+            if (!d || !window.openPaymentDrawer) return;
+            const fmt = d.format === 'presentiel' ? 'Présentiel' : (d.format === 'en_ligne' ? 'En ligne' : 'Hybride');
+            closeDrawer();
+            window.openPaymentDrawer({
+                annonceId: d.id,
+                matiere: d.matiere,
+                format: d.format,
+                disponibilite: d.dispo,
+                budget: d.budget,
+                acompte: d.acompte,
+                note: d.note
             });
+        }
 
-            // Recherche en temps réel
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('keyup', function() {
-                    const searchValue = this.value.toLowerCase();
-                    const annonceCards = document.querySelectorAll('.annonce-card');
-
-                    annonceCards.forEach(card => {
-                        const searchText = card.getAttribute('data-search');
-                        if (searchText.includes(searchValue)) {
-                            card.style.display = 'block';
-                            setTimeout(() => {
-                                card.style.opacity = '1';
-                                card.style.transform = 'translateY(0)';
-                            }, 10);
-                        } else {
-                            card.style.opacity = '0';
-                            card.style.transform = 'translateY(20px)';
-                            setTimeout(() => {
-                                card.style.display = 'none';
-                            }, 300);
-                        }
-                    });
-                });
-            }
-
-            // Animation des cartes
-            const cards = document.querySelectorAll('.annonce-card');
-            cards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
+        // Modifier → rouvre le modal de création pré-rempli (mode édition)
+        function editCurrentAnnonce() {
+            const d = currentDrawerData;
+            if (!d || !d.editable || !window.kpAnnonceFormToEdit || !window.openCreateAnnonceModal) return;
+            window.kpAnnonceFormToEdit({
+                action: d.updateurl,
+                subjectId: d.subjectid,
+                subjectNom: d.matiere,
+                description: d.description,
+                format: d.format,
+                disponibilite: d.dispo,
+                budget: d.budgetraw
             });
-        });
+            closeDrawer();
+            openCreateAnnonceModal();
+        }
     </script>
-</body>
-</html>
+@endpush

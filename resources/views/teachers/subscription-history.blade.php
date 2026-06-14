@@ -1,226 +1,142 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Historique des abonnements')
+@section('title', 'Mes abonnements - Kopiao')
+@section('page-title', 'Mes abonnements')
 
-@section('content')
-    <div class="container-fluid py-4">
-        <div class="row">
-            <div class="col-12">
-                <!-- En-tête sobre avec bleu -->
-                <div class="mb-4">
-                    <h1 class="h3 fw-bold text-primary mb-2">Historique des abonnements</h1>
-                    <p class="text-muted mb-0">Consultez l'ensemble de vos abonnements et leur statut</p>
-                </div>
-
-                <!-- Messages flash -->
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-
-                <!-- Tableau des abonnements -->
-                @if($subscriptions->count() > 0)
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-primary bg-opacity-10 border-bottom border-primary border-opacity-25 py-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0 fw-semibold text-primary">Liste des abonnements</h5>
-                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
-                                    {{ $subscriptions->total() }} abonnement(s)
-                                </span>
-                            </div>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-primary table-primary-custom">
-                                    <tr>
-                                        <th class="px-4 py-3 fw-semibold">Référence</th>
-                                        <th class="px-4 py-3 fw-semibold">Date début</th>
-                                        <th class="px-4 py-3 fw-semibold">Date fin</th>
-                                        <th class="px-4 py-3 fw-semibold">Jours restants</th>
-                                        <th class="px-4 py-3 fw-semibold">Statut</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach($subscriptions as $subscription)
-                                        <tr class="border-bottom">
-                                            <td class="px-4 py-3">
-                                                <span class="text-primary fw-medium">AB-{{ str_pad($loop->iteration + ($subscriptions->currentPage() - 1) * $subscriptions->perPage(), 4, '0', STR_PAD_LEFT) }}</span>
-                                            </td>
-                                            <td class="px-4 py-3">
-                                                <span class="text-dark">{{ $subscription->date_debut->format('d/m/Y') }}</span>
-                                            </td>
-                                            <td class="px-4 py-3">
-                                                <span class="text-dark">{{ $subscription->date_fin->format('d/m/Y') }}</span>
-                                            </td>
-                                            <td class="px-4 py-3">
-                                                @php
-                                                    $joursRestants = now()->startOfDay()->diffInDays($subscription->date_fin->startOfDay(), false);
-                                                    $joursRestantsAbs = max(0, $joursRestants);
-                                                @endphp
-
-                                                @if($subscription->date_fin->isFuture())
-                                                    @php
-                                                        $totalJours = $subscription->date_debut->diffInDays($subscription->date_fin);
-                                                        $pourcentage = $totalJours > 0 ? ($joursRestantsAbs / $totalJours) * 100 : 0;
-                                                    @endphp
-                                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2">
-                                                        {{ $joursRestantsAbs }} jour(s)
-                                                    </span>
-                                                @else
-                                                    <span class="text-muted">—</span>
-                                                @endif
-                                            </td>
-                                            <td class="px-4 py-3">
-                                                @if($subscription->statut === 'active' && $subscription->date_fin->isFuture())
-                                                    <span class="badge bg-success-subtle text-success px-3 py-2 fw-medium">Actif</span>
-                                                @elseif($subscription->statut === 'active' && $subscription->date_fin->isPast())
-                                                    <span class="badge bg-secondary-subtle text-secondary px-3 py-2 fw-medium">Expiré</span>
-                                                @else
-                                                    <span class="badge bg-warning-subtle text-warning px-3 py-2 fw-medium">{{ ucfirst($subscription->statut) }}</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Pagination -->
-                        @if($subscriptions->hasPages())
-                            <div class="card-body border-top">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="text-muted small">
-                                        Affichage de {{ $subscriptions->firstItem() }} à {{ $subscriptions->lastItem() }} sur {{ $subscriptions->total() }} résultats
-                                    </div>
-                                    <div>
-                                        {{ $subscriptions->links() }}
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-
-                        <!-- Statistiques -->
-                        <div class="card-footer bg-light border-top">
-                            <div class="row text-center g-0">
-                                <div class="col-md-4">
-                                    <div class="p-3">
-                                        <div class="h5 mb-1 fw-bold text-success">
-                                            {{ $subscriptions->where('statut', 'active')->where('date_fin', '>', now())->count() }}
-                                        </div>
-                                        <small class="text-muted">Actif(s)</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 border-start border-end">
-                                    <div class="p-3">
-                                        <div class="h5 mb-1 fw-bold text-primary">{{ $subscriptions->total() }}</div>
-                                        <small class="text-muted">Total</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="p-3">
-                                        <div class="h5 mb-1 fw-bold text-secondary">
-                                            {{ $subscriptions->where('date_fin', '<', now())->count() }}
-                                        </div>
-                                        <small class="text-muted">Expiré(s)</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @else
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body text-center py-5">
-                            <div class="mb-4">
-                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-4 mb-3">
-                                    <i class="fas fa-inbox fa-3x text-primary opacity-50"></i>
-                                </div>
-                            </div>
-                            <h5 class="mb-2 fw-semibold text-dark">Aucun abonnement trouvé</h5>
-                            <p class="text-muted mb-4">Vous n'avez pas encore d'historique d'abonnements</p>
-                            <a href="{{ route('subscription.user') }}" class="btn btn-primary">
-                                Souscrire maintenant
-                            </a>
-                        </div>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-
+@push('styles')
     <style>
-        .table tbody tr {
-            transition: background-color 0.2s ease;
-        }
+        .sub-head { margin-bottom: 20px; }
+        .sub-head h2 { font-family: var(--kp-font-title); font-size: var(--kp-fs-xl); font-weight: 700; color: var(--kp-ink); margin: 0 0 4px; }
+        .sub-head p { color: var(--kp-muted); font-size: var(--kp-fs-base); margin: 0; }
 
-        .table tbody tr:hover {
-            background-color: rgba(13, 110, 253, 0.05);
-        }
+        .sub-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+        .sub-stat { background: #fff; border: 1px solid var(--kp-border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; transition: border-color .2s, transform .2s; }
+        .sub-stat:hover { border-color: var(--kp-blue); transform: translateY(-1px); }
+        .sub-stat__icon { width: 44px; height: 44px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: var(--kp-fs-md); flex-shrink: 0; }
+        .sub-stat__icon.active { background: #d1fae5; color: #065f46; }
+        .sub-stat__icon.total { background: var(--kp-blue-soft); color: var(--kp-blue); }
+        .sub-stat__icon.exp { background: var(--kp-surface); color: var(--kp-muted); }
+        .sub-stat__info { display: flex; align-items: baseline; gap: 7px; min-width: 0; flex-wrap: wrap; }
+        .sub-stat__val { font-size: var(--kp-fs-xl); font-weight: 700; color: var(--kp-ink); margin: 0; }
+        .sub-stat__lbl { font-size: var(--kp-fs-xs); color: var(--kp-muted); margin: 0; }
 
-        .table-primary-custom {
-            background-color: rgba(13, 110, 253, 0.08) !important;
-            color: #0d6efd;
-        }
+        .sub-table-wrap { background: #fff; border: 1px solid var(--kp-border); border-radius: 14px; overflow: hidden; }
+        .sub-table { width: 100%; border-collapse: collapse; font-size: var(--kp-fs-base); }
+        .sub-table thead th { text-align: left; padding: 12px 16px; font-size: var(--kp-fs-2xs); text-transform: uppercase; letter-spacing: .5px; color: var(--kp-muted); font-weight: 700; border-bottom: 1px solid var(--kp-border); background: var(--kp-surface); white-space: nowrap; }
+        .sub-table tbody td { padding: 13px 16px; border-bottom: 1px solid var(--kp-border); color: var(--kp-ink); }
+        .sub-table tbody tr:last-child td { border-bottom: none; }
+        .sub-table tbody tr:hover { background: var(--kp-surface); }
+        .sub-ref { color: var(--kp-blue); font-weight: 700; }
+        .sub-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: var(--kp-fs-2xs); font-weight: 700; white-space: nowrap; }
+        .sub-badge--active { background: #d1fae5; color: #065f46; }
+        .sub-badge--exp { background: var(--kp-surface); color: var(--kp-muted); }
+        .sub-badge--warn { background: #fef3c7; color: #92400e; }
+        .sub-badge--days { background: var(--kp-blue-soft); color: var(--kp-blue); }
 
-        .badge {
-            font-size: 0.875rem;
-            font-weight: 500;
-            border-radius: 6px;
-        }
+        .sub-empty { text-align: center; padding: 40px 20px; min-height: 55vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .sub-empty i { font-size: 56px; color: var(--kp-border); margin-bottom: 16px; display: block; }
+        .sub-empty h3 { color: var(--kp-ink); font-size: var(--kp-fs-xl); margin: 0 0 8px; }
+        .sub-empty p { color: var(--kp-muted); margin: 0 0 20px; }
 
-        /* Bootstrap 5.3+ subtle backgrounds */
-        .bg-success-subtle {
-            background-color: #d1e7dd !important;
-        }
+        .sub-pagination { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; padding: 16px 0; }
+        .sub-pagination .info { font-size: var(--kp-fs-sm); color: var(--kp-muted); }
 
-        .bg-secondary-subtle {
-            background-color: #e2e3e5 !important;
-        }
-
-        .bg-warning-subtle {
-            background-color: #fff3cd !important;
-        }
-
-        .text-success {
-            color: #198754 !important;
-        }
-
-        .text-secondary {
-            color: #6c757d !important;
-        }
-
-        .text-warning {
-            color: #ffc107 !important;
-        }
-
-        /* Style de pagination personnalisé */
-        .pagination {
-            margin-bottom: 0;
-        }
-
-        .page-link {
-            color: #0d6efd;
-            border-color: #dee2e6;
-        }
-
-        .page-link:hover {
-            background-color: rgba(13, 110, 253, 0.08);
-            border-color: #0d6efd;
-        }
-
-        .page-item.active .page-link {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
+        @media (max-width: 640px) {
+            .sub-stats { grid-template-columns: 1fr; }
+            .sub-table-wrap { background: transparent; border: none; border-radius: 0; overflow: visible; }
+            .sub-table thead { display: none; }
+            .sub-table, .sub-table tbody, .sub-table tr, .sub-table td { display: block; }
+            .sub-table tr { background: #fff; border: 1px solid var(--kp-border); border-radius: 12px; margin-bottom: 10px; padding: 14px; }
+            .sub-table tbody td { border: none !important; padding: 4px 0 4px 120px; position: relative; font-size: var(--kp-fs-sm); }
+            .sub-table tbody td::before { content: attr(data-label); position: absolute; left: 0; top: 4px; width: 108px; color: var(--kp-muted); font-weight: 700; font-size: var(--kp-fs-2xs); text-transform: uppercase; }
         }
     </style>
+@endpush
+
+@section('content')
+    <div class="sub-head">
+        <h2>Suivez vos abonnements</h2>
+        <p>Consultez l'ensemble de vos abonnements et leur statut.</p>
+    </div>
+
+    @if ($subscriptions->count() > 0)
+        {{-- Statistiques --}}
+        <div class="sub-stats">
+            <div class="sub-stat">
+                <div class="sub-stat__icon active"><i class="fas fa-check-circle"></i></div>
+                <div class="sub-stat__info">
+                    <h3 class="sub-stat__val">{{ $subscriptions->where('statut', 'active')->where('date_fin', '>', now())->count() }}</h3>
+                    <p class="sub-stat__lbl">Actif(s)</p>
+                </div>
+            </div>
+            <div class="sub-stat">
+                <div class="sub-stat__icon total"><i class="fas fa-layer-group"></i></div>
+                <div class="sub-stat__info">
+                    <h3 class="sub-stat__val">{{ $subscriptions->total() }}</h3>
+                    <p class="sub-stat__lbl">Total</p>
+                </div>
+            </div>
+            <div class="sub-stat">
+                <div class="sub-stat__icon exp"><i class="fas fa-hourglass-end"></i></div>
+                <div class="sub-stat__info">
+                    <h3 class="sub-stat__val">{{ $subscriptions->where('date_fin', '<', now())->count() }}</h3>
+                    <p class="sub-stat__lbl">Expiré(s)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="sub-table-wrap">
+            <table class="sub-table">
+                <thead>
+                    <tr>
+                        <th>Référence</th>
+                        <th>Date début</th>
+                        <th>Date fin</th>
+                        <th>Jours restants</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($subscriptions as $subscription)
+                        <tr>
+                            <td data-label="Référence"><span class="sub-ref">AB-{{ str_pad($loop->iteration + ($subscriptions->currentPage() - 1) * $subscriptions->perPage(), 4, '0', STR_PAD_LEFT) }}</span></td>
+                            <td data-label="Date début">{{ $subscription->date_debut->format('d/m/Y') }}</td>
+                            <td data-label="Date fin">{{ $subscription->date_fin->format('d/m/Y') }}</td>
+                            <td data-label="Jours restants">
+                                @if ($subscription->date_fin->isFuture())
+                                    @php $joursRestants = max(0, now()->startOfDay()->diffInDays($subscription->date_fin->startOfDay(), false)); @endphp
+                                    <span class="sub-badge sub-badge--days">{{ $joursRestants }} jour(s)</span>
+                                @else
+                                    <span style="color: var(--kp-muted);">—</span>
+                                @endif
+                            </td>
+                            <td data-label="Statut">
+                                @if ($subscription->statut === 'active' && $subscription->date_fin->isFuture())
+                                    <span class="sub-badge sub-badge--active">Actif</span>
+                                @elseif ($subscription->statut === 'active' && $subscription->date_fin->isPast())
+                                    <span class="sub-badge sub-badge--exp">Expiré</span>
+                                @else
+                                    <span class="sub-badge sub-badge--warn">{{ ucfirst($subscription->statut) }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        @if ($subscriptions->hasPages())
+            <div class="sub-pagination">
+                <div class="info">Affichage de {{ $subscriptions->firstItem() }} à {{ $subscriptions->lastItem() }} sur {{ $subscriptions->total() }} résultats</div>
+                <div>{{ $subscriptions->links() }}</div>
+            </div>
+        @endif
+    @else
+        <div class="sub-empty">
+            <i class="fas fa-inbox"></i>
+            <h3>Aucun abonnement trouvé</h3>
+            <p>Vous n'avez pas encore d'historique d'abonnements.</p>
+            <a href="{{ route('subscription.user') }}" class="kp-btn kp-btn--primary">Souscrire maintenant</a>
+        </div>
+    @endif
 @endsection

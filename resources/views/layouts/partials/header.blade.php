@@ -1,48 +1,36 @@
-<div class="header">
-    <h1 class="page-title">@yield('page-title', 'Tableau de bord')</h1>
+<header class="dash-header">
+    <div class="d-flex align-items-center" style="gap: 14px;">
+        <button class="dash-burger" id="dashBurger" aria-label="Ouvrir le menu"><i class="bi bi-list"></i></button>
+        <h1 class="dash-header__title">@yield('page-title', 'Tableau de bord')</h1>
+    </div>
 
-    <div class="user-info">
-        <div class="user-avatar" id="avatar-dropdown-btn">
+    <div class="dash-user" id="dashUser">
+        <span class="dash-user__avatar">
             @if (auth()->user()->photo_path && Storage::disk('public')->exists(auth()->user()->photo_path))
-                <img src="{{ asset('storage/' . auth()->user()->photo_path) }}" alt="Photo de profil">
+                <img src="{{ asset('storage/' . auth()->user()->photo_path) }}" alt="Profil">
             @else
                 {{ strtoupper(substr(auth()->user()->firstname, 0, 1) . substr(auth()->user()->lastname, 0, 1)) }}
             @endif
-        </div>
+        </span>
 
-        <span>{{ auth()->user()->firstname }} {{ auth()->user()->lastname }}</span>
-
-        <!-- MENU DÉROULANT -->
-        <ul class="user-dropdown" id="avatar-dropdown">
-            <li>
-                <a href="{{ route('CompleterProfilUser.show') }}">Mon profil</a>
-            </li>
-            <li>
-                <a href="#"
-                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    Déconnexion
-                </a>
-            </li>
-
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
+        <div class="dash-user__menu" id="dashUserMenu">
+            <div class="dash-user__card">
+                <span class="dash-user__card-avatar">
+                    @if (auth()->user()->photo_path && Storage::disk('public')->exists(auth()->user()->photo_path))
+                        <img src="{{ asset('storage/' . auth()->user()->photo_path) }}" alt="Profil">
+                    @else
+                        {{ strtoupper(substr(auth()->user()->firstname, 0, 1) . substr(auth()->user()->lastname, 0, 1)) }}
+                    @endif
+                </span>
+                <div class="dash-user__card-info">
+                    <span class="dash-user__card-name">{{ auth()->user()->firstname }} {{ auth()->user()->lastname }}</span>
+                    <span class="dash-user__card-email">{{ auth()->user()->email }}</span>
+                </div>
+            </div>
+            <form method="POST" action="{{ route('logout') }}">
                 @csrf
+                <button type="submit" class="dash-user__logout"><i class="bi bi-box-arrow-right"></i> Déconnexion</button>
             </form>
-        </ul>
+        </div>
     </div>
-</div>
-
-<script>
-    const btn = document.getElementById("avatar-dropdown-btn");
-    const menu = document.getElementById("avatar-dropdown");
-
-    btn.addEventListener("click", () => {
-        menu.style.display = menu.style.display === "block" ? "none" : "block";
-    });
-
-    // Fermer si on clique ailleurs
-    document.addEventListener("click", (e) => {
-        if (!btn.contains(e.target) && !menu.contains(e.target)) {
-            menu.style.display = "none";
-        }
-    });
-</script>
+</header>

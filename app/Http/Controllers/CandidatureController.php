@@ -55,6 +55,21 @@ final class CandidatureController extends Controller
     }
 
     /**
+     * Liste globale : annonces de l'apprenant ayant reçu des candidatures
+     */
+    public function mesCandidatures(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        $annonces = Annonce::where('student_id', Auth::id())
+            ->has('candidatures')
+            ->withCount('candidatures')
+            ->with('subject')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('candidatures.mes', ['annonces' => $annonces]);
+    }
+
+    /**
      * Postuler à une annonce (pour le tuteur)
      */
     public function store(Request $request, $annonceId)
@@ -170,25 +185,6 @@ final class CandidatureController extends Controller
         }
 
         return back()->with('success', 'Candidature refusée et notification envoyée.');
-    }
-
-    /**
-     * Voir le profil d'un tuteur (pour l'étudiant)
-     */
-    public function voirProfilTuteur($candidatureId): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
-    {
-        $candidature = Candidature::with(['annonce', 'tuteur.subjects'])->findOrFail($candidatureId);
-
-        // Vérifier que l'utilisateur est l'étudiant propriétaire de l'annonce
-        abort_if($candidature->annonce->student_id !== Auth::id(), 403, 'Non autorisé. Vous n\'êtes pas le propriétaire de cette annonce.');
-
-        $tuteur = $candidature->tuteur;
-
-        return view('candidatures.profil-tuteur', [
-            'tuteur' => $tuteur,
-            'candidature' => $candidature,
-            'annonce' => $candidature->annonce,
-        ]);
     }
 
     /**

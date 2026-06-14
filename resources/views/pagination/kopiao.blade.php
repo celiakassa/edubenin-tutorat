@@ -1,46 +1,34 @@
 @if ($paginator->hasPages())
-    <nav class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2">
-        {{-- Texte d'information (français) --}}
-        <p class="small text-muted mb-0">
-            @if ($paginator->firstItem())
-                Affichage de <span class="fw-semibold">{{ $paginator->firstItem() }}</span>
-                à <span class="fw-semibold">{{ $paginator->lastItem() }}</span>
-                sur <span class="fw-semibold">{{ $paginator->total() }}</span> résultats
-            @else
-                <span class="fw-semibold">{{ $paginator->total() }}</span> résultat(s)
-            @endif
-        </p>
+    <nav class="kp-pagination" role="navigation" aria-label="Pagination">
+        {{-- Précédent --}}
+        @if ($paginator->onFirstPage())
+            <span class="kp-page disabled" aria-disabled="true"><i class="fas fa-chevron-left"></i></span>
+        @else
+            <a href="{{ $paginator->previousPageUrl() }}" class="kp-page" rel="prev" aria-label="Précédent"><i class="fas fa-chevron-left"></i></a>
+        @endif
 
-        <ul class="pagination mb-0">
-            {{-- Précédent --}}
-            @if ($paginator->onFirstPage())
-                <li class="page-item disabled"><span class="page-link" aria-hidden="true">‹</span></li>
-            @else
-                <li class="page-item"><a class="page-link" href="{{ $paginator->previousPageUrl() }}" rel="prev" aria-label="Précédent">‹</a></li>
+        {{-- Numéros de page --}}
+        @foreach ($elements as $element)
+            @if (is_string($element))
+                <span class="kp-page dots">{{ $element }}</span>
             @endif
 
-            {{-- Numéros de page --}}
-            @foreach ($elements as $element)
-                @if (is_string($element))
-                    <li class="page-item disabled"><span class="page-link">{{ $element }}</span></li>
-                @endif
-                @if (is_array($element))
-                    @foreach ($element as $page => $url)
-                        @if ($page == $paginator->currentPage())
-                            <li class="page-item active" aria-current="page"><span class="page-link">{{ $page }}</span></li>
-                        @else
-                            <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
-                        @endif
-                    @endforeach
-                @endif
-            @endforeach
-
-            {{-- Suivant --}}
-            @if ($paginator->hasMorePages())
-                <li class="page-item"><a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="Suivant">›</a></li>
-            @else
-                <li class="page-item disabled"><span class="page-link" aria-hidden="true">›</span></li>
+            @if (is_array($element))
+                @foreach ($element as $page => $url)
+                    @if ($page == $paginator->currentPage())
+                        <span class="kp-page active" aria-current="page">{{ $page }}</span>
+                    @else
+                        <a href="{{ $url }}" class="kp-page">{{ $page }}</a>
+                    @endif
+                @endforeach
             @endif
-        </ul>
+        @endforeach
+
+        {{-- Suivant --}}
+        @if ($paginator->hasMorePages())
+            <a href="{{ $paginator->nextPageUrl() }}" class="kp-page" rel="next" aria-label="Suivant"><i class="fas fa-chevron-right"></i></a>
+        @else
+            <span class="kp-page disabled" aria-disabled="true"><i class="fas fa-chevron-right"></i></span>
+        @endif
     </nav>
 @endif

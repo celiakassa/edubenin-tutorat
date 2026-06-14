@@ -25,18 +25,12 @@ final class AnnonceController extends Controller
         FedaPay::setEnvironment(config('services.fedapay.environment', 'sandbox'));
     }
 
-    // Afficher le formulaire de création
-    public function create(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    // Création via le panneau latéral → on redirige vers la liste
+    public function create()
     {
         abort_if(Auth::user()->role_id !== 2, 403, 'Accès réservé aux étudiants');
 
-        $user = Auth::user();
-        $subjects = $this->getSubjects();
-
-        return view('annonces.create', [
-            'user' => $user,
-            'subjects' => $subjects,
-        ]);
+        return to_route('annonces.index');
     }
 
     // Enregistrer l'annonce
@@ -119,12 +113,12 @@ final class AnnonceController extends Controller
         $annonce->student_id = Auth::id();
         $annonce->subject_id = $request->subject_id;
         $annonce->description = $request->description;
-        $annonce->budget = (float) $request->budget;
+        $annonce->budget = $request->input('budget');
         $annonce->disponibilite = $request->disponibilite;
-        $annonce->format = $request->format;
+        $annonce->format = $request->input('format');
 
         // Calcul acompte FIXE à 30%
-        $annonce->acompte = round($annonce->budget * 0.3, 2);
+        $annonce->acompte = (string) round((float) $annonce->budget * 0.3, 2);
 
         // Statut initial
         $annonce->status = 'en_attente';
@@ -132,24 +126,8 @@ final class AnnonceController extends Controller
 
         $annonce->save();
 
-        return to_route('annonces.payment', $annonce->id)
-            ->with('success', 'Annonce créée. Veuillez payer l\'acompte pour la publier.');
-    }
-
-    // Afficher la page de paiement
-    public function payment($id)
-    {
-        $annonce = Annonce::with('subject')->findOrFail($id);
-        $user = Auth::user();
-
-        abort_if($annonce->student_id !== Auth::id(), 403, 'Accès non autorisé');
-
-        if ($annonce->is_paid) {
-            return to_route('annonces.show', $annonce->id)
-                ->with('info', 'Cette annonce est déjà payée.');
-        }
-
-        return view('annonces.payment', ['annonce' => $annonce, 'user' => $user]);
+        return to_route('annonces.index')
+            ->with('success', 'Annonce créée ! Cliquez sur « Payer l\'acompte » pour la publier.');
     }
 
     // ==================== MÉTHODES FEDAPAY ====================
@@ -239,7 +217,7 @@ final class AnnonceController extends Controller
 
             // Vérifier le statut
             if ($transaction->status !== 'approved') {
-                return to_route('annonces.payment', $annonceId)
+                return to_route('annonces.show', $annonceId)
                     ->with('error', 'Le paiement n\'est pas encore confirmé.');
             }
 
@@ -291,7 +269,7 @@ final class AnnonceController extends Controller
                 'trace' => $exception->getTraceAsString(),
             ]);
 
-            return to_route('annonces.payment', $annonceId)
+            return to_route('annonces.show', $annonceId)
                 ->with('error', 'Une erreur est survenue lors du traitement du paiement.');
         }
     }
@@ -411,6 +389,8 @@ final class AnnonceController extends Controller
                 ->with('error', 'Transaction invalide.');
         }
 
+        $annonceId = null;
+
         try {
             $monerooPayment = new MonerooPayment();
 
@@ -461,7 +441,9 @@ final class AnnonceController extends Controller
 
             Log::warning('Payment not successful', ['status' => $status]);
 
-            return to_route('annonces.payment', $annonceId ?? '')
+            return ($annonceId
+                ? to_route('annonces.show', $annonceId)
+                : to_route('annonces.index'))
                 ->with('error', 'Le paiement n\'a pas été validé. Statut: '.$status);
 
         } catch (Exception $exception) {
@@ -558,25 +540,14 @@ final class AnnonceController extends Controller
     }
 
     // Afficher le formulaire d'édition
+    // Édition via le panneau latéral → on redirige vers la page détail (où « Modifier » ouvre le panneau)
     public function edit($id)
     {
-        $annonce = Annonce::with('subject')->findOrFail($id);
-        $user = Auth::user();
+        $annonce = Annonce::findOrFail($id);
 
         abort_if($annonce->student_id !== Auth::id(), 403, 'Accès non autorisé');
 
-        if ($annonce->status !== 'en_attente') {
-            return to_route('annonces.show', $annonce->id)
-                ->with('error', 'Cette annonce ne peut plus être modifiée.');
-        }
-
-        $subjects = $this->getSubjects();
-
-        return view('annonces.edit', [
-            'annonce' => $annonce,
-            'user' => $user,
-            'subjects' => $subjects,
-        ]);
+        return to_route('annonces.show', $annonce->id);
     }
 
     // Mettre à jour l'annonce
@@ -664,13 +635,13 @@ final class AnnonceController extends Controller
 
         $annonce->subject_id = $request->subject_id;
         $annonce->description = $request->description;
-        $annonce->budget = $request->budget;
+        $annonce->budget = $request->input('budget');
         $annonce->disponibilite = $request->disponibilite;
-        $annonce->format = $request->format;
+        $annonce->format = $request->input('format');
 
         // Recalculer l'acompte si le budget a changé (toujours 30%)
         if ($annonce->isDirty('budget')) {
-            $annonce->acompte = $request->budget * 0.3;
+            $annonce->acompte = (string) round((float) $request->input('budget') * 0.3, 2);
         }
 
         $annonce->save();
@@ -695,6 +666,29 @@ final class AnnonceController extends Controller
 
         return to_route('annonces.index')
             ->with('success', 'Annonce supprimée avec succès.');
+    }
+
+    // Suppression groupée (cases à cocher)
+    public function bulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return back()->with('error', 'Aucune annonce sélectionnée.');
+        }
+
+        $annonces = Annonce::whereIn('id', $ids)
+            ->where('student_id', Auth::id())
+            ->where('status', '!=', 'attribuee')
+            ->get();
+
+        $count = $annonces->count();
+        foreach ($annonces as $annonce) {
+            $annonce->delete();
+        }
+
+        return to_route('annonces.index')
+            ->with('success', $count.' annonce(s) supprimée(s).');
     }
 
     // Méthode pour récupérer les matières

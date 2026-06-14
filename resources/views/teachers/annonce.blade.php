@@ -1,740 +1,282 @@
 @extends('layouts.dashboard')
 
 @section('title', 'Kopiao - Annonces')
-
 @section('page-title', 'Annonces disponibles')
-
-@section('content')
-
-    <!-- Section d'en-tête avec filtres -->
-    <div class="annonces-header">
-        <div class="header-content">
-            <div class="header-text">
-                <h2 class="header-title">Trouvez votre prochaine mission</h2>
-                <p class="header-subtitle">{{ $annonces->total() }} annonce(s) disponible(s)</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Liste des annonces -->
-    <div class="annonces-container">
-        @forelse($annonces as $annonce)
-            <div class="annonce-card" data-domaine="{{ $annonce->domaine }}">
-                <!-- Badge de statut -->
-                <div class="annonce-badges">
-                    <span class="badge badge-format">
-                        <i
-                            class="fas fa-{{ $annonce->format === 'en_ligne' ? 'laptop' : ($annonce->format === 'presentiel' ? 'user-friends' : 'globe') }}"></i>
-                        {{ ucfirst(str_replace('_', ' ', $annonce->format)) }}
-                    </span>
-                </div>
-
-                <!-- En-tête de la carte -->
-                <div class="annonce-header">
-                    <div class="student-info">
-                        <div class="student-avatar">
-                            @if ($annonce->student->photo_path && Storage::disk('public')->exists($annonce->student->photo_path))
-                                <img src="{{ asset('storage/' . $annonce->student->photo_path) }}"
-                                     alt="Photo de {{ $annonce->student->firstname }}">
-                            @else
-                                {{ strtoupper(substr($annonce->student->firstname, 0, 1) . substr($annonce->student->lastname, 0, 1)) }}
-                            @endif
-                        </div>
-                        <div class="student-details">
-                            <h3 class="student-name">{{ $annonce->student->firstname }} {{ $annonce->student->lastname }}
-                            </h3>
-                            <p class="student-meta">
-                                <i class="fas fa-clock"></i>
-                                Publié
-                                {{ $annonce->published_at ? $annonce->published_at->diffForHumans() : $annonce->created_at->diffForHumans() }}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="annonce-domain">
-                        <span class="domain-tag">
-                            <i class="fas fa-book"></i>
-                            {{ ucfirst($annonce->domaine) }}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Corps de la carte -->
-                <div class="annonce-body">
-                    <h4 class="annonce-title">Mission de tutorat en {{ ucfirst($annonce->domaine) }}</h4>
-                    <p class="annonce-description">{{ Str::limit($annonce->description, 200) }}</p>
-
-                    <div class="annonce-details">
-                        <div class="detail-item">
-                            <i class="fas fa-money-bill-wave"></i>
-                            <div class="detail-content">
-                                <span class="detail-label">Budget</span>
-                                <span class="detail-value">{{ number_format($annonce->budget, 0, ',', ' ') }} FCFA</span>
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <div class="detail-content">
-                                <span class="detail-label">Disponibilité</span>
-                                <span class="detail-value">
-                                    {{ $annonce->disponibilite }}
-                                </span>
-
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-hand-holding-usd"></i>
-                            <div class="detail-content">
-                                <span class="detail-label">Acompte</span>
-                                <span class="detail-value">{{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pied de la carte -->
-                <div class="annonce-footer">
-                    @php
-                        $hasApplied = \App\Models\Candidature::where('annonce_id', $annonce->id)
-                            ->where('user_id', auth()->id())
-                            ->exists();
-                    @endphp
-                    @if ($hasApplied)
-                        <button class="btn-action btn-disabled" disabled>
-                            <i class="fas fa-check-circle"></i>
-                            Déjà postulé
-                        </button>
-                    @else
-                        <form action="{{ route('annonce.postuler', $annonce->id) }}" method="POST"
-                              style="display: inline;">
-                            @csrf
-                            <button type="submit" class="btn-action btn-primary">
-                                <i class="fas fa-paper-plane"></i>
-                                Postuler maintenant
-                            </button>
-                        </form>
-                    @endif
-
-                    <button class="btn-action btn-secondary" onclick="voirDetails('{{ $annonce->hashid }}')">
-                        <i class="fas fa-eye"></i>
-                        Voir les détails
-                    </button>
-
-                </div>
-            </div>
-        @empty
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-inbox"></i>
-                </div>
-                <h3 class="empty-title">Aucune annonce disponible</h3>
-                <p class="empty-text">Il n'y a pas d'annonces disponibles pour le moment. Revenez plus tard !</p>
-            </div>
-        @endforelse
-    </div>
-
-    <!-- Pagination -->
-    @if ($annonces->hasPages())
-        <div class="pagination-container">
-            <div class="pagination-info">
-                Affichage de {{ $annonces->firstItem() }} à {{ $annonces->lastItem() }} sur {{ $annonces->total() }}
-                annonces
-            </div>
-            <div class="pagination-links">
-                {{ $annonces->links() }}
-            </div>
-        </div>
-    @endif
-
-@endsection
 
 @push('styles')
     <style>
-        /* En-tête des annonces */
-        .annonces-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-            border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 32px;
-            box-shadow: 0 10px 30px rgba(3, 81, 188, 0.2);
+        .tan-head { margin-bottom: 20px; }
+        .tan-head h2 { font-family: var(--kp-font-title); font-size: var(--kp-fs-xl); font-weight: 700; color: var(--kp-ink); margin: 0 0 4px; }
+        .tan-head p { color: var(--kp-muted); font-size: var(--kp-fs-base); margin: 0; }
+
+        /* ===== Tableau ===== */
+        .tan-table-wrap { background: #fff; border: 1px solid var(--kp-border); border-radius: 14px; overflow: hidden; }
+        .tan-table { width: 100%; border-collapse: collapse; font-size: var(--kp-fs-base); }
+        .tan-table thead th { text-align: left; padding: 12px 16px; font-size: var(--kp-fs-2xs); text-transform: uppercase; letter-spacing: .5px; color: var(--kp-muted); font-weight: 700; border-bottom: 1px solid var(--kp-border); background: var(--kp-surface); white-space: nowrap; }
+        .tan-table tbody td { padding: 13px 16px; border-bottom: 1px solid var(--kp-border); color: var(--kp-ink); vertical-align: middle; }
+        .tan-table tbody tr:last-child td { border-bottom: none; }
+        .tan-row { cursor: pointer; transition: background .15s; }
+        .tan-row:hover { background: var(--kp-surface); }
+        .tan-row:hover .tan-arrow { color: var(--kp-blue); transform: translateX(2px); }
+
+        .tan-subject { display: flex; align-items: center; gap: 12px; font-weight: 700; color: var(--kp-ink); }
+        .tan-subject__ico { width: 40px; height: 40px; border-radius: 11px; background: var(--kp-blue-soft); color: var(--kp-blue); display: flex; align-items: center; justify-content: center; font-size: var(--kp-fs-base); flex-shrink: 0; }
+        .tan-student { display: flex; align-items: center; gap: 9px; }
+        .tan-mini-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--kp-blue); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--kp-fs-2xs); flex-shrink: 0; overflow: hidden; }
+        .tan-mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .tan-col-budget { color: var(--kp-blue); font-weight: 700; white-space: nowrap; }
+        .tan-fmt { display: inline-flex; align-items: center; gap: 5px; background: var(--kp-surface); color: var(--kp-ink); padding: 4px 11px; border-radius: 20px; font-size: var(--kp-fs-2xs); font-weight: 700; white-space: nowrap; }
+        .tan-date { color: var(--kp-muted); white-space: nowrap; }
+        .tan-applied-tag { display: inline-flex; align-items: center; gap: 4px; color: #1d7a48; font-size: var(--kp-fs-2xs); font-weight: 700; }
+        .tan-arrow { text-align: right; color: var(--kp-muted); transition: all .2s; }
+
+        .tan-pagination { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; padding: 16px 0; }
+        .tan-pagination .info { font-size: var(--kp-fs-sm); color: var(--kp-muted); }
+
+        .tan-empty { text-align: center; padding: 40px 20px; min-height: 55vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .tan-empty i { font-size: 64px; color: var(--kp-border); margin-bottom: 16px; display: block; }
+        .tan-empty h3 { color: var(--kp-ink); font-size: var(--kp-fs-xl); margin: 0 0 8px; }
+        .tan-empty p { color: var(--kp-muted); font-size: var(--kp-fs-base); margin: 0; }
+
+        /* ===== Panneau détails (droite) ===== */
+        .tadrawer { position: fixed; inset: 0; z-index: 3000; display: none; }
+        .tadrawer.open { display: block; }
+        .tadrawer__overlay { position: absolute; inset: 0; background: rgba(11, 18, 32, .45); opacity: 0; transition: opacity .25s; }
+        .tadrawer.open .tadrawer__overlay { opacity: 1; }
+        .tadrawer__panel { position: absolute; top: 0; right: 0; bottom: 0; width: 440px; max-width: 92vw; background: #fff; box-shadow: -12px 0 44px rgba(0, 0, 0, .22); transform: translateX(100%); transition: transform .3s ease; display: flex; flex-direction: column; }
+        .tadrawer.open .tadrawer__panel { transform: translateX(0); }
+        .tadrawer__head { display: flex; align-items: center; gap: 10px; padding: 18px 20px; border-bottom: 1px solid var(--kp-border); }
+        .tadrawer__badge { background: var(--kp-blue); color: #fff; padding: 5px 14px; border-radius: 25px; font-size: var(--kp-fs-2xs); font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
+        .tadrawer__close { margin-left: auto; width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--kp-surface); color: var(--kp-ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .tadrawer__close:hover { background: var(--kp-blue); color: #fff; }
+        .tadrawer__body { flex: 1; overflow-y: auto; padding: 20px; }
+
+        .tad-student { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .tad-student__avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--kp-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+        .tad-student__name { font-weight: 700; color: var(--kp-ink); font-size: var(--kp-fs-base); }
+        .tad-student__city { color: var(--kp-muted); font-size: var(--kp-fs-xs); }
+
+        .tad-budget { background: var(--kp-yellow); border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+        .tad-budget .lbl { font-size: var(--kp-fs-2xs); font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #1a1a1a; }
+        .tad-budget .amt { font-family: var(--kp-font-title); font-size: var(--kp-fs-xl); font-weight: 800; color: #1a1a1a; white-space: nowrap; }
+
+        .tad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .tad-item { background: var(--kp-surface); border-radius: 11px; padding: 10px 13px; }
+        .tad-item--full { grid-column: 1 / -1; }
+        .tad-item .lbl { display: block; font-size: var(--kp-fs-2xs); color: var(--kp-muted); font-weight: 700; text-transform: uppercase; }
+        .tad-item .val { display: block; font-size: var(--kp-fs-base); font-weight: 600; color: var(--kp-ink); margin-top: 2px; white-space: pre-line; }
+        .tad-desc { margin-bottom: 8px; }
+        .tad-desc .lbl { display: block; font-size: var(--kp-fs-2xs); color: var(--kp-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+        .tad-desc p { color: var(--kp-text); font-size: var(--kp-fs-base); line-height: 1.6; margin: 0; }
+
+        .tadrawer__foot { padding: 14px 20px; border-top: 1px solid var(--kp-border); display: flex; gap: 10px; flex-wrap: wrap; }
+        .tan-btn { flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 44px; border-radius: var(--kp-radius-pill); font-size: var(--kp-fs-sm); font-weight: 600; cursor: pointer; border: none; text-decoration: none; transition: all .2s; }
+        .tan-btn--primary { background: var(--kp-blue); color: #fff; }
+        .tan-btn--primary:hover { background: var(--kp-blue-darker); color: #fff; }
+        .tan-btn--ghost { background: #fff; color: var(--kp-ink); border: 1.5px solid var(--kp-border); }
+        .tan-btn--ghost:hover { background: var(--kp-blue); color: #fff; border-color: var(--kp-blue); }
+        .tan-btn--done { background: var(--kp-surface); color: #1d7a48; cursor: default; }
+        .tadrawer__foot form { flex: 1; display: flex; }
+        .tadrawer__foot form .tan-btn { width: 100%; }
+
+        /* ===== Mobile ===== */
+        @media (max-width: 640px) {
+            .tan-table-wrap { background: transparent; border: none; border-radius: 0; overflow: visible; }
+            .tan-table thead { display: none; }
+            .tan-table, .tan-table tbody, .tan-table tr, .tan-table td { display: block; }
+            .tan-table tr.tan-row { position: relative; background: #fff; border: 1px solid var(--kp-border); border-radius: 14px; margin-bottom: 10px; padding: 14px 40px 14px 14px; }
+            .tan-table tbody td { border: none !important; padding: 3px 0; }
+            .tan-subject { font-size: var(--kp-fs-md); margin-bottom: 6px; }
+            .tan-cell-student { margin-bottom: 6px; }
+            .tan-cell-budget { display: inline-block; }
+            .tan-cell-fmt { display: inline-block; margin-left: 12px; }
+            .tan-cell-date { display: none; }
+            .tan-arrow { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }
         }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 24px;
-            flex-wrap: wrap;
-        }
-
-        .header-text {
-            color: var(--white);
-        }
-
-        .header-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--white);
-        }
-
-
-        .header-subtitle {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 16px;
-            color: var(--dark-gray);
-        }
-
-        .search-box input {
-            padding: 12px 16px 12px 44px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            min-width: 280px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .filter-select {
-            padding: 12px 16px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            background-color: var(--white);
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Container des annonces */
-        .annonces-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        /* Carte d'annonce */
-        .annonce-card {
-            background-color: var(--white);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .annonce-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(180deg, var(--primary-color), var(--primary-light));
-        }
-
-        .annonce-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(3, 81, 188, 0.15);
-            border-color: var(--primary-light);
-        }
-
-        /* Badges */
-        .annonce-badges {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge-publiee {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        .badge-en_paiement {
-            background-color: #fed7aa;
-            color: #92400e;
-        }
-
-        .badge-format {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-
-        .badge i {
-            font-size: 8px;
-        }
-
-        /* En-tête de la carte */
-        .annonce-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            gap: 16px;
-        }
-
-        .student-info {
-            display: flex;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .student-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-            color: var(--white);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 18px;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-
-        .student-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .student-details {
-            flex: 1;
-        }
-
-        .student-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 4px;
-        }
-
-        .student-meta {
-            font-size: 13px;
-            color: var(--dark-gray);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .annonce-domain {
-            flex-shrink: 0;
-        }
-
-        .domain-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-            color: var(--white);
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        /* Corps de la carte */
-        .annonce-body {
-            margin-bottom: 20px;
-        }
-
-        .annonce-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 12px;
-        }
-
-        .annonce-description {
-            font-size: 14px;
-            color: var(--dark-gray);
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .annonce-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 16px;
-        }
-
-        .detail-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 12px;
-            background-color: var(--light-gray);
-            border-radius: 8px;
-        }
-
-        .detail-item i {
-            color: var(--primary-color);
-            font-size: 20px;
-            margin-top: 2px;
-        }
-
-        .detail-content {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .detail-label {
-            font-size: 12px;
-            color: var(--dark-gray);
-            font-weight: 500;
-        }
-
-        .detail-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        /* Pied de la carte */
-        .annonce-footer {
-            display: flex;
-            gap: 12px;
-            padding-top: 20px;
-            border-top: 1px solid var(--medium-gray);
-        }
-
-        .btn-apply,
-        .btn-details {
-            flex: 1;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-            color: var(--white);
-            box-shadow: 0 4px 12px rgba(3, 81, 188, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(3, 81, 188, 0.4);
-        }
-
-        .btn-disabled {
-            background-color: var(--medium-gray);
-            color: var(--dark-gray);
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        .btn-details {
-            background-color: var(--white);
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-        }
-
-        .btn-details:hover {
-            background-color: var(--primary-color);
-            color: var(--white);
-        }
-
-        /* État vide */
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            background-color: var(--white);
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .empty-icon {
-            font-size: 80px;
-            color: var(--medium-gray);
-            margin-bottom: 24px;
-        }
-
-        .empty-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 12px;
-        }
-
-        .empty-text {
-            font-size: 16px;
-            color: var(--dark-gray);
-        }
-
-        /* Pagination */
-        .pagination-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 24px;
-            background-color: var(--white);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .pagination-info {
-            font-size: 14px;
-            color: var(--dark-gray);
-        }
-
-        .pagination-links {
-            display: flex;
-            gap: 8px;
-        }
-
-        /* Responsive */
-        @media (max-width: 992px) {
-            .annonces-container {
-                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .header-actions {
-                width: 100%;
-                flex-direction: column;
-            }
-
-            .search-box input {
-                width: 100%;
-                min-width: auto;
-            }
-
-            .filter-select {
-                width: 100%;
-            }
-
-            .annonces-container {
-                grid-template-columns: 1fr;
-            }
-
-            .annonce-details {
-                grid-template-columns: 1fr;
-            }
-
-            .annonce-footer {
-                flex-direction: column;
-            }
-
-            .pagination-container {
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .annonces-header {
-                padding: 20px;
-            }
-
-            .header-title {
-                font-size: 22px;
-            }
-
-            .annonce-card {
-                padding: 16px;
-            }
-
-            .annonce-header {
-                flex-direction: column;
-            }
-
-            .domain-tag {
-                align-self: flex-start;
-            }
-        }
-
-        .btn-action {
-            padding: 10px 16px;
-            min-width: 170px;
-            /* garantit même largeur */
-            font-size: 14px;
-            border-radius: 6px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .btn-primary {
-            background-color: #0d6efd;
-            color: #fff;
-            border: none;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: #fff;
-            border: none;
-        }
-
-        .btn-disabled {
-            background-color: #adb5bd;
-            color: #fff;
-            border: none;
-            cursor: not-allowed;
+        @media (max-width: 575px) {
+            .tadrawer__panel { top: auto; left: 0; right: 0; bottom: 0; width: 100%; max-width: 100%; max-height: 90vh; border-radius: 20px 20px 0 0; transform: translateY(100%); box-shadow: 0 -14px 40px rgba(0, 0, 0, .25); }
+            .tadrawer.open .tadrawer__panel { transform: translateY(0); }
+            .tadrawer__panel::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 42px; height: 4px; border-radius: 4px; background: #d5dae2; z-index: 2; }
+            .tadrawer__foot { flex-direction: column; }
+            .tadrawer__foot .tan-btn { width: 100%; }
         }
     </style>
 @endpush
 
+@section('content')
+    <div class="tan-head">
+        <h2>Trouvez votre prochaine mission</h2>
+        <p>{{ $annonces->total() }} annonce(s) disponible(s) dans votre domaine.</p>
+    </div>
+
+    @if ($annonces->count() > 0)
+        <div class="tan-table-wrap">
+            <table class="tan-table">
+                <thead>
+                    <tr>
+                        <th>Matière</th>
+                        <th>Étudiant</th>
+                        <th>Budget</th>
+                        <th>Format</th>
+                        <th>Publié</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($annonces as $annonce)
+                        @php
+                            $hasApplied = \App\Models\Candidature::where('annonce_id', $annonce->id)->where('user_id', auth()->id())->exists();
+                            $fmtLabel = $annonce->format === 'en_ligne' ? 'En ligne' : ($annonce->format === 'presentiel' ? 'Présentiel' : 'Hybride');
+                            $fmtIcon = $annonce->format === 'en_ligne' ? 'fa-laptop' : ($annonce->format === 'presentiel' ? 'fa-user-friends' : 'fa-globe');
+                            $datePub = $annonce->published_at ?? $annonce->created_at;
+                            $initials = strtoupper(substr($annonce->student->firstname, 0, 1) . substr($annonce->student->lastname, 0, 1));
+                        @endphp
+                        <tr class="tan-row"
+                            data-domaine="{{ ucfirst($annonce->domaine) }}"
+                            data-fmtlabel="{{ $fmtLabel }}"
+                            data-fmticon="{{ $fmtIcon }}"
+                            data-studentname="{{ $annonce->student->firstname }} {{ $annonce->student->lastname }}"
+                            data-studentcity="{{ $annonce->student->city ?? 'Non spécifié' }}"
+                            data-initials="{{ $initials }}"
+                            data-budget="{{ number_format($annonce->budget, 0, ',', ' ') }} FCFA"
+                            data-acompte="{{ number_format($annonce->acompte, 0, ',', ' ') }} FCFA"
+                            data-dispo="{{ $annonce->disponibilite ?: '—' }}"
+                            data-description="{{ $annonce->description }}"
+                            data-date="{{ $datePub->format('d/m/Y') }}"
+                            data-hasapplied="{{ $hasApplied ? '1' : '' }}"
+                            data-postulerurl="{{ route('annonce.postuler', $annonce->id) }}"
+                            data-showurl="{{ route('annonces.dashboard.detail', $annonce->hashid) }}"
+                            onclick="openTanDrawer(this)">
+                            <td>
+                                <div class="tan-subject">
+                                    <div class="tan-subject__ico"><i class="fas fa-book"></i></div>
+                                    {{ ucfirst($annonce->domaine) }}
+                                </div>
+                            </td>
+                            <td class="tan-cell-student">
+                                <div class="tan-student">
+                                    <div class="tan-mini-avatar">
+                                        @if ($annonce->student->photo_path && Storage::disk('public')->exists($annonce->student->photo_path))
+                                            <img src="{{ asset('storage/' . $annonce->student->photo_path) }}" alt="Profil">
+                                        @else
+                                            {{ $initials }}
+                                        @endif
+                                    </div>
+                                    {{ $annonce->student->firstname }}
+                                </div>
+                            </td>
+                            <td class="tan-cell-budget"><span class="tan-col-budget">{{ number_format($annonce->budget, 0, ',', ' ') }} FCFA</span></td>
+                            <td class="tan-cell-fmt"><span class="tan-fmt"><i class="fas {{ $fmtIcon }}"></i> {{ $fmtLabel }}</span></td>
+                            <td class="tan-cell-date tan-date">{{ $datePub->format('d/m/Y') }}</td>
+                            <td class="tan-arrow">
+                                @if ($hasApplied)<span class="tan-applied-tag"><i class="fas fa-check-circle"></i></span>@else<i class="fas fa-chevron-right"></i>@endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        @if ($annonces->hasPages())
+            <div class="tan-pagination">
+                <div class="info">Affichage de {{ $annonces->firstItem() }} à {{ $annonces->lastItem() }} sur {{ $annonces->total() }} annonces</div>
+                <div>{{ $annonces->links() }}</div>
+            </div>
+        @endif
+    @else
+        <div class="tan-empty">
+            <i class="fas fa-inbox"></i>
+            <h3>Aucune annonce disponible</h3>
+            <p>Il n'y a pas d'annonces dans votre domaine pour le moment. Revenez plus tard !</p>
+        </div>
+    @endif
+
+    {{-- Panneau de détails --}}
+    <div class="tadrawer" id="tanDrawer">
+        <div class="tadrawer__overlay" onclick="closeTanDrawer()"></div>
+        <aside class="tadrawer__panel">
+            <div class="tadrawer__head">
+                <span class="tadrawer__badge" id="tad-domaine"></span>
+                <button type="button" class="tadrawer__close" onclick="closeTanDrawer()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="tadrawer__body">
+                <div class="tad-student">
+                    <div class="tad-student__avatar" id="tad-initials"></div>
+                    <div>
+                        <div class="tad-student__name" id="tad-studentname"></div>
+                        <div class="tad-student__city"><i class="fas fa-map-marker-alt"></i> <span id="tad-studentcity"></span></div>
+                    </div>
+                </div>
+
+                <div class="tad-budget">
+                    <span class="lbl">Budget total</span>
+                    <span class="amt" id="tad-budget"></span>
+                </div>
+
+                <div class="tad-grid">
+                    <div class="tad-item"><span class="lbl">Acompte</span><span class="val" id="tad-acompte"></span></div>
+                    <div class="tad-item"><span class="lbl">Format</span><span class="val" id="tad-format"></span></div>
+                    <div class="tad-item"><span class="lbl">Publié le</span><span class="val" id="tad-date"></span></div>
+                    <div class="tad-item tad-item--full"><span class="lbl">Disponibilités</span><span class="val" id="tad-dispo"></span></div>
+                </div>
+
+                <div class="tad-desc">
+                    <span class="lbl">Description</span>
+                    <p id="tad-description"></p>
+                </div>
+            </div>
+            <div class="tadrawer__foot">
+                <form method="POST" id="tan-postuler-form" action=""
+                      onsubmit="return kpConfirmDelete(event, this, {icon: 'success', iconClass: 'fa-paper-plane', title: 'Postuler à cette annonce ?', text: 'Votre candidature sera envoyée à l\'apprenant.', confirmText: 'Oui, postuler', confirmColor: '#0B69F1'});">
+                    @csrf
+                    <button type="submit" class="tan-btn tan-btn--primary" id="tan-postuler-btn"><i class="fas fa-paper-plane"></i> Postuler</button>
+                </form>
+                <button type="button" class="tan-btn tan-btn--done" id="tan-applied-btn" style="display:none;" disabled><i class="fas fa-check-circle"></i> Déjà postulé</button>
+                <a href="#" class="tan-btn tan-btn--ghost" id="tan-open-btn"><i class="fas fa-external-link-alt"></i> Page complète</a>
+            </div>
+        </aside>
+    </div>
+@endsection
+
 @push('scripts')
     <script>
-        // Fonction pour postuler à une annonce
-        function postuler(annonceId) {
-            if (confirm('Êtes-vous sûr de vouloir postuler à cette annonce ?')) {
-                fetch(`/candidatures/${annonceId}/postuler`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Votre candidature a été envoyée avec succès !');
-                            location.reload();
-                        } else {
-                            alert(data.message || 'Une erreur est survenue');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erreur:', error);
-                        alert('Une erreur est survenue lors de l\'envoi de votre candidature');
-                    });
+        function openTanDrawer(row) {
+            const d = row.dataset;
+            document.getElementById('tad-domaine').textContent = d.domaine;
+            document.getElementById('tad-initials').textContent = d.initials;
+            document.getElementById('tad-studentname').textContent = d.studentname;
+            document.getElementById('tad-studentcity').textContent = d.studentcity;
+            document.getElementById('tad-budget').textContent = d.budget;
+            document.getElementById('tad-acompte').textContent = d.acompte;
+            document.getElementById('tad-format').textContent = d.fmtlabel;
+            document.getElementById('tad-date').textContent = d.date;
+            document.getElementById('tad-dispo').textContent = d.dispo || '—';
+            document.getElementById('tad-description').textContent = d.description || 'Aucune description.';
+            document.getElementById('tan-open-btn').href = d.showurl;
+
+            const form = document.getElementById('tan-postuler-form');
+            const applied = document.getElementById('tan-applied-btn');
+            if (d.hasapplied) {
+                form.style.display = 'none';
+                applied.style.display = '';
+            } else {
+                form.style.display = '';
+                form.action = d.postulerurl;
+                applied.style.display = 'none';
             }
+
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+            const dr = document.getElementById('tanDrawer');
+            dr.classList.add('open');
+            const body = dr.querySelector('.tadrawer__body');
+            if (body) body.scrollTop = 0;
         }
-
-        // Fonction pour voir les détails
-        function voirDetails(annonceId) {
-            window.location.href = `/dashboardUsers/annonces/${annonceId}`;
+        function closeTanDrawer() {
+            document.getElementById('tanDrawer').classList.remove('open');
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
         }
-
-        // Recherche en temps réel
-        document.getElementById('searchAnnonce')?.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const annonces = document.querySelectorAll('.annonce-card');
-
-            annonces.forEach(annonce => {
-                const text = annonce.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    annonce.style.display = '';
-                } else {
-                    annonce.style.display = 'none';
-                }
-            });
-        });
-
-        // Filtre par domaine
-        document.getElementById('filterDomaine')?.addEventListener('change', function(e) {
-            const selectedDomain = e.target.value.toLowerCase();
-            const annonces = document.querySelectorAll('.annonce-card');
-
-            annonces.forEach(annonce => {
-                const domain = annonce.getAttribute('data-domaine').toLowerCase();
-                if (selectedDomain === '' || domain === selectedDomain) {
-                    annonce.style.display = '';
-                } else {
-                    annonce.style.display = 'none';
-                }
-            });
-        });
-    </script>
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // ========================================
-            // SWEETALERT2 - Messages de succès/erreur
-            // ========================================
-
-            @if (session('success'))
-            Swal.fire({
-                icon: 'success',
-                title: '{{ session('success') }}',
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 5000,
-                timerProgressBar: true,
-                background: '#008751', // Fond vert
-                color: '#fff', // Texte blanc
-                iconColor: '#fff', // Icône blanche
-            });
-            @endif
-
-
-            @if (session('error'))
-            Swal.fire({
-                icon: 'error',
-                title: 'Erreur',
-                text: '{{ session('error') }}',
-                confirmButtonText: 'Compris',
-                confirmButtonColor: '#e53e3e',
-            });
-            @endif
-
-            @if ($errors->any())
-            Swal.fire({
-                icon: 'error',
-                title: 'Erreur',
-                html: '<ul style="text-align:left; padding-left:20px;">' +
-                    @foreach ($errors->all() as $error)
-                        '<li>{{ $error }}</li>' +
-                    @endforeach
-                        '</ul>',
-                confirmButtonText: 'Compris',
-                confirmButtonColor: '#e53e3e',
-            });
-            @endif
-        });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTanDrawer(); });
     </script>
 @endpush

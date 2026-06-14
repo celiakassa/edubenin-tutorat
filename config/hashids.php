@@ -31,7 +31,7 @@ return [
     'connections' => [
 
         'main' => [
-            'salt' => env('HASHIDS_SALT'),
+            'salt' => env('HASHIDS_SALT', 'kopiao-hashids-salt-2024'),
             'length' => 8,
             // 'alphabet' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
         ],

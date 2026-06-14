@@ -41,6 +41,7 @@ final class User extends Authenticatable implements MustVerifyEmail
         'last_login',
         'is_valid',
         'identity_verified',
+        'identity_rejected',
         'identity_document_path',
     ];
 

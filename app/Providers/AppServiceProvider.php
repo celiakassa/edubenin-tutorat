@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
 final class AppServiceProvider extends ServiceProvider
@@ -21,6 +22,8 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Pagination stylisée (design system) par défaut partout
+        Paginator::defaultView('pagination.kopiao');
+        Paginator::defaultSimpleView('pagination.kopiao');
     }
 }
