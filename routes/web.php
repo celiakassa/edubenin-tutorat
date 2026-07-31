@@ -57,7 +57,7 @@ Route::view('/faq', 'faq.index')->name('faq');
 Route::get('/register/tuteur', [TeacherController::class, 'register'])->name('register.tuteur')->middleware('guest');
 
 // ==================== ROUTES PROTÉGÉES PAR AUTH ====================
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
 
     // ===== ROUTES ADMINISTRATEUR =====
     Route::prefix('admin')->name('admin.')->group(function () {

@@ -189,7 +189,7 @@ final class AnnonceController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur: '.$exception->getMessage(),
+                'message' => 'Le service de paiement est momentanément indisponible. Veuillez réessayer dans quelques instants ou contacter le support.',
             ], 500);
         }
     }
@@ -368,7 +368,7 @@ final class AnnonceController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur: '.$exception->getMessage(),
+                'message' => 'Le service de paiement est momentanément indisponible. Veuillez réessayer dans quelques instants ou contacter le support.',
             ], 500);
         }
     }
@@ -731,7 +731,7 @@ final class AnnonceController extends Controller
 
             throw_unless($userId, Exception::class, 'User ID manquant dans les metadata');
 
-            throw_if($annonce->student_id !== $userId, Exception::class, 'L\'utilisateur n\'est pas propriétaire de l\'annonce');
+            throw_if((int) $annonce->student_id !== (int) $userId, Exception::class, 'L\'utilisateur n\'est pas propriétaire de l\'annonce');
 
             $amount = (float) ($paymentData['amount'] ?? $annonce->acompte);
 
