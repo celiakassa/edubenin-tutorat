@@ -39,13 +39,9 @@ final class RechercheController extends Controller
             });
         }
 
-        // Filtre par préférence d'apprentissage
+        // Filtre par préférence d'apprentissage (online | in_person | hybrid)
         if (! empty($learning)) {
-            if ($learning === 'both') {
-                $query->whereIn('learning_preference', ['online', 'in_person']);
-            } else {
-                $query->where('learning_preference', $learning);
-            }
+            $query->where('learning_preference', $learning);
         }
 
         // Tri par ordre décroissant de satisfaction ou date de création

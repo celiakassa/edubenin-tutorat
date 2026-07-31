@@ -296,16 +296,16 @@
             </div>
 
             <div class="kp-cards-grid">
-                <!-- Carte Tuteur -->
+                <!-- Carte Apprenant -->
                 <div class="kp-rcard">
-                    <div class="kp-rcard__icon"><i class="bi bi-person-workspace"></i></div>
-                    <h3 class="kp-subtitle">Devenir Tuteur</h3>
+                    <div class="kp-rcard__icon"><i class="bi bi-mortarboard"></i></div>
+                    <h3 class="kp-subtitle">Devenir Apprenant</h3>
                     <p class="kp-text kp-muted">
-                        Partagez votre expertise et enseignez à des apprenants du monde entier.
-                        Rejoignez notre communauté de tuteurs certifiés.
+                        Trouvez le tuteur idéal pour atteindre vos objectifs académiques.
+                        Apprenez à votre rythme avec des professionnels qualifiés.
                     </p>
-                    <a href="{{ route('register.tuteur') }}" class="kp-btn kp-btn--primary kp-btn--block">
-                        S'inscrire comme Tuteur
+                    <a href="{{ route('register') }}" class="kp-btn kp-btn--primary kp-btn--block">
+                        S'inscrire comme Apprenant
                     </a>
                 </div>
 
@@ -321,16 +321,16 @@
                     </a>
                 </div>
 
-                <!-- Carte Apprenant -->
+                <!-- Carte Tuteur -->
                 <div class="kp-rcard">
-                    <div class="kp-rcard__icon"><i class="bi bi-mortarboard"></i></div>
-                    <h3 class="kp-subtitle">Devenir Apprenant</h3>
+                    <div class="kp-rcard__icon"><i class="bi bi-person-workspace"></i></div>
+                    <h3 class="kp-subtitle">Devenir Tuteur</h3>
                     <p class="kp-text kp-muted">
-                        Trouvez le tuteur idéal pour atteindre vos objectifs académiques.
-                        Apprenez à votre rythme avec des professionnels qualifiés.
+                        Partagez votre expertise et enseignez à des apprenants du monde entier.
+                        Rejoignez notre communauté de tuteurs certifiés.
                     </p>
-                    <a href="{{ route('register') }}" class="kp-btn kp-btn--primary kp-btn--block">
-                        S'inscrire comme Apprenant
+                    <a href="{{ route('register.tuteur') }}" class="kp-btn kp-btn--primary kp-btn--block">
+                        S'inscrire comme Tuteur
                     </a>
                 </div>
             </div>
@@ -743,7 +743,7 @@
                 <!-- Image en arrière-plan -->
                 <div class="col-lg-12 position-absolute start-0 top-0 w-100 h-100 d-none d-lg-block" style="z-index: 1;">
                     <div class="background-image-wrapper overflow-hidden">
-                        <img src="{{ asset('images/tuteur.jpg') }}" class="img-fluid w-100 h-100 object-fit-cover"
+                        <img src="{{ asset('images/tuteur.png') }}" class="img-fluid w-100 h-100 object-fit-cover"
                             alt="Devenir tuteur">
                     </div>
                 </div>
@@ -1266,29 +1266,10 @@
         /* chevrons retirés — on navigue au glissement (drag/swipe) */
         .subjects-carousel-container .carousel-nav-btn { display: none; }
 
-        /* Cadre englobant le carousel + le bouton « Explorer » */
+        /* Conteneur du carousel + bouton « Explorer » (sans encadrement) */
         .subjects-frame {
             position: relative;
             padding: 24px 20px;
-        }
-        .subjects-frame::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border: 1.5px solid #1a1a1a;   /* les traits (noir) */
-            pointer-events: none;
-        }
-        /* 4 petits carrés jaunes aux coins */
-        .subjects-frame::after {
-            content: "";
-            position: absolute;
-            inset: -5px;
-            pointer-events: none;
-            background:
-                linear-gradient(#1a1a1a, #1a1a1a) left top / 10px 10px no-repeat,
-                linear-gradient(#1a1a1a, #1a1a1a) right top / 10px 10px no-repeat,
-                linear-gradient(#1a1a1a, #1a1a1a) left bottom / 10px 10px no-repeat,
-                linear-gradient(#1a1a1a, #1a1a1a) right bottom / 10px 10px no-repeat;
         }
 
         /* Indicateurs (petits traits) du carousel matières */
