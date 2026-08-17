@@ -286,6 +286,12 @@ final class TeacherController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
+        abort_unless($user->isTuteur(), 403, 'Seuls les tuteurs peuvent postuler.');
+
+        $annonce = Annonce::findOrFail($id);
+
+        abort_unless($annonce->status === 'publiée', 403, "Cette annonce n'est pas disponible.");
+
         $existing = Candidature::where('annonce_id', $id)
             ->where('user_id', $user->id)
             ->first();

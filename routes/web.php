@@ -57,10 +57,10 @@ Route::view('/faq', 'faq.index')->name('faq');
 Route::get('/register/tuteur', [TeacherController::class, 'register'])->name('register.tuteur')->middleware('guest');
 
 // ==================== ROUTES PROTÉGÉES PAR AUTH ====================
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
 
     // ===== ROUTES ADMINISTRATEUR =====
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         Route::get('/teachers/{id}/details', [AdminController::class, 'showTeacher'])->name('teacher.details');
         Route::post('/teachers/{id}/approve', [AdminController::class, 'approveTeacher'])->name('teachers.approve');
@@ -102,12 +102,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/profile/update', [CompleterProfilUser::class, 'update'])->name('CompleterProfilUser.update');
         Route::get('/profil/show', [CompleterProfilUser::class, 'show'])->name('CompleterProfilUser.show');
 
-        // Routes pour la gestion des apprenants
-        Route::resource('apprenants', ApprenantController::class)->except(['create', 'store', 'edit', 'update']);
+        // Routes pour la gestion des apprenants (réservées aux administrateurs)
+        Route::middleware('admin')->group(function (): void {
+            Route::resource('apprenants', ApprenantController::class)->except(['create', 'store', 'edit', 'update']);
 
-        // Routes supplémentaires pour les actions spécifiques
-        Route::put('/apprenants/{id}/validate', [ApprenantController::class, 'validateApprenant'])->name('apprenants.validate');
-        Route::put('/apprenants/{id}/toggle-status', [ApprenantController::class, 'toggleStatus'])->name('apprenants.toggle-status');
+            // Routes supplémentaires pour les actions spécifiques
+            Route::put('/apprenants/{id}/validate', [ApprenantController::class, 'validateApprenant'])->name('apprenants.validate');
+            Route::put('/apprenants/{id}/toggle-status', [ApprenantController::class, 'toggleStatus'])->name('apprenants.toggle-status');
+        });
     });
 
     // ===== ROUTES PROFIL =====

@@ -137,6 +137,29 @@
         .tm-row i { color: var(--kp-blue); width: 18px; }
         .tm-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
         .tm-bio { color: var(--kp-muted); font-size: .9rem; line-height: 1.6; margin: 10px 0 18px; }
+
+        /* ===== Autocomplete stylé (Matière / Ville) ===== */
+        .kp-ac { position: relative; }
+        .kp-ac__menu {
+            position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 50;
+            margin: 0; padding: 6px; list-style: none;
+            background: var(--kp-white); border: 1px solid var(--kp-border);
+            border-radius: 14px; box-shadow: 0 14px 34px rgba(15, 23, 42, .14);
+            max-height: 264px; overflow-y: auto; display: none;
+        }
+        .kp-ac__menu.open { display: block; }
+        .kp-ac__item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 12px; border-radius: 9px; cursor: pointer;
+            font-size: .9rem; color: var(--kp-ink); transition: background .12s, color .12s;
+        }
+        .kp-ac__item i { color: var(--kp-blue); font-size: .95rem; flex: none; }
+        .kp-ac__item .hl { color: var(--kp-blue); font-weight: 700; }
+        .kp-ac__item:hover, .kp-ac__item.active { background: var(--kp-blue-soft); color: var(--kp-blue-darker, #0A4FB8); }
+        .kp-ac__item:hover .hl, .kp-ac__item.active .hl { color: var(--kp-blue-darker, #0A4FB8); }
+        .kp-ac__empty { padding: 10px 12px; font-size: .85rem; color: var(--kp-muted); }
+        .kp-ac__menu::-webkit-scrollbar { width: 8px; }
+        .kp-ac__menu::-webkit-scrollbar-thumb { background: var(--kp-border); border-radius: 8px; }
     </style>
 
     <div class="search-page">
@@ -154,13 +177,21 @@
                 <div class="row g-3 align-items-end">
                     <div class="col-md-4">
                         <label for="subject">Matière</label>
-                        <input type="text" name="subject" id="subject" class="kp-field"
-                            placeholder="Ex : Mathématiques, Anglais…" value="{{ request('subject') }}">
+                        <div class="kp-ac" data-ac="subject">
+                            <input type="text" name="subject" id="subject" class="kp-field"
+                                autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false"
+                                placeholder="Ex : Mathématiques, Anglais…" value="{{ request('subject') }}">
+                            <ul class="kp-ac__menu" role="listbox"></ul>
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <label for="city">Ville</label>
-                        <input type="text" name="city" id="city" class="kp-field"
-                            placeholder="Entrez une ville" value="{{ request('city') }}">
+                        <div class="kp-ac" data-ac="city">
+                            <input type="text" name="city" id="city" class="kp-field"
+                                autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false"
+                                placeholder="Entrez une ville" value="{{ request('city') }}">
+                            <ul class="kp-ac__menu" role="listbox"></ul>
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <label for="learning_preference">Mode d'apprentissage</label>
@@ -168,7 +199,7 @@
                             <option value="">Tous les modes</option>
                             <option value="online" {{ request('learning_preference') == 'online' ? 'selected' : '' }}>En ligne</option>
                             <option value="in_person" {{ request('learning_preference') == 'in_person' ? 'selected' : '' }}>Présentiel</option>
-                            <option value="both" {{ request('learning_preference') == 'both' ? 'selected' : '' }}>Les deux</option>
+                            <option value="hybrid" {{ request('learning_preference') == 'hybrid' ? 'selected' : '' }}>Flexible</option>
                         </select>
                     </div>
                     <div class="col-md-2 d-grid">
@@ -203,7 +234,7 @@
                             <i class="bi bi-laptop"></i>
                             @if (request('learning_preference') == 'online') En ligne
                             @elseif(request('learning_preference') == 'in_person') Présentiel
-                            @else Les deux @endif
+                            @else Flexible @endif
                             <a href="{{ request()->fullUrlWithoutQuery('learning_preference') }}" aria-label="Retirer"><i class="bi bi-x"></i></a>
                         </span>
                     @endif
@@ -227,7 +258,7 @@
                     @foreach ($tuteurs as $tuteur)
                         @php
                             $subjects = $tuteur->subjects->pluck('nom')->toArray();
-                            $mode = $tuteur->learning_preference;
+                            $mode = $tuteur->learning_preference instanceof \App\LearningPreference ? $tuteur->learning_preference->value : $tuteur->learning_preference;
                             $modeLabel = $mode == 'online' ? 'En ligne' : ($mode == 'in_person' ? 'Présentiel' : 'Flexible');
                             $modeIcon = $mode == 'online' ? 'bi-wifi' : ($mode == 'in_person' ? 'bi-geo-alt' : 'bi-check2-circle');
                             $photo = $tuteur->photo_path ? Storage::url($tuteur->photo_path) : asset('images/profill_default.webp');
@@ -354,6 +385,83 @@
 
                     modal.show();
                 });
+            });
+
+            // ===== Autocomplete stylé (Matière / Ville) =====
+            const acData = {
+                subject: { items: @json($matieresPopulaires), icon: 'bi-book' },
+                city:    { items: @json($villesPopulaires),    icon: 'bi-geo-alt' },
+            };
+            const acNorm = s => (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+            const acEsc = s => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+            document.querySelectorAll('.kp-ac').forEach(wrap => {
+                const cfg = acData[wrap.dataset.ac];
+                if (!cfg) return;
+                const input = wrap.querySelector('input');
+                const menu = wrap.querySelector('.kp-ac__menu');
+                let active = -1, current = [];
+
+                const close = () => { menu.classList.remove('open'); active = -1; input.setAttribute('aria-expanded', 'false'); };
+
+                function filter(q) {
+                    const nq = acNorm(q);
+                    if (!nq) return cfg.items.slice(0, 8);
+                    const starts = [], contains = [];
+                    cfg.items.forEach(it => {
+                        const n = acNorm(it);
+                        if (n.startsWith(nq)) starts.push(it);
+                        else if (n.includes(nq)) contains.push(it);
+                    });
+                    return starts.concat(contains).slice(0, 8);
+                }
+
+                function render(list, q) {
+                    current = list; active = -1;
+                    if (!list.length) { close(); return; }
+                    const nq = acNorm(q);
+                    menu.innerHTML = list.map((item, i) => {
+                        let label = acEsc(item);
+                        if (nq) {
+                            const idx = acNorm(item).indexOf(nq);
+                            if (idx >= 0) {
+                                label = acEsc(item.slice(0, idx)) + '<span class="hl">' + acEsc(item.slice(idx, idx + q.length)) + '</span>' + acEsc(item.slice(idx + q.length));
+                            }
+                        }
+                        return `<li class="kp-ac__item" role="option" data-i="${i}"><i class="bi ${cfg.icon}"></i><span>${label}</span></li>`;
+                    }).join('');
+                    menu.classList.add('open');
+                    input.setAttribute('aria-expanded', 'true');
+                }
+
+                function choose(i) {
+                    if (i < 0 || i >= current.length) return;
+                    input.value = current[i];
+                    close();
+                    input.focus();
+                }
+                function setActive(n) {
+                    const items = menu.querySelectorAll('.kp-ac__item');
+                    if (!items.length) return;
+                    active = (n + items.length) % items.length;
+                    items.forEach((el, i) => el.classList.toggle('active', i === active));
+                    items[active].scrollIntoView({ block: 'nearest' });
+                }
+
+                input.addEventListener('input', () => render(filter(input.value), input.value));
+                input.addEventListener('focus', () => render(filter(input.value), input.value));
+                input.addEventListener('keydown', e => {
+                    if (!menu.classList.contains('open')) return;
+                    if (e.key === 'ArrowDown') { e.preventDefault(); setActive(active + 1); }
+                    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(active - 1); }
+                    else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); choose(active); }
+                    else if (e.key === 'Escape') { close(); }
+                });
+                menu.addEventListener('mousedown', e => {
+                    const li = e.target.closest('.kp-ac__item');
+                    if (li) { e.preventDefault(); choose(parseInt(li.dataset.i, 10)); }
+                });
+                document.addEventListener('click', e => { if (!wrap.contains(e.target)) close(); });
             });
         });
     </script>
