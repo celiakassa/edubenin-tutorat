@@ -33,7 +33,11 @@ final class AdminArticleController extends Controller
         $data['author_id'] = $request->user()->id;
 
         if ($request->hasFile('cover')) {
-            $data['cover_path'] = $request->file('cover')->store('articles', 'public');
+            $data['cover_path'] = $request->file('cover')->store('articles/images', 'public');
+        }
+
+        if ($request->hasFile('video')) {
+            $data['video_path'] = $request->file('video')->store('articles/videos', 'public');
         }
 
         $data['is_published'] = $request->boolean('is_published');
@@ -64,7 +68,14 @@ final class AdminArticleController extends Controller
             if ($article->cover_path) {
                 Storage::disk('public')->delete($article->cover_path);
             }
-            $data['cover_path'] = $request->file('cover')->store('articles', 'public');
+            $data['cover_path'] = $request->file('cover')->store('articles/images', 'public');
+        }
+
+        if ($request->hasFile('video')) {
+            if ($article->video_path) {
+                Storage::disk('public')->delete($article->video_path);
+            }
+            $data['video_path'] = $request->file('video')->store('articles/videos', 'public');
         }
 
         $data['is_published'] = $request->boolean('is_published');
@@ -81,6 +92,9 @@ final class AdminArticleController extends Controller
         if ($article->cover_path) {
             Storage::disk('public')->delete($article->cover_path);
         }
+        if ($article->video_path) {
+            Storage::disk('public')->delete($article->video_path);
+        }
         $article->delete();
 
         return back()->with('success', 'Article supprimé.');
@@ -92,7 +106,8 @@ final class AdminArticleController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'excerpt' => ['nullable', 'string', 'max:255'],
             'content' => ['required', 'string'],
-            'cover' => ['nullable', 'image', 'max:4096'],
+            'cover' => ['nullable', 'image', 'max:5120'],
+            'video' => ['nullable', 'mimes:mp4,webm,mov', 'max:5120'],
             'is_published' => ['nullable', 'boolean'],
         ]);
     }

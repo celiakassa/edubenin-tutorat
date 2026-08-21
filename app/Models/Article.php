@@ -14,6 +14,7 @@ final class Article extends Model
         'excerpt',
         'content',
         'cover_path',
+        'video_path',
         'is_published',
         'published_at',
         'author_id',
