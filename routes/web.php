@@ -11,6 +11,7 @@ use App\Http\Controllers\CandidatureController;
 use App\Http\Controllers\CompleterProfilUser;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ListeAnnonceController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ProfesseurController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RechercheController;
@@ -53,6 +54,9 @@ Route::get('/demandesliste', [ListeAnnonceController::class, 'demandesListe'])->
 
 // Comment ça marche ? (FAQ publique)
 Route::view('/faq', 'faq.index')->name('faq');
+
+// Newsletter (formulaire du footer)
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'store'])->name('newsletter.subscribe');
 
 // Page "Devenir Tuteur" (présentation, sans auth)
 Route::get('/devenir-tuteur', [BecomeTutorController::class, 'index'])->name('devenir.tuteur');

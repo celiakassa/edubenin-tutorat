@@ -7,6 +7,7 @@
     <title>Kopiao</title>
     <meta name="description" content="">
     <meta name="keywords" content="">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Favicons -->
     <link href="{{ asset('favicon.svg') }}" rel="icon" type="image/svg+xml">
@@ -277,30 +278,9 @@
         }
     });
 
-    // Newsletter simple avec mailto
-    document.getElementById('newsletterForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
 
-        const email = document.getElementById('newsletterEmail').value;
-        const messageDiv = document.getElementById('newsletterMessage');
-
-        if (!email || !email.includes('@')) {
-            messageDiv.innerHTML = '<span class="text-danger">Veuillez entrer un email valide</span>';
-            setTimeout(() => { messageDiv.innerHTML = ''; }, 3000);
-            return;
-        }
-
-        // Ouvrir le client email par défaut
-        const subject = encodeURIComponent('Abonnement Newsletter - Kopiao');
-        const body = encodeURIComponent(`Bonjour,\n\nJe souhaite m'abonner à la newsletter Kopiao avec l'adresse email suivante :\n\n${email}\n\nMerci.`);
-        window.location.href = `mailto:contact@kopiao.com?subject=${subject}&body=${body}`;
-
-        messageDiv.innerHTML = '<span class="text-success">✓ Ouverture de votre messagerie !</span>';
-        document.getElementById('newsletterEmail').value = '';
-
-        setTimeout(() => { messageDiv.innerHTML = ''; }, 3000);
-    });
 </script>
+<script src="{{ asset('js/newsletter.js') }}"></script>
 
 @stack('scripts')
 
