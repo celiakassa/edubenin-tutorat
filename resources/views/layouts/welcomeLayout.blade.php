@@ -343,6 +343,8 @@
 </style>
 
 @livewireStyles
+
+@include('partials.lia-widget')
 </body>
 
 </html>
