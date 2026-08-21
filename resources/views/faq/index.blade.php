@@ -65,7 +65,7 @@
         padding: 22px 0 2px !important; margin: 0 !important;
     }
 
-    /* Accordéon = lignes minimalistes */
+    /* Accordéon = lignes soignées, un seul "+" qui pivote en "×" */
     .faq-page .accordion {
         --bs-accordion-bg: transparent;
         --bs-accordion-active-color: var(--kp-blue);
@@ -73,25 +73,35 @@
         --bs-accordion-btn-color: var(--kp-ink);
         --bs-accordion-btn-bg: transparent;
         --bs-accordion-btn-focus-box-shadow: none;
-        --bs-accordion-btn-icon-transform: none;
-        --bs-accordion-btn-icon-width: 20px;
-        --bs-accordion-transition: color .2s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease, height .3s ease;
+        --bs-accordion-btn-icon-width: 18px;
+        --bs-accordion-btn-icon-transform: rotate(45deg);
+        --bs-accordion-btn-icon-transition: transform .3s ease;
         --bs-accordion-btn-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%236b7280'%3e%3cpath d='M8 3.5a.5.5 0 0 1 .5.5v3.5H12a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0V8.5H4a.5.5 0 0 1 0-1h3.5V4a.5.5 0 0 1 .5-.5z'/%3e%3c/svg%3e");
-        --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230B69F1'%3e%3cpath d='M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z'/%3e%3c/svg%3e");
+        --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230B69F1'%3e%3cpath d='M8 3.5a.5.5 0 0 1 .5.5v3.5H12a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0V8.5H4a.5.5 0 0 1 0-1h3.5V4a.5.5 0 0 1 .5-.5z'/%3e%3c/svg%3e");
     }
     .faq-page .accordion-item {
         background: transparent !important; border: none !important;
-        border-bottom: 1px solid var(--kp-border) !important; border-radius: 0 !important; margin: 0 !important; box-shadow: none !important;
+        border-bottom: 1px solid var(--kp-border) !important; border-left: 3px solid transparent;
+        border-radius: 0 !important; margin: 0 !important; box-shadow: none !important;
+        transition: background-color .25s ease, border-left-color .25s ease, box-shadow .25s ease;
+    }
+    .faq-page .accordion-item:hover { background: color-mix(in srgb, var(--kp-blue), transparent 95%) !important; }
+    .faq-page .accordion-item:has(.accordion-collapse.show) {
+        background: var(--kp-blue-soft) !important;
+        border-left-color: var(--kp-blue);
+        box-shadow: var(--kp-shadow-sm);
     }
     .faq-page .accordion-button {
-        padding: 17px 0 !important; box-shadow: none !important;
+        padding: 17px 14px !important; box-shadow: none !important;
         background: transparent !important; border-radius: 0 !important;
         font-family: var(--kp-font-title); font-weight: 600; font-size: 1rem; color: var(--kp-ink);
         transition: color .2s ease;
     }
     .faq-page .accordion-button:not(.collapsed) { background: transparent !important; color: var(--kp-blue) !important; box-shadow: none !important; }
-    .faq-page .accordion-button::after { margin-left: auto; flex-shrink: 0; }
-    .faq-page .accordion-body { padding: 0 0 18px !important; color: var(--kp-text); font-size: .94rem; line-height: 1.7; }
+    .faq-page .accordion-button::after { margin-left: auto; flex-shrink: 0; transition: var(--bs-accordion-btn-icon-transition); }
+    .faq-page .accordion-collapse.collapsing { transition: height .3s ease; }
+    .faq-page .accordion-body { padding: 2px 14px 18px !important; color: var(--kp-muted); font-size: .89rem; line-height: 1.7; }
+    .faq-page .accordion-body.bg-light { background: transparent !important; }
     .faq-page .accordion-body ol, .faq-page .accordion-body ul { padding-left: 1.1rem; }
 
     /* Recherche : masquage */
