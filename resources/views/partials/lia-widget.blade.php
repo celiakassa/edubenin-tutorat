@@ -1,17 +1,23 @@
 <style>
+    /*
+     * Décalés au-dessus du bouton « retour en haut » existant (#scroll-top,
+     * fixed bottom:15px/right:15px, 40x40 — voir public/css/welcome.css) pour
+     * ne pas se superposer visuellement avec lui.
+     */
     .lia-bubble {
-        position: fixed; bottom: 24px; right: 24px; z-index: 4000;
+        position: fixed; bottom: 92px; right: 24px; z-index: 4000;
         width: 58px; height: 58px; border-radius: 50%; border: none;
-        background: var(--kp-blue, #0B69F1); color: #fff; font-size: 1.5rem;
+        background: var(--kp-blue, #0B69F1); color: #fff;
         display: flex; align-items: center; justify-content: center;
         box-shadow: 0 8px 24px rgba(11, 105, 241, .35); cursor: pointer;
         transition: transform .2s ease;
     }
     .lia-bubble:hover { transform: scale(1.06); }
+    .lia-bubble svg { width: 26px; height: 26px; }
 
     .lia-panel {
-        position: fixed; bottom: 96px; right: 24px; z-index: 4000;
-        width: 340px; max-width: calc(100vw - 32px); height: 460px; max-height: calc(100vh - 140px);
+        position: fixed; bottom: 164px; right: 24px; z-index: 4000;
+        width: 340px; max-width: calc(100vw - 32px); height: 460px; max-height: calc(100vh - 200px);
         background: #fff; border-radius: 16px; box-shadow: 0 20px 60px rgba(16, 24, 40, .22);
         display: none; flex-direction: column; overflow: hidden;
     }
@@ -43,13 +49,15 @@
     .lia-panel__form button:disabled { opacity: .6; cursor: default; }
 
     @media (max-width: 480px) {
-        .lia-panel { right: 16px; bottom: 88px; }
-        .lia-bubble { right: 16px; bottom: 16px; }
+        .lia-panel { right: 16px; bottom: 150px; }
+        .lia-bubble { right: 16px; bottom: 84px; }
     }
 </style>
 
 <button type="button" class="lia-bubble" id="liaToggle" aria-label="Ouvrir l'assistant Lia">
-    <i class="bi bi-chat-dots-fill"></i>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+    </svg>
 </button>
 
 <div class="lia-panel" id="liaPanel">
