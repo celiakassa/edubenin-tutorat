@@ -80,8 +80,8 @@
     <div class="container">
         <!-- Hero -->
         <div class="faqx-hero">
-            <h1 class="faqx-title">Foire aux questions</h1>
-            <p class="faqx-sub">Trouvez rapidement des réponses à vos questions</p>
+            <h1 class="faqx-title">Comment ça marche ?</h1>
+            <p class="faqx-sub">Découvrez le fonctionnement de Kopiao et trouvez rapidement des réponses à vos questions</p>
             <div class="faqx-search">
                 <i class="bi bi-search"></i>
                 <input type="text" id="faqSearch" placeholder="Rechercher une question…" autocomplete="off">
@@ -549,55 +549,6 @@
 </div>
 
 <style>
-.faq-page {
-    background: #f8f9fa;
-    min-height: 100vh;
-}
-
-.category-card {
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-}
-
-.category-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0,0,255,0.1) !important;
-    border-color: #0B69F1;
-}
-
-.category-link:hover .category-card {
-    border-color: #0B69F1;
-}
-
-.accordion-item {
-    transition: all 0.3s ease;
-}
-
-.accordion-item:hover {
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
-}
-
-.accordion-button {
-    font-weight: 600;
-    color: #333;
-    background-color: white;
-    border-radius: 10px !important;
-}
-
-.accordion-button:not(.collapsed) {
-    background: linear-gradient(135deg, #0B69F1, #0066ff);
-    color: white;
-}
-
-.accordion-button:not(.collapsed)::after {
-    filter: brightness(0) invert(1);
-}
-
-.accordion-button:focus {
-    box-shadow: none;
-    border-color: rgba(0,0,255,0.1);
-}
-
 .support-cta {
     border: 1px solid rgba(0,0,255,0.1);
     transition: all 0.3s ease;
@@ -626,14 +577,6 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-    .faq-page {
-        padding: 2rem 0;
-    }
-
-    .accordion-button {
-        font-size: 0.9rem;
-    }
-
     .support-cta {
         padding: 2rem !important;
     }

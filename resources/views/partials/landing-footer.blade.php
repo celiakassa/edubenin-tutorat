@@ -44,7 +44,7 @@
                         <i class="bi bi-chevron-right me-1"></i> Contact
                     </a></li>
                     <li class="mb-2"><a href="{{ route('faq') }}" class="text-white-50 text-decoration-none">
-                        <i class="bi bi-chevron-right me-1"></i> FAQ
+                        <i class="bi bi-chevron-right me-1"></i> Comment ça marche ?
                     </a></li>
                     @auth
                     <li class="mb-2"><a href="{{ route('dashboardUser') }}" class="text-white-50 text-decoration-none">

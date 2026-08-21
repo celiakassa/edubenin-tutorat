@@ -10,7 +10,7 @@
         <nav class="desktop-menu">
             <a class="nav-link-item {{ request()->routeIs('annoncesListe.*') ? 'is-active' : '' }}" href="{{ route('annoncesListe.liste') }}">Annonces</a>
             <a class="nav-link-item {{ request()->routeIs('demandesliste.*') ? 'is-active' : '' }}" href="{{ route('demandesliste.liste') }}">Demandes</a>
-            <a class="nav-link-item {{ request()->routeIs('faq') ? 'is-active' : '' }}" href="{{ route('faq') }}" style="margin-right: 1.75rem;">FAQ</a>
+            <a class="nav-link-item {{ request()->routeIs('faq') ? 'is-active' : '' }}" href="{{ route('faq') }}" style="margin-right: 1.75rem;">Comment ça marche ?</a>
 
             @auth
                 <div class="nav-profile" id="navProfile">
@@ -71,7 +71,7 @@
         </a>
         <a href="{{ route('faq') }}" class="sidebar-link">
             <i class="bi bi-question-circle"></i>
-            <span>FAQ</span>
+            <span>Comment ça marche ?</span>
         </a>
         <a href="#" class="sidebar-link" id="contactLink">
             <i class="bi bi-envelope"></i>

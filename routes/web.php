@@ -50,7 +50,7 @@ Route::get('/annonceliste/{id}', [ListeAnnonceController::class, 'show'])->name(
 Route::get('/api/annoncesliste/filtres', [ListeAnnonceController::class, 'getFiltres'])->name('annoncesListe.filtres');
 Route::get('/demandesliste', [ListeAnnonceController::class, 'demandesListe'])->name('demandesliste.liste');
 
-// FAQ (publique)
+// Comment ça marche ? (FAQ publique)
 Route::view('/faq', 'faq.index')->name('faq');
 
 // Route d'enregistrement tuteur (sans auth)
