@@ -14,26 +14,44 @@
     .blog-title { font-family: var(--kp-font-title); font-weight: 800; font-size: clamp(1.9rem, 1.3rem + 2.6vw, 2.7rem); color: var(--kp-ink); margin: 0 0 12px; }
     .blog-sub { color: var(--kp-muted); font-size: 1.02rem; margin: 0; }
 
-    .blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1100px; margin: 0 auto; padding: 0 16px; }
-    @media (max-width: 900px) { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 600px) { .blog-grid { grid-template-columns: 1fr; } }
+    .blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 1140px; margin: 0 auto; padding: 0 16px; }
+    @media (max-width: 992px) { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 620px) { .blog-grid { grid-template-columns: 1fr; } }
 
     .blog-card {
         background: var(--kp-white); border: 1px solid var(--kp-border); border-radius: var(--kp-radius);
-        box-shadow: var(--kp-shadow-sm); overflow: hidden; transition: var(--kp-transition); display: flex; flex-direction: column;
+        box-shadow: var(--kp-shadow-sm); overflow: hidden; display: flex; flex-direction: column; height: 100%;
+        transition: transform .3s ease, box-shadow .3s ease;
     }
-    .blog-card:hover { box-shadow: var(--kp-shadow); transform: translateY(-3px); }
-    .blog-card__cover { height: 170px; background: var(--kp-blue-soft) center/cover no-repeat; }
-    .blog-card__body { padding: 20px; display: flex; flex-direction: column; flex: 1; }
-    .blog-card__date { color: var(--kp-muted); font-size: .78rem; margin: 0 0 8px; }
-    .blog-card__title { font-family: var(--kp-font-title); font-weight: 700; font-size: 1.08rem; color: var(--kp-ink); margin: 0 0 10px; }
-    .blog-card__excerpt { color: var(--kp-text); font-size: .92rem; line-height: 1.6; margin: 0 0 16px; flex: 1; }
-    .blog-card__anchor { display: flex; width: 100%; color: inherit; text-decoration: none; }
-    .blog-card__anchor .blog-card { width: 100%; }
-    .blog-card__link { color: var(--kp-blue); font-weight: 600; font-size: .9rem; text-decoration: none; }
-    .blog-card__anchor:hover .blog-card__link { text-decoration: underline; }
+    .blog-card:hover { box-shadow: var(--kp-shadow-lg); transform: translateY(-4px); }
 
-    .blog-empty { text-align: center; color: var(--kp-muted); padding: 60px 16px; max-width: 1100px; margin: 0 auto; }
+    .blog-card__cover { position: relative; aspect-ratio: 16 / 9; background: var(--kp-blue-soft); overflow: hidden; }
+    .blog-card__cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .blog-card__cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--kp-blue); font-size: 2rem; }
+    .blog-card__date {
+        position: absolute; top: 12px; left: 12px; background: rgba(255, 255, 255, .95); color: var(--kp-ink);
+        font-size: .72rem; font-weight: 700; padding: 5px 11px; border-radius: var(--kp-radius-pill); box-shadow: var(--kp-shadow-sm);
+    }
+
+    .blog-card__body { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+    .blog-card__title { font-family: var(--kp-font-title); font-weight: 700; font-size: 1.1rem; color: var(--kp-ink); margin: 0 0 10px; line-height: 1.35; }
+    .blog-card__excerpt { color: var(--kp-text); font-size: .92rem; line-height: 1.6; margin: 0 0 18px; flex: 1; }
+    .blog-card__cta {
+        display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+        color: var(--kp-blue); font-weight: 700; font-size: .86rem; text-decoration: none;
+        border: 1.5px solid var(--kp-blue-soft); padding: 7px 16px; border-radius: var(--kp-radius-pill);
+        transition: var(--kp-transition);
+    }
+    .blog-card:hover .blog-card__cta { background: var(--kp-blue); border-color: var(--kp-blue); color: #fff; }
+
+    .blog-card__anchor { color: inherit; text-decoration: none; display: block; height: 100%; }
+
+    .blog-empty {
+        text-align: center; color: var(--kp-muted); max-width: 480px; margin: 0 auto; padding: 60px 32px;
+        background: var(--kp-white); border: 1px solid var(--kp-border); border-radius: var(--kp-radius); box-shadow: var(--kp-shadow-sm);
+    }
+    .blog-empty i { font-size: 2.4rem; color: var(--kp-blue-soft); display: block; margin-bottom: 14px; }
+    .blog-empty p { font-size: 1rem; margin: 0; }
 </style>
 
 <div class="blog-page">
@@ -45,23 +63,30 @@
         </div>
 
         @if ($articles->isEmpty())
-            <div class="blog-empty">
-                <i class="bi bi-journal-text" style="font-size: 2rem; opacity: .4;"></i>
-                <p class="mt-2 mb-0">Aucun article publié pour le moment. Revenez bientôt !</p>
+            <div class="blog-empty" data-aos="fade-up">
+                <i class="bi bi-journal-text"></i>
+                <p>Aucun article publié pour le moment. Revenez bientôt !</p>
             </div>
         @else
-            <div class="blog-grid" data-aos="fade-up">
+            <div class="blog-grid">
                 @foreach ($articles as $article)
-                    <a href="{{ route('blog.show', $article) }}" class="blog-card__anchor">
+                    <a href="{{ route('blog.show', $article) }}" class="blog-card__anchor"
+                       data-aos="fade-up" data-aos-delay="{{ ($loop->index % 3) * 100 }}">
                         <div class="blog-card">
-                            <div class="blog-card__cover" @if ($article->cover_path) style="background-image: url('{{ asset('storage/' . $article->cover_path) }}');" @endif></div>
+                            <div class="blog-card__cover">
+                                @if ($article->cover_path)
+                                    <img src="{{ asset('storage/' . $article->cover_path) }}" alt="{{ $article->title }}">
+                                @else
+                                    <div class="blog-card__cover-placeholder"><i class="bi bi-journal-text"></i></div>
+                                @endif
+                                <span class="blog-card__date">{{ $article->published_at?->translatedFormat('d M Y') }}</span>
+                            </div>
                             <div class="blog-card__body">
-                                <p class="blog-card__date">{{ $article->published_at?->translatedFormat('d M Y') }}</p>
                                 <h2 class="blog-card__title">{{ $article->title }}</h2>
                                 @if ($article->excerpt)
-                                    <p class="blog-card__excerpt">{{ $article->excerpt }}</p>
+                                    <p class="blog-card__excerpt">{{ \Illuminate\Support\Str::limit($article->excerpt, 120) }}</p>
                                 @endif
-                                <span class="blog-card__link">Lire l'article <i class="bi bi-arrow-right"></i></span>
+                                <span class="blog-card__cta">Lire l'article <i class="bi bi-arrow-right"></i></span>
                             </div>
                         </div>
                     </a>
