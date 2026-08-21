@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Kopiao - Dashboard')</title>
     <link href="{{ asset('favicon.svg') }}" rel="icon" type="image/svg+xml">
 
@@ -527,6 +528,8 @@
     @endif
 
     @stack('scripts')
+
+    @include('partials.lia-widget')
 </body>
 
 </html>
