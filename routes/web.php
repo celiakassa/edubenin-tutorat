@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AdminArticleController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\BecomeTutorController;
 use App\Http\Controllers\ApprenantController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CandidatureController;
 use App\Http\Controllers\CompleterProfilUser;
 use App\Http\Controllers\HomeController;
@@ -61,6 +63,10 @@ Route::post('/newsletter/subscribe', [NewsletterController::class, 'store'])->na
 // Page "Devenir Tuteur" (présentation, sans auth)
 Route::get('/devenir-tuteur', [BecomeTutorController::class, 'index'])->name('devenir.tuteur');
 
+// Blog (publique)
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{article:slug}', [BlogController::class, 'show'])->name('blog.show');
+
 // Route d'enregistrement tuteur (sans auth)
 Route::get('/register/tuteur', [TeacherController::class, 'register'])->name('register.tuteur')->middleware('guest');
 
@@ -86,6 +92,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/matieres', [AdminController::class, 'storeSubject'])->name('subjects.store');
         Route::put('/matieres/{id}', [AdminController::class, 'updateSubject'])->name('subjects.update');
         Route::delete('/matieres/{id}', [AdminController::class, 'destroySubject'])->name('subjects.destroy');
+
+        // Gestion du blog
+        Route::get('/articles', [AdminArticleController::class, 'index'])->name('articles');
+        Route::get('/articles/create', [AdminArticleController::class, 'create'])->name('articles.create');
+        Route::post('/articles', [AdminArticleController::class, 'store'])->name('articles.store');
+        Route::get('/articles/{id}/edit', [AdminArticleController::class, 'edit'])->name('articles.edit');
+        Route::put('/articles/{id}', [AdminArticleController::class, 'update'])->name('articles.update');
+        Route::delete('/articles/{id}', [AdminArticleController::class, 'destroy'])->name('articles.destroy');
     });
 
     // ===== ROUTES TUTEUR (ABONNEMENT) =====
