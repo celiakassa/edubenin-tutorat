@@ -20,14 +20,21 @@
     .dt-section-sub { color: var(--kp-muted); text-align: center; max-width: 560px; margin: 0 auto 36px; }
 
     /* Chiffres clés */
-    .dt-stats { max-width: 900px; margin: 0 auto 56px; padding: 0 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .dt-stats { max-width: 940px; margin: 0 auto 56px; padding: 0 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; justify-items: center; }
     @media (max-width: 640px) { .dt-stats { grid-template-columns: 1fr; } }
     .dt-stat {
-        background: var(--kp-white); border: 1px solid var(--kp-border); border-radius: var(--kp-radius);
-        box-shadow: var(--kp-shadow-sm); padding: 26px 20px; text-align: center;
+        width: 100%; background: linear-gradient(160deg, var(--kp-blue-soft), var(--kp-white) 65%);
+        border: 1px solid var(--kp-border); border-radius: var(--kp-radius);
+        box-shadow: var(--kp-shadow-sm); padding: 28px 20px; text-align: center;
+        transition: transform .3s ease, box-shadow .3s ease;
     }
-    .dt-stat-number { font-family: var(--kp-font-title); font-weight: 800; font-size: 2.2rem; color: var(--kp-blue); line-height: 1; margin: 0 0 8px; }
-    .dt-stat-label { color: var(--kp-muted); font-size: .9rem; margin: 0; }
+    .dt-stat:hover { transform: translateY(-4px); box-shadow: var(--kp-shadow-lg); }
+    .dt-stat-icon {
+        width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 14px; background: var(--kp-white); color: var(--kp-blue);
+        display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: var(--kp-shadow-sm);
+    }
+    .dt-stat-number { font-family: var(--kp-font-title); font-weight: 800; font-size: 2.3rem; color: var(--kp-blue); line-height: 1; margin: 0 0 8px; }
+    .dt-stat-label { color: var(--kp-muted); font-size: .86rem; letter-spacing: .3px; margin: 0; }
 
     /* Étapes */
     .dt-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
@@ -120,14 +127,17 @@
         <!-- Chiffres clés -->
         <div class="dt-stats" id="dtStats" data-aos="fade-up">
             <div class="dt-stat">
+                <div class="dt-stat-icon"><i class="bi bi-mortarboard"></i></div>
                 <p class="dt-stat-number" data-count="{{ $stats['tutorsCount'] }}">0</p>
                 <p class="dt-stat-label">Tuteurs actifs</p>
             </div>
             <div class="dt-stat">
+                <div class="dt-stat-icon"><i class="bi bi-journal-bookmark"></i></div>
                 <p class="dt-stat-number" data-count="{{ $stats['subjectsCount'] }}">0</p>
                 <p class="dt-stat-label">Matières disponibles</p>
             </div>
             <div class="dt-stat">
+                <div class="dt-stat-icon"><i class="bi bi-award"></i></div>
                 <p class="dt-stat-number" data-count="{{ $stats['missionsCount'] }}">0</p>
                 <p class="dt-stat-label">Missions honorées</p>
             </div>
@@ -270,7 +280,8 @@
 
             function step(now) {
                 const progress = Math.min((now - start) / duration, 1);
-                el.textContent = Math.floor(progress * target).toLocaleString('fr-FR');
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.floor(eased * target).toLocaleString('fr-FR');
                 if (progress < 1) {
                     requestAnimationFrame(step);
                 } else {
