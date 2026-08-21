@@ -10,10 +10,13 @@
         <nav class="desktop-menu">
             <a class="nav-link-item {{ request()->routeIs('annoncesListe.*') ? 'is-active' : '' }}" href="{{ route('annoncesListe.liste') }}">Annonces</a>
             <a class="nav-link-item {{ request()->routeIs('demandesliste.*') ? 'is-active' : '' }}" href="{{ route('demandesliste.liste') }}">Demandes</a>
-            <a class="nav-link-item {{ request()->routeIs('faq') ? 'is-active' : '' }}" href="{{ route('faq') }}" style="margin-right: 1.75rem;">Comment ça marche ?</a>
+            <a class="nav-link-item {{ request()->routeIs('faq') ? 'is-active' : '' }}" href="{{ route('faq') }}">Comment ça marche ?</a>
+            @guest
+                <a class="nav-link-item {{ request()->routeIs('devenir.tuteur') ? 'is-active' : '' }}" href="{{ route('devenir.tuteur') }}">Devenir tuteur</a>
+            @endguest
 
             @auth
-                <div class="nav-profile" id="navProfile">
+                <div class="nav-profile" id="navProfile" style="margin-left: 1.75rem;">
                     <button type="button" class="nav-profile__btn" id="navProfileBtn" aria-haspopup="true" aria-expanded="false" aria-label="Mon compte">
                         <span class="nav-profile__avatar">
                             @if (auth()->user()->photo_path && Storage::disk('public')->exists(auth()->user()->photo_path))
@@ -37,7 +40,7 @@
                     </div>
                 </div>
             @else
-                <a class="nav-login-btn" href="{{ route('login') }}">
+                <a class="nav-login-btn" href="{{ route('login') }}" style="margin-left: 1.75rem;">
                     Se connecter
                 </a>
             @endauth
@@ -79,7 +82,7 @@
         </a>
 
         @guest
-            <a href="{{ route('register.tuteur') }}" class="sidebar-link sidebar-link--cta">
+            <a href="{{ route('devenir.tuteur') }}" class="sidebar-link sidebar-link--cta">
                 <i class="bi bi-mortarboard"></i>
                 <span>Devenir tuteur</span>
             </a>

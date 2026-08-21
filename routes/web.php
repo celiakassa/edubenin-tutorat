@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnnonceController;
+use App\Http\Controllers\BecomeTutorController;
 use App\Http\Controllers\ApprenantController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\CandidatureController;
@@ -52,6 +53,9 @@ Route::get('/demandesliste', [ListeAnnonceController::class, 'demandesListe'])->
 
 // Comment ça marche ? (FAQ publique)
 Route::view('/faq', 'faq.index')->name('faq');
+
+// Page "Devenir Tuteur" (présentation, sans auth)
+Route::get('/devenir-tuteur', [BecomeTutorController::class, 'index'])->name('devenir.tuteur');
 
 // Route d'enregistrement tuteur (sans auth)
 Route::get('/register/tuteur', [TeacherController::class, 'register'])->name('register.tuteur')->middleware('guest');
