@@ -12,8 +12,13 @@ final class LiaGeminiService
 {
     private const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s';
 
-    /** Modeles gratuits, essayes dans l'ordre si l'un est en erreur ou a quota depasse. */
-    private const MODELS = ['gemini-2.0-flash', 'gemini-2.0-flash-lite'];
+    /**
+     * Modeles gratuits, essayes dans l'ordre si l'un est en erreur ou a quota depasse.
+     * gemini-2.0-flash et gemini-2.0-flash-lite ont ete retires par Google (404
+     * "no longer available") ; gemini-3.5-flash-lite / -flash sont les equivalents
+     * actuellement disponibles sur le niveau gratuit.
+     */
+    private const MODELS = ['gemini-3.5-flash-lite', 'gemini-3.5-flash'];
 
     private readonly ?string $apiKey;
 
@@ -58,10 +63,7 @@ final class LiaGeminiService
             $response = Http::timeout(20)->post($url, [
                 'system_instruction' => ['parts' => [['text' => $systemPrompt]]],
                 'contents' => $contents,
-                'generationConfig' => [
-                    'temperature' => 0.7,
-                    'maxOutputTokens' => 512,
-                ],
+                'generationConfig' => $this->generationConfig($model),
             ]);
         } catch (Throwable $e) {
             Log::warning('Lia: appel Gemini impossible', ['model' => $model, 'error' => $e->getMessage()]);
@@ -84,6 +86,26 @@ final class LiaGeminiService
         $text = data_get($response->json(), 'candidates.0.content.parts.0.text');
 
         return filled($text) ? trim((string) $text) : null;
+    }
+
+    /**
+     * Les variantes "flash" pleines utilisent un budget de reflexion interne qui,
+     * sans thinkingConfig, peut consommer tout maxOutputTokens sans produire de
+     * texte (reponse vide, finishReason MAX_TOKENS). Les variantes "flash-lite"
+     * n'exposent pas ce parametre : l'envoyer provoque une erreur 400.
+     */
+    private function generationConfig(string $model): array
+    {
+        $config = [
+            'temperature' => 0.7,
+            'maxOutputTokens' => 512,
+        ];
+
+        if (! str_contains($model, 'lite')) {
+            $config['thinkingConfig'] = ['thinkingBudget' => 0];
+        }
+
+        return $config;
     }
 
     private function buildContents(array $history, string $message): array

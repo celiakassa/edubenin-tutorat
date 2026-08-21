@@ -52,7 +52,7 @@ final class LiaChatController extends Controller
         return [
             'tutors_count' => User::where('role_id', 3)->where('is_active', 1)->where('is_valid', 1)->count(),
             'subjects' => Subject::where('is_active', true)->orderBy('nom')->pluck('nom')->all(),
-            'annonces_count' => Annonce::count(),
+            'active_annonces_count' => Annonce::where('status', 'publiée')->count(),
         ];
     }
 
@@ -65,7 +65,7 @@ final class LiaChatController extends Controller
 
             Donnees actuelles de la plateforme :
             - Nombre de tuteurs actifs et valides : {$context['tutors_count']}
-            - Nombre d'annonces publiees : {$context['annonces_count']}
+            - Nombre d'annonces actives publiees : {$context['active_annonces_count']}
             - Matieres disponibles : {$subjects}
 
             Fonctionnement general :
