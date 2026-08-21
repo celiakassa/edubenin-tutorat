@@ -21,7 +21,7 @@
         background: var(--kp-blue, #0B69F1); color: #fff; padding: 14px 16px;
         display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
     }
-    .lia-panel__header h3 { font-size: .98rem; font-weight: 700; margin: 0; }
+    .lia-panel__header h3 { font-size: .98rem; font-weight: 700; margin: 0; color: #fff; }
     .lia-panel__header p { font-size: .74rem; opacity: .85; margin: 2px 0 0; }
     .lia-panel__close { background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; line-height: 1; }
 
