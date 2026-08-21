@@ -19,6 +19,16 @@
     .dt-section-title { font-family: var(--kp-font-title); font-weight: 800; font-size: clamp(1.4rem, 1.1rem + 1.2vw, 1.9rem); color: var(--kp-ink); text-align: center; margin: 0 0 10px; }
     .dt-section-sub { color: var(--kp-muted); text-align: center; max-width: 560px; margin: 0 auto 36px; }
 
+    /* Chiffres clés */
+    .dt-stats { max-width: 900px; margin: 0 auto 56px; padding: 0 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media (max-width: 640px) { .dt-stats { grid-template-columns: 1fr; } }
+    .dt-stat {
+        background: var(--kp-white); border: 1px solid var(--kp-border); border-radius: var(--kp-radius);
+        box-shadow: var(--kp-shadow-sm); padding: 26px 20px; text-align: center;
+    }
+    .dt-stat-number { font-family: var(--kp-font-title); font-weight: 800; font-size: 2.2rem; color: var(--kp-blue); line-height: 1; margin: 0 0 8px; }
+    .dt-stat-label { color: var(--kp-muted); font-size: .9rem; margin: 0; }
+
     /* Étapes */
     .dt-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
     @media (max-width: 900px) { .dt-steps { grid-template-columns: repeat(2, 1fr); } }
@@ -41,7 +51,9 @@
     .dt-benefit {
         background: var(--kp-white); border: 1px solid var(--kp-border); border-radius: var(--kp-radius);
         box-shadow: var(--kp-shadow-sm); padding: 24px 22px; display: flex; gap: 16px; align-items: flex-start;
+        transition: transform .3s ease, box-shadow .3s ease;
     }
+    .dt-benefit:hover { transform: translateY(-6px); box-shadow: var(--kp-shadow-lg); }
     .dt-benefit i {
         flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; background: var(--kp-blue-soft); color: var(--kp-blue);
         display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
@@ -79,6 +91,11 @@
     }
     .dt-final-cta h2 { font-family: var(--kp-font-title); font-weight: 800; font-size: 1.6rem; margin: 0 0 10px; }
     .dt-final-cta p { opacity: .92; margin: 0 0 22px; }
+    .dt-final-cta .kp-btn--on-blue { animation: dt-pulse 2.6s ease-in-out infinite; }
+    @keyframes dt-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, .45); }
+        50% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
+    }
 </style>
 
 <div class="dt-page">
@@ -100,27 +117,43 @@
             </div>
         </div>
 
+        <!-- Chiffres clés -->
+        <div class="dt-stats" id="dtStats" data-aos="fade-up">
+            <div class="dt-stat">
+                <p class="dt-stat-number" data-count="{{ $stats['tutorsCount'] }}">0</p>
+                <p class="dt-stat-label">Tuteurs actifs</p>
+            </div>
+            <div class="dt-stat">
+                <p class="dt-stat-number" data-count="{{ $stats['subjectsCount'] }}">0</p>
+                <p class="dt-stat-label">Matières disponibles</p>
+            </div>
+            <div class="dt-stat">
+                <p class="dt-stat-number" data-count="{{ $stats['missionsCount'] }}">0</p>
+                <p class="dt-stat-label">Missions honorées</p>
+            </div>
+        </div>
+
         <!-- Étapes -->
-        <div class="dt-section" data-aos="fade-up">
-            <h2 class="dt-section-title">Le parcours pour devenir tuteur</h2>
-            <p class="dt-section-sub">Quatre étapes simples entre votre inscription et vos premiers cours.</p>
+        <div class="dt-section">
+            <h2 class="dt-section-title" data-aos="fade-up">Le parcours pour devenir tuteur</h2>
+            <p class="dt-section-sub" data-aos="fade-up">Quatre étapes simples entre votre inscription et vos premiers cours.</p>
             <div class="dt-steps">
-                <div class="dt-step">
+                <div class="dt-step" data-aos="fade-up" data-aos-delay="0">
                     <div class="dt-step-num">1</div>
                     <h3>Inscription</h3>
                     <p>Créez votre compte tuteur en quelques secondes avec vos coordonnées.</p>
                 </div>
-                <div class="dt-step">
+                <div class="dt-step" data-aos="fade-up" data-aos-delay="100">
                     <div class="dt-step-num">2</div>
                     <h3>Profil</h3>
                     <p>Complétez votre profil : matières enseignées, qualifications, tarif, disponibilités.</p>
                 </div>
-                <div class="dt-step">
+                <div class="dt-step" data-aos="fade-up" data-aos-delay="200">
                     <div class="dt-step-num">3</div>
                     <h3>Validation</h3>
                     <p>Notre équipe vérifie votre profil pour garantir la confiance des apprenants.</p>
                 </div>
-                <div class="dt-step">
+                <div class="dt-step" data-aos="fade-up" data-aos-delay="300">
                     <div class="dt-step-num">4</div>
                     <h3>Premiers cours</h3>
                     <p>Postulez aux annonces qui correspondent à vos matières et démarrez vos cours.</p>
@@ -129,46 +162,46 @@
         </div>
 
         <!-- Avantages -->
-        <div class="dt-section" data-aos="fade-up">
-            <h2 class="dt-section-title">Pourquoi devenir tuteur sur Kopiao ?</h2>
-            <p class="dt-section-sub">Des avantages concrets pensés pour les tuteurs.</p>
+        <div class="dt-section">
+            <h2 class="dt-section-title" data-aos="fade-up">Pourquoi devenir tuteur sur Kopiao ?</h2>
+            <p class="dt-section-sub" data-aos="fade-up">Des avantages concrets pensés pour les tuteurs.</p>
             <div class="dt-benefits">
-                <div class="dt-benefit">
+                <div class="dt-benefit" data-aos="fade-up" data-aos-delay="0">
                     <i class="bi bi-cash-coin"></i>
                     <div>
                         <h3>Un revenu complémentaire</h3>
                         <p>Fixez votre propre tarif horaire et soyez payé pour chaque mission acceptée.</p>
                     </div>
                 </div>
-                <div class="dt-benefit">
+                <div class="dt-benefit" data-aos="fade-up" data-aos-delay="100">
                     <i class="bi bi-calendar2-check"></i>
                     <div>
                         <h3>Des horaires flexibles</h3>
                         <p>Choisissez vos disponibilités et le nombre d'élèves que vous souhaitez accompagner.</p>
                     </div>
                 </div>
-                <div class="dt-benefit">
+                <div class="dt-benefit" data-aos="fade-up" data-aos-delay="200">
                     <i class="bi bi-shield-check"></i>
                     <div>
                         <h3>Un acompte garanti</h3>
                         <p>Chaque annonce est déjà partiellement payée par l'élève avant même votre première séance.</p>
                     </div>
                 </div>
-                <div class="dt-benefit">
+                <div class="dt-benefit" data-aos="fade-up" data-aos-delay="300">
                     <i class="bi bi-people"></i>
                     <div>
                         <h3>Des demandes ciblées</h3>
                         <p>Vous ne voyez que les annonces correspondant à vos matières et domaines d'expertise.</p>
                     </div>
                 </div>
-                <div class="dt-benefit">
+                <div class="dt-benefit" data-aos="fade-up" data-aos-delay="400">
                     <i class="bi bi-graph-up-arrow"></i>
                     <div>
                         <h3>Une visibilité croissante</h3>
                         <p>Les avis des élèves et votre historique de cours renforcent votre profil au fil du temps.</p>
                     </div>
                 </div>
-                <div class="dt-benefit">
+                <div class="dt-benefit" data-aos="fade-up" data-aos-delay="500">
                     <i class="bi bi-headset"></i>
                     <div>
                         <h3>Un accompagnement dédié</h3>
@@ -179,9 +212,9 @@
         </div>
 
         <!-- Tuteurs récemment inscrits -->
-        <div class="dt-section" data-aos="fade-up">
-            <h2 class="dt-section-title">Ils viennent de nous rejoindre</h2>
-            <p class="dt-section-sub">Découvrez les derniers tuteurs inscrits sur la plateforme.</p>
+        <div class="dt-section">
+            <h2 class="dt-section-title" data-aos="fade-up">Ils viennent de nous rejoindre</h2>
+            <p class="dt-section-sub" data-aos="fade-up">Découvrez les derniers tuteurs inscrits sur la plateforme.</p>
 
             @if ($recentTutors->isEmpty())
                 <div class="dt-tutors-empty">
@@ -191,7 +224,7 @@
             @else
                 <div class="dt-tutors">
                     @foreach ($recentTutors as $tutor)
-                        <div class="dt-tutor-card">
+                        <div class="dt-tutor-card" data-aos="fade-up" data-aos-delay="{{ ($loop->index % 4) * 100 }}">
                             <div class="dt-tutor-avatar">
                                 @if ($tutor->photo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($tutor->photo_path))
                                     <img src="{{ asset('storage/' . $tutor->photo_path) }}" alt="{{ $tutor->firstname }} {{ $tutor->lastname }}">
@@ -224,4 +257,39 @@
 
     </div>
 </div>
+
+<script>
+    (function () {
+        const statsSection = document.getElementById('dtStats');
+        if (!statsSection) return;
+
+        function animateCounter(el) {
+            const target = parseInt(el.getAttribute('data-count'), 10) || 0;
+            const duration = 1200;
+            const start = performance.now();
+
+            function step(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                el.textContent = Math.floor(progress * target).toLocaleString('fr-FR');
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    el.textContent = target.toLocaleString('fr-FR');
+                }
+            }
+
+            requestAnimationFrame(step);
+        }
+
+        const observer = new IntersectionObserver(function (entries, obs) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                statsSection.querySelectorAll('.dt-stat-number').forEach(animateCounter);
+                obs.disconnect();
+            });
+        }, { threshold: 0.4 });
+
+        observer.observe(statsSection);
+    })();
+</script>
 @endsection
