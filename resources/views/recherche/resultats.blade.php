@@ -74,6 +74,13 @@
             padding: 5px 11px; border-radius: var(--kp-radius-pill);
             font-size: .76rem; font-weight: 600; box-shadow: var(--kp-shadow-sm);
         }
+        .res-card__certified {
+            position: absolute; top: 12px; left: 12px;
+            display: inline-flex; align-items: center; gap: 5px;
+            background: #dcfce7; color: #15803d;
+            padding: 5px 11px; border-radius: var(--kp-radius-pill);
+            font-size: .76rem; font-weight: 700; box-shadow: var(--kp-shadow-sm);
+        }
         .res-card__body { padding: 14px 16px; display: flex; flex-direction: column; flex: 1; }
         .res-card__name {
             font-family: var(--kp-font-title); font-size: 1.02rem; font-weight: 700;
@@ -269,6 +276,9 @@
                                 <img src="{{ $photo }}" alt="{{ $tuteur->firstname }} {{ $tuteur->lastname }}"
                                     onerror="this.src='{{ asset('images/profill_default.webp') }}'">
                                 <span class="res-card__mode"><i class="bi {{ $modeIcon }}"></i> {{ $modeLabel }}</span>
+                                @if ($tuteur->is_valid == 1)
+                                    <span class="res-card__certified"><i class="bi bi-patch-check-fill"></i> Certifié</span>
+                                @endif
                             </div>
                             <div class="res-card__body">
                                 <h3 class="res-card__name">
