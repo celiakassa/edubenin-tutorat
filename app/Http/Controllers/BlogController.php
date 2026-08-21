@@ -14,10 +14,15 @@ final class BlogController extends Controller
     public function index(): Factory|View
     {
         $articles = Article::published()
+            ->with('author')
             ->orderByDesc('published_at')
-            ->paginate(9);
+            ->take(9)
+            ->get();
 
-        return view('blog.index', ['articles' => $articles]);
+        return view('blog.index', [
+            'featured' => $articles->first(),
+            'recentArticles' => $articles->slice(1),
+        ]);
     }
 
     public function show(Article $article): Factory|View
