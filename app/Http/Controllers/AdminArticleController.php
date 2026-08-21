@@ -29,6 +29,7 @@ final class AdminArticleController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validateArticle($request);
+        unset($data['publish_action']);
         $data['slug'] = $this->uniqueSlug($data['title']);
         $data['author_id'] = $request->user()->id;
 
@@ -40,7 +41,7 @@ final class AdminArticleController extends Controller
             $data['video_path'] = $request->file('video')->store('articles/videos', 'public');
         }
 
-        $data['is_published'] = $request->boolean('is_published');
+        $data['is_published'] = $request->input('publish_action') === 'publish';
         $data['published_at'] = $data['is_published'] ? now() : null;
 
         Article::create($data);
@@ -59,6 +60,7 @@ final class AdminArticleController extends Controller
     {
         $article = Article::findOrFail($id);
         $data = $this->validateArticle($request);
+        unset($data['publish_action']);
 
         if ($data['title'] !== $article->title) {
             $data['slug'] = $this->uniqueSlug($data['title'], $article->id);
@@ -78,7 +80,7 @@ final class AdminArticleController extends Controller
             $data['video_path'] = $request->file('video')->store('articles/videos', 'public');
         }
 
-        $data['is_published'] = $request->boolean('is_published');
+        $data['is_published'] = $request->input('publish_action') === 'publish';
         $data['published_at'] = $data['is_published'] ? ($article->published_at ?? now()) : null;
 
         $article->update($data);
@@ -108,7 +110,7 @@ final class AdminArticleController extends Controller
             'content' => ['required', 'string'],
             'cover' => ['nullable', 'image', 'max:5120'],
             'video' => ['nullable', 'mimes:mp4,webm,mov', 'max:5120'],
-            'is_published' => ['nullable', 'boolean'],
+            'publish_action' => ['nullable', 'in:publish,draft'],
         ]);
     }
 
