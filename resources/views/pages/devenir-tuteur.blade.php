@@ -191,9 +191,6 @@
             @else
                 <div class="dt-tutors">
                     @foreach ($recentTutors as $tutor)
-                        @php
-                            $subjects = $tutor->subjects ? json_decode($tutor->subjects, true) : null;
-                        @endphp
                         <div class="dt-tutor-card">
                             <div class="dt-tutor-avatar">
                                 @if ($tutor->photo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($tutor->photo_path))
@@ -203,10 +200,10 @@
                                 @endif
                             </div>
                             <h3>{{ $tutor->firstname }} {{ $tutor->lastname }}</h3>
-                            @if (is_array($subjects) && count($subjects) > 0)
+                            @if ($tutor->subjects->isNotEmpty())
                                 <div class="dt-tutor-subjects">
-                                    @foreach (array_slice($subjects, 0, 3) as $subject)
-                                        <span>{{ $subject }}</span>
+                                    @foreach ($tutor->subjects->take(3) as $subject)
+                                        <span>{{ $subject->nom }}</span>
                                     @endforeach
                                 </div>
                             @endif

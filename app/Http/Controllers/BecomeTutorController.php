@@ -12,7 +12,8 @@ final class BecomeTutorController extends Controller
 {
     public function index(): Factory|View
     {
-        $recentTutors = User::where('role_id', 3)
+        $recentTutors = User::with('subjects')
+            ->where('role_id', 3)
             ->where('is_active', 1)
             ->where('is_valid', 1)
             ->orderBy('created_at', 'desc')
