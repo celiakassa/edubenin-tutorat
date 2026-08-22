@@ -19,19 +19,23 @@ final class NewsletterController extends Controller
             'email' => ['required', 'email', 'max:255'],
         ]);
 
-        $subscriber = NewsletterSubscriber::where('email', $data['email'])->first();
+        $email = trim(strtolower($data['email']));
+
+        // Vérifier si l'email existe déjà (insensible à la casse)
+        $subscriber = NewsletterSubscriber::whereRaw('LOWER(email) = ?', [$email])->first();
 
         if ($subscriber) {
             return response()->json([
-                'message' => 'Cette adresse est déjà abonnée à la newsletter.',
-            ]);
+                'message' => 'Merci ! Votre inscription à la newsletter est confirmée.',
+            ], 409);
         }
 
-        $subscriber = NewsletterSubscriber::create(['email' => $data['email']]);
+        // Créer le nouvel abonné
+        $subscriber = NewsletterSubscriber::create(['email' => $email]);
 
+        // Envoyer l'email de bienvenue
         try {
             Mail::to($subscriber->email)->send(new NewsletterWelcomeMail($subscriber->email));
-            $subscriber->update(['welcome_email_sent_at' => now()]);
         } catch (\Throwable $e) {
             Log::error('Echec envoi email de bienvenue newsletter', [
                 'email' => $subscriber->email,
