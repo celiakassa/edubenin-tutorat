@@ -125,7 +125,7 @@
                 <a href="{{ route('register.tuteur') }}" class="kp-btn kp-btn--accent">
                     <i class="bi bi-mortarboard me-2"></i>Je deviens tuteur
                 </a>
-                <a href="{{ route('faq') }}" class="kp-btn kp-btn--secondary">
+                <a href="#dtStepsSection" class="kp-btn kp-btn--secondary">
                     Comment ça marche ?
                 </a>
             </div>
@@ -151,30 +151,30 @@
         </div>
 
         <!-- Étapes -->
-        <div class="dt-section">
+        <div class="dt-section" id="dtStepsSection">
             <h2 class="dt-section-title" data-aos="fade-up">Le parcours pour devenir tuteur</h2>
             <p class="dt-section-sub" data-aos="fade-up">Quatre étapes simples entre votre inscription et vos premiers cours.</p>
             <div class="dt-steps">
                 <div class="dt-step" data-aos="fade-up" data-aos-delay="0">
                     <div class="dt-step-num">1</div>
-                    <h3>Inscription</h3>
-                    <p>Créez votre compte tuteur en quelques secondes avec vos coordonnées.</p>
-                    <a href="{{ route('register.tuteur') }}" class="dt-step-link">S'inscrire <i class="bi bi-arrow-right"></i></a>
+                    <h3>Inscrivez-vous</h3>
+                    <p>Créez votre compte tuteur en quelques secondes, c'est rapide et gratuit.</p>
+                    <a href="{{ route('register.tuteur') }}" class="dt-step-link">Je m'inscris <i class="bi bi-arrow-right"></i></a>
                 </div>
                 <div class="dt-step" data-aos="fade-up" data-aos-delay="100">
                     <div class="dt-step-num">2</div>
-                    <h3>Profil</h3>
-                    <p>Complétez votre profil : matières enseignées, qualifications, tarif, disponibilités.</p>
+                    <h3>Complétez votre profil</h3>
+                    <p>Parlez-nous de vous : vos matières, votre parcours, vos disponibilités et votre tarif.</p>
                 </div>
                 <div class="dt-step" data-aos="fade-up" data-aos-delay="200">
                     <div class="dt-step-num">3</div>
-                    <h3>Validation</h3>
-                    <p>Notre équipe vérifie votre profil pour garantir la confiance des apprenants.</p>
+                    <h3>On valide votre profil</h3>
+                    <p>Notre équipe vérifie votre dossier pour garantir la confiance des apprenants.</p>
                 </div>
                 <div class="dt-step" data-aos="fade-up" data-aos-delay="300">
                     <div class="dt-step-num">4</div>
-                    <h3>Premiers cours</h3>
-                    <p>Postulez aux annonces qui correspondent à vos matières et démarrez vos cours.</p>
+                    <h3>Donnez vos premiers cours</h3>
+                    <p>Postulez aux annonces qui vous correspondent et commencez à enseigner !</p>
                 </div>
             </div>
         </div>

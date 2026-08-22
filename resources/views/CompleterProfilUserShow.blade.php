@@ -27,7 +27,19 @@
         .s-input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--kp-border); border-radius: 10px; font-size: var(--kp-fs-base); font-family: inherit; background: #fff; color: var(--kp-ink); transition: border-color .2s, box-shadow .2s; }
         .s-input:focus { outline: none; border-color: var(--kp-blue); box-shadow: 0 0 0 3px var(--kp-blue-soft); }
         textarea.s-input { resize: vertical; min-height: 84px; }
-        .s-error { color: #c0392b; font-size: var(--kp-fs-xs); }
+        .s-error {
+            color: #c0392b;
+            font-size: var(--kp-fs-xs);
+            margin-top: 4px;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            background: #fde8e8;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border-left: 3px solid #c0392b;
+        }
+        .s-error i { margin-top: 2px; flex-shrink: 0; }
 
         /* Photo */
         .s-photo { display: flex; align-items: center; gap: 12px; justify-content: flex-end; }
@@ -35,7 +47,39 @@
         .s-import { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border: 1.5px solid var(--kp-border); border-radius: 10px; background: #fff; color: var(--kp-ink); font-weight: 600; font-size: var(--kp-fs-base); cursor: pointer; transition: all .2s; }
         .s-import:hover { border-color: var(--kp-blue); color: var(--kp-blue); }
 
-        .s-verified { align-self: flex-end; display: inline-flex; align-items: center; gap: 5px; background: #1d7a48; color: #fff; padding: 3px 12px; border-radius: var(--kp-radius-pill); font-size: var(--kp-fs-2xs); font-weight: 700; }
+        /* Badge vérifié - style bouton fond vert texte blanc */
+        .s-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #2e7d32;
+            color: #ffffff;
+            padding: 5px 16px;
+            border-radius: var(--kp-radius-pill);
+            font-size: var(--kp-fs-2xs);
+            font-weight: 700;
+            border: none;
+            align-self: flex-start;
+            letter-spacing: 0.3px;
+        }
+        .s-verified i { font-size: 12px; }
+
+        /* Badge en attente - style bouton fond orange texte blanc */
+        .s-pending {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e65100;
+            color: #ffffff;
+            padding: 5px 16px;
+            border-radius: var(--kp-radius-pill);
+            font-size: var(--kp-fs-2xs);
+            font-weight: 700;
+            border: none;
+            align-self: flex-start;
+            letter-spacing: 0.3px;
+        }
+        .s-pending i { font-size: 12px; }
 
         /* Préférence (radios) */
         .s-radios { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
@@ -59,17 +103,49 @@
         .s-file { display: flex; align-items: center; gap: 9px; padding: 11px 14px; border: 1.5px dashed var(--kp-border); border-radius: 10px; cursor: pointer; justify-content: center; font-size: var(--kp-fs-sm); color: var(--kp-text); transition: all .2s; }
         .s-file:hover { border-color: var(--kp-blue); background: var(--kp-surface); }
         .s-file i { color: var(--kp-blue); }
-        .s-doc { display: flex; align-items: center; gap: 11px; padding: 11px 13px; background: var(--kp-surface); border-radius: 10px; }
+        .s-doc { display: flex; align-items: center; gap: 11px; padding: 11px 13px; background: var(--kp-surface); border-radius: 10px; border: 1px solid var(--kp-border); }
         .s-doc__ico { width: 38px; height: 38px; border-radius: 9px; background: var(--kp-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: var(--kp-fs-lg); flex-shrink: 0; }
         .s-doc__name { font-size: var(--kp-fs-sm); font-weight: 600; color: var(--kp-ink); word-break: break-all; }
-        .s-doc__status { font-size: var(--kp-fs-2xs); font-weight: 600; }
-        .s-doc__status.ok { color: #1d7a48; }
-        .s-doc__status.wait { color: #b8860b; }
+        .s-doc__status { font-size: var(--kp-fs-2xs); font-weight: 600; margin-top: 2px; }
+        .s-doc__status.verified { color: #ffffff; display: inline-flex; align-items: center; gap: 4px; background: #2e7d32; padding: 4px 14px; border-radius: var(--kp-radius-pill); }
+        .s-doc__status.pending { color: #ffffff; display: inline-flex; align-items: center; gap: 4px; background: #e65100; padding: 4px 14px; border-radius: var(--kp-radius-pill); }
 
         /* Pied : enregistrer (bouton jaune) */
         .settings__foot { display: flex; justify-content: flex-end; padding-top: 22px; border-top: 1px solid var(--kp-border); }
         .s-save { background: var(--kp-yellow); color: #1a1a1a; border: none; }
         .s-save:hover { background: #e0a800; color: #1a1a1a; }
+
+        /* Message d'alerte */
+        .s-alert-danger {
+            background: #fde8e8;
+            color: #c0392b;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: var(--kp-fs-sm);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #f5c6cb;
+        }
+        .s-alert-danger i { color: #c0392b; }
+
+        .s-alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: var(--kp-fs-sm);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #a5d6a7;
+        }
+        .s-alert-success i { color: #2e7d32; }
+
+        /* Message d'erreur avec icône */
+        .s-error-icon {
+            flex-shrink: 0;
+        }
 
         @media (max-width: 680px) {
             .srow { grid-template-columns: 1fr; gap: 10px; padding: 18px 0; }
@@ -87,6 +163,28 @@
         $preference = old('learning_preference', $user->learning_preference ?? '');
     @endphp
 
+    {{-- Message de succès --}}
+    @if (session('success'))
+        <div class="settings__alert" style="background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7;">
+            <i class="fas fa-check-circle"></i> {{ session('success') }}
+        </div>
+    @endif
+
+    {{-- Message d'erreur général --}}
+    @if ($errors->any())
+        <div class="settings__alert" style="background: #fde8e8; color: #c0392b; border: 1px solid #f5c6cb; flex-direction: column; align-items: flex-start; gap: 4px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Veuillez corriger les erreurs suivantes :</strong>
+            </div>
+            <ul style="margin: 4px 0 0 24px; padding: 0; font-size: var(--kp-fs-sm);">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form action="{{ route('CompleterProfilUser.update') }}" method="POST" enctype="multipart/form-data" id="profileForm" class="settings">
         @csrf
 
@@ -103,16 +201,27 @@
         <div class="srow">
             <div class="srow__info">
                 <h3>Photo de profil</h3>
-                <p>Minimum 400×400px, JPG, PNG ou WebP.</p>
+                <p>Formats acceptés : JPG, PNG ou WebP. Taille maximale : 2 Mo.</p>
             </div>
             <div class="srow__ctrl">
                 <div class="s-photo">
                     <img src="{{ $photo }}" id="pfAvatarImg" alt="Photo" class="s-photo__avatar">
-                    <label class="s-import"><i class="bi bi-upload"></i> Importer
+                    <label class="s-import"><i class="fas fa-upload"></i> Importer
                         <input type="file" name="photo" id="photo" accept="image/*" hidden>
                     </label>
                 </div>
-                @error('photo')<span class="s-error">{{ $message }}</span>@enderror
+                @error('photo')
+                    <span class="s-error">
+                        <i class="fas fa-exclamation-circle s-error-icon"></i>
+                        @if (str_contains($message, 'max'))
+                            La photo ne doit pas dépasser 2 Mo. Veuillez choisir une image plus légère.
+                        @elseif (str_contains($message, 'mimes') || str_contains($message, 'image'))
+                            Format non supporté. Utilisez JPG, PNG ou WebP.
+                        @else
+                            {{ $message }}
+                        @endif
+                    </span>
+                @enderror
             </div>
         </div>
 
@@ -120,11 +229,11 @@
         <div class="srow">
             <div class="srow__info">
                 <h3>Prénom</h3>
-                <p>Votre prénom tel qu'il apparaît dans l'app.</p>
+                <p>Votre prénom tel qu'il apparaît dans l'application.</p>
             </div>
             <div class="srow__ctrl">
                 <input type="text" class="s-input" name="firstname" value="{{ old('firstname', $user->firstname) }}" required>
-                @error('firstname')<span class="s-error">{{ $message }}</span>@enderror
+                @error('firstname')<span class="s-error"><i class="fas fa-exclamation-circle s-error-icon"></i> {{ $message }}</span>@enderror
             </div>
         </div>
 
@@ -136,7 +245,7 @@
             </div>
             <div class="srow__ctrl">
                 <input type="text" class="s-input" name="lastname" value="{{ old('lastname', $user->lastname) }}" required>
-                @error('lastname')<span class="s-error">{{ $message }}</span>@enderror
+                @error('lastname')<span class="s-error"><i class="fas fa-exclamation-circle s-error-icon"></i> {{ $message }}</span>@enderror
             </div>
         </div>
 
@@ -149,9 +258,20 @@
             <div class="srow__ctrl">
                 <input type="email" class="s-input" name="email" value="{{ old('email', $user->email) }}" required>
                 @if ($user->email_verified_at)
-                    <span class="s-verified"><i class="bi bi-patch-check-fill"></i> Vérifié</span>
+                    <span class="s-verified"><i class="fas fa-check-circle"></i> Adresse e-mail vérifiée</span>
                 @endif
-                @error('email')<span class="s-error">{{ $message }}</span>@enderror
+                @error('email')
+                    <span class="s-error">
+                        <i class="fas fa-exclamation-circle s-error-icon"></i>
+                        @if (str_contains($message, 'unique'))
+                            Cet e-mail est déjà utilisé par un autre compte.
+                        @elseif (str_contains($message, 'email'))
+                            Veuillez saisir une adresse e-mail valide.
+                        @else
+                            {{ $message }}
+                        @endif
+                    </span>
+                @enderror
             </div>
         </div>
 
@@ -159,11 +279,11 @@
         <div class="srow">
             <div class="srow__info">
                 <h3>Téléphone</h3>
-                <p>Optionnel — pour les notifications urgentes.</p>
+                <p>Requis pour les notifications urgentes et la confirmation des cours.</p>
             </div>
             <div class="srow__ctrl">
                 <input type="tel" class="s-input" name="telephone" value="{{ old('telephone', $user->telephone) }}" placeholder="+229 XX XX XX XX" required>
-                @error('telephone')<span class="s-error">{{ $message }}</span>@enderror
+                @error('telephone')<span class="s-error"><i class="fas fa-exclamation-circle s-error-icon"></i> {{ $message }}</span>@enderror
             </div>
         </div>
 
@@ -183,7 +303,8 @@
                 </select>
                 <input type="text" class="s-input" id="custom_city" name="custom_city" placeholder="Entrez votre ville" style="display:none;"
                     value="{{ old('custom_city', !in_array($user->city, $cities) ? $user->city : '') }}">
-                @error('city')<span class="s-error">{{ $message }}</span>@enderror
+                @error('city')<span class="s-error"><i class="fas fa-exclamation-circle s-error-icon"></i> {{ $message }}</span>@enderror
+                @error('custom_city')<span class="s-error"><i class="fas fa-exclamation-circle s-error-icon"></i> {{ $message }}</span>@enderror
             </div>
         </div>
 
@@ -191,11 +312,11 @@
         <div class="srow">
             <div class="srow__info">
                 <h3>Bio</h3>
-                <p>Quelques mots à votre sujet, visibles par les autres.</p>
+                <p>Quelques mots à votre sujet, visibles par les autres membres.</p>
             </div>
             <div class="srow__ctrl">
-                <textarea class="s-input" name="bio" rows="3" placeholder="Quelques mots à votre sujet...">{{ old('bio', $user->bio) }}</textarea>
-                @error('bio')<span class="s-error">{{ $message }}</span>@enderror
+                <textarea class="s-input" name="bio" rows="3" placeholder="Présentez-vous en quelques mots...">{{ old('bio', $user->bio) }}</textarea>
+                @error('bio')<span class="s-error"><i class="fas fa-exclamation-circle s-error-icon"></i> {{ $message }}</span>@enderror
             </div>
         </div>
 
@@ -204,7 +325,7 @@
             <div class="srow">
                 <div class="srow__info">
                     <h3>Niveau d'études</h3>
-                    <p>Votre plus haut diplôme obtenu.</p>
+                    <p>Votre plus haut diplôme ou niveau d'études obtenu.</p>
                 </div>
                 <div class="srow__ctrl">
                     <select class="s-input" name="qualifications" required>
@@ -213,25 +334,39 @@
                             <option value="{{ $value }}" {{ old('qualifications', $user->qualifications) == $value ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
-                    @error('qualifications')<span class="s-error">{{ $message }}</span>@enderror
+                    @error('qualifications')
+                        <span class="s-error">
+                            <i class="fas fa-exclamation-circle s-error-icon"></i>
+                            Veuillez sélectionner votre niveau d'études.
+                        </span>
+                    @enderror
                 </div>
             </div>
 
             <div class="srow">
                 <div class="srow__info">
                     <h3>Tarif horaire</h3>
-                    <p>Votre tarif par heure, en FCFA.</p>
+                    <p>Votre tarif par heure de cours, en FCFA.</p>
                 </div>
                 <div class="srow__ctrl">
-                    <input type="number" class="s-input" name="rate_per_hour" min="0" placeholder="5000" value="{{ old('rate_per_hour', $user->rate_per_hour) }}" required>
-                    @error('rate_per_hour')<span class="s-error">{{ $message }}</span>@enderror
+                    <input type="number" class="s-input" name="rate_per_hour" min="0" step="100" placeholder="5000" value="{{ old('rate_per_hour', $user->rate_per_hour) }}" required>
+                    @error('rate_per_hour')
+                        <span class="s-error">
+                            <i class="fas fa-exclamation-circle s-error-icon"></i>
+                            @if (str_contains($message, 'min') || str_contains($message, 'numeric'))
+                                Veuillez saisir un tarif horaire valide (supérieur à 0 FCFA).
+                            @else
+                                {{ $message }}
+                            @endif
+                        </span>
+                    @enderror
                 </div>
             </div>
 
             <div class="srow">
                 <div class="srow__info">
                     <h3>Matières enseignées</h3>
-                    <p>Sélectionnez les matières que vous enseignez.</p>
+                    <p>Sélectionnez les matières que vous enseignez (au moins une).</p>
                 </div>
                 <div class="srow__ctrl">
                     <input type="text" class="s-input" id="subject-search" placeholder="Rechercher une matière..." onkeyup="filterSubjects()">
@@ -245,32 +380,66 @@
                             </div>
                         @endforeach
                     </div>
-                    <span class="s-count"><i class="bi bi-check-circle"></i> <span id="selected-number">{{ count(old('subjects', $userSubjectIds)) }}</span> matière(s)</span>
-                    @error('subjects')<span class="s-error">{{ $message }}</span>@enderror
+                    <span class="s-count"><i class="fas fa-check-circle"></i> <span id="selected-number">{{ count(old('subjects', $userSubjectIds)) }}</span> matière(s) sélectionnée(s)</span>
+                    @error('subjects')
+                        <span class="s-error">
+                            <i class="fas fa-exclamation-circle s-error-icon"></i>
+                            @if (str_contains($message, 'min') || str_contains($message, 'required'))
+                                Veuillez sélectionner au moins une matière enseignée.
+                            @else
+                                {{ $message }}
+                            @endif
+                        </span>
+                    @enderror
                 </div>
             </div>
 
             <div class="srow">
                 <div class="srow__info">
                     <h3>Pièce d'identité</h3>
-                    <p>Pour vérifier votre identité (PDF, JPG, PNG).</p>
+                    <p>Formats acceptés : PDF, JPG, JPEG ou PNG. Taille maximale : 10 Mo.</p>
                 </div>
                 <div class="srow__ctrl">
                     @if ($user->identity_document_path)
                         <div class="s-doc">
-                            <div class="s-doc__ico"><i class="bi bi-{{ \Illuminate\Support\Str::endsWith($user->identity_document_path, ['.pdf']) ? 'file-pdf' : 'file-image' }}"></i></div>
+                            <div class="s-doc__ico"><i class="fas fa-{{ \Illuminate\Support\Str::endsWith($user->identity_document_path, ['.pdf']) ? 'file-pdf' : 'file-image' }}"></i></div>
                             <div>
                                 <div class="s-doc__name">{{ basename($user->identity_document_path) }}</div>
-                                <div class="s-doc__status {{ $user->identity_verified ? 'ok' : 'wait' }}">{{ $user->identity_verified ? '✓ Vérifiée' : '⏳ En attente' }}</div>
+                                <div class="s-doc__status {{ $user->identity_verified ? 'verified' : 'pending' }}">
+                                    @if ($user->identity_verified)
+                                        <i class="fas fa-check-circle"></i> Pièce d'identité vérifiée
+                                    @else
+                                        <i class="fas fa-clock"></i> En attente de vérification
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     @endif
                     <label for="identity_document" class="s-file">
-                        <i class="bi bi-upload"></i>
-                        <span id="idDocLabel">{{ $user->identity_document_path ? "Remplacer la pièce..." : "Téléverser un document" }}</span>
+                        <i class="fas fa-upload"></i>
+                        <span id="idDocLabel">{{ $user->identity_document_path ? "Remplacer la pièce d'identité" : "Téléverser un document" }}</span>
                     </label>
                     <input type="file" id="identity_document" name="identity_document" accept=".pdf,.jpg,.jpeg,.png" hidden>
-                    @error('identity_document')<span class="s-error">{{ $message }}</span>@enderror
+                    @error('identity_document')
+                        <span class="s-error">
+                            <i class="fas fa-exclamation-circle s-error-icon"></i>
+                            @if (str_contains($message, 'max'))
+                                Le fichier ne doit pas dépasser 10 Mo. Veuillez compresser votre document.
+                            @elseif (str_contains($message, 'mimes') || str_contains($message, 'file'))
+                                Format non supporté. Utilisez PDF, JPG, JPEG ou PNG.
+                            @elseif (str_contains($message, 'required'))
+                                Une pièce d'identité est obligatoire. Veuillez téléverser un document valide.
+                            @else
+                                {{ $message }}
+                            @endif
+                        </span>
+                    @enderror
+                    @if (!$user->identity_document_path && !$errors->has('identity_document'))
+                        <div class="s-alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Aucune pièce d'identité n'a été téléversée. Veuillez ajouter un document pour finaliser votre profil.
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif
@@ -279,30 +448,35 @@
         <div class="srow">
             <div class="srow__info">
                 <h3>Préférence d'apprentissage</h3>
-                <p>Comment préférez-vous suivre les cours ?</p>
+                <p>Comment préférez-vous suivre ou donner vos cours ?</p>
             </div>
             <div class="srow__ctrl">
                 <input type="hidden" name="learning_preference" id="learning_preference_hidden" value="{{ $preference }}">
                 <div class="s-radios">
                     <div class="s-radio" data-value="online">
                         <input type="radio" name="lp_radio" id="lp_online" value="online" {{ $preference === 'online' ? 'checked' : '' }}>
-                        <label for="lp_online"><i class="bi bi-laptop"></i> <span>En ligne</span></label>
+                        <label for="lp_online"><i class="fas fa-laptop"></i> <span>En ligne</span></label>
                     </div>
                     <div class="s-radio" data-value="in_person">
                         <input type="radio" name="lp_radio" id="lp_inperson" value="in_person" {{ $preference === 'in_person' ? 'checked' : '' }}>
-                        <label for="lp_inperson"><i class="bi bi-people"></i> <span>Présentiel</span></label>
+                        <label for="lp_inperson"><i class="fas fa-users"></i> <span>Présentiel</span></label>
                     </div>
                     <div class="s-radio" data-value="hybrid">
                         <input type="radio" name="lp_radio" id="lp_hybrid" value="hybrid" {{ $preference === 'hybrid' ? 'checked' : '' }}>
-                        <label for="lp_hybrid"><i class="bi bi-shuffle"></i> <span>Hybride</span></label>
+                        <label for="lp_hybrid"><i class="fas fa-random"></i> <span>Hybride</span></label>
                     </div>
                 </div>
-                @error('learning_preference')<span class="s-error">{{ $message }}</span>@enderror
+                @error('learning_preference')
+                    <span class="s-error">
+                        <i class="fas fa-exclamation-circle s-error-icon"></i>
+                        Veuillez sélectionner une préférence d'apprentissage.
+                    </span>
+                @enderror
             </div>
         </div>
 
         <div class="settings__foot">
-            <button type="submit" class="kp-btn kp-btn--lg s-save"><i class="bi bi-check-lg"></i> Enregistrer les modifications</button>
+            <button type="submit" class="kp-btn kp-btn--lg s-save"><i class="fas fa-check"></i> Enregistrer les modifications</button>
         </div>
     </form>
 @endsection
@@ -311,7 +485,14 @@
     <script>
         document.getElementById('photo').addEventListener('change', function () {
             if (this.files && this.files[0]) {
-                document.getElementById('pfAvatarImg').src = URL.createObjectURL(this.files[0]);
+                const file = this.files[0];
+                // Vérification de la taille côté client
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('La photo ne doit pas dépasser 2 Mo. Veuillez choisir une image plus légère.');
+                    this.value = '';
+                    return;
+                }
+                document.getElementById('pfAvatarImg').src = URL.createObjectURL(file);
             }
         });
 
@@ -326,7 +507,16 @@
         const idDoc = document.getElementById('identity_document');
         if (idDoc) {
             idDoc.addEventListener('change', function () {
-                if (this.files.length) document.getElementById('idDocLabel').textContent = this.files[0].name;
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    // Vérification de la taille côté client
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('La pièce d\'identité ne doit pas dépasser 10 Mo. Veuillez compresser votre document.');
+                        this.value = '';
+                        return;
+                    }
+                    document.getElementById('idDocLabel').textContent = file.name;
+                }
             });
         }
 
