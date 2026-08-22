@@ -1,42 +1,38 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Compte réactivé - Kopiao</title>
-</head>
-<body>
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #27ae60;">Bonne nouvelle !</h2>
+@extends('emails.layout')
 
-        <p>Bonjour {{ $user->firstname }},</p>
+@section('title', 'Votre compte a été réactivé - Kopiao')
+@section('preheader', 'Bonne nouvelle, votre compte élève Kopiao est de nouveau actif.')
 
-        <p>Votre compte étudiant sur Kopiao a été réactivé avec succès.</p>
+@section('content')
+    <p style="margin: 0 0 18px; font-size: 18px; font-weight: 700; color: #1b1535;">
+        Bonne nouvelle, {{ $user->firstname }} !
+    </p>
 
-        @if(!empty($reason))
-        <div style="background-color: #d4edda; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #27ae60;">
-            <p><strong>Message :</strong></p>
-            <p>{{ $reason }}</p>
-        </div>
-        @endif
+    <p style="margin: 0 0 16px;">
+        Votre compte élève <strong>Kopiao</strong> a été réactivé avec succès.
+    </p>
 
-        <p>Vous pouvez maintenant :</p>
-        <ul>
-            <li>Vous connecter à votre compte</li>
-            <li>Rechercher des tuteurs</li>
-            <li>Réserver des cours</li>
-            <li>Accéder à votre historique d'apprentissage</li>
-        </ul>
+    @if (!empty($reason))
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 16px; background-color: #f0fdf4; border-left: 4px solid #16a34a; border-radius: 6px;">
+            <tr><td style="padding: 14px 18px;">
+                <p style="margin: 0 0 4px; font-weight: 700; color: #1b1535;">Message</p>
+                <p style="margin: 0; color: #2a2541;">{{ $reason }}</p>
+            </td></tr>
+        </table>
+    @endif
 
-        <p style="margin-top: 30px;">
-            <a href="{{ url('/login') }}" style="background-color: #1E63C4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                Se connecter
-            </a>
-        </p>
+    <p style="margin: 0 0 10px;">Vous pouvez dès à présent :</p>
+    <ul style="margin: 0 0 16px; padding-left: 20px;">
+        <li style="margin-bottom: 6px;">Vous connecter à votre compte</li>
+        <li style="margin-bottom: 6px;">Rechercher des tuteurs</li>
+        <li style="margin-bottom: 6px;">Réserver des cours</li>
+        <li>Accéder à votre historique d'apprentissage</li>
+    </ul>
 
-        <p style="color: #666; font-size: 14px; margin-top: 30px;">
-            Cordialement,<br>
-            L'équipe Kopiao
-        </p>
-    </div>
-</body>
-</html>
+    @include('emails.components.button', ['url' => route('login'), 'text' => 'Me connecter'])
+
+    <p style="margin: 24px 0 0;">
+        Cordialement,<br>
+        <strong>L'équipe Kopiao</strong>
+    </p>
+@endsection

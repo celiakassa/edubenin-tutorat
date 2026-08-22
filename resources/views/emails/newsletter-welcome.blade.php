@@ -1,28 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Bienvenue - Kopiao</title>
-</head>
-<body>
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #1E63C4;">Bienvenue dans la newsletter Kopiao !</h2>
+@extends('emails.layout')
 
-        <p>Merci de vous être abonné avec l'adresse {{ $email }}.</p>
+@section('title', 'Bienvenue dans la newsletter Kopiao')
+@section('preheader', 'Merci de vous être abonné à la newsletter Kopiao.')
 
-        <p>Vous recevrez désormais nos actualités : nouvelles fonctionnalités, conseils pour trouver le bon tuteur
-            ou pour bien démarrer en tant que tuteur, et offres spéciales.</p>
+@section('content')
+    <p style="margin: 0 0 18px; font-size: 18px; font-weight: 700; color: #1b1535;">
+        Bienvenue dans la newsletter Kopiao !
+    </p>
 
-        <p style="margin-top: 30px;">
-            <a href="{{ url('/') }}" style="background-color: #1E63C4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                Découvrir Kopiao
-            </a>
-        </p>
+    <p style="margin: 0 0 16px;">
+        Merci de vous être abonné avec l'adresse <strong>{{ $email }}</strong>.
+    </p>
 
-        <p style="color: #666; font-size: 14px; margin-top: 30px;">
-            Cordialement,<br>
-            L'équipe Kopiao
-        </p>
-    </div>
-</body>
-</html>
+    <p style="margin: 0 0 16px;">
+        Vous recevrez désormais nos actualités : nouvelles fonctionnalités, conseils pour trouver le bon tuteur
+        ou pour bien démarrer en tant que tuteur, et offres spéciales.
+    </p>
+
+    @include('emails.components.button', ['url' => url('/'), 'text' => 'Découvrir Kopiao'])
+
+    <p style="margin: 24px 0 0;">
+        Cordialement,<br>
+        <strong>L'équipe Kopiao</strong>
+    </p>
+@endsection

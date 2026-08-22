@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\LearningPreference;
+use App\Notifications\ResetPasswordCustom;
+use App\Notifications\VerifyEmailCustom;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -54,6 +56,7 @@ final class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'welcome_email_sent_at' => 'datetime',
             'last_login' => 'datetime',
             'learning_preference' => LearningPreference::class,
         ];
@@ -116,5 +119,15 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function subjects()
     {
         return $this->belongsToMany(Subject::class, 'subject_user');
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailCustom());
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordCustom($token));
     }
 }

@@ -50,6 +50,13 @@
     }
     .dt-step h3 { font-family: var(--kp-font-title); font-size: 1.05rem; font-weight: 700; color: var(--kp-ink); margin: 0 0 8px; }
     .dt-step p { color: var(--kp-muted); font-size: .92rem; margin: 0; line-height: 1.6; }
+    .dt-step-link {
+        display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+        color: var(--kp-blue); font-weight: 600; font-size: .88rem; text-decoration: none;
+        transition: gap .2s ease, color .2s ease;
+    }
+    .dt-step-link:hover { gap: 10px; color: var(--kp-blue-dark); }
+    .dt-step-link i { font-size: .8rem; }
 
     /* Avantages */
     .dt-benefits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -152,6 +159,7 @@
                     <div class="dt-step-num">1</div>
                     <h3>Inscription</h3>
                     <p>Créez votre compte tuteur en quelques secondes avec vos coordonnées.</p>
+                    <a href="{{ route('register.tuteur') }}" class="dt-step-link">S'inscrire <i class="bi bi-arrow-right"></i></a>
                 </div>
                 <div class="dt-step" data-aos="fade-up" data-aos-delay="100">
                     <div class="dt-step-num">2</div>
