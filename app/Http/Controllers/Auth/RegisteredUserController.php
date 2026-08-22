@@ -62,12 +62,10 @@ final class RegisteredUserController extends Controller
         // Connecter l'utilisateur
         Auth::login($user);
 
-        // Message personnalisé selon le rôle
-        $roleMessage = $validated['role_id'] === 3
-            ? 'Bienvenue parmi nos tuteurs !'
-            : 'Bienvenue sur EduConnect !';
-
         return to_route('verification.notice')
-            ->with('message', sprintf('Un email de confirmation a été envoyé à %s. Veuillez vérifier votre boîte mail.  %s', $user->email, $roleMessage));
+            ->with('message', sprintf(
+                'Votre compte a été créé ! Vérifiez votre boîte mail (%s) pour activer votre compte Kopiao.',
+                $user->email
+            ));
     }
 }

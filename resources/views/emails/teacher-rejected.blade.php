@@ -1,39 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Compte rejeté - Kopiao</title>
-</head>
-<body>
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #e74c3c;">Notification importante</h2>
+@extends('emails.layout')
 
-        <p>Bonjour {{ $teacher->firstname }},</p>
+@section('title', 'Votre compte professeur a été rejeté - Kopiao')
+@section('preheader', 'Mise à jour concernant votre demande de compte tuteur Kopiao.')
 
-        <p>Votre demande de création de compte professeur sur Kopiao a été examinée.</p>
+@section('content')
+    <p style="margin: 0 0 18px; font-size: 18px; font-weight: 700; color: #1b1535;">
+        Bonjour {{ $teacher->firstname }},
+    </p>
 
-        <div style="background-color: #fde8e8; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #e74c3c;">
-            <p><strong>Raison du rejet :</strong></p>
-            <p>{{ $reason }}</p>
-        </div>
+    <p style="margin: 0 0 16px;">
+        Votre demande de création de compte tuteur sur <strong>Kopiao</strong> a été examinée par notre équipe.
+    </p>
 
-        <p>Vous pouvez :</p>
-        <ul>
-            <li>Corriger les problèmes mentionnés ci-dessus</li>
-            <li>Soumettre à nouveau votre demande</li>
-            <li>Nous contacter si vous avez des questions</li>
-        </ul>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 16px; background-color: #fef2f2; border-left: 4px solid #dc2626; border-radius: 6px;">
+        <tr><td style="padding: 14px 18px;">
+            <p style="margin: 0 0 4px; font-weight: 700; color: #1b1535;">Raison du rejet</p>
+            <p style="margin: 0; color: #2a2541;">{{ $reason }}</p>
+        </td></tr>
+    </table>
 
-        <p style="margin-top: 30px;">
-            <a href="{{ url('/contact') }}" style="background-color: #1E63C4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                Nous contacter
-            </a>
-        </p>
+    <p style="margin: 0 0 10px;">Vous pouvez :</p>
+    <ul style="margin: 0 0 16px; padding-left: 20px;">
+        <li style="margin-bottom: 6px;">Corriger les éléments mentionnés ci-dessus</li>
+        <li style="margin-bottom: 6px;">Soumettre à nouveau votre demande</li>
+        <li>Nous contacter si vous avez des questions</li>
+    </ul>
 
-        <p style="color: #666; font-size: 14px; margin-top: 30px;">
-            Cordialement,<br>
-            L'équipe Kopiao
-        </p>
-    </div>
-</body>
-</html>
+    @include('emails.components.button', ['url' => 'mailto:'.config('mail.from.address'), 'text' => 'Nous contacter'])
+
+    <p style="margin: 24px 0 0;">
+        Cordialement,<br>
+        <strong>L'équipe Kopiao</strong>
+    </p>
+@endsection
