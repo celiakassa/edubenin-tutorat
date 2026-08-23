@@ -59,6 +59,9 @@
                 <a class="dash-nav__item {{ request()->routeIs('admin.subjects') ? 'active' : '' }}" href="{{ route('admin.subjects') }}">
                     <i class="bi bi-journal-bookmark"></i> <span>Matières</span>
                 </a>
+                <a class="dash-nav__item {{ request()->routeIs('admin.articles*') ? 'active' : '' }}" href="{{ route('admin.articles') }}">
+                    <i class="bi bi-newspaper"></i> <span>Blog</span>
+                </a>
             @endif
         @endauth
 

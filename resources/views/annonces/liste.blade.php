@@ -10,7 +10,7 @@
             padding: clamp(48px, 7vw, 80px) 0;
             background:
                 linear-gradient(rgba(15, 17, 22, .68), rgba(15, 17, 22, .80)),
-                url('{{ asset('images/1.webp') }}') center/cover no-repeat;
+                url('{{ asset('images/tout_annonces.png') }}') center/cover no-repeat;
             color: #fff;
             text-align: center;
             border-radius: 0 0 36px 36px;

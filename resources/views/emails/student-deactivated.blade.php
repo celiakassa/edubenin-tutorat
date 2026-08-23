@@ -1,43 +1,41 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Compte désactivé - Kopiao</title>
-</head>
-<body>
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #e74c3c;">Notification importante</h2>
+@extends('emails.layout')
 
-        <p>Bonjour {{ $user->firstname }},</p>
+@section('title', 'Votre compte a été désactivé - Kopiao')
+@section('preheader', 'Votre compte élève Kopiao a été désactivé.')
 
-        <p>Votre compte étudiant sur Kopiao a été désactivé.</p>
+@section('content')
+    <p style="margin: 0 0 18px; font-size: 18px; font-weight: 700; color: #1b1535;">
+        Bonjour {{ $user->firstname }},
+    </p>
 
-        @if(!empty($reason))
-        <div style="background-color: #fde8e8; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #e74c3c;">
-            <p><strong>Raison :</strong></p>
-            <p>{{ $reason }}</p>
-        </div>
-        @endif
+    <p style="margin: 0 0 16px;">
+        Nous vous informons que votre compte élève <strong>Kopiao</strong> a été désactivé.
+    </p>
 
-        <p>Cela signifie que :</p>
-        <ul>
-            <li>Vous ne pouvez plus vous connecter à votre compte</li>
-            <li>Vous ne pouvez plus réserver de cours</li>
-            <li>Vous ne recevrez plus de notifications</li>
-        </ul>
+    @if (!empty($reason))
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 16px; background-color: #fef2f2; border-left: 4px solid #dc2626; border-radius: 6px;">
+            <tr><td style="padding: 14px 18px;">
+                <p style="margin: 0 0 4px; font-weight: 700; color: #1b1535;">Raison</p>
+                <p style="margin: 0; color: #2a2541;">{{ $reason }}</p>
+            </td></tr>
+        </table>
+    @endif
 
-        <p>Pour plus d'informations ou pour contester cette décision, veuillez nous contacter.</p>
+    <p style="margin: 0 0 10px;">Concrètement, cela signifie que :</p>
+    <ul style="margin: 0 0 16px; padding-left: 20px;">
+        <li style="margin-bottom: 6px;">Vous ne pouvez plus vous connecter à votre compte</li>
+        <li style="margin-bottom: 6px;">Vous ne pouvez plus publier ou réserver de cours</li>
+        <li>Vous ne recevrez plus de notifications</li>
+    </ul>
 
-        <p style="margin-top: 30px;">
-            <a href="{{ url('/contact') }}" style="background-color: #1E63C4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                Nous contacter
-            </a>
-        </p>
+    <p style="margin: 0 0 16px;">
+        Si vous pensez qu'il s'agit d'une erreur ou souhaitez contester cette décision, contactez notre équipe.
+    </p>
 
-        <p style="color: #666; font-size: 14px; margin-top: 30px;">
-            Cordialement,<br>
-            L'équipe Kopiao
-        </p>
-    </div>
-</body>
-</html>
+    @include('emails.components.button', ['url' => 'mailto:'.config('mail.from.address'), 'text' => 'Nous contacter'])
+
+    <p style="margin: 24px 0 0;">
+        Cordialement,<br>
+        <strong>L'équipe Kopiao</strong>
+    </p>
+@endsection

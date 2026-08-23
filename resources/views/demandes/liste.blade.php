@@ -3,9 +3,23 @@
 @section('content')
     <style>
         /* ===== Page Demandes des apprenants ===== */
-        .demandes-page { background: var(--kp-surface); padding: var(--kp-section-py) 0; }
-        .demandes-head { text-align: center; max-width: 640px; margin: 0 auto 28px; }
-        .demandes-head .divider { width: 64px; height: 3px; background: var(--kp-yellow); border-radius: 3px; margin: 14px auto 0; }
+        .demandes-page { background: var(--kp-surface); min-height: 100vh; }
+
+        /* Hero avec image */
+        .demandes-hero {
+            position: relative;
+            padding: clamp(48px, 7vw, 80px) 0;
+            background:
+                linear-gradient(rgba(15, 17, 22, .68), rgba(15, 17, 22, .80)),
+                url('{{ asset('images/demandestout.jpg') }}') center/cover no-repeat;
+            color: #fff;
+            text-align: center;
+            border-radius: 0 0 36px 36px;
+            overflow: hidden;
+        }
+        .demandes-hero h1 { font-family: var(--kp-font-title); font-weight: 800; font-size: clamp(1.8rem, 1.2rem + 3vw, 2.8rem); color: #fff; margin: 0 0 10px; }
+        .demandes-hero p { font-size: 1.05rem; opacity: .92; margin: 0 0 26px; color: #fff; }
+        .demandes-hero .divider { width: 64px; height: 3px; background: var(--kp-yellow); border-radius: 3px; margin: 14px auto 0; }
 
         /* Recherche */
         .dm-search {
@@ -58,14 +72,73 @@
         .dm-card__budget strong { color: var(--kp-blue); font-size: 1.15rem; font-weight: 800; }
         .dm-card__budget small { color: var(--kp-muted); }
 
+        /* État vide - amélioré avec marge en bas */
+        .dm-empty-wrapper {
+            padding: 40px 0 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+        .dm-empty {
+            text-align: center;
+            padding: 50px 40px 60px;
+            background: var(--kp-white);
+            border: 1px solid var(--kp-border);
+            border-radius: var(--kp-radius);
+            box-shadow: var(--kp-shadow);
+            max-width: 640px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .dm-empty .empty-icon {
+            font-size: 4rem;
+            color: var(--kp-blue);
+            opacity: 0.3;
+            margin-bottom: 16px;
+        }
+        .dm-empty .empty-icon i {
+            display: block;
+        }
+        .dm-empty h3 {
+            font-family: var(--kp-font-title);
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--kp-ink);
+            margin: 0 0 8px;
+        }
+        .dm-empty p {
+            color: var(--kp-muted);
+            font-size: 0.95rem;
+            margin: 0 0 24px;
+            line-height: 1.7;
+            max-width: 460px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .dm-empty .empty-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .dm-empty .empty-actions .kp-btn {
+            min-width: 180px;
+            padding: 12px 24px;
+            font-weight: 600;
+        }
+        .dm-empty .empty-actions .kp-btn i {
+            margin-right: 8px;
+        }
+
         @media (max-width: 575px) {
             .dm-card { flex-direction: column; }
             .dm-card__side { text-align: left; align-items: flex-start; flex-direction: row; justify-content: space-between; width: 100%; }
+            .dm-empty-wrapper { padding: 30px 0 60px; min-height: 300px; }
+            .dm-empty { padding: 30px 20px 40px; }
+            .dm-empty .empty-actions .kp-btn { min-width: 100%; }
+            .dm-empty p { font-size: 0.9rem; }
         }
-
-        /* État vide */
-        .dm-empty { text-align: center; padding: 60px 20px; }
-        .dm-empty i { font-size: 3.4rem; color: var(--kp-blue); opacity: .3; }
 
         .demandes-page .pagination {
             --bs-pagination-color: var(--kp-blue);
@@ -80,22 +153,25 @@
     </style>
 
     <div class="demandes-page">
-        <div class="container">
-            <!-- En-tête -->
-            <div class="demandes-head">
-                <h1 class="kp-title">Demandes des apprenants</h1>
-                <p class="kp-lead kp-muted">Trouvez la mission qui correspond à vos compétences</p>
+        <!-- Hero avec image -->
+        <section class="demandes-hero">
+            <div class="container">
+                <h1>Demandes des apprenants</h1>
+                <p>Trouvez la mission qui correspond à vos compétences</p>
                 <div class="divider"></div>
             </div>
+        </section>
+
+        <div class="container" style="padding-top: 32px;">
 
             <!-- Recherche live -->
             <form action="{{ route('demandesliste.liste') }}" method="GET" id="searchForm">
                 <div class="dm-search">
-                    <i class="bi bi-search"></i>
+                    <i class="fas fa-search"></i>
                     <input type="text" name="search" id="liveSearch" placeholder="Rechercher par matière ou mot-clé…"
                         value="{{ request('search') }}" autocomplete="off">
                     @if (request('search') || request('domaine'))
-                        <a href="{{ route('demandesliste.liste') }}" aria-label="Effacer"><i class="bi bi-x-circle"></i></a>
+                        <a href="{{ route('demandesliste.liste') }}" aria-label="Effacer"><i class="fas fa-times-circle"></i></a>
                     @endif
                     <button type="submit" class="d-none">Rechercher</button>
                 </div>
@@ -111,13 +187,13 @@
                 <!-- Filtres -->
                 <div class="col-lg-3">
                     <div class="dm-filters">
-                        <h5><i class="bi bi-funnel"></i> Filtrer par</h5>
+                        <h5><i class="fas fa-filter"></i> Filtrer par</h5>
                         <form action="{{ route('demandesliste.liste') }}" method="GET" id="filterForm">
                             @if (request('search'))
                                 <input type="hidden" name="search" value="{{ request('search') }}" id="filterSearchInput">
                             @endif
                             <label class="fw-semibold mb-2 d-block" style="color: var(--kp-text);">
-                                <i class="bi bi-book" style="color: var(--kp-blue);"></i> Matière
+                                <i class="fas fa-book" style="color: var(--kp-blue);"></i> Matière
                             </label>
                             <div class="dm-matieres">
                                 <div class="dm-check">
@@ -141,14 +217,14 @@
 
                             @if (request('domaine') || request('search'))
                                 <a href="{{ route('demandesliste.liste') }}" class="kp-btn kp-btn--ghost kp-btn--block kp-btn--sm mt-3">
-                                    <i class="bi bi-x-circle"></i> Effacer les filtres
+                                    <i class="fas fa-times-circle"></i> Effacer les filtres
                                 </a>
                             @endif
                         </form>
 
                         <div class="dm-stats">
-                            <div><i class="bi bi-megaphone"></i> <strong>{{ $demandes->total() }}</strong>&nbsp;demande(s)</div>
-                            <div><i class="bi bi-tags"></i> {{ count($matieres ?? []) }} matière(s)</div>
+                            <div><i class="fas fa-megaphone"></i> <strong>{{ $demandes->total() }}</strong>&nbsp;demande(s)</div>
+                            <div><i class="fas fa-tags"></i> {{ count($matieres ?? []) }} matière(s)</div>
                         </div>
                     </div>
                 </div>
@@ -159,9 +235,9 @@
                         @foreach ($demandes as $demande)
                             <article class="dm-card">
                                 <span class="dm-card__icon">
-                                    @if ($demande->format == 'presentiel')<i class="bi bi-person-workspace"></i>
-                                    @elseif($demande->format == 'en_ligne')<i class="bi bi-laptop"></i>
-                                    @else<i class="bi bi-arrow-left-right"></i> @endif
+                                    @if ($demande->format == 'presentiel')<i class="fas fa-user-graduate"></i>
+                                    @elseif($demande->format == 'en_ligne')<i class="fas fa-laptop"></i>
+                                    @else<i class="fas fa-arrows-left-right"></i> @endif
                                 </span>
                                 <div class="dm-card__main">
                                     <h4 class="dm-card__title">
@@ -174,7 +250,7 @@
                                                     stripos($demande->subject->nom ?? '', $search) !== false;
                                             @endphp
                                             @if ($position)
-                                                <span class="dm-card__match"><i class="bi bi-search"></i> Correspondance</span>
+                                                <span class="dm-card__match"><i class="fas fa-search"></i> Correspondance</span>
                                             @endif
                                         @endif
                                     </h4>
@@ -200,14 +276,14 @@
                                             {{ Str::limit($demande->description, 150) }}
                                         @endif
                                     </p>
-                                    <span class="dm-card__date"><i class="bi bi-calendar"></i> {{ $demande->created_at->format('d/m/Y') }}</span>
+                                    <span class="dm-card__date"><i class="fas fa-calendar"></i> {{ $demande->created_at->format('d/m/Y') }}</span>
                                 </div>
                                 <div class="dm-card__side">
                                     <div class="dm-card__budget">
                                         <strong>{{ number_format($demande->budget, 0, ',', ' ') }}</strong> <small>FCFA</small>
                                     </div>
                                     <a href="{{ route('annoncesListe.publique.detail', $demande->id) }}" class="kp-btn kp-btn--primary kp-btn--sm">
-                                        Voir détails <i class="bi bi-arrow-right"></i>
+                                        Voir détails <i class="fas fa-arrow-right"></i>
                                     </a>
                                 </div>
                             </article>
@@ -217,21 +293,30 @@
                             {{ $demandes->links('pagination.kopiao') }}
                         </div>
                     @else
-                        <div class="dm-empty">
-                            <i class="bi bi-inbox"></i>
-                            <h4 class="kp-subtitle mt-3 mb-2">Aucune demande trouvée</h4>
-                            <p class="kp-muted mb-4">
-                                @if (request('search') || request('domaine'))
-                                    Aucun résultat ne correspond à votre recherche.
-                                @else
-                                    Aucune demande disponible pour le moment.
-                                @endif
-                            </p>
-                            @if (request('search') || request('domaine'))
-                                <a href="{{ route('demandesliste.liste') }}" class="kp-btn kp-btn--secondary">
-                                    <i class="bi bi-arrow-repeat"></i> Voir toutes les demandes
-                                </a>
-                            @endif
+                        <div class="dm-empty-wrapper">
+                            <div class="dm-empty">
+                                <div class="empty-icon">
+                                    <i class="fas fa-inbox"></i>
+                                </div>
+                                <h3>Aucune demande disponible pour le moment</h3>
+                                <p>
+                                    @if (request('search') || request('domaine'))
+                                        Aucun résultat ne correspond à votre recherche. Essayez avec d'autres mots-clés ou effacez les filtres.
+                                    @else
+                                        Les apprenants n'ont pas encore publié de demandes. Revenez un peu plus tard ou devenez tuteur pour être averti dès qu'une nouvelle demande sera publiée.
+                                    @endif
+                                </p>
+                                <div class="empty-actions">
+                                    @if (request('search') || request('domaine'))
+                                        <a href="{{ route('demandesliste.liste') }}" class="kp-btn kp-btn--secondary">
+                                            <i class="fas fa-undo"></i> Voir toutes les demandes
+                                        </a>
+                                    @endif
+                                    <a href="{{ route('register.tuteur') }}" class="kp-btn kp-btn--accent">
+                                        <i class="fas fa-user-plus"></i> Devenir tuteur
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     @endif
                 </div>
