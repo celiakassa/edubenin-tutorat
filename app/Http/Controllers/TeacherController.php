@@ -140,7 +140,7 @@ final class TeacherController extends Controller
             Log::warning('Payment not successful', ['status' => $status]);
 
             return to_route('subscription.user')
-                ->with('error', 'Le paiement n\'a pas été validé. Statut: '.$status);
+                ->with('error', 'Le paiement n\'a pas été validé');
 
         } catch (Exception $exception) {
             Log::error('Erreur verification paiement', [
