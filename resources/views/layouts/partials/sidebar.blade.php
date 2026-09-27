@@ -38,9 +38,11 @@
                 <a class="dash-nav__item {{ request()->routeIs('candidatures.tuteur') ? 'active' : '' }}" href="{{ route('candidatures.tuteur') }}">
                     <i class="bi bi-clipboard-check"></i> <span>Mes candidatures</span>
                 </a>
+                {{-- DÉSACTIVÉ — Les tuteurs ne paient plus : lien "Mes abonnements" masqué (2026-09-27).
                 <a class="dash-nav__item {{ request()->routeIs('abonnements.user') ? 'active' : '' }}" href="{{ route('abonnements.user') }}">
                     <i class="bi bi-credit-card"></i> <span>Mes abonnements</span>
                 </a>
+                --}}
             @endif
 
             @if (auth()->user()->isAdmin())

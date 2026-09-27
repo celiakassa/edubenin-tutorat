@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// DÉSACTIVÉ — Les tuteurs ne paient plus sur la plateforme (2026-09-27).
+// Tests de paiement/abonnement tuteur (routes paiement.success / subscription.user supprimées)
+// conservés ci-dessous pour mémoire, marqués skip pour ne pas casser la suite.
+
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -9,7 +13,7 @@ use Illuminate\Support\Str;
 
 beforeEach(function () {
     DB::beginTransaction();
-});
+})->skip('DÉSACTIVÉ — les tuteurs ne paient plus : paiement/abonnement tuteur désactivé (2026-09-27).');
 
 afterEach(function () {
     DB::rollBack();
@@ -63,7 +67,7 @@ it('active l abonnement lorsque le paiement Moneroo est en succès', function ()
         'user_id' => $user->id,
         'statut' => 'active',
     ]);
-});
+})->skip('DÉSACTIVÉ — les tuteurs ne paient plus : paiement/abonnement tuteur désactivé (2026-09-27).');
 
 it('retourne une erreur si la vérification Moneroo échoue', function () {
     $user = User::create([
@@ -98,4 +102,4 @@ it('retourne une erreur si la vérification Moneroo échoue', function () {
     $this->assertDatabaseMissing('payments', [
         'moneroo_payment_id' => $transactionId,
     ]);
-});
+})->skip('DÉSACTIVÉ — les tuteurs ne paient plus : paiement/abonnement tuteur désactivé (2026-09-27).');

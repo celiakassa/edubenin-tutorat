@@ -16,6 +16,7 @@ final class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory;
     use Notifiable;
+
     protected $fillable = [
         'firstname',
         'lastname',
@@ -93,6 +94,8 @@ final class User extends Authenticatable implements MustVerifyEmail
             ->where('date_fin', '>', now());
     }
 
+    // DÉSACTIVÉ — Les tuteurs ne paient plus (2026-09-27) : méthode conservée pour
+    // l'historique/admin, mais plus exigée pour postuler (middleware CheckSubscription neutralisé).
     public function isSubscribed(): bool
     {
         $sub = $this->activeSubscription;
