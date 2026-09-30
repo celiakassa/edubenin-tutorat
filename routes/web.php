@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AdminArticleController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminPlanController;
 use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\ApprenantController;
 use App\Http\Controllers\Auth\GoogleController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ProfesseurController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RechercheController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserDashboard;
 use Illuminate\Support\Facades\Route;
@@ -75,6 +77,9 @@ Route::get('/blog/{article:slug}', [BlogController::class, 'show'])->name('blog.
 // Route d'enregistrement tuteur (sans auth)
 Route::get('/register/tuteur', [TeacherController::class, 'register'])->name('register.tuteur')->middleware('guest');
 
+// Lien de renouvellement Premium reçu par email (signé, sans connexion requise)
+Route::get('/renouvellement-premium/{user}', [SubscriptionController::class, 'renew'])->name('subscriptions.renew')->middleware('signed');
+
 // ==================== ROUTES PROTÉGÉES PAR AUTH ====================
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -91,6 +96,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Modules SaaS
         Route::get('/tuteurs', [AdminController::class, 'teachers'])->name('teachers');
         Route::get('/finances', [AdminController::class, 'finances'])->name('finances');
+        Route::get('/abonnements', [AdminPlanController::class, 'edit'])->name('plans');
+        Route::put('/abonnements', [AdminPlanController::class, 'update'])->name('plans.update');
         Route::get('/annonces', [AdminController::class, 'annonces'])->name('annonces');
         Route::delete('/annonces/{id}', [AdminController::class, 'destroyAnnonce'])->name('annonces.destroy');
         Route::get('/matieres', [AdminController::class, 'subjects'])->name('subjects');
@@ -113,6 +120,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::get('/abonnements-historique', [TeacherController::class, 'showSubscriptionHistory'])->name('abonnements.user');
     // Route::get('/paiement/success', [TeacherController::class, 'paymentSuccess'])->name('paiement.success');
     Route::get('/mes-candidatures-tuteur', [TeacherController::class, 'mesCandidatures'])->name('candidatures.tuteur');
+
+    // ===== ABONNEMENTS ÉLÈVES / PARENTS (Standard & Premium) =====
+    Route::get('/mon-abonnement', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::post('/mon-abonnement/premium', [SubscriptionController::class, 'subscribePremium'])->name('subscriptions.premium.subscribe');
+    Route::get('/mon-abonnement/premium/callback', [SubscriptionController::class, 'callback'])->name('subscriptions.premium.callback');
 
     // ===== ROUTES DASHBOARD UTILISATEUR =====
     Route::prefix('dashboardUsers')->group(function () {

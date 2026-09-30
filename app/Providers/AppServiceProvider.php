@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Services\MonerooSubscriptionGateway;
+use App\Services\SubscriptionGateway;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -15,7 +17,7 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(SubscriptionGateway::class, MonerooSubscriptionGateway::class);
     }
 
     /**
