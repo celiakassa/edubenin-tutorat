@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\SubscriptionPlan;
 use App\LearningPreference;
 use App\Notifications\ResetPasswordCustom;
 use App\Notifications\VerifyEmailCustom;
@@ -16,6 +17,7 @@ final class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory;
     use Notifiable;
+
     protected $fillable = [
         'firstname',
         'lastname',
@@ -93,11 +95,37 @@ final class User extends Authenticatable implements MustVerifyEmail
             ->where('date_fin', '>', now());
     }
 
+    // DÉSACTIVÉ — Les tuteurs ne paient plus (2026-09-27) : méthode conservée pour
+    // l'historique/admin, mais plus exigée pour postuler (middleware CheckSubscription neutralisé).
     public function isSubscribed(): bool
     {
         $sub = $this->activeSubscription;
 
         return $sub && $sub->date_fin && $sub->date_fin->isFuture();
+    }
+
+    /**
+     * Offre courante de l'élève : premium si un abonnement premium est actif, sinon standard.
+     */
+    public function currentPlan(): SubscriptionPlan
+    {
+        $isPremium = $this->subscriptions()
+            ->where('plan', SubscriptionPlan::Premium->value)
+            ->where('statut', 'active')
+            ->whereDate('date_fin', '>=', now()->toDateString())
+            ->exists();
+
+        return $isPremium ? SubscriptionPlan::Premium : SubscriptionPlan::Standard;
+    }
+
+    public function isPremium(): bool
+    {
+        return $this->currentPlan() === SubscriptionPlan::Premium;
+    }
+
+    public function canUsePlanFeature(string $feature): bool
+    {
+        return $this->currentPlan()->allows($feature);
     }
 
     // Méthodes de rôle

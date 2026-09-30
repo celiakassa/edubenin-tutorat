@@ -42,6 +42,11 @@
 @endpush
 
 @section('content')
+    {{-- DÉSACTIVÉ — Les tuteurs ne paient plus sur la plateforme (2026-09-27). Page d'abonnement conservée pour mémoire. --}}
+    <div class="alert alert-info" style="border-radius: 12px; margin-bottom: 18px;">
+        <i class="fas fa-info-circle"></i>
+        Les abonnements tuteurs sont désactivés : l'accès est désormais gratuit, sans paiement.
+    </div>
     <div class="sub-page">
         <a href="{{ url()->previous() }}" class="sub-back"><i class="fas fa-arrow-left"></i> Retour</a>
 
@@ -84,9 +89,14 @@
                     <div class="sub-plan__price">6 500 <span style="font-size: var(--kp-fs-md); font-weight: 700;">FCFA</span></div>
                     <div class="sub-plan__per">par mois, sans engagement</div>
 
+                    {{-- DÉSACTIVÉ — Paiement tuteur désactivé (2026-09-27). Bouton conservé commenté pour mémoire.
                     <button type="button" class="sub-plan__btn" id="pay-button">
                         <span class="sub-spinner d-none" id="pay-spinner"></span>
                         <span id="pay-text"><i class="fas fa-bolt"></i> S'abonner maintenant</span>
+                    </button>
+                    --}}
+                    <button type="button" class="sub-plan__btn" disabled title="Paiement désactivé — accès gratuit">
+                        <span><i class="fas fa-check-circle"></i> Accès gratuit — sans paiement</span>
                     </button>
 
                     <div class="sub-plan__divider"></div>
@@ -99,6 +109,7 @@
 @endsection
 
 @push('scripts')
+    {{-- DÉSACTIVÉ — Paiement tuteur désactivé (2026-09-27). Script Moneroo commenté pour mémoire.
     <script>
         document.getElementById('pay-button').addEventListener('click', async function () {
             @auth
@@ -149,4 +160,5 @@
             @endauth
         });
     </script>
+    --}}
 @endpush

@@ -451,6 +451,7 @@
                                 </h2>
                                 <div id="collapseT1" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurA">
                                     <div class="accordion-body bg-light">
+                                        {{-- DÉSACTIVÉ — Les tuteurs ne paient plus sur la plateforme (2026-09-27). Ancien texte abonnement 6 500 FCFA commenté ci-dessous.
                                         <p><strong>Un abonnement est obligatoire pour postuler aux annonces.</strong></p>
                                         <p>L'abonnement mensuel de <strong>6 500 FCFA</strong> vous donne :</p>
                                         <ul>
@@ -461,6 +462,15 @@
                                             <li>Visibilité accrue de votre profil</li>
                                         </ul>
                                         <p>Sans abonnement, vous pouvez consulter les annonces mais pas postuler.</p>
+                                        --}}
+                                        <p><strong>L'accès tuteur est gratuit, sans abonnement.</strong></p>
+                                        <p>Vous pouvez librement :</p>
+                                        <ul>
+                                            <li>Consulter les annonces dans vos domaines</li>
+                                            <li>Postuler sans limitation</li>
+                                            <li>Recevoir des notifications pour les nouvelles annonces</li>
+                                            <li>Débloquer les contacts étudiants après sélection</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
@@ -511,7 +521,8 @@
                                 <div id="collapseT4" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurB">
                                     <div class="accordion-body bg-light">
                                         <ol>
-                                            <li>Connectez-vous avec un abonnement actif</li>
+                                            {{-- DÉSACTIVÉ — abonnement tuteur supprimé (2026-09-27). Ancien texte : "Connectez-vous avec un abonnement actif". --}}
+                                            <li>Connectez-vous à votre compte tuteur</li>
                                             <li>Parcourez les annonces dans votre domaine</li>
                                             <li>Cliquez sur "Voir les détails" de l'annonce qui vous intéresse</li>
                                             <li>Vérifiez les informations (budget, disponibilités, description)</li>
@@ -530,7 +541,8 @@
                                 </h2>
                                 <div id="collapseT5" class="accordion-collapse collapse" data-bs-parent="#accordionTuteurB">
                                     <div class="accordion-body bg-light">
-                                        <p><strong>Avec un abonnement, vous pouvez postuler sans limitation</strong> - aucune limite de candidatures !</p>
+                                        {{-- DÉSACTIVÉ — abonnement tuteur supprimé (2026-09-27). Ancien texte : "Avec un abonnement, vous pouvez postuler sans limitation". --}}
+                                        <p><strong>Vous pouvez postuler sans limitation</strong> - aucune limite de candidatures, et sans paiement !</p>
                                         <p>Nous encourageons même à postuler régulièrement pour augmenter vos chances de trouver des missions.</p>
                                     </div>
                                 </div>

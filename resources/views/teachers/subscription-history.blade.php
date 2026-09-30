@@ -54,6 +54,11 @@
 @endpush
 
 @section('content')
+    {{-- DÉSACTIVÉ — Les tuteurs ne paient plus sur la plateforme (2026-09-27). Historique conservé pour mémoire. --}}
+    <div class="alert alert-info" style="border-radius: 12px; margin-bottom: 18px;">
+        <i class="fas fa-info-circle"></i>
+        Les abonnements tuteurs sont désactivés : l'accès est désormais gratuit, sans paiement.
+    </div>
     <div class="sub-head">
         <h2>Suivez vos abonnements</h2>
         <p>Consultez l'ensemble de vos abonnements et leur statut.</p>
@@ -136,7 +141,10 @@
             <i class="fas fa-inbox"></i>
             <h3>Aucun abonnement trouvé</h3>
             <p>Vous n'avez pas encore d'historique d'abonnements.</p>
+            {{-- DÉSACTIVÉ — route('subscription.user') supprimée : les tuteurs ne paient plus (2026-09-27).
             <a href="{{ route('subscription.user') }}" class="kp-btn kp-btn--primary">Souscrire maintenant</a>
+            --}}
+            <a href="{{ route('annonces') }}" class="kp-btn kp-btn--primary">Voir les annonces</a>
         </div>
     @endif
 @endsection

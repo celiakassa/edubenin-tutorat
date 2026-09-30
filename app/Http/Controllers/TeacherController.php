@@ -29,61 +29,81 @@ final class TeacherController extends Controller
         return view('teachers.register');
     }
 
+    // DÉSACTIVÉ — Les tuteurs ne paient plus sur la plateforme.
+    // Paiement d'abonnement tuteur (Moneroo) commenté le 2026-09-27.
+    // Code conservé ci-dessous pour mémoire, sans effet.
+    //
+    // public function initSubscriptionPayment_OLD(Request $request)
+    // {
+    //     $user = Auth::user();
+    //     try {
+    //         $paymentData = [
+    //             'amount' => 6500,
+    //             'currency' => 'XOF',
+    //             'description' => 'Abonnement Tuteur - 1 mois',
+    //             'return_url' => route('paiement.success'),
+    //             'customer' => [
+    //                 'email' => $user->email,
+    //                 'first_name' => $user->firstname,
+    //                 'last_name' => $user->lastname,
+    //                 'phone' => $user->telephone ?? '',
+    //             ],
+    //             'metadata' => [
+    //                 'user_id' => (string) $user->id,
+    //                 'subscription_type' => 'mensuel',
+    //             ],
+    //         ];
+    //         $monerooPayment = new MonerooPayment();
+    //         $payment = $monerooPayment->init($paymentData);
+    //         Log::info('Paiement initialisé', [
+    //             'transaction_id' => $payment->id,
+    //             'user_id' => $user->id,
+    //             'checkout_url' => $payment->checkout_url,
+    //         ]);
+    //         return response()->json([
+    //             'success' => true,
+    //             'checkout_url' => $payment->checkout_url,
+    //             'transaction_id' => $payment->id,
+    //         ]);
+    //     } catch (Exception $exception) {
+    //         Log::error('Erreur init paiement Moneroo: '.$exception->getMessage(), [
+    //             'user_id' => $user->id ?? null,
+    //             'trace' => $exception->getTraceAsString(),
+    //         ]);
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Erreur: '.$exception->getMessage(),
+    //         ], 500);
+    //     }
+    // }
+
+    /**
+     * DÉSACTIVÉ — Les tuteurs ne paient plus : accès direct, sans abonnement.
+     */
     public function initSubscriptionPayment(Request $request)
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        try {
-            $paymentData = [
-                'amount' => 6500,
-                'currency' => 'XOF',
-                'description' => 'Abonnement Tuteur - 1 mois',
-                'return_url' => route('paiement.success'),
-                'customer' => [
-                    'email' => $user->email,
-                    'first_name' => $user->firstname,
-                    'last_name' => $user->lastname,
-                    'phone' => $user->telephone ?? '',
-                ],
-                'metadata' => [
-                    'user_id' => (string) $user->id,
-                    'subscription_type' => 'mensuel',
-                ],
-            ];
-
-            $monerooPayment = new MonerooPayment();
-            $payment = $monerooPayment->init($paymentData);
-
-            Log::info('Paiement initialisé', [
-                'transaction_id' => $payment->id,
-                'user_id' => $user->id,
-                'checkout_url' => $payment->checkout_url,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'checkout_url' => $payment->checkout_url,
-                'transaction_id' => $payment->id,
-            ]);
-
-        } catch (Exception $exception) {
-            Log::error('Erreur init paiement Moneroo: '.$exception->getMessage(), [
-                'user_id' => $user->id ?? null,
-                'trace' => $exception->getTraceAsString(),
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur: '.$exception->getMessage(),
-            ], 500);
-        }
+        return to_route('annonces')
+            ->with('info', 'Le paiement tuteur est désactivé : accès gratuit, sans abonnement.');
     }
 
     /**
-     * Page de succès du paiement
+     * DÉSACTIVÉ — Les tuteurs ne paient plus : retour direct, sans vérification Moneroo.
+     * Ancien code de vérification du paiement commenté ci-dessous pour mémoire.
      */
     public function paymentSuccess(Request $request)
+    {
+        // $transactionId = $request->query('paymentId');
+        // Log::info('Payment success callback', [...]);
+        // ... vérification Moneroo + processSubscription() désactivées ...
+
+        return to_route('annonces')
+            ->with('info', 'Le paiement tuteur est désactivé : accès gratuit, sans abonnement.');
+    }
+
+    /*
+     * ANCIEN CODE PAIEMENT TUTEUR COMMENTÉ — ne plus utiliser.
+     * (paymentSuccess d'origine avec Moneroo : get(), is_processed, processSubscription(), markAsProcessed())
+    public function paymentSuccess_BACKUP(Request $request)
     {
         $transactionId = $request->query('paymentId');
 
@@ -153,6 +173,8 @@ final class TeacherController extends Controller
                 ->with('error', 'Erreur lors de la vérification du paiement.');
         }
     }
+     * FIN ANCIEN CODE PAIEMENT TUTEUR COMMENTÉ.
+     */
 
     /**
      * Afficher les annonces correspondant aux matières du tuteur
@@ -177,11 +199,14 @@ final class TeacherController extends Controller
     }
 
     /**
-     * Afficher la page d'abonnement
+     * DÉSACTIVÉ — Les tuteurs ne paient plus : page d'abonnement désactivée.
+     * Ancien code : return view('teachers.subscription-teacher');
      */
-    public function showSubscription(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function showSubscription()
     {
-        return view('teachers.subscription-teacher');
+        // return view('teachers.subscription-teacher'); // COMMENTÉ — abonnement tuteur désactivé
+        return to_route('annonces')
+            ->with('info', 'Les abonnements tuteurs sont désactivés : accès gratuit, sans paiement.');
     }
 
     /**
@@ -203,39 +228,21 @@ final class TeacherController extends Controller
     }
 
     /**
-     * Afficher l'historique des abonnements du tuteur
+     * DÉSACTIVÉ — Les tuteurs ne paient plus : historique d'abonnements désactivé.
+     * Ancien code (requêtes Subscription/Payment + view subscription-history) commenté ci-dessous.
      */
-    public function showSubscriptionHistory(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function showSubscriptionHistory()
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
+        // /** @var \App\Models\User $user */
+        // $user = Auth::user();
+        // abort_unless($user->isTuteur(), 403, 'Accès interdit. Cette page est réservée aux tuteurs.');
+        // $subscriptions = Subscription::where('user_id', $user->id)->with('user')->orderBy('created_at', 'desc')->paginate(15);
+        // $payments = Payment::where('user_id', $user->id)->whereNotNull('subscription_id')->orderBy('paid_at', 'desc')->paginate(15);
+        // $activeSubscription = Subscription::where('user_id', $user->id)->where('statut', 'active')->where('date_fin', '>', now())->first();
+        // return view('teachers.subscription-history', [...]); // COMMENTÉ — abonnement tuteur désactivé
 
-        // Vérifier que l'utilisateur est un tuteur
-        abort_unless($user->isTuteur(), 403, 'Accès interdit. Cette page est réservée aux tuteurs.');
-
-        // Récupérer tous les abonnements avec pagination
-        $subscriptions = Subscription::where('user_id', $user->id)
-            ->with('user')
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-
-        // Récupérer tous les paiements liés aux abonnements avec pagination
-        $payments = Payment::where('user_id', $user->id)
-            ->whereNotNull('subscription_id')
-            ->orderBy('paid_at', 'desc')
-            ->paginate(15);
-
-        // Abonnement actif
-        $activeSubscription = Subscription::where('user_id', $user->id)
-            ->where('statut', 'active')
-            ->where('date_fin', '>', now())
-            ->first();
-
-        return view('teachers.subscription-history', [
-            'subscriptions' => $subscriptions,
-            'payments' => $payments,
-            'activeSubscription' => $activeSubscription,
-        ]);
+        return to_route('annonces')
+            ->with('info', 'Les abonnements tuteurs sont désactivés : accès gratuit, sans paiement.');
     }
 
     /**
@@ -310,10 +317,14 @@ final class TeacherController extends Controller
     }
 
     /**
-     * Traiter l'abonnement après paiement réussi
+     * DÉSACTIVÉ — Les tuteurs ne paient plus : création d'abonnement désactivée.
+     * Tout le traitement Moneroo/Subscription/Payment ci-dessous est commenté pour mémoire.
      */
     private function processSubscription($payment, string $transactionId): void
     {
+        // DÉSACTIVÉ — les tuteurs ne paient plus, aucun abonnement à créer.
+
+        /*
         try {
             Log::info('Processing subscription started');
 
@@ -458,5 +469,6 @@ final class TeacherController extends Controller
 
             throw $exception;
         }
+        */
     }
 }

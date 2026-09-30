@@ -17,14 +17,13 @@ final class CheckSubscription
      */
     public function handle(Request $request, Closure $next)
     {
-        $user = $request->user();
-
-        // 1. Vérifier si l'utilisateur est connecté
-        // 2. Utiliser la méthode isSubscribed() qu'on a créée dans le User
-        if (! $user || ! $user->isSubscribed()) {
-            return to_route('subscription.user')
-                ->with('warning', 'Votre abonnement est inexistant ou expiré. Veuillez souscrire pour continuer.');
-        }
+        // DÉSACTIVÉ — Les tuteurs ne paient plus sur la plateforme (2026-09-27).
+        // Ancien contrôle d'abonnement commenté ci-dessous : accès libre pour tous les tuteurs.
+        // $user = $request->user();
+        // if (! $user || ! $user->isSubscribed()) {
+        //     return to_route('subscription.user')
+        //         ->with('warning', 'Votre abonnement est inexistant ou expiré. Veuillez souscrire pour continuer.');
+        // }
 
         return $next($request);
     }

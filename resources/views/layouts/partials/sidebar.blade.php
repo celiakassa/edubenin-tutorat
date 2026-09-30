@@ -26,6 +26,9 @@
                 <a class="dash-nav__item {{ request()->routeIs('annonces.index') ? 'active' : '' }}" href="{{ route('annonces.index') }}">
                     <i class="bi bi-megaphone"></i> <span>Mes annonces</span>
                 </a>
+                <a class="dash-nav__item {{ request()->routeIs('subscriptions.*') ? 'active' : '' }}" href="{{ route('subscriptions.index') }}">
+                    <i class="bi bi-stars"></i> <span>Mon abonnement</span>
+                </a>
                 <a class="dash-nav__item {{ request()->routeIs('candidatures.*') || request()->routeIs('annonces.candidatures.*') ? 'active' : '' }}" href="{{ route('candidatures.mes') }}">
                     <i class="bi bi-people"></i> <span>Candidatures</span>
                 </a>
@@ -38,9 +41,11 @@
                 <a class="dash-nav__item {{ request()->routeIs('candidatures.tuteur') ? 'active' : '' }}" href="{{ route('candidatures.tuteur') }}">
                     <i class="bi bi-clipboard-check"></i> <span>Mes candidatures</span>
                 </a>
+                {{-- DÉSACTIVÉ — Les tuteurs ne paient plus : lien "Mes abonnements" masqué (2026-09-27).
                 <a class="dash-nav__item {{ request()->routeIs('abonnements.user') ? 'active' : '' }}" href="{{ route('abonnements.user') }}">
                     <i class="bi bi-credit-card"></i> <span>Mes abonnements</span>
                 </a>
+                --}}
             @endif
 
             @if (auth()->user()->isAdmin())
@@ -55,6 +60,9 @@
                 </a>
                 <a class="dash-nav__item {{ request()->routeIs('admin.finances') ? 'active' : '' }}" href="{{ route('admin.finances') }}">
                     <i class="bi bi-cash-coin"></i> <span>Finances</span>
+                </a>
+                <a class="dash-nav__item {{ request()->routeIs('admin.plans*') ? 'active' : '' }}" href="{{ route('admin.plans') }}">
+                    <i class="bi bi-stars"></i> <span>Abonnements</span>
                 </a>
                 <a class="dash-nav__item {{ request()->routeIs('admin.subjects') ? 'active' : '' }}" href="{{ route('admin.subjects') }}">
                     <i class="bi bi-journal-bookmark"></i> <span>Matières</span>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\SubscriptionPlan;
 use Illuminate\Database\Eloquent\Model;
 
 final class Subscription extends Model
@@ -14,6 +15,11 @@ final class Subscription extends Model
         'date_fin',
         'statut',
         'type_abonnement',
+        'plan',
+        'auto_renew',
+        'renouvel_at',
+        'reminder_sent_at',
+        'final_notice_sent_at',
     ];
 
     protected function casts(): array
@@ -21,6 +27,11 @@ final class Subscription extends Model
         return [
             'date_debut' => 'datetime',
             'date_fin' => 'datetime',
+            'renouvel_at' => 'datetime',
+            'reminder_sent_at' => 'datetime',
+            'final_notice_sent_at' => 'datetime',
+            'auto_renew' => 'boolean',
+            'plan' => SubscriptionPlan::class,
         ];
     }
 

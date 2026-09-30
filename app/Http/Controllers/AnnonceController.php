@@ -38,6 +38,12 @@ final class AnnonceController extends Controller
     {
         abort_if(Auth::user()->role_id !== 2, 403, 'Accès réservé aux étudiants');
 
+        // Limite d'annonces selon l'offre (config/plans.php). Pour désactiver : commenter ce bloc.
+        $maxAnnonces = Auth::user()->currentPlan()->maxAnnonces();
+        if ($maxAnnonces !== null && Auth::user()->annonces()->count() >= $maxAnnonces) {
+            return back()->withInput()->with('error', 'Vous avez atteint la limite de '.$maxAnnonces.' annonces de votre offre. Passez au Premium pour en publier davantage.');
+        }
+
         $request->validate([
             'subject_id' => ['required', 'exists:subjects,id'],
             'description' => ['required', 'string', 'min:10'],
